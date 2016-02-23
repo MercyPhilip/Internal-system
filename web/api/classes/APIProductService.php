@@ -66,6 +66,14 @@ class APIProductService extends APIServiceAbstract
    	   	   Dao::beginTransaction();
 	       $this->_runner->log('dataFeedImport: ', __CLASS__ . '::' . __FUNCTION__);
 	       $sku = $this->_getPram($params, 'sku', null, true);
+	       // change msku to fsku
+	       $skuMap = ProductSkuMap::getMappingSku($sku);
+	       if($skuMap instanceof ProductSkuMap)
+	       {
+	       	$fsku = $skuMap->getfSku();
+	       	$this->log_product("UPDATE", "=== updating === msku=$sku, fsku= $fsku",  '', APIService::TAB);
+	       	$sku = $fsku;
+	       }	       
 	       $name = $this->_getPram($params, 'name', null, true);
 	       $shortDesc = $this->_getPram($params, 'short_description', $name);
 	       $fullDesc = $this->_getPram($params, 'description', '');
