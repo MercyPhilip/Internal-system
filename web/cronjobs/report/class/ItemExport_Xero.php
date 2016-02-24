@@ -53,6 +53,23 @@ class ItemExport_Xero extends ExportAbstract
 	{
 		$now = new UDate();
 		$now->setTimeZone('Australia/Melbourne');
-		return 'item_list_' . $now->format('Y_m_d_H_i_s') . '.csv';
+		
+		$rangeFrom = isset(self::$_dateRange['start']) ? trim(self::$_dateRange['start']) : '';
+		$rangeTo = isset(self::$_dateRange['end']) ? trim(self::$_dateRange['end']) : '';
+		
+		if ($rangeFrom !== '') 
+		{
+			$rangeFrom = strtotime($rangeFrom);
+			$rangeFrom = date('Y_m_d', $rangeFrom);
+		}
+		if ($rangeTo !== '')
+		{
+			$rangeTo = strtotime($rangeTo);
+			$rangeTo = date('Y_m_d', $rangeTo);
+		}
+		
+		$filename = 'item_list_F' . $rangeFrom . '_T' . $rangeTo . '_' . $now->format('Y_m_d_H_i_s') . '.csv';
+
+		return $filename;
 	}
 }
