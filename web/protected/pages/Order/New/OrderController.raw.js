@@ -188,6 +188,10 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				}
 			}
 		}
+		if(tmp.me._order && tmp.me._order.updated) {
+			data.updated = tmp.me._order.updated;
+		}
+		
 		tmp.me.postAjax(tmp.me.getCallbackId('saveOrder'), data, {
 			'onLoading': function(sender, param) {
 				tmp.modalBoxTitlePanel.update('Please wait...');
@@ -199,8 +203,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					if(!tmp.result || !tmp.result.item)
 						return;
 					tmp.me._order = tmp.me._item = tmp.result.item;
-					console.log(data);
-					console.log(tmp.result);
+					//console.log(data);
+					//console.log(tmp.result);
 					tmp.redirectURL = tmp.result.redirectURL;
 					tmp.modalBoxPanel.insert({'bottom': new Element('input', {'window': 'redirec-url', 'type': 'hidden', 'value': tmp.redirectURL}) });
 					$extraMsg = '';

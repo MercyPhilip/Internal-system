@@ -188,6 +188,13 @@ class OrderController extends BPCPageAbstract
 			if(isset($param->CallbackParameter->orderId) && ($orderId = trim($param->CallbackParameter->orderId)) !== '') {
 				if(!($order = Order::get($orderId)) instanceof Order)
 					throw new Exception('Invalid Order to edit!');
+				$currentUpdated = $order->getUpdated();
+				$originalUpdated = trim($param->CallbackParameter->updated);
+				$originalUpdated = new UDate($originalUpdated);
+				if (!$currentUpdated->equal($originalUpdated))
+				{
+					throw new Exception('This ORDER has been changed by someone else, please reload this page again!');
+				}
 			}
 			$orderCloneFrom = null;
 			if(isset($param->CallbackParameter->orderCloneFromId) && ($orderCloneFromId = trim($param->CallbackParameter->orderCloneFromId)) !== '') {
