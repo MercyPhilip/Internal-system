@@ -5,9 +5,10 @@ class ItemExport_Xero_Custom extends ItemExport_Xero
 {
 	protected static function _getData()
 	{
+		$toDate = "2015-12-06 04:00:00";
 		$return = array();
 		$myobCodeType = ProductCodeType::get(ProductCodeType::ID_MYOB);
-		foreach(Product::getAllByCriteria('updated <= 2015-12-06 04:00:00', array(), false) as $product)
+		foreach(Product::getAllByCriteria('updated <= ?', array(trim($toDate)), false) as $product)
 		{
 			$logs = ProductQtyLog::getAllByCriteria('productId = ? and created <= ?', array($product->getId(), trim($toDate)), true, 1, 1, array('id' => 'desc'));
 			$log = count($logs) > 0 ? $logs[0] : null;
@@ -30,6 +31,9 @@ class ItemExport_Xero_Custom extends ItemExport_Xero
 					,'Total RMA Value' => $log instanceof ProductQtyLog ? $log->getTotalRMAValue() : $product->getTotalRMAValue()
 					,'active' => intval($product->getActive()) === 1 ? 'Y' : 'N'
 					,'MYOB' => count($myobCodes) > 0 ? $myobCodes[0]->getCode() : ''
+					,'updated' => trim($product->getUpdated())
+					,'created' => trim($product->getCreated())
+					,'sellOnWeb' => trim($product->getSellOnWeb())
 			);
 		}
 		return $return;
