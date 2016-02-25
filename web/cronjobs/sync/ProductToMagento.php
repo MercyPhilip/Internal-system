@@ -330,9 +330,9 @@ abstract class ProductToMagento
    					$imageFilePath = '{{IMAGE_IMPORT_DIR}}/' . self::$_imageDirName . '/' . $asset->getFilename();
    					self::_log('New Image Path into the CSV("image" column):' . $imageFilePath, '', $preFix . self::TAB . self::TAB);
    					if (intval($index) === 0) {
-   						$rowValues[0]['image'] =  $imageFilePath;
-   						$rowValues[0]['small_image'] =  $imageFilePath;
-   						$rowValues[0]['thumbnail'] =  $imageFilePath;
+   						$rowValues[0]['image'] = '+' . $imageFilePath;
+   						$rowValues[0]['small_image'] = '+' .  $imageFilePath;
+   						$rowValues[0]['thumbnail'] = '+' . $imageFilePath;
    					} else {
    						$rowValues[0]['media_gallery'] =  $rowValues[0]['media_gallery'] . ';' . $imageFilePath;
 	   					self::_log('added onto media_gallery: ' . $rowValues[0]['media_gallery'], '', $preFix . self::TAB . self::TAB);
