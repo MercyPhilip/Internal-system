@@ -33,6 +33,12 @@ class Customer extends BaseEntityAbstract
 	 */
 	private $email;
 	/**
+	 * The terms of this customer
+	 *
+	 * @var int
+	 */
+	private $terms;
+	/**
 	 * The billing of this customer
 	 *
 	 * @var Address
@@ -141,6 +147,27 @@ class Customer extends BaseEntityAbstract
 	    return $this;
 	}
 	/**
+	 * Getter for terms
+	 *
+	 * @return int
+	 */
+	public function getTerms()
+	{
+		return $this->terms;
+	}
+	/**
+	 * Setter for terms
+	 *
+	 * @param string $value The terms
+	 *
+	 * @return Customer
+	 */
+	public function setTerms($value)
+	{
+		$this->terms = $value;
+		return $this;
+	}
+	/**
 	 * Getter for billingAddress
 	 *
 	 * @return Address
@@ -240,16 +267,20 @@ class Customer extends BaseEntityAbstract
 	 *
 	 * @return Ambigous <GenericDAO, BaseEntityAbstract>
 	 */
-	public static function create($name, $contactNo, $email, Address $billingAddr = null, $isFromB2B = false, $description = '', Address $shippingAddr = null, $mageId = 0)
+	public static function create($name, $contactNo, $email, Address $billingAddr = null, $isFromB2B = false, $description = '', Address $shippingAddr = null, $mageId = 0, $terms = 0)
 	{
 		$name = trim($name);
 		$contactNo = trim($contactNo);
 		$email = trim($email);
 		$isFromB2B = ($isFromB2B === true);
+		$terms = intval(trim($terms));
 		$class =__CLASS__;
 		$objects = self::getAllByCriteria('email = ?', array($email), true, 1, 1);
 		if(count($objects) > 0 && $email !== '')
+		{
 			$obj = $objects[0];
+			$terms = $obj->getTerms();
+		}
 		else
 		{
 			$obj = new $class();
@@ -262,8 +293,9 @@ class Customer extends BaseEntityAbstract
 			->setBillingAddress($billingAddr)
 			->setShippingAddress($shippingAddr)
 			->setMageId($mageId)
+			->setTerms($terms)
 			->save();
-		$comments = 'Customer(ID=' . $obj->getId() . ')' . (count($objects) > 0 ? 'updated' : 'created') . ' via B2B with (name=' . $name . ', contactNo=' . $contactNo . ', email=' . $email .')';
+		$comments = 'Customer(ID=' . $obj->getId() . ')' . (count($objects) > 0 ? 'updated' : 'created') . ' via B2B with (name=' . $name . ', contactNo=' . $contactNo . ', email=' . $email . ', terms=' . $terms .')';
 		if($isFromB2B === true)
 			Comments::addComments($obj, $comments, Comments::TYPE_SYSTEM);
 		Log::LogEntity($obj, $comments, Log::TYPE_SYSTEM, '', $class . '::' . __FUNCTION__);
@@ -310,6 +342,7 @@ class Customer extends BaseEntityAbstract
 		DaoMap::setStringType('description', 'varchar', 255);
 		DaoMap::setStringType('contactNo', 'varchar', 50);
 		DaoMap::setStringType('email', 'varchar', 100);
+		DaoMap::setIntType('terms');
 		DaoMap::setManyToOne('billingAddress', 'Address', 'cust_bill_addr', true);
 		DaoMap::setManyToOne('shippingAddress', 'Address', 'cust_ship_addr', true);
 		DaoMap::setIntType('mageId');
@@ -319,6 +352,7 @@ class Customer extends BaseEntityAbstract
 		DaoMap::createIndex('name');
 		DaoMap::createIndex('contactNo');
 		DaoMap::createIndex('email');
+		DaoMap::createIndex('terms');
 		DaoMap::createIndex('isFromB2B');
 		DaoMap::createIndex('mageId');
 

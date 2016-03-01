@@ -1,0 +1,1 @@
+ALTER TABLE `customer` ADD `terms` int(10) NOT NULL DEFAULT 0 AFTER `email`, ADD INDEX (`terms`) ;

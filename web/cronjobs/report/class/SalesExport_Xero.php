@@ -81,7 +81,7 @@ class SalesExport_Xero extends ExportAbstract
 				,'InvoiceNumber' => $order->getInvNo()
 				,'Reference'=> (intval($order->getIsFromB2B()) === 1 ? $order->getOrderNo() :  $order->getPONo()) //changed for XiXi, she need the customer PO for any instore orders
 				,'InvoiceDate' => $order->getInvDate()->setTimeZone('Australia/Melbourne')->__toString()
-				,'DueDate' => $order->getInvDate()->modify('+' . self::getTerms($customer) . ' day')->setTimeZone('Australia/Melbourne')->__toString()
+				,'DueDate' => $order->getInvDate()->modify('+' . $customer->getTerms() . ' day')->setTimeZone('Australia/Melbourne')->__toString()
 			);
 			foreach($order->getOrderItems() as $orderItem)
 			{
@@ -144,6 +144,7 @@ class SalesExport_Xero extends ExportAbstract
 	private static function getTerms(Customer $customer)
 	{
 		$terms = array('P&P COMPUTER' => 30
+				,'Hall & Wilcox Lawyers' => 30
 				,'Stanley Security' => 30
 				,'ABACUS RENT IT' => 30
 				,'TYCO SAFETY PRODUCTS' => 30

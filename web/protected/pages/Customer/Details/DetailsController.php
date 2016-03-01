@@ -68,6 +68,7 @@ class DetailsController extends DetailsPageAbstract
 			$id = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->id);
 			$active = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->active);
 			$email = trim($param->CallbackParameter->email);
+			$terms = intval(trim($param->CallbackParameter->terms));
 			$contactNo = trim($param->CallbackParameter->contactNo);
 			$billingCompanyName = trim($param->CallbackParameter->billingCompanyName);
 			$billingName = trim($param->CallbackParameter->billingName);
@@ -92,6 +93,7 @@ class DetailsController extends DetailsPageAbstract
 					throw new Exception('Invalid Customer passed in!');
 				$customer->setName($name)
 					->setEmail($email)
+					->setTerms($terms)
 					->setContactNo($contactNo)
 					->setActive($active);
 				$billingAddress = $customer->getBillingAddress();
@@ -133,7 +135,7 @@ class DetailsController extends DetailsPageAbstract
 					$shippingAdressFull = null;
 				else
 					$shippingAdressFull = Address::create($shippingStreet, $shippingCity, $shippingState, $shippingCountry, $shippingPosecode, $shippingName, $shippingContactNo, $shippingCompanyName);
-				$customer = Customer::create($name, $contactNo, $email, $billingAdressFull, false, '', $shippingAdressFull);
+				$customer = Customer::create($name, $contactNo, $email, $billingAdressFull, false, '', $shippingAdressFull, 0, $terms);
 				if(!$customer instanceof Customer)
 					throw new Exception('Error creating customer!');
 			}
