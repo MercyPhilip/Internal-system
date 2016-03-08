@@ -974,7 +974,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							.observe('click', function(){
 								tmp.me._openCustomerDetailsPage(tmp.customer);
 							})
-						})			
+						})
 						.insert({'bottom': ' <' })
 						.insert({'bottom': new Element('a', {'href': 'mailto:' + tmp.customer.email}).update(tmp.customer.email) })
 						.insert({'bottom': '>' })
