@@ -30,7 +30,6 @@ class EntityToPDF
 					$url = 'printdocket/order/' . $entity->getId() . '.html';
 				else
 					$url = 'print/order/' . $entity->getId() . '.html';
-				$type = $entity->getType();
 				break;
 			}
 			case 'PurchaseOrder': {
@@ -50,7 +49,7 @@ class EntityToPDF
 			}
 		}
 		$url .= "?user=" . Core::getUser()->getUserName() . '&pass=' . Core::getUser()->getPassword();
-		$url = 'http://' . $_SERVER["HTTP_HOST"] . '/' . $url ;		
+		$url = 'http://' . $_SERVER["HTTP_HOST"] . '/' . $url ;
 		$command = '/usr/local/bin/wkhtmltopdf -B 0 -T 0 --disable-javascript "' . $url . '" ' . ($file = '/tmp/' . md5(trim(microtime()). Core::getUser()->getId()) . '.pdf');
 		$output = '';
 		exec($command, $output);
