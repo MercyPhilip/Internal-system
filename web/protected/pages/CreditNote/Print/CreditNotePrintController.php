@@ -112,11 +112,18 @@ class CreditNotePrintController extends BPCPageAbstract
 		}
 		return $html;
 	}
+	/**
+	 * get Contact detail of the customer
+	 */
 	public function getContact()
 	{
 		$contact = trim($this->creditNote->getCustomer()->getContactNo());
 		return empty($contact) ? '' : '(' . $contact . ')';
 	}
+	/**
+	 * get billing/shipping address details 
+	 * @param string $type
+	 */
 	public function getAddress($type)
 	{
 		if (!$this->creditNote->getOrder() instanceof Order) return '';
@@ -133,6 +140,9 @@ class CreditNotePrintController extends BPCPageAbstract
 		$html .= 'Tel: ' . ($this->getContact() === '' ? trim($address->getContactNo()) : $this->getContact());
 		return $html;
 	}
+	/**
+	 * get payment summary of the creadit note
+	 */
 	public function getPaymentSummary()
 	{	
 		$total = $this->creditNote->getTotalValue();
@@ -152,6 +162,12 @@ class CreditNotePrintController extends BPCPageAbstract
 		$html .= $this->_getPaymentSummaryRow('<strong class="text-danger">Balance Due:</strong>', '<strong class="text-danger">-$' . number_format($overDue, 2, '.', ',') . '</strong>', 'dueTotal ' . $overDueClass);
 		return $html;
 	}
+	/**
+	 * get row detail of payment to print
+	 * @param string $title
+	 * @param string $content
+	 * @param string $class
+	 */
 	private function _getPaymentSummaryRow($title, $content, $class='')
 	{
 		$html = '<div class="print-row ' . $class . '">';
@@ -164,6 +180,9 @@ class CreditNotePrintController extends BPCPageAbstract
 		$html .= '</div>';
 		return $html;
 	}
+	/**
+	 * get comments from type of sales
+	 */
 	public function getComments()
 	{
 		$comments = Comments::getAllByCriteria('entityId = ? and entityName = ? and type = ?', array($this->creditNote->getId(), get_class($this->creditNote), Comments::TYPE_SALES), true, 1, 1, array('id' => 'desc'));

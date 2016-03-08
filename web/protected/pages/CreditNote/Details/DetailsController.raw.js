@@ -974,7 +974,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							.observe('click', function(){
 								tmp.me._openCustomerDetailsPage(tmp.customer);
 							})
-						})			
+						})
 						.insert({'bottom': ' <' })
 						.insert({'bottom': new Element('a', {'href': 'mailto:' + tmp.customer.email}).update(tmp.customer.email) })
 						.insert({'bottom': '>' })
@@ -1022,6 +1022,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			});
 		return tmp.newDiv;
 	}
+	/**
+	 * create the div of print button with icon
+	 */
 	,_savePrintBtns: function() {
 		var tmp = {};
 		tmp.me = this;
