@@ -40,6 +40,10 @@ class EntityToPDF
 				$url = 'print/kit/' . $entity->getId() . '.html';
 				break;
 			}
+			case 'CreditNote': {
+				$url = 'print/creditnote/' . $entity->getId() . '.html';
+				break;
+			}
 			default: {
 				throw new CoreException('NO such a function to covert entity:' . $class);
 			}
