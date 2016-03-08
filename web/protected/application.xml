@@ -27,7 +27,9 @@
       <url ServiceParameter="CreditNote.List.ListController" pattern="creditnote.html" />
       <!-- FrontEnd:: CreditNote detail page -->
       <url ServiceParameter="CreditNote.Details.DetailsController" pattern="creditnote/{id}.html" parameters.id="new|\d+"/>
-
+      <!-- FrontEnd:: CreditNote print page -->
+      <url ServiceParameter="CreditNote.Print.CreditNotePrintController" pattern="print/creditnote/{creditnoteId}.html" parameters.creditnoteId="\d+"/>
+      
       <!-- FrontEnd:: RMA list page -->
       <url ServiceParameter="RMA.List.ListController" pattern="rma.html" />
       <!-- FrontEnd:: RMA detail page -->

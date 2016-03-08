@@ -966,14 +966,15 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.newDiv = new Element('div', {'class': 'panel panel-danger CustomerInfoPanel'})
 			.insert({'bottom': new Element('div', {'class': 'panel-heading'})
 				.insert({'bottom': new Element('div', {'class': 'row'})
-					.insert({'bottom': new Element('div', {'class': 'col-sm-8'})
+					.insert({'bottom': new Element('div', {'class': 'col-sm-7'})
+					
 						.insert({'bottom': new Element('strong').update((tmp.me._creditNote && tmp.me._creditNote.id ? 'EDITING' : 'CREATING') + ' CREDIT NOTE FOR:  ') })
 						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'})
 							.update(tmp.customer.name)
 							.observe('click', function(){
 								tmp.me._openCustomerDetailsPage(tmp.customer);
 							})
-						})
+						})			
 						.insert({'bottom': ' <' })
 						.insert({'bottom': new Element('a', {'href': 'mailto:' + tmp.customer.email}).update(tmp.customer.email) })
 						.insert({'bottom': '>' })
@@ -998,12 +999,16 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							 		});
 								})
 							: ''
-						})
-					})
+						})					
+						
+					})	
+					
+					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._savePrintBtns()) })	
 					.insert({'bottom': new Element('div', {'class': 'col-sm-4 text-right'}).setStyle('display: none;')
 						.insert({'bottom': new Element('strong').update('Total Payment Due: ') })
 						.insert({'bottom': new Element('span', {'class': 'badge', 'order-price-summary': 'total-payment-due'}).update(tmp.me.getCurrency(0) ) })
 					})
+
 				})
 			})
 			.insert({'bottom': new Element('div', {'class': 'panel-body'})
@@ -1016,6 +1021,39 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				 })
 			});
 		return tmp.newDiv;
+	}
+	,_savePrintBtns: function() {
+		var tmp = {};
+		tmp.me = this;
+		tmp.newDiv = new Element('span', {'class': 'btn-group '})
+			.insert({'bottom': new Element('a', {'class': 'badge','href': 'javascript: void(0)'})
+						.update('Print ')
+						.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-print'}) })
+						.observe('click', function() {
+							tmp.me._openCreditPrintPage(1);
+						})
+					});
+		tmp.newDiv = tmp.newDiv.wrap(new Element('div'));
+		return tmp.newDiv;
+	}
+
+	/**
+	 * Open credit print in new Window
+	 */
+	,_openCreditPrintPage: function(pdf, viewOnly) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.pdf = (pdf || 0);
+		tmp.viewOnly = (viewOnly || false);
+		tmp.newWindow = window.open('/print/creditnote/' + tmp.me._creditNote.id + '.html?pdf=' + parseInt(tmp.pdf), tmp.me._creditNote.creditNoteNo, 'width=1300, location=no, scrollbars=yes, menubar=no, status=no, titlebar=no, fullscreen=no, toolbar=no');
+		tmp.newWindow.onload = function(){
+			tmp.newWindow.document.title = tmp.me._creditNote.creditNoteNo;
+			tmp.newWindow.focus();
+			if(tmp.viewOnly !== true) {
+				tmp.newWindow.print();
+			}
+		}
+		return tmp.me;
 	}
 	,_openCustomerDetailsPage: function(row) {
 		var tmp = {};
@@ -1253,6 +1291,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		}
 		return tmp.me;
 	}
+
 	/**
 	 * Getting the form group
 	 */

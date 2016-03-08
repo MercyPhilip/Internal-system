@@ -30,6 +30,7 @@ class EntityToPDF
 					$url = 'printdocket/order/' . $entity->getId() . '.html';
 				else
 					$url = 'print/order/' . $entity->getId() . '.html';
+				$type = $entity->getType();
 				break;
 			}
 			case 'PurchaseOrder': {
@@ -40,12 +41,16 @@ class EntityToPDF
 				$url = 'print/kit/' . $entity->getId() . '.html';
 				break;
 			}
+			case 'CreditNote': {
+				$url = 'print/creditnote/' . $entity->getId() . '.html';
+				break;
+			}
 			default: {
 				throw new CoreException('NO such a function to covert entity:' . $class);
 			}
 		}
 		$url .= "?user=" . Core::getUser()->getUserName() . '&pass=' . Core::getUser()->getPassword();
-		$url = 'http://' . $_SERVER["HTTP_HOST"] . '/' . $url ;
+		$url = 'http://' . $_SERVER["HTTP_HOST"] . '/' . $url ;		
 		$command = '/usr/local/bin/wkhtmltopdf -B 0 -T 0 --disable-javascript "' . $url . '" ' . ($file = '/tmp/' . md5(trim(microtime()). Core::getUser()->getId()) . '.pdf');
 		$output = '';
 		exec($command, $output);
