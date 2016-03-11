@@ -3,8 +3,6 @@
     body {
         background: white;
 		margin: 2px;  
-		width: 80mm;
-		height: 500mm;
     }
     table {
 		width: 280px;
@@ -28,17 +26,17 @@
 /* page style */
 @page 
  {
-     margin: 0mm;  /* this affects the margin in the printer settings */
+     margin: 2mm;  /* this affects the margin in the printer settings */
  }
 
 /* overwrite the padding */
 .container-fluid {
-	padding: 0px;
+	padding: 1px;
 }
  
 /* overwrite the padding */
 .container {
-	padding: 0px;
+	padding: 1px;
 }
 .box {
 	padding: 2px;
@@ -96,7 +94,8 @@
 .title_row .info {
     color: #c15760;
     font-weight: bold;
-    text-align: right;
+    text-align: center;
+    width: 80%
 }
 
 .title_row .info .abn {
@@ -167,7 +166,7 @@ table.orderview tr.itemRow:nth-child(2n+1) {
 }
 
 table.orderview tr.itemRow td {
-    padding: 2px;
+    padding: 0 10px 0 0;
 }
 
 table.orderview .sku {

@@ -45,10 +45,10 @@
 						<div align="right">
                         	<span class="inlineblock">
                         	     <span class="inlineblock dates">
-                                    <div class="dateRow"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock"><%= $this->order->getOrderDate()->format('d/M/Y') %></span></div>
-                                    <div class="dateRow"><span class="rowTitle inlineblock">Invoice No.: </span><span class="rowContent inlineblock"><%= $this->order->getInvNo()%></span></div>
-                                    <div class="dateRow"><span class="rowTitle inlineblock">Invoice Date.: </span><span class="rowContent inlineblock"><%= $this->getInvDate() %></span></div>
-                                    <div class="dateRow"><span class="rowTitle inlineblock">PO No.: </span><span class="rowContent inlineblock"><%= $this->order->getPONo() %></span></div>
+                                    <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock"><%= $this->order->getOrderDate()->format('d/M/Y') %></span></div>
+                                    <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">Invoice No.: </span><span class="rowContent inlineblock"><%= $this->order->getInvNo()%></span></div>
+                                    <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">Invoice Date.: </span><span class="rowContent inlineblock"><%= $this->getInvDate() %></span></div>
+                                    <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">PO No.: </span><span class="rowContent inlineblock"><%= $this->order->getPONo() %></span></div>
                                 </span>
                         	</span> 
                         </div>
@@ -63,11 +63,10 @@
                     </td>
 
                 </tr>
-
                 <tr class="addr_info">
                     <td colspan=2>
                     	<div>
-                            <span class="inlineblock ">
+                            <span class="inlineblock addr_info">
                                 <div class="title">Customer:</div>
                                 <div class="addr"><%= $this->getAddress('Billing') %></div>
                             </span>
@@ -77,7 +76,7 @@
                     </td>
                 </tr>
 				<tr class="header">
-				  <td>Product Name</td><td align="right">Price</td>
+				  <td>Product Name</td><td align="right" style="padding: 0 10px 0 0">Price</td>
 				</tr>                              
                 <%= $this->showProducts(); %>
                 <tr>
@@ -143,6 +142,19 @@
                         </div>
                     </td>
                 </tr>
+                <tr>
+					<td colspan=2>
+                        <div class="order_company_details">
+                        <p class="sep-line"></p>
+                            <div class="addr">
+                                <span class="details_title">Thank you for shopping with us.</span>
+                            </div>
+                            <div class="addr">
+                                <span class="details_title">Please come again!</span></span>
+                            </div>                            
+                        </div>
+                    </td>
+                </tr>            
             </table>
         </div>
 	</div>
