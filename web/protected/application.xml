@@ -45,6 +45,8 @@
       <url ServiceParameter="Order.New.OrderController" pattern="order/{id}.html" parameters.id="new|\d+"/>
       <!-- FrontEnd:: order print page -->
       <url ServiceParameter="Order.Print.OrderPrintController" pattern="print/order/{orderId}.html" parameters.orderId="\d+"/>
+      <!-- FrontEnd:: order print pos page -->
+      <url ServiceParameter="Order.PrintPos.OrderPrintPosController" pattern="printpos/order/{orderId}.html" parameters.orderId="\d+"/>
       <!-- FrontEnd:: order Delivery Docket print page -->
       <url ServiceParameter="Order.PrintDeliveryDocket.OrderPrintController" pattern="printdocket/order/{orderId}.html" parameters.orderId="\d+"/>
       <!-- FrontEnd:: order details page -->

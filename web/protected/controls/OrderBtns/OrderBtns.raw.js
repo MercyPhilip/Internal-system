@@ -19,7 +19,16 @@ OrderBtnsJs.prototype = {
 		tmp.me = this;
 		tmp.pdf = (pdf || 0);
 		tmp.viewOnly = (viewOnly || false);
-		tmp.newWindow = window.open('/print/order/' + tmp.me._order.id + '.html?pdf=' + parseInt(tmp.pdf), tmp.me._order.status.name + ' Order ' + tmp.me._order.orderNo, 'width=1300, location=no, scrollbars=yes, menubar=no, status=no, titlebar=no, fullscreen=no, toolbar=no');
+		/*  new for POS print when tmp.pdf equals 2 */
+		if (tmp.pdf == 2)
+		{	
+			tmp.newWindow = window.open('/printpos/order/' + tmp.me._order.id + '.html?pdf=' + parseInt(tmp.pdf), tmp.me._order.status.name + ' Order ' + tmp.me._order.orderNo, 'width=303, location=no, scrollbars=yes, menubar=no, status=no, titlebar=no, fullscreen=no, toolbar=no');
+
+		}
+		else
+		{
+			tmp.newWindow = window.open('/print/order/' + tmp.me._order.id + '.html?pdf=' + parseInt(tmp.pdf), tmp.me._order.status.name + ' Order ' + tmp.me._order.orderNo, 'width=1300, location=no, scrollbars=yes, menubar=no, status=no, titlebar=no, fullscreen=no, toolbar=no');			
+		}
 		tmp.newWindow.onload = function(){
 			tmp.newWindow.document.title = tmp.me._order.status.name + ' Order ' + tmp.me._order.orderNo;
 			tmp.newWindow.focus();
@@ -132,13 +141,24 @@ OrderBtnsJs.prototype = {
 					.insert({'bottom': new Element('span', {'class': 'hidden-xs hidden-sm'}).update('Print ') })
 					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-print'}) })
 					.observe('click', function() {
-						tmp.me.openOrderPrintPage(1);
+						/* changed the default print from PDF to POS */
+						tmp.me.openOrderPrintPage(2);
 					})
 				})
 				.insert({'bottom': new Element('span', {'class': 'btn btn-info dropdown-toggle', 'data-toggle': 'dropdown', 'aria-expanded': "false"})
 					.insert({'bottom': new Element('span', {'class': 'caret'}) })
 				})
+				/* added for POS print */
 				.insert({'bottom': new Element('ul', {'class': 'dropdown-menu', 'role': 'menu'})
+					.insert({'bottom': new Element('li')
+						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'})
+							.insert({'bottom': new Element('span').update('Print POS ') })
+							.insert({'bottom': new Element('span', {'class': 'fa fa-print'}) })
+							.observe('click', function() {
+								tmp.me.openOrderPrintPage(2);
+							})
+						})
+					})
 					.insert({'bottom': new Element('li')
 						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'})
 							.insert({'bottom': new Element('span').update('Print PDF ') })
