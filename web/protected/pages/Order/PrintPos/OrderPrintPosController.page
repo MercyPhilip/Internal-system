@@ -85,7 +85,7 @@
                             <span class="payment_summary inlineblock box">
                             <p class="sep-line" style="border-width: 1px;"></p>
                             <div class="print-row totalItems">
-                              <span class="details_title inlineblock">Total Items: </span>
+                              <span class="details_title inlineblock">Total Item(s): </span>
                               <span class="details_content inlineblock"><%= $this->totalItems%></span>
                             </div>
                             <%= $this->getPaymentSummary() %>
