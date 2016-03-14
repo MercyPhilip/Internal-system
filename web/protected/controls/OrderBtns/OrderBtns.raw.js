@@ -31,7 +31,6 @@ OrderBtnsJs.prototype = {
 		if (tmp.pdf == OrderBtnsJs.PRINT_TYPE.POS)
 		{	
 			tmp.newWindow = window.open('/printpos/order/' + tmp.me._order.id + '.html?pdf=' + parseInt(tmp.pdf), tmp.me._order.status.name + ' Order ' + tmp.me._order.orderNo, 'width=303, location=no, scrollbars=yes, menubar=no, status=no, titlebar=no, fullscreen=no, toolbar=no');
-
 		}
 		else
 		{
