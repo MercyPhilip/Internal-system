@@ -1,0 +1,161 @@
+<%@MasterClass="Application.layout.BlankLayout"%>
+<com:TContent ID="MainContent">
+	<div class="pagewrapper orderprint container padding=0">
+		<div class="orderViewWrapper inlineblock">
+            <table class='orderview' cellspacing="0" cellpadding="0" id="main-table">
+                <tr class="title_row">
+                    <td colspan=2>
+                        <div>
+                            <span class="inlineblock logo">
+                                <img src="/themes/default/images/logo.png" style="padding: 0px; width:280px; margin: 0px;display: block;"/>
+                            </span>
+                        </div>
+                        <div align="center">
+                        	<span class="inlineblock info">
+                        	<div class="cname">BUDGET PC PTY LTD</div>
+                        	</span>
+							</div>
+							<div align="center">
+                        	<span class="inlineblock info">
+                        	<div class="abn">ABN 29 133 654 761</div>
+                        	</span>
+							</div>
+							<div align="center">
+                        	<span class="inlineblock info">
+                        	 <div class="tel">PH: (03) 9541 9000</div>
+                        	</span> 
+                        </div>
+							<div align="center">
+                        	<span class="inlineblock info">
+                        	<div class="blank"></div>
+                        	</span> 
+                        </div>
+
+							<div align="center">
+                        	<span class="inlineblock ">
+                        	 <div class="blank" style="font-size:20px">TAX INVOICE</div>
+                        	</span> 
+                        </div>
+							<div align="center">
+                        	<span class="inlineblock info">
+                        	 <div class="blank"></div>
+                        	</span> 
+                        </div>
+
+						<div align="right">
+                        	<span class="inlineblock">
+                        	     <span class="inlineblock dates">
+                                    <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock"><%= $this->order->getOrderDate()->format('d/M/Y') %></span></div>
+                                    <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">Invoice No.: </span><span class="rowContent inlineblock"><%= $this->order->getInvNo()%></span></div>
+                                    <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">Invoice Date.: </span><span class="rowContent inlineblock"><%= $this->getInvDate() %></span></div>
+                                    <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">PO No.: </span><span class="rowContent inlineblock"><%= $this->order->getPONo() %></span></div>
+                                </span>
+                        	</span> 
+                        </div>
+                        <div >
+                            <span class="inlineblock orderno">
+                              <%=  $this->getType() === 'TAX INVOICE' ? 'JOB ' : $this->getType() %> No.: <%= $this->order->getOrderNo()%>
+                            </span>
+                        </div>
+                        <div class="sep">
+                        <p class="sep-line"></p>
+                        </div>
+                    </td>
+
+                </tr>
+                <tr class="addr_info">
+                    <td colspan=2>
+                    	<div>
+                            <span class="inlineblock addr_info">
+                                <div class="title">Customer:</div>
+                                <div class="addr"><%= $this->getAddress('Billing') %></div>
+                            </span>
+                        </div>
+                        <br>
+                        <p class="sep-line"></p>
+                    </td>
+                </tr>
+				<tr class="header">
+				  <td>Product Name</td><td align="right" style="padding: 0 10px 0 0">Price</td>
+				</tr>                              
+                <%= $this->showProducts(); %>
+                <tr>
+                    <td colspan=2>
+                         <div class="order_payments">
+                            <span class="payment_summary inlineblock box">
+                            <p class="sep-line" style="border-width: 1px;"></p>
+                            <div class="print-row totalItems">
+                              <span class="details_title inlineblock">Total Item(s): </span>
+                              <span class="details_content inlineblock"><%= $this->totalItems%></span>
+                            </div>
+                            <%= $this->getPaymentSummary() %>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan=2>
+                         <div class="order_payments">    
+                            <span class="payment_details inlineblock">                                
+                                <div class="bank_details box">
+                                <p class="sep-line"></p>
+                                    <span class="bank_title">Budget PC Bank Details: </span>
+                                    <span class="bank_details_name"><span class="details_title">Account Name: </span>Budget PC Pty Ltd</span>
+                                </div>
+                                <div class="bank_details box">
+                                    <span class="bank_details_acc_bsb"><span class="details_title">BSB:</span>013 366</span>
+                                    <span class="bank_details_acc_no"><span class="details_title">ACC:</span>4796 74364</span>
+                                </div>
+                            </span>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+                    <td colspan=2>
+                        <div class="order_tc box">
+                            <p class="sep-line"></p>
+                            <div class="tc_title">Terms and conditions of sale</div>
+                            <div class="tc_details">
+                                <ol>
+                                    <li>All goods sold by Budget PC come with guarantees that cannot be excluded under the Australian Consumer Law. All Budget PC customers are entitled to a replacement or refund for a major failure if the goods fail to be of acceptable quality. You are also entitled to have the goods repaired or replaced if the goods fail to be of acceptable quality and failure does not amount to a major failure.</li>
+                                    <li>All products carry return to base warranty unless otherwise stated. No advance replacement is available. Return shipping and insurance fees are paid by the customer when sending goods back to Budget PC, unless special discount / arrangement given. Budget PC will pay shipping fees when sending goods back to the customer.</li>
+                                    <li>Proof of purchase are required for all returns. An online return authorisation must be filed and approved for any products being sent back to Budget PC. For more information please visit <a href="http://budgetpc.com.au/returns">budgetpc.com.au/returns</a></li>
+                                    <li>A $50 per hour fee may apply if warranty goods are found to be without fault.</li>
+                                    <li>Returns of non faulty items are considered on a case by case basis. A minimum 15% restocking fee applies.</li>
+                                    <li>Above goods remain the property of Budget PC until payment has been received in full. Until title passes, Budget PC can retain, repossess and/or resell all goods.</li>
+                                    <li>Are you happy with Budget PC service? Please visit the following link and send us your feedback. <a href="http://budgetpc.com.au/contacts">budgetpc.com.au/contacts</a></li>
+                                </ol>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+				<tr>
+					<td colspan=2>
+                        <div class="order_company_details">
+                            <div class="addr">
+                                <span class="addr"><span class="details_title">Mount Waverley</span>Unit 111, 45 Gilby Rd, Mt Waverley</span>
+                                <span class="phone"><span class="details_title">PH</span>+61 3 9541 9000</span>
+                                <span class="url details_title">
+                                    www.budgetpc.com.au
+                                </span>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                <tr>
+					<td colspan=2>
+                        <div class="order_company_details">
+                        <p class="sep-line"></p>
+                            <div class="addr">
+                                <span class="details_title">Thank you for shopping with us.</span>
+                            </div>
+                            <div class="addr">
+                                <span class="details_title">Please come again!</span></span>
+                            </div>                            
+                        </div>
+                    </td>
+                </tr>            
+            </table>
+        </div>
+	</div>
+</com:TContent>

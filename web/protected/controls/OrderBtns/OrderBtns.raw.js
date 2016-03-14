@@ -2,6 +2,14 @@
  * The display order print, email, clone for a order
  */
 var OrderBtnsJs = new Class.create();
+/**
+ * print type enum
+ */
+OrderBtnsJs.PRINT_TYPE = {
+	HTML: 0, 
+	PDF: 1, 
+	POS: 2
+}; 
 OrderBtnsJs.prototype = {
 	SEND_EMAIL_CALLBACK_ID: ''
 	,_pageJs: null
@@ -19,7 +27,15 @@ OrderBtnsJs.prototype = {
 		tmp.me = this;
 		tmp.pdf = (pdf || 0);
 		tmp.viewOnly = (viewOnly || false);
-		tmp.newWindow = window.open('/print/order/' + tmp.me._order.id + '.html?pdf=' + parseInt(tmp.pdf), tmp.me._order.status.name + ' Order ' + tmp.me._order.orderNo, 'width=1300, location=no, scrollbars=yes, menubar=no, status=no, titlebar=no, fullscreen=no, toolbar=no');
+		/*  POS printing */
+		if (tmp.pdf == OrderBtnsJs.PRINT_TYPE.POS)
+		{	
+			tmp.newWindow = window.open('/printpos/order/' + tmp.me._order.id + '.html?pdf=' + parseInt(tmp.pdf), tmp.me._order.status.name + ' Order ' + tmp.me._order.orderNo, 'width=303, location=no, scrollbars=yes, menubar=no, status=no, titlebar=no, fullscreen=no, toolbar=no');
+		}
+		else
+		{
+			tmp.newWindow = window.open('/print/order/' + tmp.me._order.id + '.html?pdf=' + parseInt(tmp.pdf), tmp.me._order.status.name + ' Order ' + tmp.me._order.orderNo, 'width=1300, location=no, scrollbars=yes, menubar=no, status=no, titlebar=no, fullscreen=no, toolbar=no');			
+		}
 		tmp.newWindow.onload = function(){
 			tmp.newWindow.document.title = tmp.me._order.status.name + ' Order ' + tmp.me._order.orderNo;
 			tmp.newWindow.focus();
@@ -132,19 +148,30 @@ OrderBtnsJs.prototype = {
 					.insert({'bottom': new Element('span', {'class': 'hidden-xs hidden-sm'}).update('Print ') })
 					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-print'}) })
 					.observe('click', function() {
-						tmp.me.openOrderPrintPage(1);
+						/* changed the default print from PDF to POS */
+						tmp.me.openOrderPrintPage(OrderBtnsJs.PRINT_TYPE.POS);
 					})
 				})
 				.insert({'bottom': new Element('span', {'class': 'btn btn-info dropdown-toggle', 'data-toggle': 'dropdown', 'aria-expanded': "false"})
 					.insert({'bottom': new Element('span', {'class': 'caret'}) })
 				})
+				/* added for POS print */
 				.insert({'bottom': new Element('ul', {'class': 'dropdown-menu', 'role': 'menu'})
+					.insert({'bottom': new Element('li')
+						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'})
+							.insert({'bottom': new Element('span').update('Print POS ') })
+							.insert({'bottom': new Element('span', {'class': 'fa fa-print'}) })
+							.observe('click', function() {
+								tmp.me.openOrderPrintPage(OrderBtnsJs.PRINT_TYPE.POS);
+							})
+						})
+					})
 					.insert({'bottom': new Element('li')
 						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'})
 							.insert({'bottom': new Element('span').update('Print PDF ') })
 							.insert({'bottom': new Element('span', {'class': 'fa fa-file-pdf-o'}) })
 							.observe('click', function() {
-								tmp.me.openOrderPrintPage(1);
+								tmp.me.openOrderPrintPage(OrderBtnsJs.PRINT_TYPE.PDF);
 							})
 						})
 					})
@@ -153,7 +180,7 @@ OrderBtnsJs.prototype = {
 							.insert({'bottom': new Element('span').update('Print HTML') })
 							.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-print'}) })
 							.observe('click', function() {
-								tmp.me.openOrderPrintPage(0);
+								tmp.me.openOrderPrintPage(OrderBtnsJs.PRINT_TYPE.HTML);
 							})
 						})
 					})
@@ -162,7 +189,7 @@ OrderBtnsJs.prototype = {
 							.insert({'bottom': new Element('span').update('View HTML') })
 							.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-list-alt'}) })
 							.observe('click', function() {
-								tmp.me.openOrderPrintPage(0, true);
+								tmp.me.openOrderPrintPage(OrderBtnsJs.PRINT_TYPE.HTML, true);
 							})
 						})
 					})
@@ -172,7 +199,7 @@ OrderBtnsJs.prototype = {
 							.insert({'bottom': new Element('span').update('Print Delivery Docket ') })
 							.insert({'bottom': new Element('span', {'class': 'fa fa-file-pdf-o'}) })
 							.observe('click', function() {
-								tmp.me.openDocketPrintPage(1);
+								tmp.me.openDocketPrintPage(OrderBtnsJs.PRINT_TYPE.PDF);
 							})
 						})
 					})
@@ -181,7 +208,7 @@ OrderBtnsJs.prototype = {
 							.insert({'bottom': new Element('span').update('Print Delivery Docket ') })
 							.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-list-alt'}) })
 							.observe('click', function() {
-								tmp.me.openDocketPrintPage(0);
+								tmp.me.openDocketPrintPage(OrderBtnsJs.PRINT_TYPE.HTML);
 							})
 						})
 					})
