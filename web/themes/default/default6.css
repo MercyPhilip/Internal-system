@@ -1,3 +1,4 @@
+/* default css definition */
 html, body {
 	height: 100%;
 	min-height: 100%;
@@ -48,11 +49,14 @@ html, body {
     width: 100%;
 }
 
-
 #resultDiv thead,
 .list-group-item.header {
 	font-weight: bold;
 }
+/* below is the style for 
+*  different status of 
+*  order and purchaseorder 
+*/
 .order_item .orderInfo .orderNo {
 	display: inline !important;
 }
