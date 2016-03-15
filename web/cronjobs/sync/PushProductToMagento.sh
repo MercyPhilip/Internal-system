@@ -5,6 +5,7 @@ SERVER_PATH=/var/www/html/var/import/
 FILE_DIR=/tmp/
 FILE_NAME=productUpdate.tar.gz
 DESTINATION=/var/pushdata/archive/
+RECIPIENTS="larry@budgetpc.com.au"
 
 ## generate a MAGENTO product file ########################################
 if ps ax | grep -v grep | grep "ProductToMagento.php" > /dev/null; then
@@ -26,6 +27,8 @@ else
 		if [ "${ret}" -ne "0" ] 
 		then
 			echo "**** scp command erro= "${ret}" "
+			## send email to notifiy this error
+			echo "**** scp command erro= "${ret}", need to check the connection from .5 to ec2 server " | mail -s "SCP Command Error" ${RECIPIENTS}
 		else
 		 	echo -n "== copied successfully :: "
 			date
