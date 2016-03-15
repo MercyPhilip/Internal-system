@@ -1,7 +1,5 @@
 <%@MasterClass="Application.layout.BlankLayout"%>
 <com:TContent ID="MainContent">
-	<div class="pagewrapper orderprint container padding=0">
-		<div class="orderViewWrapper inlineblock">
             <table class='orderview' cellspacing="0" cellpadding="0" id="main-table">
                 <tr class="title_row">
                     <td colspan=2>
@@ -156,6 +154,4 @@
                     </td>
                 </tr>            
             </table>
-        </div>
-	</div>
 </com:TContent>
