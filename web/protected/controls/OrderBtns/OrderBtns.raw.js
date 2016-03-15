@@ -148,24 +148,13 @@ OrderBtnsJs.prototype = {
 					.insert({'bottom': new Element('span', {'class': 'hidden-xs hidden-sm'}).update('Print ') })
 					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-print'}) })
 					.observe('click', function() {
-						/* changed the default print from PDF to POS */
-						tmp.me.openOrderPrintPage(OrderBtnsJs.PRINT_TYPE.POS);
+						tmp.me.openOrderPrintPage(OrderBtnsJs.PRINT_TYPE.PDF);
 					})
 				})
 				.insert({'bottom': new Element('span', {'class': 'btn btn-info dropdown-toggle', 'data-toggle': 'dropdown', 'aria-expanded': "false"})
 					.insert({'bottom': new Element('span', {'class': 'caret'}) })
 				})
-				/* added for POS print */
 				.insert({'bottom': new Element('ul', {'class': 'dropdown-menu', 'role': 'menu'})
-					.insert({'bottom': new Element('li')
-						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'})
-							.insert({'bottom': new Element('span').update('Print POS ') })
-							.insert({'bottom': new Element('span', {'class': 'fa fa-print'}) })
-							.observe('click', function() {
-								tmp.me.openOrderPrintPage(OrderBtnsJs.PRINT_TYPE.POS);
-							})
-						})
-					})
 					.insert({'bottom': new Element('li')
 						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'})
 							.insert({'bottom': new Element('span').update('Print PDF ') })
@@ -211,6 +200,17 @@ OrderBtnsJs.prototype = {
 								tmp.me.openDocketPrintPage(OrderBtnsJs.PRINT_TYPE.HTML);
 							})
 						})
+					})
+				})
+			})
+			/* POS print */
+			.insert({'bottom': new Element('div', {'class': 'btn-group btn-group-xs visible-xs visible-md visible-sm visible-lg'})
+				.setStyle('margin-left: 3px;')
+				.insert({'bottom': new Element('span', {'class': 'btn btn-success'})
+					.insert({'bottom': new Element('span', {'class': 'hidden-xs hidden-sm'}).update('POS ') })
+					.insert({'bottom': new Element('span', {'class': 'fa fa-print'}) })
+					.observe('click', function() {
+						tmp.me.openOrderPrintPage(OrderBtnsJs.PRINT_TYPE.POS);
 					})
 				})
 			})
