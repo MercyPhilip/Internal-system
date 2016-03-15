@@ -1,3 +1,4 @@
+/* default css definition */
 html, body {
 	height: 100%;
 	min-height: 100%;
@@ -48,11 +49,14 @@ html, body {
     width: 100%;
 }
 
-
 #resultDiv thead,
 .list-group-item.header {
 	font-weight: bold;
 }
+/* below is the style for 
+*  different status of 
+*  order and purchaseorder 
+*/
 .order_item .orderInfo .orderNo {
 	display: inline !important;
 }
@@ -71,13 +75,15 @@ html, body {
 	color: black;
 }
 .order_item [order_status="ETA"],
-.order_item:hover [order_status="ETA"],
+.order_item:hover [order_status="ETA"]
+{
+	background-color: #ce5c00!important;
+	color: white;
+}
 .order_item [order_status="STOCK CHECKED"],
 .order_item:hover [order_status="STOCK CHECKED"],
 .po_item [order_status="ORDERED"],
 .po_item:hover [order_status="ORDERED"]
-.po_item [order_status="ORDERED"],
-.po_item:hover [order_status="ORDERED"],
 .item_row [order_status="WIP"],
 .item_row:hover [order_status="WIP"]
 {
@@ -85,7 +91,11 @@ html, body {
 	color: white;
 }
 .order_item [order_status="PICKED"],
-.order_item:hover [order_status="PICKED"],
+.order_item:hover [order_status="PICKED"]
+{
+	background-color: #729fcf!important;
+	color: white;
+}
 .order_item [order_status="SHIPPED"],
 .order_item:hover [order_status="SHIPPED"],
 .po_item [order_status="CLOSED"],
@@ -101,10 +111,14 @@ html, body {
 	background-color: blue;
 	color: white;
 }
+.order_item [order_status="ON HOLD"],
+.order_item:hover [order_status="ON HOLD"]
+{
+	background-color: #cc0000!important;
+	color: white;
+}
 .order_item [order_status="CANCELLED"],
 .order_item:hover [order_status="CANCELLED"],
-.order_item [order_status="ON HOLD"],
-.order_item:hover [order_status="ON HOLD"],
 .order_item .tr-red,
 .order_item:hover .tr-red,
 .order_item .tr-red a,
