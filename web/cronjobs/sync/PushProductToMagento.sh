@@ -46,7 +46,7 @@ else
 			    echo "**** scp command tried again and succeeded. " | mail -s "Info: SCP Command OK after re-tried" ${RECIPIENTS}
 			    echo -n "== copied successfully :: "	
 			    date
-		  fi
+			fi
 		else
 		 	echo -n "== copied successfully :: "
 			date
