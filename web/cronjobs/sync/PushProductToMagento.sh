@@ -28,7 +28,25 @@ else
 		then
 			echo "**** scp command erro= "${ret}" "
 			## send email to notifiy this error
-			echo "**** scp command erro= "${ret}", need to check the connection from .5 to ec2 server " | mail -s "SCP Command Error" ${RECIPIENTS}
+			echo "**** scp command erro= "${ret}", need to check the connection from .5 to ec2 server " | mail -s "Warning: SCP Command failed" ${RECIPIENTS}
+			## fingerprint may be changed so try to delete the old one and accept new one
+			ssh-keygen -f "/root/.ssh/known_hosts" -R ${SERVER}
+			## try scp command one more time with automatically accepting keys
+			echo -n "== try one more time coping ${FILE_PATH} TO ${SERVER_FILE} :: "
+			date
+			scp -o "StrictHostKeyChecking no" $FILE_PATH ec2-user@${SERVER_FILE}
+			ret=$?
+			if [ "${ret}" -ne "0" ]
+			then
+				##  erro again, need to handle this manually
+			  echo "**** scp command erro again= "${ret}", need to check manually" | mail -s "Error: SCP Command Error" ${RECIPIENTS}
+				date
+			else
+			  ## copied successfully
+				echo "**** scp command tried again and succeeded. " | mail -s "Info: SCP Command OK after re-tried" ${RECIPIENTS}
+				echo -n "== copied successfully :: "	
+			  date
+		  fi
 		else
 		 	echo -n "== copied successfully :: "
 			date
