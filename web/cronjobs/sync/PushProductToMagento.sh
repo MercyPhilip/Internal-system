@@ -39,13 +39,13 @@ else
 			if [ "${ret}" -ne "0" ]
 			then
 				##  erro again, need to handle this manually
-			  echo "**** scp command erro again= "${ret}", need to check manually" | mail -s "Error: SCP Command Error" ${RECIPIENTS}
+			    echo "**** scp command erro again= "${ret}", need to check manually" | mail -s "Error: SCP Command Error" ${RECIPIENTS}
 				date
 			else
-			  ## copied successfully
+			    ## copied successfully
 				echo "**** scp command tried again and succeeded. " | mail -s "Info: SCP Command OK after re-tried" ${RECIPIENTS}
 				echo -n "== copied successfully :: "	
-			  date
+			    date
 		  fi
 		else
 		 	echo -n "== copied successfully :: "
