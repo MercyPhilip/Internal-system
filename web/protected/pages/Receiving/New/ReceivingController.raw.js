@@ -559,8 +559,11 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 
 				jQuery('#' + tmp.me.modalId).on('hide.bs.modal', function(e){
 						tmp.serials = $(this).down('.bulkSerialPanel').retrieve('data');
-						if(tmp.serials.length === 0)
+						if(tmp.serials === null || tmp.serials.length === 0)
+						{
+							jQuery('[role="tooltip"]').tooltip('hide'); // hide all jQuery tooltips
 							return;
+						}
 						tmp.existingSerials = [];
 						$$('.item_row[productid="' + tmp.serials.product.id + '"]').first().getElementsBySelector('[scanned-item="serialNo"]').each(function(item){
 							if(item.value !== '')
