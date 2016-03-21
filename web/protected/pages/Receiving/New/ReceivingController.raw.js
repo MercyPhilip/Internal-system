@@ -693,6 +693,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					.observe('click', function(event) {
 						if(!confirm('You are about to remove this entry.\n\nContinue?'))
 							return;
+						product = tmp.product;
 						tmp.btn.up('.item_row').down('.product-head-row .scannedQty').innerHTML = tmp.btn.up('.item_row').down('.product-head-row .scannedQty').innerHTML * 1 - tmp.data.qty * 1;
 						if (tmp.btn.up('.item_row').down('.product-head-row .scannedQty').innerHTML > product.purchaseOrderItem.qty || !tmp.btn.up('.item_row').down('.product-head-row .scannedQty').innerHTML)
 							tmp.btn.up('.item_row').down('.product-head-row .scannedQty').setStyle({color: 'red'});
@@ -700,7 +701,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							tmp.btn.up('.item_row').down('.product-head-row .scannedQty').setStyle({color: 'inherit'});
 						if(tmp.btn.up('.item_row').down('.product-head-row .scannedQty').innerHTML == 0)
 							tmp.btn.up('.item_row').down('.product-head-row .scannedQty').setStyle({color: 'red'});
-						tmp.btn.up('.scanned-item-row').remove();
+						delRow = this;
+						delRow.up('.scanned-item-row').remove();
 					})
 				});
 			tmp.newRow.removeClassName('info').removeClassName('new-scan-row').addClassName('btn-hide-row');
@@ -1060,7 +1062,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					tmp.newDiv = new Element('div')
 						.update('<strong>All items saved successfully! Bill(s) generated as following:</strong>')
 						.insert({'bottom': tmp.billList = new Element('ul', {'class': 'list-inline'}) });
-					if(tmp.result.invoiceNos && tmp.result.invoiceNos.size() > 0) {
+					if(tmp.result.invoiceNos && tmp.result.invoiceNos.length > 0) {
 						tmp.result.invoiceNos.each(function(invoiceNo){
 							tmp.billList.insert({'bottom': new Element('li').update( new Element('a', {'class': 'btn btn-success', 'href': '/bills/' + tmp.result.item.supplier.id +'.html?invoiceNo=' + invoiceNo, 'target': '_BLANK'}).update(invoiceNo) ) })
 						})
