@@ -562,6 +562,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 						if(tmp.serials === null || tmp.serials.length === 0)
 						{
 							jQuery('[role="tooltip"]').tooltip('hide'); // hide all jQuery tooltips
+							jQuery('#' + tmp.me.modalId).remove();
 							return;
 						}
 						tmp.existingSerials = [];
@@ -585,6 +586,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							});
 						}
 						jQuery('[role="tooltip"]').tooltip('hide'); // hide all jQuery tooltips
+						jQuery('#' + tmp.me.modalId).remove();
 					});
 				tmp.me.product = null;
 			});
