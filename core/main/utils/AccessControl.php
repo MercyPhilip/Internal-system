@@ -76,7 +76,20 @@ Abstract class AccessControl
 				}
 			case Role::ID_WAREHOUSE:
 				{
-					return $canAcessOrderByStatus && $order->getPassPaymentCheck();
+					// if it is local pickup,
+					// warehouse can pick without paying
+					// but cannot ship
+					$shippingMethod = $order->getInfo(OrderInfoType::ID_MAGE_ORDER_SHIPPING_METHOD);
+					$shippingMethod = trim($shippingMethod[0]);
+					if ($shippingMethod === 'Local Pickup')
+					{
+						$result = $canAcessOrderByStatus;
+					}
+					else
+					{
+						$result = $canAcessOrderByStatus && $order->getPassPaymentCheck();
+					}
+					return $result;
 				}
 		}
 	}
