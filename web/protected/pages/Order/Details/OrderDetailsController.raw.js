@@ -2,18 +2,6 @@
  * The page Js file
  */
 var PageJs = new Class.create();
-/**
- * role type
- */
-PageJs.ROLE = {
-	WAREHOUSE: 1,
-	PURCHASING: 2,
-	ACCOUNTING: 3,
-	STORE_MANAGER: 4,
-	SYSTEM_ADMIN: 5,
-	SALES: 6,
-	WORKSHOP: 7
-};
 PageJs.prototype = Object.extend(new BPCPageJs(), {
 	_order: null //the order object
 	,_orderStatuses: [] //the order statuses object
@@ -27,7 +15,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	,infoType_custName : 1
 	,infoType_custEmail : 2
 	,orderStatusIds: {'warehouseCanEdit': [], 'purchaseCanEdit': [] , 'canAddShipment': []}
-	,_roleId : ''
 
 	,setEditMode: function(editPurchasing, editWH, editAcc, editStatus) {
 		this._editMode.purchasing = (editPurchasing || false);
@@ -55,10 +42,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		this._orderItems = orderItems;
 		this._orderStatuses = orderStatuses;
 		this._orderStatusID_Shipped = _orderStatusID_Shipped;
-		return this;
-	}
-	,setRoleId: function(roleId) {
-		this._roleId = roleId;
 		return this;
 	}
 
@@ -802,7 +785,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			});
 			tmp.shipmentDiv.insert({'bottom': tmp.shipmentListDiv});
 		}
-		if(tmp.me._editMode.warehouse === false || tmp.me.orderStatusIds.canAddShipment.indexOf(tmp.me._order.status.id * 1) < 0 || ((tmp.me._roleId === PageJs.ROLE.WAREHOUSE) && (tmp.me._order.passPaymentCheck === false)))
+		if(tmp.me._editMode.warehouse === false || tmp.me.orderStatusIds.canAddShipment.indexOf(tmp.me._order.status.id * 1) < 0)
 			return tmp.shipmentDiv;
 
 		tmp.shipmentDivBody = new Element('div', {'class': 'panel-body save_shipping_panel'})
