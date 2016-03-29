@@ -76,12 +76,13 @@ Abstract class AccessControl
 				}
 			case Role::ID_WAREHOUSE:
 				{
-					// if it is local pickup,
+					// if it is local pickup and In-Store pickup,
 					// warehouse can pick without paying
 					// but cannot ship
+					$pickup = array('Local Pickup', 'In-Store Pickup (Mount Waverley, VIC) - Pickup - Mount Waverley, VIC');
 					$shippingMethod = $order->getInfo(OrderInfoType::ID_MAGE_ORDER_SHIPPING_METHOD);
 					$shippingMethod = trim($shippingMethod[0]);
-					if ($shippingMethod === 'Local Pickup')
+					if (in_array($shippingMethod, $pickup))
 					{
 						$result = $canAcessOrderByStatus;
 					}
