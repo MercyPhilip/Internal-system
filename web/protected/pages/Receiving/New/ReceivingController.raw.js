@@ -964,11 +964,14 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	,_saveBtns: function() {
 		var tmp = {};
 		tmp.me = this;
+		tmp.me.clicked = false;
 		tmp.newDiv = new Element('span', {'class': 'btn-group pull-right'})
 			.insert({'bottom': new Element('span', {'class': 'btn btn-primary', 'data-loading-text' : 'saving...'})
 				.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-ok-circle'}) })
 				.insert({'bottom': new Element('span').update(' save ') })
 				.observe('click', function() {
+					if (tmp.me.clicked === true) return;
+					tmp.me.clicked = true;
 					tmp.me._submitOrder($(this));
 				})
 			})
