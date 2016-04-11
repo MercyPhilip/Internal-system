@@ -1079,6 +1079,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				 })
 			});
 	}
+	/**
+	 * Open customer detail page
+	 */
 	,_openCustomerDetailsPage: function(row) {
 		var tmp = {};
 		tmp.me = this;
@@ -1100,6 +1103,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
  		});
 		return tmp.me;
 	}
+	/**
+	 * Update customer info after closing customer detail page
+	 */
 	,selectCustomer: function(customer) {
 		var tmp = {};
 		tmp.me = this;
@@ -1107,7 +1113,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me._order.customer = customer;
 		tmp.me._order.address = customer.address;
 		tmp.resultListDiv = tmp.resultDiv.down('.panel-default');
-		if(tmp.resultListDiv && tmp.resultListDiv.getElementsBySelector('.row').size() > 0) { //editing
+		if(tmp.resultListDiv && tmp.resultListDiv.getElementsBySelector('.row').size() > 0) {
 			tmp.resultDiv.down('.panel-default').replace(tmp.me._getAddressPanel())
 		} 
 		return tmp.me;
