@@ -295,6 +295,15 @@ class DetailsController extends BPCPageAbstract
 			}
 			$payment = null;
 			if(($paymentMethod = PaymentMethod::get(trim($param->CallbackParameter->paymentMethodId))) instanceof PaymentMethod) {
+				// check if the order has not been paid
+				// throw error 
+				if ($creditNote->getOrder() instanceof Order)
+				{
+					if (!$order->getPassPaymentCheck() || (doubleval($order->getTotalPaid()) <= doubleval(0)))
+					{
+						throw new Exception('The customer has not paid yet, so no need to refund. Please confirm it again!');
+					}
+				}
 				$creditNote->setTotalPaid($totalPaidAmount = $param->CallbackParameter->totalPaidAmount)
 					->addPayment($paymentMethod, $totalPaidAmount, '', null, $payment, false);
 			}
@@ -391,7 +400,7 @@ class DetailsController extends BPCPageAbstract
 		catch(Exception $ex)
 		{
 			Dao::rollbackTransaction();
-			$errors[] = $ex->getMessage() . '<pre>' . $ex->getTraceAsString() . '</pre>';
+			$errors[] = $ex->getMessage();
 		}
 		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
 	}

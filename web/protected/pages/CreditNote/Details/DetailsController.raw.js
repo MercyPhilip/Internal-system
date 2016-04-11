@@ -966,7 +966,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.newDiv = new Element('div', {'class': 'panel panel-danger CustomerInfoPanel'})
 			.insert({'bottom': new Element('div', {'class': 'panel-heading'})
 				.insert({'bottom': new Element('div', {'class': 'row'})
-					.insert({'bottom': new Element('div', {'class': 'col-sm-6'})
+					.insert({'bottom': new Element('div', {'class': 'col-sm-7'})
 					
 						.insert({'bottom': new Element('strong').update((tmp.me._creditNote && tmp.me._creditNote.id ? 'EDITING' : 'CREATING') + ' CREDIT NOTE FOR:  ') })
 						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'})
