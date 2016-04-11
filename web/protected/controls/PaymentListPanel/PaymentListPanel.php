@@ -111,6 +111,30 @@ class PaymentListPanel extends TTemplateControl
 			if(!isset($param->CallbackParameter->payment->extraComments) || ($extraComment = trim($param->CallbackParameter->payment->extraComments)) === '')
 				throw new Exception('Some comments for this payment is required.');
 
+			//check if the payment is offset credit
+			if ($paymentMethodId == PaymentMethod::ID_STORE_CREDIT)
+			{
+				$creditAvailable = $entity->getCustomer()->getCreditPool() instanceof CreditPool ? doubleval($entity->getCustomer()->getCreditPool()->getTotalCreditLeft()) : 0;
+				if ($creditAvailable == 0 || $creditAvailable < $paidAmount)
+				{
+					throw new Exception('The customer has not enough credit for this payment. The amount of credit left is : ' .  StringUtilsAbstract::getCurrency($creditAvailable));
+				}
+			}
+			if ($entity instanceof CreditNote)
+			{
+				$creditAvailable = 0;
+				$status = CreditNoteStatus::TYPE_FULL;
+				$creditNoteSts = CreditNoteStatus::getCreditNoteStatus($entity);
+				if ($creditNoteSts instanceof CreditNoteStatus)
+				{
+					$creditAvailable = $creditNoteSts->getCreditAmountAvailable();
+					$status = $creditNoteSts->getStatus();
+				}
+				if ($creditAvailable <=0 || $status == CreditNoteStatus::TYPE_FULL || $creditAvailable < $paidAmount)
+				{
+					throw new Exception('This creditnote has not enough credit for this payment. The amount of credit left is : ' .  StringUtilsAbstract::getCurrency($creditAvailable));
+				}
+			}
 			//save the payment
 			$newPayment = null;
 			$entity = $entity->addPayment($paymentMethod, $paidAmount, $extraComment, new UDate(), $newPayment);

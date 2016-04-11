@@ -58,6 +58,10 @@ class DetailsController extends BPCPageAbstract
 			$js .= "pageJs._order=" . json_encode($order->getJson(array('customer'=> $order->getCustomer()->getJson(), 'items'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson()));'), $order->getOrderItems())))) . ";";
 		else $js .= "pageJs._customer=" . json_encode($customer) . ";";
 
+		$creditNoteStatus = CreditNoteStatus::getCreditNoteStatus($creditNote);
+		if ($creditNoteStatus instanceof CreditNoteStatus)
+			$js .= "pageJs._creditNoteStatus=" . json_encode($creditNoteStatus->getJson()) . ";";
+
 		$paymentMethods =  array_map(create_function('$a', 'return $a->getJson();'), PaymentMethod::getAll(true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('name' => 'asc')));
 		$applyToOptions = CreditNote::getApplyToTypes();
 		$js .= "pageJs._applyToOptions=" . json_encode($applyToOptions) . ";";
@@ -190,6 +194,7 @@ class DetailsController extends BPCPageAbstract
 		try
 		{
 			Dao::beginTransaction();
+			$totalPaymentDue = $totalPaidAmount = 0;
 			$customer = Customer::get(trim($param->CallbackParameter->customer->id));
 			if(!$customer instanceof Customer)
 				throw new Exception('Invalid Customer passed in!');
@@ -288,10 +293,10 @@ class DetailsController extends BPCPageAbstract
 					}
 				}
 			}
-
+			$payment = null;
 			if(($paymentMethod = PaymentMethod::get(trim($param->CallbackParameter->paymentMethodId))) instanceof PaymentMethod) {
 				$creditNote->setTotalPaid($totalPaidAmount = $param->CallbackParameter->totalPaidAmount)
-					->addPayment($paymentMethod, $totalPaidAmount);
+					->addPayment($paymentMethod, $totalPaidAmount, '', null, $payment, false);
 			}
 			$creditNote->setTotalValue($totalPaymentDue)
 				->setApplyTo($applyTo)
@@ -363,8 +368,20 @@ class DetailsController extends BPCPageAbstract
 						->addComment('This ' . $creditNote->getOrder()->getType() . ' is CANCELED, because of full credit (CreditNoteNo:<a href="/creditnote/' . $creditNote->getId() . '.html" target="_BLANK">' . $creditNote->getCreditNoteNo() . '</a>) is created.', Comments::TYPE_MEMO);
 				}
 			}
-
-
+			
+			//If the customer has already paid money,
+			//then it is necessary to create credit in creditpool
+			$creditApplied = 0;
+			$credtipool = CreditPool::create($creditNote);
+			if ($credtipool instanceof CreditPool)
+			{
+				$creditNoteStatus = CreditNoteStatus::create($credtipool, $creditNote);
+				if ($payment instanceof Payment)
+				{
+					$creditApplied = doubleval($payment->getValue());
+				}
+				$creditAppliedHistory = CreditAppliedHistory::create($creditNote, $payment, $creditApplied);
+			}
 			$results['item'] = $creditNote->getJson();
 			$results['redirectURL'] = '/creditnote/'. $creditNote->getId() . '.html?' . $_SERVER['QUERY_STRING'];
 			if($printItAfterSave === true)

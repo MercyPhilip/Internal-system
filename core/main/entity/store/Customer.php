@@ -63,6 +63,18 @@ class Customer extends BaseEntityAbstract
 	 */
 	private $isFromB2B = false;
 	/**
+	 * The credit of the customer has
+	 * 
+	 * @var CreditPool
+	 */
+	private $creditPool = null;
+	/**
+	 * Whether this customer is blocked
+	 *
+	 * @var bool
+	 */
+	private $isBlocked = false;
+	/**
 	 * Getter for name
 	 *
 	 * @return string
@@ -233,6 +245,27 @@ class Customer extends BaseEntityAbstract
 		return $this;
 	}
 	/**
+	 * Getter for isBlocked
+	 *
+	 * @return bool
+	 */
+	public function getIsBlocked()
+	{
+		return (trim($this->isBlocked) === '1');
+	}
+	/**
+	 * Setter for isBlocked
+	 *
+	 * @param unkown $value The isBlocked
+	 *
+	 * @return Customer
+	 */
+	public function setIsBlocked($value)
+	{
+		$this->isBlocked = $value;
+		return $this;
+	}
+	/**
 	 * Getter for mageId
 	 *
 	 * @return
@@ -267,19 +300,21 @@ class Customer extends BaseEntityAbstract
 	 *
 	 * @return Ambigous <GenericDAO, BaseEntityAbstract>
 	 */
-	public static function create($name, $contactNo, $email, Address $billingAddr = null, $isFromB2B = false, $description = '', Address $shippingAddr = null, $mageId = 0, $terms = 0)
+	public static function create($name, $contactNo, $email, Address $billingAddr = null, $isFromB2B = false, $description = '', Address $shippingAddr = null, $mageId = 0, $terms = 0, $isBlocked = false)
 	{
 		$name = trim($name);
 		$contactNo = trim($contactNo);
 		$email = trim($email);
 		$isFromB2B = ($isFromB2B === true);
 		$terms = intval(trim($terms));
+		$isBlocked = ($isBlocked === true);
 		$class =__CLASS__;
 		$objects = self::getAllByCriteria('email = ?', array($email), true, 1, 1);
 		if(count($objects) > 0 && $email !== '')
 		{
 			$obj = $objects[0];
 			$terms = $obj->getTerms();
+			$mageId = $obj->getMageId();
 		}
 		else
 		{
@@ -294,8 +329,9 @@ class Customer extends BaseEntityAbstract
 			->setShippingAddress($shippingAddr)
 			->setMageId($mageId)
 			->setTerms($terms)
+			->setIsBlocked($isBlocked)
 			->save();
-		$comments = 'Customer(ID=' . $obj->getId() . ')' . (count($objects) > 0 ? 'updated' : 'created') . ' via B2B with (name=' . $name . ', contactNo=' . $contactNo . ', email=' . $email . ', terms=' . $terms .')';
+		$comments = 'Customer(ID=' . $obj->getId() . ')' . (count($objects) > 0 ? 'updated' : 'created') . ' via B2B with (name=' . $name . ', contactNo=' . $contactNo . ', email=' . $email . ', terms=' . $terms .', isBlocked=' . $isBlocked .')';
 		if($isFromB2B === true)
 			Comments::addComments($obj, $comments, Comments::TYPE_SYSTEM);
 		Log::LogEntity($obj, $comments, Log::TYPE_SYSTEM, '', $class . '::' . __FUNCTION__);
@@ -327,6 +363,7 @@ class Customer extends BaseEntityAbstract
 		{
 			$array['address']['shipping'] = $this->getShippingAddress() instanceof Address ? $this->getShippingAddress()->getJson() : array();
 			$array['address']['billing'] = $this->getBillingAddress() instanceof Address ? $this->getBillingAddress()->getJson() : array();
+			$array['creditpool'] = $this->getCreditPool() instanceof CreditPool ? $this->creditPool->getJson() : array();
 		}
 		return parent::getJson($array, $reset);
 	}
@@ -347,6 +384,7 @@ class Customer extends BaseEntityAbstract
 		DaoMap::setManyToOne('shippingAddress', 'Address', 'cust_ship_addr', true);
 		DaoMap::setIntType('mageId');
 		DaoMap::setBoolType('isFromB2B');
+		DaoMap::setBoolType('isBlocked');
 		parent::__loadDaoMap();
 
 		DaoMap::createIndex('name');
@@ -354,8 +392,22 @@ class Customer extends BaseEntityAbstract
 		DaoMap::createIndex('email');
 		DaoMap::createIndex('terms');
 		DaoMap::createIndex('isFromB2B');
+		DaoMap::createIndex('isBlocked');
 		DaoMap::createIndex('mageId');
 
 		DaoMap::commit();
+	}
+	
+	/**
+	 * Getting  the credit for a customer
+	 *
+	 * @param Customer $this
+	 *
+	 * @return CreditPool
+	 */
+	public function getCreditPool()
+	{
+		$this->creditPool = CreditPool::getCreditPoolByCustomer($this);
+		return $this->creditPool;
 	}
 }

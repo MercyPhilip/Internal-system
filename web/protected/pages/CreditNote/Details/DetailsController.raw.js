@@ -966,7 +966,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.newDiv = new Element('div', {'class': 'panel panel-danger CustomerInfoPanel'})
 			.insert({'bottom': new Element('div', {'class': 'panel-heading'})
 				.insert({'bottom': new Element('div', {'class': 'row'})
-					.insert({'bottom': new Element('div', {'class': 'col-sm-7'})
+					.insert({'bottom': new Element('div', {'class': 'col-sm-6'})
 					
 						.insert({'bottom': new Element('strong').update((tmp.me._creditNote && tmp.me._creditNote.id ? 'EDITING' : 'CREATING') + ' CREDIT NOTE FOR:  ') })
 						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'})
@@ -1004,9 +1004,17 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					})	
 					
 					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._savePrintBtns()) })	
-					.insert({'bottom': new Element('div', {'class': 'col-sm-4 text-right'}).setStyle('display: none;')
+					.insert({'bottom': new Element('div', {'class': 'col-sm-1 text-right'}).setStyle('display: none;')
 						.insert({'bottom': new Element('strong').update('Total Payment Due: ') })
 						.insert({'bottom': new Element('span', {'class': 'badge', 'order-price-summary': 'total-payment-due'}).update(tmp.me.getCurrency(0) ) })
+					})
+					.insert({'bottom': new Element('div', {'class': 'col-sm-2'})
+						.insert({'bottom': new Element('strong').update('Credit Available: ') })
+						.insert({'bottom': tmp.me._creditNoteStatus ? tmp.me.getCurrency(tmp.me._creditNoteStatus.creditAmountAvailable) : tmp.me.getCurrency(0) })
+					})
+					.insert({'bottom': new Element('div', {'class': 'col-sm-2'})
+						.insert({'bottom': new Element('strong').update('Status: ') })
+						.insert({'bottom': tmp.me._creditNoteStatus ? tmp.me._creditNoteStatus.status : '' })
 					})
 
 				})

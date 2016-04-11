@@ -280,6 +280,10 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				tmp.name = 'Total Credit Note Value';
 				tmp.fieldName = 'totalCreditNoteValue';
 				break;
+			case 'totalCreditAvailable':
+				tmp.name = 'Total Credit Available';
+				tmp.fieldName = 'totalCreditAvailable';
+				break;
 			default: tmp.name = 'ERROR(_getPaymentCell)';
 		}
 		return new Element('a', {'href': 'javascript: void(0);'})
@@ -376,7 +380,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 						tmp.isTitle ? 'Paid Amt' : tmp.me._getPaymentCell(row, 'totalPaid')
 					)})
 					.insert({'bottom': new Element('div', {'class': 'col-xs-2 ' + (row.totalCreditNoteValue > 0 ? 'tr-red' : '')}).setStyle('padding: 0px;').update(
-						tmp.isTitle ? 'Credit Amt' : tmp.me._getPaymentCell(row, 'totalCreditNoteValue')
+						tmp.isTitle ? 'Credit Amt' : tmp.me._getPaymentCell(row, 'totalCreditAvailable')
 					)})
 					.insert({'bottom': new Element('div', {'class': 'text-right col-xs-3 '}).update(
 						tmp.isTitle ? 'Margin' : tmp.me._getMarginCell(row)

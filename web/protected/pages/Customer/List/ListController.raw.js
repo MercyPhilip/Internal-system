@@ -6,7 +6,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	_getTitleRowData: function() {
 		return {'email': "Email", 'terms' : 'Terms', 'name': 'Name', 'contactNo': 'Contact Num', 'description': 'Description', 'addresses': 'Addresses',
 			'address': {'billing': {'full': 'Billing Address'}, 'shipping': {'full': 'Shipping Address'} },
-			'mageId': "Mage Id", 'active': "Active?"
+			'mageId': "Mage Id", 'active': "Active?", 'isBlocked' : 'IsBlocked'
 			};
 	}
 	/**
@@ -137,7 +137,10 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					tmp.newWindow.close();
 				})	
 			})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'contact col-xs-1 truncate'}).update(row.terms)})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'terms col-xs-1 truncate'}).update(row.terms)})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'isBlocked col-xs-1'})
+				.insert({'bottom': (tmp.isTitle === true ? row.isBlocked : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.isBlocked}) ) })
+			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'contact col-xs-1 truncate'}).update(row.contactNo)})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'description col-xs-1'}).update(row.description) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'address col-xs-1'})

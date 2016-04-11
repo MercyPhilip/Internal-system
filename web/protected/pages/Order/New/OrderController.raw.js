@@ -203,8 +203,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					if(!tmp.result || !tmp.result.item)
 						return;
 					tmp.me._order = tmp.me._item = tmp.result.item;
-					//console.log(data);
-					//console.log(tmp.result);
 					tmp.redirectURL = tmp.result.redirectURL;
 					tmp.modalBoxPanel.insert({'bottom': new Element('input', {'window': 'redirec-url', 'type': 'hidden', 'value': tmp.redirectURL}) });
 					$extraMsg = '';
@@ -449,6 +447,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							.insert({'bottom': new Element('strong', {'class': "text-danger"}).update('CLONING FROM: ') })
 							.insert({'bottom': new Element('a', {'href': "/orderdetails/" + tmp.me._originalOrder.id + '.html', 'target': '_BLANK'}).update(tmp.me._originalOrder.orderNo) })
 						})
+						.insert({'bottom': new Element('strong').update('   Total Credit Available: ') })
+						.insert({'bottom': tmp.customer.creditpool ? tmp.me.getCurrency(tmp.customer.creditpool.totalCreditLeft) : tmp.me.getCurrency(0) })					
 					})
 					.insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update( tmp.operationBtnsDiv )	})
 				})

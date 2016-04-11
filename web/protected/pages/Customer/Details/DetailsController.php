@@ -69,6 +69,7 @@ class DetailsController extends DetailsPageAbstract
 			$active = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->active);
 			$email = trim($param->CallbackParameter->email);
 			$terms = intval(trim($param->CallbackParameter->terms));
+			$isBlocked = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->isBlocked);
 			$contactNo = trim($param->CallbackParameter->contactNo);
 			$billingCompanyName = trim($param->CallbackParameter->billingCompanyName);
 			$billingName = trim($param->CallbackParameter->billingName);
@@ -91,9 +92,15 @@ class DetailsController extends DetailsPageAbstract
 				$customer = Customer::get(trim($param->CallbackParameter->id));
 				if(!$customer instanceof Customer)
 					throw new Exception('Invalid Customer passed in!');
+				// only admin and accounting can change the isBlocked attribute
+				if ((Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN && Core::getRole()->getId() != Role::ID_ACCOUNTING) && ($customer->getIsBlocked() != $isBlocked))
+				{
+					throw new Exception('You do not have privileges to change isBlocked attribute, please inquire Administrator for support!');
+				}
 				$customer->setName($name)
 					->setEmail($email)
 					->setTerms($terms)
+					->setIsBlocked($isBlocked)
 					->setContactNo($contactNo)
 					->setActive($active);
 				$billingAddress = $customer->getBillingAddress();
@@ -135,7 +142,7 @@ class DetailsController extends DetailsPageAbstract
 					$shippingAdressFull = null;
 				else
 					$shippingAdressFull = Address::create($shippingStreet, $shippingCity, $shippingState, $shippingCountry, $shippingPosecode, $shippingName, $shippingContactNo, $shippingCompanyName);
-				$customer = Customer::create($name, $contactNo, $email, $billingAdressFull, false, '', $shippingAdressFull, 0, $terms);
+				$customer = Customer::create($name, $contactNo, $email, $billingAdressFull, false, '', $shippingAdressFull, 0, $terms, $isBlocked);
 				if(!$customer instanceof Customer)
 					throw new Exception('Error creating customer!');
 			}
@@ -147,7 +154,7 @@ class DetailsController extends DetailsPageAbstract
 		catch(Exception $ex)
 		{
 			Dao::rollbackTransaction();
-			$errors[] = $ex->getMessage() . $ex->getTraceAsString();
+			$errors[] = $ex->getMessage();
 		}
 		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
 	}
