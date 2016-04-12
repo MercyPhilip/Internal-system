@@ -1,12 +1,12 @@
 <?php
 /**
- * Entity for CreditAppliedHistory
+ * Entity for CreditAppliedLog
  *
  * @package    Core
  * @subpackage Entity
  * @author     
  */
-class CreditAppliedHistory extends BaseEntityAbstract
+class CreditAppliedLog extends BaseEntityAbstract
 {
 	/**
 	 * The creditNote
@@ -33,19 +33,19 @@ class CreditAppliedHistory extends BaseEntityAbstract
 	 */
 	public function getCreditAmount()
 	{
-	    return doubleval($this->creditAmount);
+		return doubleval($this->creditAmount);
 	}
 	/**
 	 * Setter for creditAmount
 	 *
 	 * @param double $value - the credit
 	 *
-	 * @return CreditAppliedHistory
+	 * @return CreditAppliedLog
 	 */
 	public function setCreditAmount($value)
 	{
-	    $this->creditAmount = doubleval(trim($value));
-	    return $this;
+		$this->creditAmount = doubleval(trim($value));
+		return $this;
 	}
 	/**
 	 * Getter for payment
@@ -55,19 +55,19 @@ class CreditAppliedHistory extends BaseEntityAbstract
 	public function getPayment()
 	{
 		$this->loadManyToOne('payment');
-	    return $this->payment;
+		return $this->payment;
 	}
 	/**
 	 * Setter for payment
 	 *
 	 * @param Payment $value The payment
 	 *
-	 * @return CreditAppliedHistory
+	 * @return CreditAppliedLog
 	 */
 	public function setPayment($value)
 	{
-	    $this->payment = $value;
-	    return $this;
+		$this->payment = $value;
+		return $this;
 	}
 	/**
 	 * Getter for creditNote
@@ -84,7 +84,7 @@ class CreditAppliedHistory extends BaseEntityAbstract
 	 *
 	 * @param CreditNote $value The creditNote
 	 *
-	 * @return CreditAppliedHistory
+	 * @return CreditAppliedLog
 	 */
 	public function setCreditNote($value)
 	{
@@ -107,13 +107,13 @@ class CreditAppliedHistory extends BaseEntityAbstract
 		DaoMap::commit();
 	}
 	/**
-	 * Creating a CreditAppliedHistory
+	 * Creating a CreditAppliedLog
 	 *
 	 * @param CreditNote $creditNote
 	 * @param Payment $payment
 	 * @param number $creditAmountApplied
 	 *
-	 * @return CreditAppliedHistory
+	 * @return CreditAppliedLog
 	 */
 	public static function create(CreditNote $creditNote, $payment, $creditAmountApplied)
 	{
@@ -121,12 +121,11 @@ class CreditAppliedHistory extends BaseEntityAbstract
 		{
 			return;
 		}
-		//$creditAmountApplied = doubleval($payment->getValue());
-		$creditAppliedHistory= new CreditAppliedHistory();
-		$creditAppliedHistory->setCreditNote($creditNote)
+		$creditAppliedLog= new CreditAppliedLog();
+		$creditAppliedLog->setCreditNote($creditNote)
 			->setPayment($payment)
 			->setCreditAmount($creditAmountApplied)
 			->save();
-		return $creditAppliedHistory;
+		return $creditAppliedLog;
 	}
 }

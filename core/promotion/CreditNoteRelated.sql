@@ -14,8 +14,8 @@ CREATE TABLE `creditpool` (
   KEY `updatedById` (`updatedById`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `creditpoolhistory`;
-CREATE TABLE `creditpoolhistory` (
+DROP TABLE IF EXISTS `creditpoollog`;
+CREATE TABLE `creditpoollog` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `creditpoolId` int(10) unsigned NOT NULL DEFAULT '0',
   `type` varchar(50) NOT NULL DEFAULT '',
@@ -53,8 +53,8 @@ CREATE TABLE `creditnotestatus` (
   KEY `status` (`status`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `creditappliedhistory`;
-CREATE TABLE `creditappliedhistory` (
+DROP TABLE IF EXISTS `creditappliedlog`;
+CREATE TABLE `creditappliedlog` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
   `creditNoteId` int(10) unsigned NOT NULL DEFAULT '0',
   `paymentId` int(10) unsigned NOT NULL DEFAULT '0',

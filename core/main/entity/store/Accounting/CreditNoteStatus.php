@@ -11,6 +11,7 @@ class CreditNoteStatus extends BaseEntityAbstract
 	const TYPE_OPEN = 'OPEN';
 	const TYPE_PARTIAL= 'PARTIALLY APPLIED';
 	const TYPE_FULL= 'FULLY APPLIED';
+	const TYPE_CANCELLED= 'CANCELLED';
 	
 	/**
 	 * The creditPool

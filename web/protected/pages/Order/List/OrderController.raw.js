@@ -267,6 +267,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	,_getPaymentCell: function(row,type) {
 		var tmp = {};
 		tmp.me = this;
+		tmp.row = row;
 		switch(type) {
 			case 'totalAmount':
 				tmp.name = 'Total Amout';
@@ -283,23 +284,24 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			case 'totalCreditAvailable':
 				tmp.name = 'Total Credit Available';
 				tmp.fieldName = 'totalCreditAvailable';
+				tmp.row[tmp.fieldName] = row.customer.creditpool ? row.customer.creditpool.totalCreditLeft : 0;
 				break;
 			default: tmp.name = 'ERROR(_getPaymentCell)';
 		}
 		return new Element('a', {'href': 'javascript: void(0);'})
-			.insert({'bottom': ( (!row.passPaymentCheck || type !== 'totalPaid') ? '' :
-					new Element('span', {'title': (Math.round(row.totalDue,2) <= 0 ? 'Full Paid' : 'Short Paid'), 'class': (Math.round(row.totalDue,2) <= 0 ? 'text-success' : 'text-danger') })
+			.insert({'bottom': ( (!tmp.row.passPaymentCheck || type !== 'totalPaid') ? '' :
+					new Element('span', {'title': (Math.round(tmp.row.totalDue,2) <= 0 ? 'Full Paid' : 'Short Paid'), 'class': (Math.round(tmp.row.totalDue,2) <= 0 ? 'text-success' : 'text-danger') })
 						.setStyle('margin-right: 3px;')
-						.update(new Element('span', {'class': 'glyphicon ' + (Math.round(row.totalDue,2) <= 0 ? 'glyphicon-ok-sign' : 'glyphicon-warning-sign') }))
+						.update(new Element('span', {'class': 'glyphicon ' + (Math.round(tmp.row.totalDue,2) <= 0 ? 'glyphicon-ok-sign' : 'glyphicon-warning-sign') }))
 				) })
 				.insert({'bottom': new Element('span')
-					.update(tmp.currencyValue = tmp.me.getCurrency(row[tmp.fieldName]))
+					.update(tmp.currencyValue = tmp.me.getCurrency(tmp.row[tmp.fieldName]))
 					.writeAttribute('title', tmp.name + ':' + tmp.currencyValue)
 				})
 				.observe('click', function() {
 					if(tmp.fieldName === 'totalCreditNoteValue')
-						window.open('/creditnote.html?orderid=' + row.id, '_blank')
-					else tmp.me._openDetailsPage(row);
+						window.open('/creditnote.html?orderid=' + tmp.row.id, '_blank')
+					else tmp.me._openDetailsPage(tmp.row);
 				});
 	}
 	,_getMarginCell: function(row) {

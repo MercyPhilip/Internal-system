@@ -389,7 +389,7 @@ class DetailsController extends BPCPageAbstract
 				{
 					$creditApplied = doubleval($payment->getValue());
 				}
-				$creditAppliedHistory = CreditAppliedHistory::create($creditNote, $payment, $creditApplied);
+				$creditAppliedLog = CreditAppliedLog::create($creditNote, $payment, $creditApplied);
 			}
 			$results['item'] = $creditNote->getJson();
 			$results['redirectURL'] = '/creditnote/'. $creditNote->getId() . '.html?' . $_SERVER['QUERY_STRING'];

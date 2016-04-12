@@ -275,11 +275,15 @@ class CreditNote extends BaseEntityAbstract
 	}
 	/**
 	 * Adding a payment to this creditNote
-	 *
+	 * 
 	 * @param PaymentMethod $method
 	 * @param double        $value
 	 * @param string        $comments
-	 *
+	 * @param boolean       $updateCreditPool - Only when creating new creditNote on credit detail page,
+	 *                                          the $updateCreditPool must be set to false,
+	 *                                          otherwise it must be set to true,
+	 *                                          because the creditpool must be created first,
+	 *                                          then you can use it to apply to the new payment.
 	 * @return Order
 	 */
 	public function addPayment(PaymentMethod $method, $value, $comments = '', $paymentDate = null, &$newPayment = null, $updateCreditPool = true)

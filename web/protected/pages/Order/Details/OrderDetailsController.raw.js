@@ -1070,7 +1070,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					})
 					.insert({'bottom': new Element('div', {'class': 'col-sm-3'})
 						.insert({'bottom': new Element('strong').update('Credit Available: ') })
-						.insert({'bottom': tmp.me.getCurrency(tmp.me._order.totalCreditAvailable) })					
+						.insert({'bottom': tmp.me.getCurrency(tmp.me._order.customer.creditpool ? tmp.me._order.customer.creditpool.totalCreditLeft : 0 ) })					
 					})
 				})
 				.insert({'bottom': new Element('div', {'class': 'row'})

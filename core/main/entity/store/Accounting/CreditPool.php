@@ -125,8 +125,8 @@ class CreditPool extends BaseEntityAbstract
 			->setTotalCreditLeft($creditAmount)
 			->save();
 		
-		//Create history for creditpool
-		CreditPoolHistory::create($creditpool, CreditPoolHistory::TYPE_CREDIT, $creditNote->getId(), $creditAmount);
+		//Create log for creditpool
+		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_CREDIT, $creditNote->getId(), $creditAmount);
 		
 		// if has refund
 		if ($creditNote->getTotalPaid() > 0)
@@ -134,8 +134,8 @@ class CreditPool extends BaseEntityAbstract
 			$creditAmount = 0 - doubleval($creditNote->getTotalPaid());
 			$creditpool->setTotalCreditLeft($creditAmount)->save();
 			
-			//Create history for creditpool
-			CreditPoolHistory::create($creditpool, CreditPoolHistory::TYPE_REFUND, $creditNote->getId(), $creditAmount);
+			//Create log for creditpool
+			CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_REFUND, $creditNote->getId(), $creditAmount);
 		}
 		
 		return $creditpool;
@@ -176,8 +176,8 @@ class CreditPool extends BaseEntityAbstract
 		// update credit left
 		$creditpool->setTotalCreditLeft($creditPaidAmount)->save();
 		
-		//Create history for creditpool
-		CreditPoolHistory::create($creditpool, CreditPoolHistory::TYPE_ORDER, $order->getId(), $creditPaidAmount);
+		//Create log for creditpool
+		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_ORDER, $order->getId(), $creditPaidAmount);
 	
 		return $creditpool;
 	}
@@ -209,8 +209,8 @@ class CreditPool extends BaseEntityAbstract
 		$creditPaidAmount = 0 - $creditAmount;
 		// update credit left
 		$creditpool->setTotalCreditLeft($creditPaidAmount)->save();
-		//Create history for creditpool
-		CreditPoolHistory::create($creditpool, CreditPoolHistory::TYPE_REFUND, $creditNote->getId(), $creditPaidAmount);
+		//Create log for creditpool
+		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_REFUND, $creditNote->getId(), $creditPaidAmount);
 
 		return $creditpool;
 	}
@@ -235,7 +235,7 @@ class CreditPool extends BaseEntityAbstract
 		return $creditpool;
 	}
 	/**
-	 * Update the credit pool and status and history
+	 * Update the credit pool and status and log
 	 * 
 	 * @param unknown $entity
 	 * @param Payment $payment
@@ -260,7 +260,7 @@ class CreditPool extends BaseEntityAbstract
 			}
 			// automatically select an creditnote ordered by created time
 			// to apply
-			self::UpdateCreditStatusHistoryByOrder($creditpool, $entity, $payment);
+			self::UpdateCreditStatusLogByOrder($creditpool, $entity, $payment);
 		}
 		else if ($entity instanceof CreditNote)
 		{
@@ -270,17 +270,17 @@ class CreditPool extends BaseEntityAbstract
 				return;
 			}
 			$creditNoteStatus = CreditNoteStatus::update($creditpool, $entity, $payment);
-			$creditAppliedHistory = CreditAppliedHistory::create($entity, $payment, doubleval($payment->getValue()));
+			$creditAppliedLog = CreditAppliedLog::create($entity, $payment, doubleval($payment->getValue()));
 		}
 	}
 	/**
-	 * Update credit status and applied hisotry
+	 * Update credit status and applied log
 	 * 
 	 * @param CreditPool $creditpool
 	 * @param Order $order
 	 * @param Payment $payment
 	 */
-	public static function UpdateCreditStatusHistoryByOrder(CreditPool $creditpool, Order $order, Payment $payment)
+	public static function UpdateCreditStatusLogByOrder(CreditPool $creditpool, Order $order, Payment $payment)
 	{
 		if (!$creditpool instanceof CreditPool || !$order instanceof Order || !$payment instanceof Payment)
 		{
@@ -312,7 +312,7 @@ class CreditPool extends BaseEntityAbstract
 					->setStatus(CreditNoteStatus::TYPE_FULL)
 					->save();
 			}			
-			$creditAppliedHistory = CreditAppliedHistory::create($creditNoteSts->getCreditNote(), $payment, $creditAmountApplied);		
+			$creditAppliedLog = CreditAppliedLog::create($creditNoteSts->getCreditNote(), $payment, $creditAmountApplied);		
 			if ($creditToBePaid <= 0)
 			{
 				break;

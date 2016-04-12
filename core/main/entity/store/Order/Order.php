@@ -716,7 +716,6 @@ class Order extends InfoEntityAbstract
 	    if(!$this->isJsonLoaded($reset))
 	    {
 	    	$array['customer'] = $this->getCustomer() instanceof Customer ? $this->getCustomer()->getJson() : array();
-	    	$array['totalCreditAvailable'] = $this->getCustomer()->getCreditPool() instanceof CreditPool ? $this->getCustomer()->getCreditPool()->getTotalCreditLeft() : 0;
 	    	$array['totalDue'] = $this->getTotalDue();
 	    	$array['infos'] = array();
 	    	$array['address']['shipping'] = $this->getShippingAddr() instanceof Address ? $this->getShippingAddr()->getJson() : array();

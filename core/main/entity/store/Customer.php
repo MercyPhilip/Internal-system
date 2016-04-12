@@ -297,6 +297,10 @@ class Customer extends BaseEntityAbstract
 	 * @param string  $description  The description of this customer
 	 * @param Address $shippingAddr The shiping address
 	 * @param int     $mageId       The id of the customer in Magento
+	 * @param bool    $isBlocked    Whether the customer is blocked due to expiration of the terms
+	 *                              If the customer is blocked then no orders from this customer can be changed to invoice any more
+	 *                              unless the administrator unblocks it.
+	 *                              Only administrator and accountant can block and unblock customer.
 	 *
 	 * @return Ambigous <GenericDAO, BaseEntityAbstract>
 	 */

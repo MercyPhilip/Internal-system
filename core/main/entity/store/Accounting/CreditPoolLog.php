@@ -1,12 +1,12 @@
 <?php
 /**
- * Entity for CreditPoolHistory
+ * Entity for CreditPoolLog
  *
  * @package    Core
  * @subpackage Entity
  * @author
  */
-class CreditPoolHistory extends BaseEntityAbstract
+class CreditPoolLog extends BaseEntityAbstract
 {
 	const TYPE_CREDIT = 'CREDIT';
 	const TYPE_ORDER= 'ORDER';
@@ -57,7 +57,7 @@ class CreditPoolHistory extends BaseEntityAbstract
 	 *
 	 * @param creditpool $value The creditpool
 	 *
-	 * @return CreditPoolHistory
+	 * @return CreditPoolLog
 	 */
 	public function setCreditPool($value)
 	{
@@ -116,7 +116,7 @@ class CreditPoolHistory extends BaseEntityAbstract
 	 *
 	 * @param double $value - the credit
 	 *
-	 * @return CreditPoolHistory
+	 * @return CreditPoolLog
 	 */
 	public function setAmount($value)
 	{
@@ -138,7 +138,7 @@ class CreditPoolHistory extends BaseEntityAbstract
 	 *
 	 * @param double $value - the credit
 	 *
-	 * @return CreditPoolHistory
+	 * @return CreditPoolLog
 	 */
 	public function setTotalCreditLeft($value)
 	{
@@ -170,7 +170,7 @@ class CreditPoolHistory extends BaseEntityAbstract
 	 * @param number $typeId
 	 * @param number $creditAmount
 	 *
-	 * @return CreditPoolHistory
+	 * @return CreditPoolLog
 	 */
 	public static function create($creditpool, $type, $typeId, $creditAmount)
 	{
@@ -181,12 +181,12 @@ class CreditPoolHistory extends BaseEntityAbstract
 		}
 		switch ($type)
 		{
-			case CreditPoolHistory::TYPE_CREDIT:
+			case CreditPoolLog::TYPE_CREDIT:
 				// money in due to credit
 				$creditAmount = doubleval(trim($creditAmount));
 				break;
-			case CreditPoolHistory::TYPE_ORDER:
-			case CreditPoolHistory::TYPE_REFUND:
+			case CreditPoolLog::TYPE_ORDER:
+			case CreditPoolLog::TYPE_REFUND:
 				// money out from credit due to new order or refund
 				$creditAmount = 0 - doubleval(trim($creditAmount));
 				break;
@@ -195,7 +195,7 @@ class CreditPoolHistory extends BaseEntityAbstract
 				break;
 		}
 		$totalCreditLeft = $creditpool->getTotalCreditLeft();
-		$cph = new CreditPoolHistory();
+		$cph = new CreditPoolLog();
 		$cph->setCreditPool($creditpool)
 			->setType($type)
 			->setTypeId($typeId)
