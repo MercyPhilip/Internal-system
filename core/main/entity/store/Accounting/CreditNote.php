@@ -275,7 +275,7 @@ class CreditNote extends BaseEntityAbstract
 	}
 	/**
 	 * Adding a payment to this creditNote
-	 * 
+	 *
 	 * @param PaymentMethod $method
 	 * @param double        $value
 	 * @param string        $comments
