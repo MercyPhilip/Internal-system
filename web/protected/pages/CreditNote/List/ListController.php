@@ -129,8 +129,9 @@ class ListController extends CRUDPageAbstract
             {
             	$order = $obj->getOrder();
             	$customer = $obj->getCustomer();
+            	$creditNoteStatus = CreditNoteStatus::getCreditNoteStatus($obj);
             	$creditNoteItems = $obj->getCreditNoteItems();
-                $results['items'][] = $obj->getJson(array('order'=> empty($order) ? '' : $order->getJson(), 'customer'=> $customer->getJson(), 'creditNoteItems'=> $creditNoteItems ? array_map(create_function('$a', 'return $a->getJson();'), $creditNoteItems) : ''));
+                $results['items'][] = $obj->getJson(array('order'=> empty($order) ? '' : $order->getJson(), 'customer'=> $customer->getJson(), 'creditNoteItems'=> $creditNoteItems ? array_map(create_function('$a', 'return $a->getJson();'), $creditNoteItems) : '', 'creditNoteStatus' => empty($creditNoteStatus)? '' : $creditNoteStatus->getJson()));
             }
             $sql = 'select sum(`cn`.totalValue) `totalValue`, sum(`cn`.totalPaid) `totalPaid` from `creditnote` cn ' . implode(' ', $innerJoinStrings) . ' where cn.active = 1 AND (' . implode(' AND ', $where) . ')';
             $sumResult = Dao::getResultsNative($sql, $params);

@@ -1,0 +1,1 @@
+ALTER TABLE `customer` ADD `isBlocked` tinyint(1) NOT NULL DEFAULT '0' AFTER `terms`, ADD INDEX (`isBlocked`) ;

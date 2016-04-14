@@ -126,7 +126,28 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			'href'			: '/creditnote/' + (row && row.id ? row.id : 'new') + '.html',
 			'beforeClose'	: function() {
 				tmp.iframeJs = $$('iframe.fancybox-iframe').first().contentWindow.pageJs;
-				tmp.newRow = tmp.iframeJs && tmp.iframeJs._creditNote && tmp.iframeJs._creditNote.id ? tmp.me._getResultRow(tmp.iframeJs._creditNote) : null;
+				if (tmp.iframeJs && tmp.iframeJs._creditNote && tmp.iframeJs._creditNote.id)
+				{
+					if (row && row.id)
+					{
+						row.creditNote = tmp.iframeJs._creditNote;
+						row.customer = tmp.iframeJs._customer;
+						row.creditNoteStatus = tmp.iframeJs._creditNoteStatus;
+						tmp.newRow = tmp.me._getResultRow(row);				
+					}
+					else
+					{
+						var newrow = {};
+						newrow = tmp.iframeJs._creditNote;
+						newrow.creditNoteItems = tmp.iframeJs._creditNote.items;
+						newrow.customer = tmp.iframeJs._customer;
+						newrow.creditNoteStatus = tmp.iframeJs._creditNoteStatus;
+						newrow.order = {};
+						newrow.order.id = '';
+						newrow.order.orderNo = '';
+						tmp.newRow = tmp.me._getResultRow(newrow);	
+					}
+				}
 				if(tmp.newRow !== null) {
 					if(row && row.id) {
 						if($(tmp.me.resultDivId).down('.item_row[item_id=' + row.id + ']'))
@@ -213,6 +234,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(row.applyTo)})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle === true ? row.applyDate : moment(tmp.me.loadUTCTime(row.applyDate)).format('ll') )})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle ? 'Credit NoteItems' : row.creditNoteItems ? row.creditNoteItems.length : '')})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle ? 'Credit Available' : row.creditNoteStatus ? tmp.me.getCurrency(row.creditNoteStatus.creditAmountAvailable): tmp.me.getCurrency(0))})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle ? 'Status' : row.creditNoteStatus ? row.creditNoteStatus.status: '')})			
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).setStyle('display: none;')
 				.insert({'bottom': (tmp.isTitle === true ? row.active : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.active}) ) })
 			})

@@ -546,6 +546,7 @@ class Order extends InfoEntityAbstract
 	public function addPayment(PaymentMethod $method, $value, $comments = '', $paymentDate = null, &$newPayment = null)
 	{
 		$newPayment = Payment::create($this, $method, $value, $comments, $paymentDate);
+		CreditPool::UpdateCreditPool($this, $newPayment);
 		return $newPayment->getOrder();
 	}
 	/**

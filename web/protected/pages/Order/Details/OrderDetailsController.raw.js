@@ -1057,11 +1057,20 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				.insert({'bottom': new Element('div', {'class': 'row'})
 					.insert({'bottom': new Element('div', {'class': 'col-sm-6'})
 						.insert({'bottom': new Element('strong').update('Customer: ') })
-						.insert({'bottom': tmp.custName })
+						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'customer-edit-link'})
+							.update(tmp.custName)
+							.observe('click', function(){
+								tmp.me._openCustomerDetailsPage(tmp.me._order.customer);
+							})
+						})
 						.insert({'bottom': tmp.me._order.customer.contactNo.blank() ? '' : '(' + tmp.me._order.customer.contactNo + ')'})
 					})
-					.insert({'bottom': new Element('div', {'class': 'col-sm-6'})
+					.insert({'bottom': new Element('div', {'class': 'col-sm-3'})
 						.insert({'bottom': new Element('a', {'href': 'mailto:' + tmp.custEmail}).update(tmp.custEmail) })
+					})
+					.insert({'bottom': new Element('div', {'class': 'col-sm-3'})
+						.insert({'bottom': new Element('strong').update('Credit Available: ') })
+						.insert({'bottom': tmp.me.getCurrency(tmp.me._order.customer.creditpool ? tmp.me._order.customer.creditpool.totalCreditLeft : 0 ) })					
 					})
 				})
 				.insert({'bottom': new Element('div', {'class': 'row'})
@@ -1069,6 +1078,45 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					.insert({'bottom': new Element('div', {'class': 'col-xs-6'}).update(tmp.me._getAddressDiv("Shipping Address: ", tmp.me._order.address.shipping, 'shipping')) })
 				 })
 			});
+	}
+	/**
+	 * Open customer detail page
+	 */
+	,_openCustomerDetailsPage: function(row) {
+		var tmp = {};
+		tmp.me = this;
+		jQuery.fancybox({
+			'width'			: '95%',
+			'height'		: '95%',
+			'autoScale'     : false,
+			'autoDimensions': false,
+			'fitToView'     : false,
+			'autoSize'      : false,
+			'type'			: 'iframe',
+			'href'			: '/customer/' + row.id + '.html?blanklayout=1',
+			'beforeClose'	    : function() {
+				tmp.customer = $$('iframe.fancybox-iframe').first().contentWindow.pageJs._item;
+				if(tmp.customer && tmp.customer.id) {
+					tmp.me.selectCustomer(tmp.customer);
+				}
+			}
+ 		});
+		return tmp.me;
+	}
+	/**
+	 * Update customer info after closing customer detail page
+	 */
+	,selectCustomer: function(customer) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.resultDiv = $(tmp.me._resultDivId);
+		tmp.me._order.customer = customer;
+		tmp.me._order.address = customer.address;
+		tmp.resultListDiv = tmp.resultDiv.down('.panel-default');
+		if(tmp.resultListDiv && tmp.resultListDiv.getElementsBySelector('.row').size() > 0) {
+			tmp.resultDiv.down('.panel-default').replace(tmp.me._getAddressPanel())
+		} 
+		return tmp.me;
 	}
 	,_getOperationalBtns: function() {
 		var tmp = {};
