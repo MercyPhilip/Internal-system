@@ -235,5 +235,39 @@ class AjaxController extends TService
   		$items = $entityName::getAllByCriteria($searchTxt, $searchParams, $active, $pageNo, $pageSize, $orderBy, $stats);
   		return array('items' => array_map(create_function('$a', 'return $a->getJson();'), $items), 'pagination' => $stats);
   	}
+  	/**
+  	 * Get info of sales target
+  	 * 
+  	 * @param unknown $params
+  	 */
+  	private function _getSalesTarget($params)
+  	{
+  		$salesinfo = array();
+  		// get the sales target
+  		$salestarget = SalesTarget::getCurrentSalesTarget();
+  		if (!$salestarget instanceof SalesTarget)
+  		{
+  			return array();
+  		}
+  		$salesinfo['sales'] = $salestarget->getJson();
+  		// get today's sales info
+  		$result = SalesTarget::getSalesInfo(SalesTarget::TYPE_REVENUE_TODAY);
+  		$salesinfo['today'] = $result;
+  		
+  		// get sales info of up to date
+  		$result = SalesTarget::getSalesInfo(SalesTarget::TYPE_REVENUE_UPTODATE);
+  		$salesinfo['period'] = $result;
+  		
+  		// get days left
+  		$dateFrom = date_create($salestarget->getDfrom());
+  		$dateTo = date_create(date('Y-m-d'));
+  		$diff = date_diff($dateTo, $dateFrom);
+  		$days = $diff->days;
+  		$daysLeft = $salestarget->getDPeriod() - $days;
+  		$salesinfo['daysleft'] = $daysLeft;
+  		
+  		return array('items' => $salesinfo);
+  		
+  	}
 }
 ?>

@@ -510,6 +510,10 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			.store('InsufficientStockOrdersListPanelJs', tmp.insufficientStockOrdersListPanelJs = new InsufficientStockOrdersListPanelJs(tmp.me))
 			.update(tmp.insufficientStockOrdersListPanelJs.getListPanel().addClassName('panel-default'));
 		tmp.insufficientStockOrdersListPanelJs.load();
+		$('salestarget-panel')
+			.store('SalesTargetListPanelJs', tmp.salesTargetListPanelJs = new SalesTargetListPanelJs(tmp.me))
+			.update(tmp.salesTargetListPanelJs.getListPanel().addClassName('panel-default'));
+		tmp.salesTargetListPanelJs.load();
 		return tmp.me;
 	}
 });

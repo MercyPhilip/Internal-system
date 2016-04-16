@@ -3,6 +3,7 @@
 	<com:Application.controls.bootstrapDateTimePicker.bootstrapDateTimePicker />
 	<com:Application.controls.select2.select2 />
 	<com:Application.controls.InsufficientStockOrdersListPanel.InsufficientStockOrdersListPanel />
+	<com:Application.controls.SalesTargetListPanel.SalesTargetListPanel />
 	<com:TCallback ID="getOrdersBtn" onCallBack="Page.getOrders" />
 	<div class="row">
 	   <div class="col-md-9">
@@ -138,6 +139,8 @@
 	                 <table class="table table-hover" id="resultDiv"></table>
                  </div>
 			</div>
+	   </div>
+	   <div class="col-md-3" id="salestarget-panel">
 	   </div>
 	   <div class="col-md-3" id="right-panel">
 	   </div>

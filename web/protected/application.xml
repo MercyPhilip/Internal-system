@@ -67,6 +67,9 @@
       <!-- FrontEnd:: system settings page -->
       <url ServiceParameter="System.Settings.List.ListController" pattern="systemsettings.html" parameters.id="me"/>
 
+      <!-- FrontEnd:: sales target page -->
+      <url ServiceParameter="SalesTarget.List.ListController" pattern="salestarget.html" parameters.id="me"/>
+
       <!-- FrontEnd:: Tasks Listing page -->
       <url ServiceParameter="Task.List.Controller" pattern="tasks.html"/>
       <!-- FrontEnd:: Tasks Details page -->

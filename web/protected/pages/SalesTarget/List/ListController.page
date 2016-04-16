@@ -1,0 +1,15 @@
+<com:TContent ID="MainContent">
+	<com:Application.controls.bootstrapDateTimePicker.bootstrapDateTimePicker />
+	<div class="pagewrapper item-list-wrapper">
+		<div class="panel panel-default" id="searchPanel">
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Found <label id="total-found-count">0</label> <%= $this->getFocusEntity() %>:
+			</div>
+			<small class="table-responsive">
+				<table class="table table-hover" id="item-list"></table>
+			</small>
+		</div> 
+	</div>
+</com:TContent>
