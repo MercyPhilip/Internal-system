@@ -359,6 +359,10 @@ class OrderController extends BPCPageAbstract
 			if($printItAfterSave === true)
 				$results['printURL'] = '/print/order/' . $order->getId() . '.html?pdf=1';
 			$results['redirectURL'] = '/order/'. $order->getId() . '.html' . (trim($_SERVER['QUERY_STRING']) === '' ? '' : '?' . $_SERVER['QUERY_STRING']);
+			
+			// check whether the order can be changed into invoice
+			if ($customer->getIsBlocked() && ($order->getType() === Order::TYPE_INVOICE) && (($order->getPassPaymentCheck() == false) || ($order->getTotalPaid() != $order->getTotalAmount())) )
+				throw new Exception("Cannot change to INVOICE because the customer is BLOCKED and not fully paid to this order!<br>Please contact Admin or Accountant for assistance!");
 			Dao::commitTransaction();
 		}
 		catch(Exception $ex)
