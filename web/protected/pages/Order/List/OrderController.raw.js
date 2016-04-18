@@ -373,6 +373,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			.insert({'bottom': new Element('td', {'class': 'customer'}).update(
 					tmp.isTitle === true ? 'Customer' : row.customer.name
 			) })
+			.insert({'bottom': new Element('td', {'class': 'Terms'}).update(
+					tmp.isTitle === true ? 'Terms' : tmp.me._getDaysInterval(row, row.customer.terms)
+			) })
 			.insert({'bottom': new Element('td', {'class': 'col-xs-3'}).update(
 				new Element('div', {'class': 'row'})
 					.insert({'bottom': new Element('div', {'class': 'text-right col-xs-3 '}).update(
@@ -516,4 +519,43 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.salesTargetListPanelJs.load();
 		return tmp.me;
 	}
+	/**
+	 * check whether the invoice expires
+	 * compared to the terms
+	 */
+	,_getDaysInterval: function(row, terms) {
+		var tmp = {};
+		tmp.me = this;
+		invDate = row.invDate;
+		if (invDate && invDate != '0001-01-01 00:00:00') 
+		{
+			var d = invDate;
+			var d1 = new Date(d.substr(0, 4), d.substr(5, 2) - 1, d.substr(8, 2), d.substr(11, 2), d.substr(14, 2), d.substr(17, 2));
+			var timeOffsetInHours = -(new Date()).getTimezoneOffset()/60
+			d1.setHours(d1.getHours()+timeOffsetInHours);
+			var d2 = new Date();
+			var timeDiff = d2.getTime() - d1.getTime();
+			var daysDiff = Math.floor(timeDiff / (1000*3600*24));
+			totalPaid = Math.round(row.totalPaid * 100) / 100;
+			totalAmount = Math.round(row.totalAmount * 100) / 100;
+			if ((daysDiff > terms) && (totalPaid < totalAmount))
+			{
+				return new Element('a', {'href': 'javascript: void(0);'})
+					.insert({'bottom': new Element('div', {'class' : 'tr-red'})
+						.update(terms)
+						.writeAttribute('title', 'Over due expired :' + (daysDiff - terms) + ' days' )
+				});
+			}
+			else
+			{
+				return terms;
+			}
+		}
+		else
+		{
+			return terms;
+		}
+		
+	}
+	
 });
