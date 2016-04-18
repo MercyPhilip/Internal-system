@@ -333,21 +333,6 @@ class SalesTarget extends BaseEntityAbstract
 		}
 	}
 	/**
-	 * Get all info of sales target
-	 *
-	 * @return SalesTarget
-	 */
-	public static function getAllSalesTarget($activeOnly = true, $pageNo = null, $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE, $orderBy = array(), &$stats = array())
-	{
-		try {
-			$objs = self::getAll($activeOnly, $pageNo, $pageSize, $orderBy);
-			$salesTarget = ( count($objs) > 0 ? $objs : null );
-			return $salesTarget;
-		} catch (Exception $e) {
-			return null;
-		}
-	}
-	/**
 	 * validate the data range
 	 * 
 	 * @param date $dFrom
