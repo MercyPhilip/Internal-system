@@ -340,54 +340,28 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public static function validateDateRange($salestarget, $dFrom, $dTo)
 	{
-		try {
+		try
+		{
+			// check if $dFrom between dfrom and dto
+			// or if $dto between dfrom and dto
+			// or if $dFrom < dfrom and dto < $dTo
 			if ($salestarget instanceof SalesTarget)
 			{
-				// check if $dFrom between dfrom and dto
-				$objs = self::getAllByCriteria('? between dfrom and dto and id <> ?', array($dFrom, $salestarget->getId()), true, 1, 1);
-				if (count($objs) > 0)
-				{
-					// range already exists
-					return false;
-				}
-				// check if $dto between dfrom and dto
-				$objs = self::getAllByCriteria('? between dfrom and dto and id <> ?', array($dTo, $salestarget->getId()), true, 1, 1);
-				if (count($objs) > 0)
-				{
-					// range already exists
-					return false;
-				}
-				// check if $dFrom < dfrom and dto < $dTo
-				$objs = self::getAllByCriteria('dfrom >= ? and dto <= ? and id <> ?', array($dFrom, $dTo, $salestarget->getId()), true, 1, 1);
-				if (count($objs) > 0)
-				{
-					// range already exists
-					return false;
-				}
+				// update existing one
+				$sql = '((:dfrom between dfrom and dto) or (:dto between dfrom and dto) or (dfrom >= :dfrom and dto <= :dto))  and id <> :id';
+				$params = array(':dfrom' => $dFrom, ':dto' => $dTo, ':id' => $salestarget->getId());
 			}
 			else
 			{
-				// check if $dFrom between dfrom and dto
-				$objs = self::getAllByCriteria('? between dfrom and dto', array($dFrom), true, 1, 1);
-				if (count($objs) > 0)
-				{
-					// range already exists
-					return false;
-				}
-				// check if $dto between dfrom and dto
-				$objs = self::getAllByCriteria('? between dfrom and dto', array($dTo), true, 1, 1);
-				if (count($objs) > 0)
-				{
-					// range already exists
-					return false;
-				}
-				// check if $dFrom < dfrom and dto < $dTo
-				$objs = self::getAllByCriteria('dfrom >= ? and dto <= ?', array($dFrom, $dTo), true, 1, 1);
-				if (count($objs) > 0)
-				{
-					// range already exists
-					return false;
-				}
+				// new one
+				$sql = '((:dfrom between dfrom and dto) or (:dto between dfrom and dto) or (dfrom >= :dfrom and dto <= :dto))';
+				$params = array(':dfrom' => $dFrom, ':dto' => $dTo);
+			}
+			$objs = self::getAllByCriteria($sql, $params, true, 1, 1);
+			if (count($objs) > 0)
+			{
+				// range already exists
+				return false;
 			}
 			return true;
 		}
