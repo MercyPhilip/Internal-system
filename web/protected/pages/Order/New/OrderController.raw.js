@@ -496,6 +496,11 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					tmp.me._recalculateSummary();
 				})
 			});
+		if (tmp.isTitle)
+		{
+			var chbox = tmp.btns.down('#hide-margin-checkbox');
+			tmp.me.isChecked = jQuery(chbox).is(':checked');
+		}
 		tmp.row = new Element('div', {'class': 'list-group-item ' + (tmp.isTitle === true ? 'item_row_header' : 'item_row order-item-row')})
 			.store('data', orderItem)
 			.insert({'bottom': new Element('div', {'class': 'row'})
@@ -519,8 +524,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				.insert({'bottom': new Element(tmp.tag, {'class': 'tprice col-xs-1'})
 					.insert({'bottom': (tmp.isTitle === true || typeof(orderItem.totalPrice) === 'object') ? orderItem.totalPrice : tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('order-item', orderItem.totalPrice, {'order-item': 'totalPrice', disabled: true, 'required': true})  ) })
 				})
-				.insert({'bottom': new Element(tmp.tag, {'class': 'margin col-xs-1 text-right'}).update(orderItem.margin)})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'btns col-xs-1 text-right'}).update(tmp.btns) })
+				.insert({'bottom': new Element(tmp.tag, {'class': 'margin col-xs-1 text-right', 'style' : tmp.me.isChecked ? 'display : block' : 'display : none' }).update(orderItem.margin)})
 			});
 		if(tmp.qtyBox) {
 			tmp.qtyBox.observe('change', function(e){
@@ -1094,8 +1099,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				'totalPrice': 'Total Price<div><small>(inc GST)</small><div>'
 				,'btns': new Element('div')
 					.insert({'bottom': new Element('label', {'for': 'hide-margin-checkbox'}).update('Show Margin ') })
-					.insert({'bottom': new Element('input', {'id': 'hide-margin-checkbox', 'type': 'checkbox', 'checked': true})
+					.insert({'bottom': new Element('input', {'id': 'hide-margin-checkbox', 'type': 'checkbox', 'checked': false})
 						.observe('click', function(){
+							tmp.me.isChecked = jQuery('#hide-margin-checkbox').is(':checked');
 							jQuery('.margin').toggle();
 						})
 					})
