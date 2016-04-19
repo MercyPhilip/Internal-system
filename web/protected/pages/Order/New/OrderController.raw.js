@@ -1210,7 +1210,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 						.insert({'bottom': new Element('h4', {'class': 'col-xs-6 text-right'}).setStyle('color: #d30014 !important').update(new Element('strong').update('DUE:')) })
 						.insert({'bottom': new Element('h4', {'class': 'col-xs-6', 'order-price-summary': 'total-payment-due'}).setStyle('color: #d30014 !important').update(tmp.me.getCurrency(0)) })
 					})
-					.insert({'bottom': new Element('div', {'class': 'row margin'})
+					.insert({'bottom': new Element('div', {'class': 'row margin', 'style' : tmp.me.isChecked ? 'display : block' : 'display : none'})
 						.insert({'bottom': new Element('strong', {'class': 'col-xs-6 text-right'}).update(new Element('strong').update('Margin Total Incl. GST:')) })
 						.insert({'bottom': new Element('strong', {'class': 'col-xs-6', 'order-price-summary': 'total-margin'}).update(tmp.me.getCurrency(0)) })
 					})
