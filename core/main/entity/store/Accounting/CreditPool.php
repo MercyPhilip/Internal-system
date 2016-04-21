@@ -111,14 +111,15 @@ class CreditPool extends BaseEntityAbstract
 				return $creditpool;
 			}
 		}
-
-		if ($order instanceof  Order) 
+		$totalCredit = doubleval($creditNote->getTotalValue());
+		$totalPaid = 0;
+		if ($order instanceof  Order)
 		{
 			$totalPaid = $order->getTotalPaid();
 		}
-		else 
+		if (($totalPaid > 0) && ($totalPaid >= $totalCredit))
 		{
-			$totalPaid = $creditNote->getTotalValue();
+			$totalPaid = $totalCredit;
 		}
 		$creditAmount = doubleval($totalPaid);
 		$creditpool->setCustomer($customer)

@@ -176,16 +176,27 @@ class CreditNoteStatus extends BaseEntityAbstract
 	 * @return CreditNoteStatus
 	 */
 	public static function create(CreditPool $creditPool, CreditNote $creditNote)
-	{		
+	{
+		/*
+		 * if the order has not been paid then no need to create credit
+		 * if the order has been paid then the credit will be the total value input on the creditnote page
+		 * but if the total value > total paid then the credit will be the total paid amount,
+		 * because there is a case that customer only paid part amount of the total order amount
+		 */
 		$order = $creditNote->getOrder();
+		$totalCredit = doubleval($creditNote->getTotalValue());
+		$totalPaid = 0;
+		
 		if ($order instanceof  Order)
 		{
 			$totalPaid = $order->getTotalPaid();
 		}
-		else
+		
+		if (($totalPaid > 0) && ($totalPaid >= $totalCredit))
 		{
-			$totalPaid = $creditNote->getTotalValue();
+			$totalPaid = $totalCredit;
 		}
+		
 		$creditAmount = doubleval($totalPaid);
 		$creditAmountAvailable = $creditAmount - doubleval($creditNote->getTotalPaid());
 		
