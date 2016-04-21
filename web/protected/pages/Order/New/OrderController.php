@@ -228,6 +228,7 @@ class OrderController extends BPCPageAbstract
 			else {
 				$order->setType($type)
 					->setPONo($poNo)
+					->setShippingAddr($shippAddress)
 					->save();
 			}
 			$totalPaymentDue = 0;
