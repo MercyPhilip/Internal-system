@@ -247,8 +247,34 @@ class DetailsController extends BPCPageAbstract
 				$unitCost = $product->getUnitCost();
 				$orderItem = null;
 				if(isset($item->orderItemId) && ($orderItem = OrderItem::get(trim($item->orderItemId))) instanceof OrderItem)
+				{
 					$unitCost = $orderItem->getUnitCost();
-
+				}
+				else 
+				{
+					// if against the order then need to check 
+					// whether the product is in the order items
+					// if yes then need to get the unit cost from it
+					$isFound = false;
+					if (($order = $creditNote->getOrder()) instanceof Order)
+					{
+						$ordItems = $order->getOrderItems();
+						foreach ($ordItems as $ordItem)
+						{
+							if ($ordItem->getProduct()->getId() == $product->getId())
+							{
+								$unitCost = $ordItem->getUnitCost();
+								$orderItem = $ordItem;
+								$isFound = true;
+								break;
+							}
+						}
+						if (!$isFound)
+						{
+							throw new Exception('There exist some product(s) not included in the original order, <br> please confirm it again!');
+						}
+					}
+				}
 				$creditNoteItem = (is_numeric($item->creditNoteItemId) ?
 					CreditNoteItem::get(trim($item->creditNoteItemId))->setActive($active)->setProduct($product)->setQty($qtyOrdered)->setUnitPrice($unitPrice)->setItemDescription($itemDescription)->setUnitCost($unitCost)->setTotalPrice($totalPrice)->save()
 					:
