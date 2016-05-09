@@ -388,7 +388,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 						tmp.isTitle ? 'Credit Amt' : tmp.me._getPaymentCell(row, 'totalCreditAvailable')
 					)})
 					.insert({'bottom': new Element('div', {'class': 'text-right col-xs-3 '}).update(
-						tmp.isTitle ? 'Margin' : tmp.me._getMarginCell(row)
+						tmp.isTitle ? 'PO No.' : row.pONo
 					)})
 			) })
 			.insert({'bottom': new Element('td', {'class': 'col-xs-1'}).update(
