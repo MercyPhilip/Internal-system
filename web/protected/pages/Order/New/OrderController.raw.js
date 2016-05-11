@@ -329,6 +329,39 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
  		});
 		return tmp.me;
 	}
+	/**
+	 * check whether the PO No has 
+	 * already been applied
+	 */
+	,_checkPoNo: function(txt, order) {
+		var tmp = {};
+		tmp.me = this;
+		var poNo = jQuery('[save-order="poNo"]').val();
+		var orderId = '';
+		if (order && order.id)
+			orderId = order.id;
+		tmp.data = {'searchTxt': poNo, 'orderId' : orderId};
+		if (!poNo) return;
+		tmp.me.postAjax(tmp.me.getCallbackId('checkPoNo'), tmp.data, {
+			'onLoading': function() {
+				tmp.me._signRandID(txt);
+			}
+			,'onSuccess': function(sender, param) {
+				try {
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result || !tmp.result.items || !tmp.result.items.length)
+						return;
+					alert('This PO No. has already been applied to other orders.\n Do you want to apply it again?');
+					return;
+				} catch (e) {
+					return;
+				}
+			}
+			,'onComplete': function() {
+			}
+		});
+		return tmp.me;
+	}
 	,_deactiveOrder: function(btn) {
 		var tmp = {};
 		tmp.me = this;
@@ -442,7 +475,12 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 						.insert({'bottom': new Element('a', {'href': 'mailto:' + tmp.customer.email}).update(tmp.customer.email) })
 						.insert({'bottom': '>' })
 						.insert({'bottom': new Element('strong').update(' with PO No.:') })
-						.insert({'bottom': new Element('input', {'type': 'text', 'save-order': 'poNo', 'placeholder': 'Optional - PO No. From Customer', 'value': tmp.me._order && tmp.me._order.pONo ? tmp.me._order.pONo : ''}).setStyle('width: 200px;') })
+						.insert({'bottom': new Element('input', {'type': 'text', 'save-order': 'poNo', 'placeholder': 'Optional - PO No. From Customer', 'value': tmp.me._order && tmp.me._order.pONo ? tmp.me._order.pONo : ''})
+							.setStyle('width: 200px;')
+							.observe('blur', function(){
+								tmp.me._checkPoNo(this, tmp.me._order);
+							})
+						})
 						.insert({'bottom': !tmp.me._originalOrder ? '' : new Element('span').setStyle('margin-left: 8px;')
 							.insert({'bottom': new Element('strong', {'class': "text-danger"}).update('CLONING FROM: ') })
 							.insert({'bottom': new Element('a', {'href': "/orderdetails/" + tmp.me._originalOrder.id + '.html', 'target': '_BLANK'}).update(tmp.me._originalOrder.orderNo) })

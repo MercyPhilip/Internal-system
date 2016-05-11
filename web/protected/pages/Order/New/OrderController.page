@@ -8,6 +8,7 @@
 	<com:TCallback ID="searchProductBtn" onCallback="searchProduct" />
 	<com:TCallback ID="saveOrderBtn" onCallback="saveOrder" />
 	<com:TCallback ID="cancelOrderBtn" onCallback="cancelOrder" />
+	<com:TCallback ID="checkPoNoTxt" onCallback="checkPoNo" />
 	<div class="pagewrapper orderdetails">
 		<div id="detailswrapper" class="contentDiv"></div>
 	</div>

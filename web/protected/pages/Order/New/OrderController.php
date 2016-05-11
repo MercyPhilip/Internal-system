@@ -55,6 +55,7 @@ class OrderController extends BPCPageAbstract
 			$js .= ".setCallbackId('searchProduct', '" . $this->searchProductBtn->getUniqueID() . "')";
 			$js .= ".setCallbackId('saveOrder', '" . $this->saveOrderBtn->getUniqueID() . "')";
 			$js .= ".setCallbackId('cancelOrder', '" . $this->cancelOrderBtn->getUniqueID() . "')";
+			$js .= ".setCallbackId('checkPoNo', '" . $this->checkPoNoTxt->getUniqueID() . "')";
 			$js .= ".setPaymentMethods(" . json_encode($paymentMethods) . ")";
 			$js .= ".setShippingMethods(" . json_encode($shippingMethods) . ")";
 			$js .= ".setOrderTypes(" . json_encode(Order::getAllTypes()) . ")";
@@ -313,6 +314,13 @@ class OrderController extends BPCPageAbstract
 					$orderItem->setIsPicked(true)
 						->save();
 				}
+				
+				if ($order->getType() === Order::TYPE_INVOICE)
+				{
+					// to add info to Productqtylog
+					$orderItem->getProduct()->orderedByCustomer($qtyOrdered, 'NO(' . $order->getOrderNo() . ') is ordered now.', $orderItem);
+				
+				}
 			}
 
 			if(isset($param->CallbackParameter->courierId))
@@ -364,6 +372,12 @@ class OrderController extends BPCPageAbstract
 			// check whether the order can be changed into invoice
 			if ($customer->getIsBlocked() && ($order->getType() === Order::TYPE_INVOICE) && (($order->getPassPaymentCheck() == false) || ($order->getTotalPaid() != $order->getTotalAmount())) )
 				throw new Exception("Cannot change to INVOICE because the customer is BLOCKED and not fully paid to this order!<br>Please contact Admin or Accountant for assistance!");
+			// if the order has't been paid and the customer is not a terms account
+			if (($order->getPassPaymentCheck() == false) && ($order->getType() === Order::TYPE_INVOICE) && ($customer->getTerms() == 0))
+				throw new Exception("Cannot change to INVOICE because the customer has not paid yet.");
+			if (($order->getPassPaymentCheck() == true) && ($order->getType() === Order::TYPE_INVOICE) && ($customer->getTerms() == 0) && ($order->getTotalPaid() <=0 ))
+				throw new Exception("Cannot change to INVOICE because the customer has not fully paid yet.");
+
 			Dao::commitTransaction();
 		}
 		catch(Exception $ex)
@@ -397,6 +411,47 @@ class OrderController extends BPCPageAbstract
 				->addComment(($msg = $order->getType() . ' is cancelled: ' . $reason), Comments::TYPE_SALES)
 				->addLog($msg, Log::TYPE_SYSTEM, 'AUTO_GEN', __CLASS__ . '::' . __FUNCTION__);
 			$results['item'] = $order->getJson();
+			Dao::commitTransaction();
+		}
+		catch(Exception $ex)
+		{
+			Dao::rollbackTransaction();
+			$errors[] = $ex->getMessage();
+		}
+		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	}
+	/**
+	 * Check whether the PONo has already been applied
+	 * to any order no
+	 *
+	 * @param unknown $params
+	 */
+	public function checkPoNo($sender, $param)
+	{
+		$results = $errors = $params = array();
+		try
+		{
+			Dao::beginTransaction();
+			$searchTxt = isset($param->CallbackParameter->searchTxt) ? trim($param->CallbackParameter->searchTxt) : '';
+			if($searchTxt === '')
+				throw new Exception('SearchTxt is needed');
+			$orderId = isset($param->CallbackParameter->orderId) ? trim($param->CallbackParameter->orderId) : '';
+			$pageNo = isset($param->CallbackParameter->pageNo) ? trim($param->CallbackParameter->pageNo) : null;
+			$pageSize = isset($param->CallbackParameter->pageSize) ? trim($param->CallbackParameter->pageSize) : DaoQuery::DEFAUTL_PAGE_SIZE;
+			$stats = $items= array();
+			$where = 'pONo = ?';
+			$params[] = $searchTxt;
+			if ($orderId != '') 
+			{
+				$where = $where . ' and orderId <> ?';
+				$params[] = $orderId;
+			}
+			$items = Order::getAllByCriteria($where, $params, true, $pageNo, $pageSize, array(), $stats);
+			
+			$results = array();
+			$results['items'] = array_map(create_function('$a', 'return $a->getJson();'), $items);
+			$results['pagination'] = $stats;
+			$results['pageStats'] = $stats;
 			Dao::commitTransaction();
 		}
 		catch(Exception $ex)
