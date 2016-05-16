@@ -60,6 +60,7 @@
 				                	<option value="[null,null]">All</option>
 				                	<option value="[0,0]">=0</option>
                                		<option value="[1,null]">>0</option>
+                               		<option value="[2,null]">>1</option>
                                		<option value="[null,-1]"><0</option>
 				                </select>
 	                        </div>
