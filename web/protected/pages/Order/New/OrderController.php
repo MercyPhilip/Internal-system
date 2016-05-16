@@ -314,13 +314,6 @@ class OrderController extends BPCPageAbstract
 					$orderItem->setIsPicked(true)
 						->save();
 				}
-				
-				if ($order->getType() === Order::TYPE_INVOICE)
-				{
-					// to add info to Productqtylog
-					$orderItem->getProduct()->orderedByCustomer($qtyOrdered, 'NO(' . $order->getOrderNo() . ') is ordered now.', $orderItem);
-				
-				}
 			}
 
 			if(isset($param->CallbackParameter->courierId))
@@ -372,12 +365,6 @@ class OrderController extends BPCPageAbstract
 			// check whether the order can be changed into invoice
 			if ($customer->getIsBlocked() && ($order->getType() === Order::TYPE_INVOICE) && (($order->getPassPaymentCheck() == false) || ($order->getTotalPaid() != $order->getTotalAmount())) )
 				throw new Exception("Cannot change to INVOICE because the customer is BLOCKED and not fully paid to this order!<br>Please contact Admin or Accountant for assistance!");
-			// if the order has't been paid and the customer is not a terms account
-			if (($order->getPassPaymentCheck() == false) && ($order->getType() === Order::TYPE_INVOICE) && ($customer->getTerms() == 0))
-				throw new Exception("Cannot change to INVOICE because the customer has not paid yet.");
-			if (($order->getPassPaymentCheck() == true) && ($order->getType() === Order::TYPE_INVOICE) && ($customer->getTerms() == 0) && ($order->getTotalPaid() <=0 ))
-				throw new Exception("Cannot change to INVOICE because the customer has not fully paid yet.");
-
 			Dao::commitTransaction();
 		}
 		catch(Exception $ex)

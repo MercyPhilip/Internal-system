@@ -370,6 +370,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			.insert({'bottom': new Element('td', {'class': 'invoiceNo col-xs-1'}).update(
 					tmp.isTitle === true ? 'Inv. No.' : new Element('small').update(row.invNo)
 			) })
+			.insert({'bottom': new Element('td', {'class': 'pONo col-xs-1 ide-when-info hidden-sm' }).setStyle('style:word-wrap: break-word; word-break: break-all;').update(
+					tmp.isTitle ? 'PO No.' : new Element('div').update(row.pONo)
+			)})
 			.insert({'bottom': new Element('td', {'class': 'customer'}).update(
 					tmp.isTitle === true ? 'Customer' : row.customer.name
 			) })
@@ -378,26 +381,20 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			) })
 			.insert({'bottom': new Element('td', {'class': 'col-xs-3'}).update(
 				new Element('div', {'class': 'row'})
-					.insert({'bottom': new Element('div', {'class': 'text-right col-xs-3 '}).update(
+					.insert({'bottom': new Element('div', {'class': 'text-right col-xs-4 '}).update(
 						tmp.isTitle ? 'Total Amt' : tmp.me._getPaymentCell(row, 'totalAmount')
 					)})
 					.insert({'bottom': new Element('div', {'class': 'text-right col-xs-4 '}).update(
 						tmp.isTitle ? 'Paid Amt' : tmp.me._getPaymentCell(row, 'totalPaid')
 					)})
-					.insert({'bottom': new Element('div', {'class': 'col-xs-2 ' + (row.totalCreditNoteValue > 0 ? 'tr-red' : '')}).setStyle('padding: 0px;').update(
+					.insert({'bottom': new Element('div', {'class': 'col-xs-4 ' + (row.totalCreditNoteValue > 0 ? 'tr-red' : '')}).setStyle('padding: 0px;').update(
 						tmp.isTitle ? 'Credit Amt' : tmp.me._getPaymentCell(row, 'totalCreditAvailable')
-					)})
-					.insert({'bottom': new Element('div', {'class': 'text-right col-xs-3 '}).update(
-						tmp.isTitle ? 'PO No.' : row.pONo
 					)})
 			) })
 			.insert({'bottom': new Element('td', {'class': 'col-xs-1'}).update(
 					new Element('div', {'class': 'row'})
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6 text-center', 'title': 'Purchasing'}).update(
+						.insert({'bottom': new Element('div', {'class': 'text-center', 'title': 'Purchasing'}).update(
 								tmp.isTitle ? 'Pur.' : tmp.me._getPurchasingCell(row)
-						)})
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6 text-center', 'title': 'Warehouse'}).update(
-								tmp.isTitle ? 'Ware.' : tmp.me._getWarehouseCell(row)
 						)})
 			) })
 			.insert({'bottom': new Element('td', {'class': 'status col-xs-1 truncate', 'title': row.status.name, 'order_status': row.status.name}).update(
