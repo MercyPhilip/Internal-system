@@ -52,7 +52,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		.insert({'bottom': new Element('td', {'class': 'created', 'width': '15%'}).update(new Element('small').update(!isTitle ? comments.created : 'Created') ) })
 		.insert({'bottom': new Element('td', {'class': 'creator', 'width': '15%'}).update(new Element('small').update(!isTitle ? comments.createdBy.person.fullname : 'Who') ) })
 		.insert({'bottom': new Element('td', {'class': 'type', 'width': '10%'}).update(new Element('small').update(!isTitle ? comments.type : 'Type') ) })
-		.insert({'bottom': new Element('td', {'class': 'comments', 'width': 'auto'}).update(!isTitle ? comments.comments : '') })
+		.insert({'bottom': new Element('td', {'class': 'comments', 'width': 'auto'}).update(!isTitle ? comments.comments.replace(/\n/g, "<br />") : '') })
 		;
 	}
 	/**
