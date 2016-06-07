@@ -16,10 +16,10 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		// search by product
-		jQuery('#searchDiv .select2[search_field="pro.id"]').select2({
+		jQuery('#searchDiv .select2[search_field="pro.ids"]').select2({
 			allowClear: true,
 			hidden: true,
-			multiple: false,
+			multiple: true,
 			ajax: { url: "/ajax/getProducts",
 				dataType: 'json',
 				delay: 10,
@@ -44,10 +44,76 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			formatResult : function(result) {
 				if(!result)
 					return '';
-				return '<div class="row"><div class="col-xs-3">' + result.data.sku + '</div><div class="col-xs-9">' + result.data.name + '</div></div>';
+				return '<div class="row"><div class="col-xs-3 select2-word-break" style="word-wrap: break-word;">' + result.data.sku + '</div><div class="col-xs-9">' + result.data.name + '</div></div>';
 			},
 			escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
 			minimumInputLength: 3
+		});
+		return tmp.me;
+	}
+	,_searchCategories: function () {
+		var tmp = {};
+		tmp.me = this;
+		jQuery('[search_field="pro.categories"]').select2({
+			 minimumInputLength: 3,
+			 multiple: true,
+			 ajax: {
+				 delay: 250
+				 ,url: '/ajax/getAll'
+		         ,type: 'POST'
+	        	 ,data: function (params) {
+	        		 return {"searchTxt": 'pro_cate.name like ?', 'searchParams': ['%' + params + '%'], 'entityName': 'ProductCategory', 'pageNo': 1};
+	        	 }
+				 ,results: function(data, page, query) {
+					 tmp.result = [];
+					 if(data.resultData && data.resultData.items) {
+						 data.resultData.items.each(function(item){
+							 tmp.result.push({'id': item.id, 'text': item.namePath, 'data': item});
+						 });
+					 }
+		    		 return { 'results' : tmp.result };
+		    	 }
+			 }
+			,cache: true
+			,formatResult : function(result) {
+				 if(!result)
+					 return '';
+				 return '<div class="row order_item"><div class="col-xs-12">' + result.data.namePath + '</div></div >';
+			 }
+			 ,escapeMarkup: function (markup) { return markup; } // let our custom formatter work
+		});
+		return tmp.me;
+	}
+	,_searchBrands: function () {
+		var tmp = {};
+		tmp.me = this;
+		jQuery('[search_field="pro.manufacturerIds"]').select2({
+			 minimumInputLength: 2,
+			 multiple: true,
+			 ajax: {
+				 delay: 250
+				 ,url: '/ajax/getAll'
+		         ,type: 'POST'
+	        	 ,data: function (params) {
+	        		 return {"searchTxt": 'man.name like ?', 'searchParams': ['%' + params + '%'], 'entityName': 'Manufacturer', 'pageNo': 1};
+	        	 }
+				 ,results: function(data, page, query) {
+					 tmp.result = [];
+					 if(data.resultData && data.resultData.items) {
+						 data.resultData.items.each(function(item){
+							 tmp.result.push({'id': item.id, 'text': item.name, 'data': item});
+						 });
+					 }
+		    		 return { 'results' : tmp.result };
+		    	 }
+			 }
+			,cache: true
+			,formatResult : function(result) {
+				 if(!result)
+					 return '';
+				 return '<div class="row order_item"><div class="col-xs-12">' + result.data.name + '</div></div >';
+			 }
+			 ,escapeMarkup: function (markup) { return markup; } // let our custom formatter work
 		});
 		return tmp.me;
 	}
@@ -112,7 +178,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				});
 			})
 		});
-		tmp.me._searchProduct()._searchPO();
+		tmp.me._searchProduct()._searchPO()._searchCategories()._searchBrands();
 		return tmp.me;
 	}
 	/**
@@ -157,7 +223,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.me = this;
 		tmp.tag = (tmp.isTitle === true ? 'th' : 'td');
 		tmp.isTitle = (isTitle || false);
-
+		
 		tmp.row = new Element('tr', {'class': (tmp.isTitle === true ? 'item_top_row' : 'btn-hide-row item_row') + (row.active == 0 ? ' danger' : ''), 'item_id': (tmp.isTitle === true ? '' : row.id)})
 			.store('data', row)
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle === true ? 'Product SKU' : tmp.me._getLink('product', row.product.id, row.product.sku) ) })

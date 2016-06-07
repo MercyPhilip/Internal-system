@@ -33,7 +33,13 @@
                            <label class="input-group-addon">Days</label>
                        </div>
 					</div>
-					<div class="col-sm-12">
+					<div class="col-md-4">
+						<div class="form-group form-group-sm input-group">
+							<label class="contorl-label input-group-addon">Brand</label>
+							<input type="text" search_field="pro.manufacturerIds" placeholder="the Name of Brand" class="form-control input-sm select2">
+						</div>
+					</div>
+					<div class="col-sm-8">
 						<div class="form-group form-group-sm input-group">
                            <label class="input-group-addon">Categories:</label>
                            <input type="text" search_field="pro.categories" placeholder="the Name of Category" class="form-control input-sm select2">
