@@ -94,6 +94,11 @@
       <url ServiceParameter="Product.Details.DetailsController" pattern="product/{id}.html" parameters.id="new"/>
       <url ServiceParameter="Product.Details.DetailsController" pattern="product/{id}.html" parameters.id="\d+"/>
 
+      <!-- FrontEnd:: product mini stock level list page -->
+      <url ServiceParameter="ProductManagement.MiniStockLevel.List.ListController" pattern="ministocklevel.html" />
+      <!-- FrontEnd:: product category management list page -->
+      <url ServiceParameter="ProductManagement.CategoryManagement.List.ListController" pattern="categorymanagement.html" />
+      
       <!-- FrontEnd:: product code type list page -->
       <url ServiceParameter="ProductCodeType.List.ListController" pattern="productcodetypes.html" />
 
