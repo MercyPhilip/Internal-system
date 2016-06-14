@@ -1,0 +1,111 @@
+
+<com:TContent ID="MainContent">
+<com:Application.controls.fancybox.FancyBox />
+<com:Application.controls.select2.select2 />
+<com:Application.controls.bootstrapDateTimePicker.bootstrapDateTimePicker />
+<com:TCallback ID="updateStockLevelBtn" OnCallback = 'Page.updateStockLevel' />
+<com:TCallback ID="updateETABtn" OnCallback = 'Page.updateETA' />
+<com:TCallback ID="genReportBtn" OnCallback = 'Page.genReport' />
+	<div class="pagewrapper productlistwraper">
+		<div class="col-xs-12">
+			<div class="panel panel-default" id="searchPanel">
+				<div class="panel-heading">
+					<label for="showSearch">Show Search Criteria?</label>
+					<input id="showSearch" type="checkbox" checked onclick="pageJs.toggleSearchPanel($(this).up('#searchPanel').down('.panel-body'));">
+					<span class="pull-right btn-group">
+						<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span>
+						<span id="excelBtn" class="btn btn-success btn-sm" data-loading-text="loading ..." >Excel</span>
+					</span>
+				</div>
+				<div class="panel-body search-panel" id="searchDiv">
+					<input type="hidden" search_field="pro.id" value="<%= $this->getRequestProductID() %>"/>
+					<div class="row">
+						<div class="col-xs-2">
+							<div class="form-group form-group-sm input-group">
+	                           <label class="contorl-label input-group-addon">SKU</label>
+	                           <input type="text" search_field="pro.sku" placeholder="The SKU of the product" class="form-control input-sm">
+	                       </div>
+						</div>
+						<div class="col-xs-4">
+							<div class="form-group form-group-sm input-group">
+	                           <label class="contorl-label input-group-addon">Name</label>
+	                           <input type="text" search_field="pro.name" placeholder="The name of the product" class="form-control input-sm">
+	                       </div>
+						</div>
+						<div class="col-xs-2">
+                            <div class="form-group form-group-sm input-group">
+                               <label class="contorl-label input-group-addon">Active</label>
+                               <select search_field="pro.active" class="chosen form-control input-sm">
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                    <option value="ALL">All</option>
+                               </select>
+                           </div>
+                        </div>
+                        <div class="col-xs-2">
+							<div class="form-group form-group-sm input-group">
+				                <label class="contorl-label input-group-addon" title="Stock on Hand">SH</label>
+				                <select search_field="pro.sh" class="chosen form-control input-sm">
+				                	<option value="[null,null]">All</option>
+				                	<option value="[0,0]">=0</option>
+                               		<option value="[1,null]">>0</option>
+                               		<option value="[2,null]">>1</option>
+                               		<option value="[null,-1]"><0</option>
+				                </select>
+	                        </div>
+                        </div>
+						<div class="col-xs-2">
+                            <div class="form-group form-group-sm input-group">
+                               <label class="contorl-label input-group-addon">Sell On Web</label>
+                               <select search_field="pro.sellOnWeb" class="chosen form-control input-sm">
+                                    <option value="ALL">All</option>
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                               </select>
+                           </div>
+                        </div>
+
+						<div class="col-xs-2">
+							<div class="form-group form-group-sm input-group">
+				                <label class="contorl-label input-group-addon">Brand</label>
+				                <select search_field="pro.manufacturerIds" multiple class="chosen form-control input-sm"></select>
+	                        </div>
+                        </div>
+                        <div class="col-xs-2">
+	                        <div class="form-group form-group-sm input-group">
+				                <label class="contorl-label input-group-addon">Suppliers</label>
+			                	<select search_field="pro.supplierIds" multiple class="chosen form-control input-sm"></select>
+	                        </div>
+						</div>
+                        <div class="col-xs-4">
+	                        <div class="form-group form-group-sm input-group">
+				                <label class="contorl-label input-group-addon">Categories</label>
+			                	<select search_field="pro.productCategoryIds" multiple class="chosen form-control input-sm"></select>
+	                        </div>
+						</div>
+						<div class="col-xs-2">
+							<div class="form-group form-group-sm input-group">
+	                           <label class="contorl-label input-group-addon">Status</label>
+                               <select search_field="pro.productStatusIds" multiple class="chosen form-control input-sm"></select>
+	                       </div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="col-xs-12 list-panel">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<div class="row">
+						<div class="col-xs-4">
+							Found <label id="total-found-count">0</label> Products.
+						</div>
+					</div>
+				</div>
+				<small class="table-responsive" >
+	                <table class="table table-hover " id="item-list"></table>
+	            </small>
+			</div>
+		</div>
+	</div>
+</com:TContent>

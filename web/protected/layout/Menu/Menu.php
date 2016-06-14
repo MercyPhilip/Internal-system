@@ -51,7 +51,8 @@ class Menu extends TTemplateControl
 			$array['Products']['importer']  = array('url' => '/importer/new.html', 'name' => 'Importer', 'icon'=> '<span class="fa fa-bars"></span>');
 			$array['Products']['ageingreport']  = array('url' => '/productageing.html', 'name' => 'Ageing Report (beta)', 'icon'=> '<span class="glyphicon glyphicon-eye-open"></span>');
 			$array['Products']['systembuilds'] = array('url' => '/build.html', 'name' => 'System Builds');
-
+			$array['Products']['msl'] = array('url' => '/ministocklevel.html', 'name' => 'Minimum Stock Level');
+			$array['Products']['categorymanagement'] = array('url' => '/categorymanagement.html', 'name' => 'Category Management');
 		}
 		if(AccessControl::canAccessPurcahseOrdersPage(Core::getRole()) )
 			$array['Purchase'] = array(
