@@ -1,5 +1,6 @@
 <com:TContent ID="MainContent">
 <com:Application.controls.select2.select2 />
+<com:Application.controls.bootstrapDateTimePicker.bootstrapDateTimePicker />
 <com:TCallback ID="genReportmBtn" OnCallback = 'Page.genReport' />
 	<div class="pagewrapper item-list-wrapper" style="margin-top: 10px;">
 		<div class="col-xs-12">
@@ -50,6 +51,20 @@
                             <div class="form-group form-group-sm input-group">
                                 <label class="contorl-label input-group-addon">Categories</label>
                                 <input type="text" search_field="pro.productCategoryIds" class="chosen form-control input-sm select2" entityName="ProductCategory"></input>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="form-group form-group-sm input-group">
+                                <label class="input-group-addon">Run Rate Date:</label>
+                                <div class="form-control input-sm" style="padding:0px;">
+                                    <div class="col-xs-6"  style="padding:0px;">
+                                        <input class="form-control input-sm datepicker" search_field="runRateDate_from" placeholder="FROM:"/>
+                                    </div>
+                                    <span class="input-group-btn" style="width:0px;"></span>
+                                    <div class="col-xs-6"  style="padding:0px;">
+                                        <input class="form-control input-sm datepicker" search_field="runRateDate_to" placeholder="TO:"/>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
