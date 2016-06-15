@@ -226,8 +226,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				jQuery('.' + type + '-input[product-id=' + tmp.result.item.id + ']').attr('original-' + type, newValue);
 				tmp.row = $(tmp.me.resultDivId).down('.product_item[product_id=' + tmp.result.item.id + ']');
 				if(tmp.row) {
-					tmp.row.replace(tmp.me._getResultRow(tmp.result.item, false));
-					tmp.me._bindDatePicker(tmp.row);
+					tmp.row.replace(tmp.newRow = tmp.me._getResultRow(tmp.result.item, false));
+					tmp.me._bindDatePicker(tmp.newRow);
 					tmp.me._bindPriceInput();
 				}
 			} catch (e) {
@@ -253,8 +253,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					return;
 				tmp.row = $(tmp.me.resultDivId).down('.product_item[product_id=' + tmp.result.item.id + ']');
 				if(tmp.row) {
-					tmp.row.replace(tmp.me._getResultRow(tmp.result.item, false));
-					tmp.me._bindDatePicker(tmp.row);
+					tmp.row.replace(tmp.newRow = tmp.me._getResultRow(tmp.result.item, false));
+					tmp.me._bindDatePicker(tmp.newRow);
 					tmp.me._bindPriceInput();
 				}
 			} catch (e) {
