@@ -81,10 +81,16 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			useCurrent: false
 		});
 		jQuery('#' + dfromCtl.id).on("dp.change", function (e) {
-			jQuery('#' + dtoCtl.id).data("DateTimePicker").minDate(e.date);
+			if (e.date)
+				jQuery('#' + dtoCtl.id).data("DateTimePicker").minDate(e.date);
+			else
+				jQuery('#' + dtoCtl.id).data("DateTimePicker").minDate('0001-01-01');
 		});
 		jQuery('#' + dtoCtl.id).on("dp.change", function (e) {
-			jQuery('#' + dfromCtl.id).data("DateTimePicker").maxDate(e.date);
+			if (e.date)
+				jQuery('#' + dfromCtl.id).data("DateTimePicker").maxDate(e.date);
+			else
+				jQuery('#' + dfromCtl.id).data("DateTimePicker").minDate('0001-01-01');
 		});
 		return tmp.me;
 	}

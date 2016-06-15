@@ -222,6 +222,7 @@ class ReportController extends BPCPageAbstract
 									max(rec2.updated) `updated`
 								FROM
 									receivingitem rec2
+								WHERE rec2.active = 1
 								GROUP BY
 									rec2.productId
 							) rec3
