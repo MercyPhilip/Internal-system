@@ -119,24 +119,21 @@ class ReportController extends BPCPageAbstract
             $joins[] = 'inner join productprice pp on (pp.productId = pro.id and pp.active = 1 and pp.typeId = 1)';
             $joins[] = 'inner join receivingitem rec on (rec.productId = pro.id and rec.active =1)';
             $joins[] = 'inner join purchaseorder po on (po.id = rec.purchaseOrderId and po.active =1)';
-            $joins[] = 'inner join supplier s on (po.supplierId = s.`id` and s.active =1)';
-            $joins[] = 'inner join manufacturer m on (pro.manufacturerId = m.`id` and m.active =1)';
+            $joins[] = 'left outer join supplier s on (po.supplierId = s.`id` and s.active =1)';
+            $joins[] = 'left outer join manufacturer m on (pro.manufacturerId = m.`id` and m.active =1)';
             $sql = "select pro.id `productId`, pro.sku `sku`, pro.name `name`, 
-            		ifnull(rec.unitPrice, '') buyinprice, ifnull(DATE_FORMAT(rec.updated, '%Y-%m-%d'), '') buyindate, ifnull(rec.qty, 0) qty, 
-            		s.`name` supplier, m.`name` brand
+            		ifnull(rec.unitPrice, '') buyinprice, ifnull(DATE_FORMAT(rec.updated, '%Y-%m-%d'), '') buyindate, 
+            		s.`name` supplier, m.`name` brand, po.purchaseOrderNo purchaseOrderNo,
+            		sum(ifnull(rec.qty, 0)) qty
             		from product pro " . implode(' ', $joins) . (count($wheres) > 0 ? (" where " . implode(' AND ', $wheres)) : '');
-            $sql = $sql . ' order by pro.sku, rec.updated desc';
+            $sql = $sql . " group by pro.id, pro.sku, pro.name, rec.unitPrice, DATE_FORMAT(rec.updated, '%Y-%m-%d'), s.`name`, m.`name`,po.purchaseOrderNo order by pro.sku, rec.updated desc";
             
             $result = Dao::getResultsNative($sql, $params, PDO::FETCH_ASSOC);
             if(count($result) === 0)
                 throw new Exception('No result found!');
             if(count($result) > 3000)
             	throw new Exception('Too many rows are found, please narrow down your search criteria!');
-            $proIdMap = array();
-            foreach($result as $row)
-                $proIdMaps[$row['productId']] = $row;
-
-            if (!($asset = $this->_getExcel($proIdMaps)) instanceof Asset)
+            if (!($asset = $this->_getExcel($result)) instanceof Asset)
                 throw new Exception('Failed to create a excel file');
             $results['url'] = $asset->getUrl();
         }
@@ -164,9 +161,10 @@ class ReportController extends BPCPageAbstract
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Quantity');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Supplier');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Brand');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Purchase Order No');
 	    $rowNo++;
 	    // data row
-	    foreach($data as $productId => $rowNoData)
+	    foreach($data as $rowNoData)
 	    {
 	    	$columnNo = 0; // excel start at 1 NOT 0
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['sku']);
@@ -176,6 +174,8 @@ class ReportController extends BPCPageAbstract
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['qty']);
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['supplier']);
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['brand']);
+	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['purchaseOrderNo']);
+	    	
 	    	$rowNo++;
 	    }
 	    // Set document properties
