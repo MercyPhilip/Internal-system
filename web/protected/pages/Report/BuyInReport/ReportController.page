@@ -55,14 +55,14 @@
                         </div>
                         <div class="col-xs-12">
                             <div class="form-group form-group-sm input-group">
-                                <label class="input-group-addon">Run Rate Date:</label>
+                                <label class="input-group-addon">Buy In Date:</label>
                                 <div class="form-control input-sm" style="padding:0px;">
                                     <div class="col-xs-6"  style="padding:0px;">
-                                        <input class="form-control input-sm datepicker" search_field="runRateDate_from" placeholder="FROM:"/>
+                                        <input class="form-control input-sm datepicker" search_field="buyinDate_from" placeholder="FROM:"/>
                                     </div>
                                     <span class="input-group-btn" style="width:0px;"></span>
                                     <div class="col-xs-6"  style="padding:0px;">
-                                        <input class="form-control input-sm datepicker" search_field="runRateDate_to" placeholder="TO:"/>
+                                        <input class="form-control input-sm datepicker" search_field="buyinDate_to" placeholder="TO:"/>
                                     </div>
                                 </div>
                             </div>

@@ -61,12 +61,10 @@ class ReportController extends BPCPageAbstract
                 $wheres[] = 'pro.name like :name';
                 $params['name'] = '%' . $name . '%';
             }
-
             if(isset($searchParams['pro.active']) && ($active = trim($searchParams['pro.active'])) !== '') {
                 $wheres[] = 'pro.active = :active';
                 $params['active'] = $active;
             }
-
             $productIds = $this->_getParams($searchParams, 'pro.id');
             if(count($productIds) > 0) {
                 $array = array();
@@ -107,25 +105,45 @@ class ReportController extends BPCPageAbstract
                 }
                 $joins[] = 'inner join product_category x on (x.productId = pro.id and x.active = 1 and x.categoryId in (' . implode(',', $array) . '))';
             }
-            $sql = 'select pro.id `proId`, pro.sku `proSku`, pro.name `proName` from product pro ' . implode(' ', $joins) . (count($wheres) > 0 ? (' where ' . implode(' AND ', $wheres)) : '');
+            $joins[] = 'inner join productprice pp on (pp.productId = pro.id and pp.active = 1 and pp.typeId = 1)';
+            $sql = 'select pro.id `proId`, pro.sku `proSku`, pro.name `proName`, pro.stockOnHand, 
+            		pro.totalOnHandValue, pp.price from product pro ' . implode(' ', $joins) . (count($wheres) > 0 ? (' where ' . implode(' AND ', $wheres)) : '');
+            $sql = $sql . ' order by pro.sku ';
             $result = Dao::getResultsNative($sql, $params, PDO::FETCH_ASSOC);
             if(count($result) === 0)
                 throw new Exception('No result found!');
-            $proIdMap = array();
-            foreach($result as $row)
-                $proIdMap[$row['proId']] = $row;
-            $rates = $this->_getRunRateData(array_keys($proIdMap));
-            $ratesMap = array();
-            foreach($rates as $row)
-                $ratesMap[$row['proId']] = $row;
-            $data = array();
-            foreach($proIdMap as $productId => $productInfo) {
-                if(!isset($ratesMap[$productId]))
-                    $data[$productId] = array_merge($productInfo, array('7days' => 0, '14days' => 0, '1month' => 0, '3month' => 0, '6month' => 0, '12month' => 0));
-                else
-                    $data[$productId] = array_merge($productInfo, $ratesMap[$productId]);
+            if(count($result) > 3000)
+            	throw new Exception('Too many rows are found, please narrow down your search criteria!');
+            $dateRange = array();
+            if(isset($searchParams['runRateDate_from']) && ($from = trim($searchParams['runRateDate_from'])) !== '') {
+            	$dateRange = array('from' => $from);
             }
-            if (!($asset = $this->_getExcel($data)) instanceof Asset)
+            if(isset($searchParams['runRateDate_to']) && ($to = trim($searchParams['runRateDate_to'])) !== '') {
+            	$dateRange = $dateRange + array('to' => $to);
+            }
+            $from = isset($dateRange['from']) ? New UDate($dateRange['from']) : New UDate(UDate::zeroDate());
+            $to = isset($dateRange['to']) ? New UDate($dateRange['to']) : UDate::now();
+            $field = '[' . $from->getDateTimeString() . ' - ' . $to->getDateTimeString() . ']';
+            $proIdMap = array();
+            if (count($dateRange) == 0)
+            	$extraInfo = array('lastbuyprice' => '', '7days' => 0, '14days' => 0, '1month' => 0, '3month' => 0, '6month' => 0, '12month' => 0);
+            else
+            	$extraInfo = array('lastbuyprice' => '', $field => 0);
+            foreach($result as $row)
+                $proIdMaps[$row['proId']] = $row + $extraInfo;
+            // get last buy price
+            $lastbuys = $this->_getLastBuy(array_keys($proIdMaps));
+            foreach($lastbuys as $row)
+            {
+            	$proIdMaps[$row['proId']] = isset($proIdMaps[$row['proId']])? array_merge($proIdMaps[$row['proId']], $row) : $proIdMaps[$row['proId']];
+            }
+            //get run rate
+            $rates = $this->_getRunRateData(array_keys($proIdMaps), $dateRange);
+            foreach($rates as $row)
+            {
+            	$proIdMaps[$row['proId']] = isset($proIdMaps[$row['proId']])? array_merge($proIdMaps[$row['proId']], $row): $proIdMaps[$row['proId']];
+            }
+            if (!($asset = $this->_getExcel($proIdMaps, $dateRange)) instanceof Asset)
                 throw new Exception('Failed to create a excel file');
             $results['url'] = $asset->getUrl();
         }
@@ -135,32 +153,91 @@ class ReportController extends BPCPageAbstract
         }
         $param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
 	}
-	private function _getRunRateData($productIds) {
+	/**
+	 * get run rate report
+	 * @param unknown $productIds
+	 * @param unknown $dateRange
+	 */
+	private function _getRunRateData($productIds, $dateRange = array()) {
 	    if(count($productIds) === 0)
 	        return array();
-	    $_7DaysBefore = UDate::now()->modify('-7 day');
-	    $_14DaysBefore = UDate::now()->modify('-14 day');
-	    $_1mthBefore = UDate::now()->modify('-1 month');
-	    $_3mthBefore = UDate::now()->modify('-3 month');
-	    $_6mthBefore = UDate::now()->modify('-6 month');
-	    $_12mthBefore = UDate::now()->modify('-12 month');
-	    $sql = "select ord_item.productId `proId`,
-	            sum(if(ord.orderDate >= '" . $_7DaysBefore . "', ord_item.qtyOrdered, 0)) `7days`,
-	            sum(if(ord.orderDate >= '" . $_14DaysBefore . "', ord_item.qtyOrdered, 0)) `14days`,
-	            sum(if(ord.orderDate >= '" . $_1mthBefore . "', ord_item.qtyOrdered, 0)) `1month`,
-	            sum(if(ord.orderDate >= '" . $_3mthBefore . "', ord_item.qtyOrdered, 0)) `3month`,
-	            sum(if(ord.orderDate >= '" . $_6mthBefore . "', ord_item.qtyOrdered, 0)) `6month`,
-	            sum(if(ord.orderDate >= '" . $_12mthBefore . "', ord_item.qtyOrdered, 0)) `12month`
-	            from `orderitem` ord_item
-	            inner join `order` ord on (ord.type = :type and ord.active = 1 and ord.id = ord_item.orderId)
-	            where ord_item.active = 1 and ord_item.productId in (" . implode(', ', $productIds) . ")
-	            group by ord_item.productId";
+	    if (count($dateRange) === 0) 
+	    {
+		    $_7DaysBefore = UDate::now()->modify('-7 day');
+		    $_14DaysBefore = UDate::now()->modify('-14 day');
+		    $_1mthBefore = UDate::now()->modify('-1 month');
+		    $_3mthBefore = UDate::now()->modify('-3 month');
+		    $_6mthBefore = UDate::now()->modify('-6 month');
+		    $_12mthBefore = UDate::now()->modify('-12 month');
+		    $sql = "select ord_item.productId `proId`,
+		            sum(if(ord.orderDate >= '" . $_7DaysBefore . "', ord_item.qtyOrdered, 0)) `7days`,
+		            sum(if(ord.orderDate >= '" . $_14DaysBefore . "', ord_item.qtyOrdered, 0)) `14days`,
+		            sum(if(ord.orderDate >= '" . $_1mthBefore . "', ord_item.qtyOrdered, 0)) `1month`,
+		            sum(if(ord.orderDate >= '" . $_3mthBefore . "', ord_item.qtyOrdered, 0)) `3month`,
+		            sum(if(ord.orderDate >= '" . $_6mthBefore . "', ord_item.qtyOrdered, 0)) `6month`,
+		            sum(if(ord.orderDate >= '" . $_12mthBefore . "', ord_item.qtyOrdered, 0)) `12month`
+		            from `orderitem` ord_item
+		            inner join `order` ord on (ord.type = :type and ord.active = 1 and ord.id = ord_item.orderId)
+		            where ord_item.active = 1 and ord_item.productId in (" . implode(', ', $productIds) . ")
+		            group by ord_item.productId";
+	    }
+	    else
+	    {
+	    	$from = isset($dateRange['from']) ? New UDate($dateRange['from']) : New UDate(UDate::zeroDate());
+	    	$to = isset($dateRange['to']) ? New UDate($dateRange['to']) : UDate::now();
+	    	$sql = "select ord_item.productId `proId`,
+		            sum(ifnull(ord_item.qtyOrdered, 0)) `[" . $from->getDateTimeString() . " - " . $to->getDateTimeString() . "]`
+		            from `orderitem` ord_item
+		            inner join `order` ord on (ord.type = :type and ord.active = 1 and ord.id = ord_item.orderId)
+		            where ord_item.active = 1 and ord_item.productId in (" . implode(', ', $productIds) . ")
+		            and ord.orderDate between '" . $from . "' and '" . $to . "'
+		            group by ord_item.productId";
+	    }
 	    return Dao::getResultsNative($sql, array('type' => Order::TYPE_INVOICE), PDO::FETCH_ASSOC);
 	}
 	/**
+	 * get last buy price and received date
+	 * @param unknown $productIds
+	 */
+	private function _getLastBuy($productIds)
+	{
+		if(count($productIds) === 0)
+			return array();
+		$sql = "
+				SELECT
+					LB.productId `proId`,
+					ifnull(LB.unitPrice, '') lastbuyprice,
+					ifnull(LB.updated, '') lastrecdate
+				FROM
+					(
+						SELECT DISTINCT
+							rec1.productId,
+							DATE_FORMAT(rec1.updated, '%Y-%m-%d') updated,
+							rec1.unitPrice
+						FROM
+							receivingitem rec1,
+							(
+								SELECT
+									rec2.productId,
+									max(rec2.updated) `updated`
+								FROM
+									receivingitem rec2
+								WHERE rec2.active = 1
+								GROUP BY
+									rec2.productId
+							) rec3
+						WHERE
+							rec1.productId = rec3.productId
+						AND rec1.updated = rec3.updated
+					) LB
+		WHERE LB.productId in (" . implode(', ', $productIds) . ")";
+		return Dao::getResultsNative($sql, array(), PDO::FETCH_ASSOC);
+	}
+	
+	/**
 	 * @return PHPExcel
 	 */
-	private function _getExcel($data)
+	private function _getExcel($data, $dateRange = array())
 	{
 	    $phpexcel= new PHPExcel();
 	    $activeSheet = $phpexcel->setActiveSheetIndex(0);
@@ -170,26 +247,80 @@ class ReportController extends BPCPageAbstract
 	    // header row
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'SKU');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Product Name');
-	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last Week');
-	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last Fortnight');
-	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last 1 Month');
-	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last 3 Month');
-	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last 6 Month');
-	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last 12 Month');
-	    $rowNo++;
-	    foreach($data as $productId => $rowNoData)
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last Buy Price');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Average Cost');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'SOH');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Selling Price');
+	    if (count($dateRange) === 0)
 	    {
-    	    $columnNo = 0; // excel start at 1 NOT 0
-	        $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proSku']);
-    	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proName']);
-    	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['7days']);
-    	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['14days']);
-    	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['1month']);
-    	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['3month']);
-    	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['6month']);
-    	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['12month']);
-	        $rowNo++;
+	    	// header row
+		    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last Week');
+		    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last Fortnight');
+		    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last 1 Month');
+		    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last 3 Month');
+		    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last 6 Month');
+		    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last 12 Month');
+		    $rowNo++;
+		    // data row
+		    foreach($data as $productId => $rowNoData)
+		    {
+		    	$columnNo = 0; // excel start at 1 NOT 0
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proSku']);
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proName']);
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, StringUtilsAbstract::getCurrency(doubleval($rowNoData['lastbuyprice'])));
+		    	if (isset($rowNoData['totalOnHandValue']) && $rowNoData['totalOnHandValue'] !=0 && isset($rowNoData['stockOnHand']) && $rowNoData['stockOnHand'] != 0)
+		    	{
+		    		$avgCost = ($rowNoData['totalOnHandValue'] / $rowNoData['stockOnHand']);
+		    		$avgCost = StringUtilsAbstract::getCurrency($avgCost);
+		    	}
+		    	else
+		    	{
+		    		$avgCost = 'N/A';
+		    	}
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $avgCost);
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['stockOnHand']);
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, StringUtilsAbstract::getCurrency(doubleval($rowNoData['price'])));
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['7days']);
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['14days']);
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['1month']);
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['3month']);
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['6month']);
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['12month']);
+		    	$rowNo++;
+		    }
 	    }
+	    else 
+	    {
+	    	$from = isset($dateRange['from']) ? New UDate($dateRange['from']) : New UDate(UDate::zeroDate());
+	    	$to = isset($dateRange['to']) ? New UDate($dateRange['to']) : UDate::now();
+	    	$field = '[' . $from->getDateTimeString() . ' - ' . $to->getDateTimeString() . ']';
+	    	// header row
+	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $field);
+	    	$rowNo++;
+	    	// data row
+	    	foreach($data as $productId => $rowNoData)
+	    	{
+	    		$columnNo = 0; // excel start at 1 NOT 0
+	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proSku']);
+	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proName']);
+	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, StringUtilsAbstract::getCurrency(doubleval($rowNoData['lastbuyprice'])));
+	    		if (isset($rowNoData['totalOnHandValue']) && $rowNoData['totalOnHandValue'] !=0 && isset($rowNoData['stockOnHand']) && $rowNoData['stockOnHand'] != 0)
+	    		{
+	    			$avgCost = ($rowNoData['totalOnHandValue'] / $rowNoData['stockOnHand']);
+	    			$avgCost = StringUtilsAbstract::getCurrency($avgCost);
+	    		}
+	    		else
+	    		{
+	    			$avgCost = 'N/A';
+	    		}
+	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $avgCost);
+	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['stockOnHand']);
+	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, StringUtilsAbstract::getCurrency(doubleval($rowNoData['price'])));
+	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData[$field]);
+	    		$rowNo++;
+	    	}
+	    }
+
 	    // Set document properties
 	    $now = UDate::now();
 	    $objWriter = new PHPExcel_Writer_Excel2007($phpexcel);

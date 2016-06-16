@@ -6,6 +6,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	init: function() {
 		var tmp = {};
 		tmp.me = this;
+		tmp.me._bindDatePicker();
 		jQuery.each(jQuery('.select2'), function(index, element){
 			jQuery(element).select2({
 				multiple: true,
@@ -14,7 +15,10 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					delay: 10,
 					type: 'POST',
 					data: function(params, page) {
-						return {"searchTxt": 'name like ?', 'searchParams': ['%' + params + '%'], 'entityName': jQuery(element).attr('entityName'), 'pageNo': page};
+						if(jQuery(element).attr('entityName') === 'Product')
+							return {"searchTxt": 'sku like ? or name like ?', 'searchParams': ['%' + params + '%', '%' + params + '%'], 'entityName': jQuery(element).attr('entityName'), 'pageNo': page};
+						else
+							return {"searchTxt": 'name like ?', 'searchParams': ['%' + params + '%'], 'entityName': jQuery(element).attr('entityName'), 'pageNo': page};
 					},
 					results: function (data, page, query) {
 						 tmp.result = [];
@@ -23,7 +27,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 								 tmp.result.push({'id': item.id, 'text': item.orderNo, 'data': item});
 							 });
 						 }
-			    		 return { 'results' : tmp.result, 'more': (data.resultData && data.resultData.pagination && data.resultData.pagination.totalPages && page < data.resultData.pagination.totalPages) };
+						 return { 'results' : tmp.result, 'more': (data.resultData && data.resultData.pagination && data.resultData.pagination.totalPages && page < data.resultData.pagination.totalPages) };
 					},
 					cache: true
 				},
@@ -50,6 +54,43 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
 				minimumInputLength: 3
 			});
+		});
+		return tmp.me;
+	}
+	/**
+	 * initialing the js for date picker
+	 */
+	,_bindDatePicker: function() {
+		
+		var tmp = {};
+		tmp.me = this;
+		dfromCtl = jQuery('[search_field="buyinDate_from"]');
+		dfromCtl = dfromCtl[0];
+		tmp.me._signRandID(dfromCtl);
+	
+		dtoCtl = jQuery('[search_field="buyinDate_to"]');
+		dtoCtl = dtoCtl[0];
+		tmp.me._signRandID(dtoCtl);
+		
+		jQuery('#' + dfromCtl.id).datetimepicker({
+			format: 'YYYY-MM-DD',
+			useCurrent: false
+		});
+		jQuery('#' + dtoCtl.id).datetimepicker({
+			format: 'YYYY-MM-DD',
+			useCurrent: false
+		});
+		jQuery('#' + dfromCtl.id).on("dp.change", function (e) {
+			if (e.date)
+				jQuery('#' + dtoCtl.id).data("DateTimePicker").minDate(e.date);
+			else
+				jQuery('#' + dtoCtl.id).data("DateTimePicker").minDate('0001-01-01');
+		});
+		jQuery('#' + dtoCtl.id).on("dp.change", function (e) {
+			if (e.date)
+				jQuery('#' + dfromCtl.id).data("DateTimePicker").maxDate(e.date);
+			else
+				jQuery('#' + dfromCtl.id).data("DateTimePicker").minDate('0001-01-01');
 		});
 		return tmp.me;
 	}

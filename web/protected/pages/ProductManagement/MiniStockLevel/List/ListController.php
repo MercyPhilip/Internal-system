@@ -353,6 +353,7 @@ class ListController extends CRUDPageAbstract
 											max(rec2.updated) `updated`
 										FROM
 											receivingitem rec2
+										WHERE rec2.active = 1
 										GROUP BY
 											rec2.productId
 									) rec3
@@ -369,7 +370,7 @@ class ListController extends CRUDPageAbstract
 								purchaseorder po,
 								purchaseorderitem poi
 							WHERE
-								po.id = poi.purchaseOrderId
+								po.id = poi.purchaseOrderId and poi.active = 1 and po.active = 1
 							AND po.`status` IN (
 								'NEW',
 								'ORDERED',
@@ -398,6 +399,7 @@ class ListController extends CRUDPageAbstract
 												max(rec2.updated) `updated`
 											FROM
 												receivingitem rec2
+											WHERE rec2.active = 1
 											GROUP BY
 												rec2.productId
 										) rec3
@@ -414,7 +416,7 @@ class ListController extends CRUDPageAbstract
 									purchaseorder po,
 									purchaseorderitem poi
 								WHERE
-									po.id = poi.purchaseOrderId
+									po.id = poi.purchaseOrderId and poi.active = 1 and po.active = 1
 								AND po.`status` IN (
 									'NEW',
 									'ORDERED',
