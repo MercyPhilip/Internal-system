@@ -90,7 +90,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			if (e.date)
 				jQuery('#' + dfromCtl.id).data("DateTimePicker").maxDate(e.date);
 			else
-				jQuery('#' + dfromCtl.id).data("DateTimePicker").minDate('0001-01-01');
+				jQuery('#' + dfromCtl.id).data("DateTimePicker").maxDate('9999-01-01');
 		});
 		return tmp.me;
 	}

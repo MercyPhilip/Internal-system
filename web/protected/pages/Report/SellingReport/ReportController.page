@@ -6,7 +6,7 @@
 		<div class="col-xs-12">
             <div class="panel panel-default" id="searchPanel">
                 <div class="panel-heading">
-                    <label for="showSearch">Product Buy In Report:</label>
+                    <label for="showSearch">Product Selling Report:</label>
 	                <span class="pull-right">
 	                    <span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." onclick="pageJs.genReport(this);">Search</span>
 	                </span>
@@ -55,14 +55,14 @@
                         </div>
                         <div class="col-xs-12">
                             <div class="form-group form-group-sm input-group">
-                                <label class="input-group-addon">Buy In Date:</label>
+                                <label class="input-group-addon">Selling Date:</label>
                                 <div class="form-control input-sm" style="padding:0px;">
                                     <div class="col-xs-6"  style="padding:0px;">
-                                        <input class="form-control input-sm datepicker" search_field="buyinDate_from" placeholder="FROM:"/>
+                                        <input class="form-control input-sm datepicker" search_field="sellingDate_from" placeholder="FROM:"/>
                                     </div>
                                     <span class="input-group-btn" style="width:0px;"></span>
                                     <div class="col-xs-6"  style="padding:0px;">
-                                        <input class="form-control input-sm datepicker" search_field="buyinDate_to" placeholder="TO:"/>
+                                        <input class="form-control input-sm datepicker" search_field="sellingDate_to" placeholder="TO:"/>
                                     </div>
                                 </div>
                             </div>

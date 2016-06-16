@@ -12,7 +12,7 @@ class ReportController extends BPCPageAbstract
 	 * (non-PHPdoc)
 	 * @see BPCPageAbstract::$menuItem
 	 */
-	public $menuItem = 'report.buyinreport';
+	public $menuItem = 'report.sellingreport';
 	/**
 	 * constructor
 	 */
@@ -106,33 +106,33 @@ class ReportController extends BPCPageAbstract
                 $joins[] = 'inner join product_category x on (x.productId = pro.id and x.active = 1 and x.categoryId in (' . implode(',', $array) . '))';
             }
             $dateRange = array();
-            if(isset($searchParams['buyinDate_from']) && ($from = trim($searchParams['buyinDate_from'])) !== '') {
+            if(isset($searchParams['sellingDate_from']) && ($from = trim($searchParams['sellingDate_from'])) !== '') {
             	$dateRange = array('from' => $from);
             }
-            if(isset($searchParams['buyinDate_to']) && ($to = trim($searchParams['buyinDate_to'])) !== '') {
+            if(isset($searchParams['sellingDate_to']) && ($to = trim($searchParams['sellingDate_to'])) !== '') {
             	$dateRange = $dateRange + array('to' => $to);
             }
             $from = isset($dateRange['from']) ? New UDate($dateRange['from']) : New UDate(UDate::zeroDate());
             $to = isset($dateRange['to']) ? New UDate($dateRange['to']) : UDate::now();
-            $wheres[] = "rec.updated between '" . $from . "' and '" . $to . "'";
+            $wheres[] = "oi.updated between '" . $from . "' and '" . $to . "'";
             
-            $joins[] = 'inner join productprice pp on (pp.productId = pro.id and pp.active = 1 and pp.typeId = 1)';
-            $joins[] = 'inner join receivingitem rec on (rec.productId = pro.id and rec.active =1)';
-            $joins[] = 'inner join purchaseorder po on (po.id = rec.purchaseOrderId and po.active =1)';
-            $joins[] = 'left outer join supplier s on (po.supplierId = s.`id` and s.active =1)';
-            $joins[] = 'left outer join manufacturer m on (pro.manufacturerId = m.`id` and m.active =1)';
+            $joins[] = 'inner join orderitem oi on (oi.productId = pro.id and oi.active =1 and oi.isShipped = 1)';
+            $joins[] = 'inner join `order` ord on (ord.id = oi.orderId and ord.active = 1 and ord.statusId = 8)';
+            $joins[] = 'LEFT OUTER JOIN  manufacturer m on (pro.manufacturerId = m.`id` and m.active =1)';
+            $joins[] = 'LEFT OUTER JOIN  customer cst on (cst.`id` = ord.`customerId` and cst.active =1)';
+            $joins[] = 'LEFT OUTER JOIN  sellingitem si on (si.productId = oi.productId and si.orderId = oi.orderId and si.orderItemId = oi.id and si.active =1)';
             $sql = "select pro.id `productId`, pro.sku `sku`, pro.name `name`, 
-            		ifnull(rec.unitPrice, '') buyinprice, ifnull(DATE_FORMAT(rec.updated, '%Y-%m-%d'), '') buyindate, 
-            		s.`name` supplier, m.`name` brand, po.purchaseOrderNo purchaseOrderNo,
-            		sum(ifnull(rec.qty, 0)) qty
+            		ifnull(oi.unitPrice, '') sellingprice, ifnull(DATE_FORMAT(oi.updated, '%Y-%m-%d'), '') sellingdate, 
+            		m.`name` brand, ord.invNo invNo, cst.`name` customer, if(si.kitId is null, 'no', 'yes') isKit,
+            		sum(ifnull(oi.qtyOrdered, 0)) qty
             		from product pro " . implode(' ', $joins) . (count($wheres) > 0 ? (" where " . implode(' AND ', $wheres)) : '');
-            $sql = $sql . " group by pro.id, pro.sku, pro.name, rec.unitPrice, DATE_FORMAT(rec.updated, '%Y-%m-%d'), s.`name`, m.`name`,po.purchaseOrderNo order by pro.sku, rec.updated desc";
+            $sql = $sql . " group by pro.id, pro.sku, pro.name, oi.unitPrice, DATE_FORMAT(oi.updated, '%Y-%m-%d'), m.`name`,ord.invNo, if(si.kitId is null, 'no', 'yes'), cst.`name` order by pro.sku, oi.updated desc";
             
             $result = Dao::getResultsNative($sql, $params, PDO::FETCH_ASSOC);
             if(count($result) === 0)
                 throw new Exception('No result found!');
-            if(count($result) > 3000)
-            	throw new Exception('Too many rows are found, please narrow down your search criteria!');
+//             if(count($result) > 3000)
+//             	throw new Exception('Too many rows are found, please narrow down your search criteria!');
             if (!($asset = $this->_getExcel($result)) instanceof Asset)
                 throw new Exception('Failed to create a excel file');
             $results['url'] = $asset->getUrl();
@@ -156,12 +156,13 @@ class ReportController extends BPCPageAbstract
 	    // header row
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'SKU');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Product Name');
-	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Received Date');
-	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Buy In Price');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Selling Date');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Selling Price');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Quantity');
-	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Supplier');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'isKit');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Brand');
-	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Purchase Order No');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Invoice No');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Customer');
 	    $rowNo++;
 	    // data row
 	    foreach($data as $rowNoData)
@@ -169,13 +170,13 @@ class ReportController extends BPCPageAbstract
 	    	$columnNo = 0; // excel start at 1 NOT 0
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['sku']);
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['name']);
-	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['buyindate']);
-	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, StringUtilsAbstract::getCurrency(doubleval($rowNoData['buyinprice'])));
+	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['sellingdate']);
+	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, StringUtilsAbstract::getCurrency(doubleval($rowNoData['sellingprice'])));
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['qty']);
-	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['supplier']);
+	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['isKit']);
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['brand']);
-	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['purchaseOrderNo']);
-	    	
+	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['invNo']);
+	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['customer']);
 	    	$rowNo++;
 	    }
 	    // Set document properties
@@ -183,7 +184,7 @@ class ReportController extends BPCPageAbstract
 	    $objWriter = new PHPExcel_Writer_Excel2007($phpexcel);
 	    $filePath = '/tmp/' . md5($now);
 	    $objWriter->save($filePath);
-	    $fileName = 'BuyInReport_' . str_replace(':', '_', str_replace('-', '_', str_replace(' ', '_', $now->setTimeZone(SystemSettings::getSettings(SystemSettings::TYPE_SYSTEM_TIMEZONE))))) . '.xlsx';
+	    $fileName = 'SellingReport_' . str_replace(':', '_', str_replace('-', '_', str_replace(' ', '_', $now->setTimeZone(SystemSettings::getSettings(SystemSettings::TYPE_SYSTEM_TIMEZONE))))) . '.xlsx';
 	    $asset = Asset::registerAsset($fileName, file_get_contents($filePath), Asset::TYPE_TMP);
 	    return $asset;
 	}

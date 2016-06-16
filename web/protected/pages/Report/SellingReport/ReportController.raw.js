@@ -64,11 +64,11 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		
 		var tmp = {};
 		tmp.me = this;
-		dfromCtl = jQuery('[search_field="buyinDate_from"]');
+		dfromCtl = jQuery('[search_field="sellingDate_from"]');
 		dfromCtl = dfromCtl[0];
 		tmp.me._signRandID(dfromCtl);
 	
-		dtoCtl = jQuery('[search_field="buyinDate_to"]');
+		dtoCtl = jQuery('[search_field="sellingDate_to"]');
 		dtoCtl = dtoCtl[0];
 		tmp.me._signRandID(dtoCtl);
 		
