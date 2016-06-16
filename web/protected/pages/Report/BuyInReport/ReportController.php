@@ -120,8 +120,10 @@ class ReportController extends BPCPageAbstract
             $joins[] = 'inner join receivingitem rec on (rec.productId = pro.id and rec.active =1)';
             $joins[] = 'inner join purchaseorder po on (po.id = rec.purchaseOrderId and po.active =1)';
             $joins[] = 'inner join supplier s on (po.supplierId = s.`id` and s.active =1)';
+            $joins[] = 'inner join manufacturer m on (pro.manufacturerId = m.`id` and m.active =1)';
             $sql = "select pro.id `productId`, pro.sku `sku`, pro.name `name`, 
-            		ifnull(rec.unitPrice, '') buyinprice, ifnull(DATE_FORMAT(rec.updated, '%Y-%m-%d'), '') buyindate, ifnull(rec.qty, 0) qty, s.`name` supplier
+            		ifnull(rec.unitPrice, '') buyinprice, ifnull(DATE_FORMAT(rec.updated, '%Y-%m-%d'), '') buyindate, ifnull(rec.qty, 0) qty, 
+            		s.`name` supplier, m.`name` brand
             		from product pro " . implode(' ', $joins) . (count($wheres) > 0 ? (" where " . implode(' AND ', $wheres)) : '');
             $sql = $sql . ' order by pro.sku, rec.updated desc';
             
@@ -161,6 +163,7 @@ class ReportController extends BPCPageAbstract
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Buy In Price');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Quantity');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Supplier');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Brand');
 	    $rowNo++;
 	    // data row
 	    foreach($data as $productId => $rowNoData)
@@ -172,6 +175,7 @@ class ReportController extends BPCPageAbstract
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, StringUtilsAbstract::getCurrency(doubleval($rowNoData['buyinprice'])));
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['qty']);
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['supplier']);
+	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['brand']);
 	    	$rowNo++;
 	    }
 	    // Set document properties
