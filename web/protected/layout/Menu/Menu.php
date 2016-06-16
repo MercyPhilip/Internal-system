@@ -103,7 +103,8 @@ class Menu extends TTemplateControl
 		if(AccessControl::canAccessReportsPage(Core::getRole()) ) {
 			$array['Reports'] = array(
 					'icon' => '<span class="fa fa-area-chart"></span>',
-					'Run Rates' =>array('url' => '/report/runrate.html', 'name' => 'Run Rate', 'icon' => '<span class="glyphicon glyphicon-plus"></span>')
+					'Run Rates' =>array('url' => '/report/runrate.html', 'name' => 'Run Rate', 'icon' => '<span class="glyphicon glyphicon-plus"></span>'),
+					'Buy In Report' =>array('url' => '/report/buyinreport.html', 'name' => 'Buy In Report')
 			);
 		}
 		if(AccessControl::canAccessUsersPage(Core::getRole()) ) {

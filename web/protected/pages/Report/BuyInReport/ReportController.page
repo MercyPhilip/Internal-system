@@ -1,0 +1,78 @@
+<com:TContent ID="MainContent">
+<com:Application.controls.select2.select2 />
+<com:Application.controls.bootstrapDateTimePicker.bootstrapDateTimePicker />
+<com:TCallback ID="genReportmBtn" OnCallback = 'Page.genReport' />
+	<div class="pagewrapper item-list-wrapper" style="margin-top: 10px;">
+		<div class="col-xs-12">
+            <div class="panel panel-default" id="searchPanel">
+                <div class="panel-heading">
+                    <label for="showSearch">Product Run Rate Report:</label>
+	                <span class="pull-right">
+	                    <span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." onclick="pageJs.genReport(this);">Search</span>
+	                </span>
+                </div>
+                <div class="panel-body search-panel" id="searchDiv">
+                    <div class="row">
+                        <div class="col-xs-4">
+                            <div class="form-group form-group-sm input-group">
+                               <label class="contorl-label input-group-addon">SKU</label>
+                               <input type="text" search_field="pro.id" placeholder="The SKU of the product" class="form-control input-sm select2 js-example-responsive" entityName="Product"></input>
+                           </div>
+                        </div>
+                        <div class="col-xs-5">
+                            <div class="form-group form-group-sm input-group">
+                               <label class="contorl-label input-group-addon">Name</label>
+                               <input type="text" search_field="pro.name" placeholder="The name of the product" class="form-control input-sm js-example-responsive">
+                           </div>
+                        </div>
+                        <div class="col-xs-3">
+                            <div class="form-group form-group-sm input-group">
+                               <label class="contorl-label input-group-addon">Active</label>
+                               <select search_field="pro.active" class="chosen form-control input-sm">
+                                    <option value="1">Yes</option>
+                                    <option value="0">No</option>
+                                    <option value="">All</option>
+                               </select>
+                           </div>
+                        </div>
+                        <div class="col-xs-2">
+                            <div class="form-group form-group-sm input-group">
+                                <label class="contorl-label input-group-addon">Brand</label>
+                                <input type="text" search_field="pro.manufacturerIds" class="chosen form-control input-sm select2 js-example-responsive" entityName="Manufacturer"></input>
+                            </div>
+                        </div>
+                        <div class="col-xs-2">
+                            <div class="form-group form-group-sm input-group">
+                                <label class="contorl-label input-group-addon">Suppliers</label>
+                                <input type="text" search_field="pro.supplierIds" class="chosen form-control input-sm select2 js-example-responsive" entityName="Supplier"></input>
+                            </div>
+                        </div>
+                        <div class="col-xs-8">
+                            <div class="form-group form-group-sm input-group">
+                                <label class="contorl-label input-group-addon">Categories</label>
+                                <input type="text" search_field="pro.productCategoryIds" class="chosen form-control input-sm select2" entityName="ProductCategory"></input>
+                            </div>
+                        </div>
+                        <div class="col-xs-12">
+                            <div class="form-group form-group-sm input-group">
+                                <label class="input-group-addon">Buy In Date:</label>
+                                <div class="form-control input-sm" style="padding:0px;">
+                                    <div class="col-xs-6"  style="padding:0px;">
+                                        <input class="form-control input-sm datepicker" search_field="buyinDate_from" placeholder="FROM:"/>
+                                    </div>
+                                    <span class="input-group-btn" style="width:0px;"></span>
+                                    <div class="col-xs-6"  style="padding:0px;">
+                                        <input class="form-control input-sm datepicker" search_field="buyinDate_to" placeholder="TO:"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <div id="result-div"></div>
+		</div>
+	</div>
+</com:TContent>
