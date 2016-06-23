@@ -182,7 +182,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					var arr = tmp.me._parseCSV(event.target.result);
 					tmp.me._rowNo = 1; // reset rowNo for each file
 					arr.each(function(line) {
-						
 						if(line !== null && line.length > 0) {
 							tmp.cols = [];
 							line.each(function(col) {
@@ -261,7 +260,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				if((item.key === name) && (item.key != 'description')) {
 					tmp.newRow.insert({'bottom': new Element('th', {'style': item.value ? '' : 'color:red;'})
 						.insert({'bottom' : new Element('div', {'style' : 'max-width:100px;display:inline-block;word-break: break-all; word-wrap: break-word;'}).update(item.value ? item.value : 'Blank ' + name)})
-						//.update(item.value ? item.value : 'Blank ' + name)
 					});
 				}
 			});
@@ -355,6 +353,21 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				.insert({'bottom': tmp.resultList = new Element('tbody') })
 			})
 		);
+		if (tmp.keys.size() == 0)
+		{
+			tmp.resultList.up('.panel').removeClassName('panel-danger').addClassName('panel-success').down('.panel-heading').update('Total of <strong>' + tmp.keys.size() + '</strong> unique row(s) received:')
+			.insert({'bottom': new Element('span',{'class': 'btn-group btn-group-sm pull-right'})
+				.insert({'bottom': new Element('span',{'class': 'btn btn-default'})
+					.writeAttribute('title', 'Start Again')
+					.update(new Element('span', {'class': 'glyphicon glyphicon-repeat'}))
+					.observe('click', function() {
+						window.location = document.URL;
+					})
+				})
+			});
+			return tmp.me;
+		}
+		
 		tmp.me._getProductLineItem(tmp.resultList, 0, tmp.keys);
 		return tmp.me;
 	}
