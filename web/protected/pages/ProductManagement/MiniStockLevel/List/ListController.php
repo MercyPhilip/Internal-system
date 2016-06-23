@@ -231,7 +231,7 @@ class ListController extends CRUDPageAbstract
     			$keys[] = ':' . $key;
     			$ps[$key] = trim($value);
     		}
-    		self::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
+    		Product::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
     		$params = array_merge($params, $ps);
     	}
     	if (count($categoryIds) > 0) {
@@ -252,7 +252,7 @@ class ListController extends CRUDPageAbstract
     				}
     			}
     		}
-    		self::getQuery()->eagerLoad('Product.categories', 'inner join', 'pro_cate', 'pro.id = pro_cate.productId and pro_cate.categoryId in (' . implode(',', $keys) . ')');
+    		Product::getQuery()->eagerLoad('Product.categories', 'inner join', 'pro_cate', 'pro.id = pro_cate.productId and pro_cate.categoryId in (' . implode(',', $keys) . ')');
     		$params = array_merge($params, $ps);
     	}
     	if (($sh_from = trim($sh_from)) !== '') {

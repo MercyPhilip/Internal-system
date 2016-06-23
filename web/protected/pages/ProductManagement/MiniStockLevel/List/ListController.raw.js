@@ -83,11 +83,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.me = this;
 		$$('#searchBtn').first()
 			.observe('click', function(event) {
-				if(!$$('#showSearch').first().checked)
-					$$('#showSearch').first().click();
-				else {
-					tmp.me.getSearchCriteria().getResults(true, tmp.me._pagination.pageSize);
-				}
+				tmp.me.getSearchCriteria().getResults(true, tmp.me._pagination.pageSize);
 			});
 		$('searchDiv').getElementsBySelector('[search_field]').each(function(item) {
 			item.observe('keydown', function(event) {
@@ -106,11 +102,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.me = this;
 		$$('#excelBtn').first()
 			.observe('click', function(event) {
-				if(!$$('#showSearch').first().checked)
-					$$('#showSearch').first().click();
-				else {
-					tmp.me.getSearchCriteria().genReport(true);
-				}
+				tmp.me.getSearchCriteria().genReport(true);
 			});
 		return this;
 	}

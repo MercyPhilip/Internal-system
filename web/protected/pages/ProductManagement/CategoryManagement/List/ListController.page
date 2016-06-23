@@ -11,8 +11,7 @@
 		<div class="col-xs-12">
 			<div class="panel panel-default" id="searchPanel">
 				<div class="panel-heading">
-					<label for="showSearch">Show Search Criteria?</label>
-					<input id="showSearch" type="checkbox" checked onclick="pageJs.toggleSearchPanel($(this).up('#searchPanel').down('.panel-body'));">
+					<label for="showSearch">Search Criteria</label>
 					<span class="pull-right btn-group">
 						<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span>
 						<span id="excelBtn" class="btn btn-success btn-sm" data-loading-text="loading ..." >Excel</span>
