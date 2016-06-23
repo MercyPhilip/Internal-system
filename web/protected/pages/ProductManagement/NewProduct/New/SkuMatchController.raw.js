@@ -63,7 +63,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	,_getFileUploadDiv: function() {
 		var tmp = {};
 		tmp.me = this;
-		tmp.newDiv =  new Element('div',  {'class': 'panel panel-default drop_file_div', 'title': 'You can drag multiple files here!'})
+		tmp.newDiv =  new Element('div',  {'class': 'panel panel-default drop_file_div', 'title': 'You can drag files here!'})
 			.insert({'bottom': new Element('div', {'class': 'panel-body'})
 				.insert({'bottom': new Element('div', {'class': 'pull-right'})
 					.insert({'bottom': tmp.dropdown = new Element('select', {'class': 'chosen', 'data-placeholder': 'Code Type: ' ,'id': tmp.me.getHTMLID('importDataTypesDropdownId')})
@@ -131,6 +131,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		}
 		switch(tmp.me._importDataTypes) {
 			case 'new_product':
+			case 'update_product':
 				tmp.me.csvFileLineFormat = ['sku', 'name', 'description', 'short_description', 'price', 'category', 'stock', 'brand', 'image1', 'image2', 'image3', 'image4', 'image5'];
 				break;
 			default:
@@ -334,7 +335,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		$H(tmp.me._uploadedData).each(function(data){
 			tmp.keys.push(data.key);
 		});
-
 		//get header row
 		tmp.theadRow = new Element('tr');
 		tmp.me.csvFileLineFormat.each(function(item){

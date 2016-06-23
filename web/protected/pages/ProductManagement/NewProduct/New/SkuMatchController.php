@@ -44,7 +44,7 @@ class SkuMatchController extends BPCPageAbstract
 	 */
 	protected function _getEndJs()
 	{
-		$importDataTypes = array('new_product'=> 'NEW PRODUCT');
+		$importDataTypes = array('new_product'=> 'NEW PRODUCT', 'update_product'=>'UPDATE PRODUCT');
 
 		$js = parent::_getEndJs();
 		$js .= 'pageJs';
@@ -72,9 +72,14 @@ class SkuMatchController extends BPCPageAbstract
 			switch ($type)
 			{
 				case 'new_product':
-					$item = $this->importNewProduct($data);
+					$item = $this->importNewProduct($data, false);
 					$result['path'] = $item instanceof NewProduct ? '/product/' . $item->getProduct()->getId() . '.html' : '';
 					$result['item'] = $item instanceof NewProduct ? $item->getJson() : array();
+					break;
+				case 'update_product':
+					$item = $this->importNewProduct($data, true);
+					$result['path'] = $item instanceof Product ? '/product/' . $item->getId() . '.html' : '';
+					$result['item'] = $item instanceof Product ? $item->getJson() : array();
 					break;
 				default:
 					throw new Exception('Invalid upload type passed in!');
@@ -94,7 +99,7 @@ class SkuMatchController extends BPCPageAbstract
 	 * @throws Exception
 	 * @return ListController
 	 */
-	private function importNewProduct($row)
+	private function importNewProduct($row, $isUpdate = false)
 	{
 		$row = new ArrayObject($row);
 		$index = $row['index'];
@@ -144,48 +149,75 @@ class SkuMatchController extends BPCPageAbstract
 		$replace = array();
 		$price = doubleval(str_replace($search, $replace, $price));
 		$product = Product::getBySku($sku);
-		$isNewProduct = $product instanceof Product ? NewProduct::getByProductId($product->getId()) : null;
-		if (($product instanceof Product) && (!$isNewProduct instanceof NewProduct))
+		if (!$isUpdate)
 		{
-			throw new Exception("[sku:" . $sku . "] has already existed! (line:" . $index . ")");
-		}
-		if (($product instanceof Product) && ($isNewProduct instanceof NewProduct) && ($isNewProduct->getStatus()->getId() == NewProductStatus::ID_STATUS_DONE))
-		{
-			throw new Exception("[sku:" . $sku . "] staus is DONE! (line:" . $index . ")");
-		}
-		if (!$product instanceof Product)
-		{
-			$product = new Product();
-		}
-		
-		$product->setSku($sku)->setSellOnWeb(false);
-		if ($name != '') $product->setName($name);
-		if ($stock != null) $product->setStatus($stock); 
-		if ($description != '') 
-		{
-			if(($fullAsset = Asset::getAsset($product->getFullDescAssetId())) instanceof Asset)
-				Asset::removeAssets(array($fullAsset->getAssetId()));
-			$fullAsset = Asset::registerAsset('full_description_for_product.txt', $description, Asset::TYPE_PRODUCT_DEC);
-			$product->setFullDescAssetId($fullAsset->getAssetId());
-		}
-
-		if ($short_desc != '') $product->setShortDescription($short_desc);
-		$product->save();
-		$this->_updateCategories($product, $categoryIds)
+			// new product import
+			$isNewProduct = $product instanceof Product ? NewProduct::getByProductId($product->getId()) : null;
+			if (($product instanceof Product) && (!$isNewProduct instanceof NewProduct))
+			{
+				throw new Exception("[sku:" . $sku . "] has already existed! (line:" . $index . ")");
+			}
+			if (($product instanceof Product) && ($isNewProduct instanceof NewProduct) && ($isNewProduct->getStatus()->getId() == NewProductStatus::ID_STATUS_DONE))
+			{
+				throw new Exception("[sku:" . $sku . "] staus is DONE! (line:" . $index . ")");
+			}
+			if (!$product instanceof Product)
+			{
+				$product = new Product();
+			}
+			
+			$product->setSku($sku)->setSellOnWeb(false);
+			if ($name != '') $product->setName($name);
+			if ($stock != null) $product->setStatus($stock);
+			if ($description != '')
+			{
+				if(($fullAsset = Asset::getAsset($product->getFullDescAssetId())) instanceof Asset)
+					Asset::removeAssets(array($fullAsset->getAssetId()));
+					$fullAsset = Asset::registerAsset('full_description_for_product.txt', $description, Asset::TYPE_PRODUCT_DEC);
+					$product->setFullDescAssetId($fullAsset->getAssetId());
+			}
+			
+			if ($short_desc != '') $product->setShortDescription($short_desc);
+			$product->save();
+			$this->_updateCategories($product, $categoryIds)
 			->_setPrices($product, $price);
-		$this->_updateImages($product, $images);
-		if (!$isNewProduct instanceof NewProduct) 
-		{
-			$isNewProduct = NewProduct::create($product);
+			$this->_updateImages($product, $images);
+			if (!$isNewProduct instanceof NewProduct)
+			{
+				$isNewProduct = NewProduct::create($product);
+			}
+			else
+			{
+				$isNewProduct->setStatus(NewProductStatus::get(NewProductStatus::ID_STATUS_COMPLETED));
+				$isNewProduct->setProduct($product)->save();
+			}
+			return $isNewProduct;
 		}
-		else 
+		else
 		{
-			$isNewProduct->setStatus(NewProductStatus::get(NewProductStatus::ID_STATUS_COMPLETED));
-			$isNewProduct->setProduct($product)->save();
+			// update products
+			if (!$product instanceof Product)
+			{
+				throw new Exception("[sku:" . $sku . "] does not exist! (line:" . $index . ")");
+			}
+			if ($name != '') $product->setName($name);
+			if ($stock != null) $product->setStatus($stock);
+			if ($description != '')
+			{
+				if(($fullAsset = Asset::getAsset($product->getFullDescAssetId())) instanceof Asset)
+					Asset::removeAssets(array($fullAsset->getAssetId()));
+					$fullAsset = Asset::registerAsset('full_description_for_product.txt', $description, Asset::TYPE_PRODUCT_DEC);
+					$product->setFullDescAssetId($fullAsset->getAssetId());
+			}
+				
+			if ($short_desc != '') $product->setShortDescription($short_desc);
+			$product->save();
+			$this->_updateCategories($product, $categoryIds)
+			->_setPrices($product, $price);
+			$this->_updateImages($product, $images);
+			
+			return $product;
 		}
-		
-		return $isNewProduct;
-	
 	}
 	/**
 	 * update category
