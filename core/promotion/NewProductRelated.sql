@@ -32,3 +32,9 @@ CREATE TABLE `newproductstatus` (
 
 insert into role (`name`, `active`, `created`, `createdById`, `updated`, `updatedById` ) values
     ('Product Manager',  1, NOW(), 10, NOW(), 10);
+insert into newproductstatus (`name`, `active`, `created`, `createdById`, `updated`, `updatedById` ) values
+    ('NEW',  1, NOW(), 10, NOW(), 10);
+insert into newproductstatus (`name`, `active`, `created`, `createdById`, `updated`, `updatedById` ) values
+    ('COMPLETED',  1, NOW(), 10, NOW(), 10);
+insert into newproductstatus (`name`, `active`, `created`, `createdById`, `updated`, `updatedById` ) values
+    ('DONE',  1, NOW(), 10, NOW(), 10);

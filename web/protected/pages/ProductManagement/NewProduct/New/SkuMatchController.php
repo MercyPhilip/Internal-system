@@ -107,11 +107,6 @@ class SkuMatchController extends BPCPageAbstract
 		$price = isset($row[self::PRICE]) ? trim($row[self::PRICE]) : '';
 		$stock = isset($row[self::STOCK]) ? trim($row[self::STOCK]) : '';
 		$description = isset($row[self::LONGDESCRIPTION]) ? trim($row[self::LONGDESCRIPTION]) : '';
-		if ($description != '')
-		{
-			$description = preg_replace('/""/', '"', $description);
-			$description = substr(substr($description, 1), 0, -1);
-		}
 		$short_desc = isset($row[self::SHORTDESCRIPTION]) ? trim($row[self::SHORTDESCRIPTION]) : '';
 		$brand = isset($row[self::BRAND]) ? trim($row[self::BRAND]) : '';
 		$image1 = isset($row[self::IMAGE1]) ? trim($row[self::IMAGE1]) : '';
