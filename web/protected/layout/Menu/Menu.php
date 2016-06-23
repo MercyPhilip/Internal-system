@@ -51,8 +51,6 @@ class Menu extends TTemplateControl
 			$array['Products']['importer']  = array('url' => '/importer/new.html', 'name' => 'Importer', 'icon'=> '<span class="fa fa-bars"></span>');
 			$array['Products']['ageingreport']  = array('url' => '/productageing.html', 'name' => 'Ageing Report (beta)', 'icon'=> '<span class="glyphicon glyphicon-eye-open"></span>');
 			$array['Products']['systembuilds'] = array('url' => '/build.html', 'name' => 'System Builds');
-			$array['Products']['msl'] = array('url' => '/ministocklevel.html', 'name' => 'Minimum Stock Level');
-			$array['Products']['categorymanagement'] = array('url' => '/categorymanagement.html', 'name' => 'Category Management');
 		}
 		if(AccessControl::canAccessPurcahseOrdersPage(Core::getRole()) )
 			$array['Purchase'] = array(
@@ -103,9 +101,18 @@ class Menu extends TTemplateControl
 		if(AccessControl::canAccessReportsPage(Core::getRole()) ) {
 			$array['Reports'] = array(
 					'icon' => '<span class="fa fa-area-chart"></span>',
-					'Run Rates' =>array('url' => '/report/runrate.html', 'name' => 'Run Rate', 'icon' => '<span class="glyphicon glyphicon-plus"></span>'),
-					'Buy In Report' =>array('url' => '/report/buyinreport.html', 'name' => 'Buy In Report'),
-					'Selling Report' =>array('url' => '/report/sellingreport.html', 'name' => 'Selling Report')
+					'RunRates' =>array('url' => '/report/runrate.html', 'name' => 'Run Rate', 'icon' => '<span class="glyphicon glyphicon-plus"></span>'),
+					'BuyInReport' =>array('url' => '/report/buyinreport.html', 'name' => 'Buy In Report', 'icon' => '<span class="glyphicon glyphicon-log-in"></span>'),
+					'SellingReport' =>array('url' => '/report/sellingreport.html', 'name' => 'Selling Report', 'icon' => '<span class="glyphicon glyphicon-log-out"></span>')
+			);
+		}
+		if(AccessControl::canAccessCreateProductPage(Core::getRole())) {
+			$array['Management'] = array(
+					'icon' => '<span class="glyphicon glyphicon-list"></span>',
+					'newProducts' => array('url' => '/management/products.html', 'name' => 'New Products', 'icon' => '<span class="glyphicon glyphicon-plus-sign"></span>'),
+					'import' => array('url' => '/management/import.html', 'name' => 'Import(csv)', 'icon' => '<span class="glyphicon glyphicon-upload"></span>'),
+					'msl' => array('url' => '/management/ministocklevel.html', 'name' => 'Minimum Stock Level', 'icon' => '<span class="glyphicon glyphicon-object-align-bottom"></span>'),
+					'categorymanagement' => array('url' => '/management/categorymanagement.html', 'name' => 'Category Management', 'icon' => '<span class="glyphicon glyphicon-folder-open"></span>')
 			);
 		}
 		if(AccessControl::canAccessUsersPage(Core::getRole()) ) {

@@ -1,0 +1,51 @@
+<com:TContent ID="MainContent">
+	<com:Application.controls.select2.select2 />
+	<div class="pagewrapper item-list-wrapper">
+		<div class="panel panel-default" id="searchPanel">
+			<div class="panel-heading">
+				<label for="showSearch">Search Criteria</label>
+				<span class="pull-right btn-group">
+					<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span>
+				</span>
+			</div>
+			<div class="panel-body search-panel" id="searchDiv">
+				<div class="row">
+					<div class="col-xs-2">
+						<div class="form-group form-group-sm input-group">
+							<label class="contorl-label input-group-addon">SKU</label>
+							<input type="text" search_field="pro.sku" placeholder="The SKU of the product" class="form-control input-sm">
+						</div>
+					</div>
+					<div class="col-xs-4">
+						<div class="form-group form-group-sm input-group">
+							<label class="contorl-label input-group-addon">Name</label>
+							<input type="text" search_field="pro.name" placeholder="The name of the product" class="form-control input-sm">
+						</div>
+					</div>
+					<div class="col-xs-4">
+						<div class="form-group form-group-sm input-group">
+							<label class="contorl-label input-group-addon">Categories</label>
+								<select search_field="pro.productCategoryIds" multiple class="select2 form-control input-sm"></select>
+						</div>
+					</div>
+					<div class="col-xs-2">
+						<div class="form-group form-group-sm input-group">
+							<label class="contorl-label input-group-addon">Status</label>
+							<select search_field="pro.productStatusIds" multiple class="select2 form-control input-sm"></select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				Found <label id="total-found-count">0</label> <%= $this->getFocusEntity() %>:
+			</div>
+			<div class="importdata">
+			</div>
+			<small class="table-responsive">
+				<table class="table table-hover" id="item-list"></table>
+			</small>
+		</div> 
+	</div>
+</com:TContent>

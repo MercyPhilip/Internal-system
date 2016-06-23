@@ -38,7 +38,6 @@
       <!-- FrontEnd:: Courier list page -->
       <url ServiceParameter="Courier.List.ListController" pattern="courier.html" />
 
-
       <!-- FrontEnd:: order list page -->
       <url ServiceParameter="Order.List.OrderController" pattern="order.html" />
       <!-- FrontEnd:: order new page -->
@@ -94,10 +93,17 @@
       <url ServiceParameter="Product.Details.DetailsController" pattern="product/{id}.html" parameters.id="new"/>
       <url ServiceParameter="Product.Details.DetailsController" pattern="product/{id}.html" parameters.id="\d+"/>
 
+      <!-- FrontEnd:: new product list page -->
+      <url ServiceParameter="ProductManagement.NewProduct.List.ListController" pattern="/management/products.html" />
+      <!-- FrontEnd:: new product import page -->
+      <url ServiceParameter="ProductManagement.NewProduct.New.SkuMatchController" pattern="/management/import.html" />
+      <!-- FrontEnd:: product basic info input page -->
+      <url ServiceParameter="ProductManagement.NewProduct.Details.DetailsController" pattern="/management/product/{id}.html" parameters.id="new"/>
+      <url ServiceParameter="ProductManagement.NewProduct.Details.DetailsController" pattern="/management/product/{id}.html" parameters.id="\d+"/>
       <!-- FrontEnd:: product mini stock level list page -->
-      <url ServiceParameter="ProductManagement.MiniStockLevel.List.ListController" pattern="ministocklevel.html" />
+      <url ServiceParameter="ProductManagement.MiniStockLevel.List.ListController" pattern="/management/ministocklevel.html" />
       <!-- FrontEnd:: product category management list page -->
-      <url ServiceParameter="ProductManagement.CategoryManagement.List.ListController" pattern="categorymanagement.html" />
+      <url ServiceParameter="ProductManagement.CategoryManagement.List.ListController" pattern="/management/categorymanagement.html" />
       
       <!-- FrontEnd:: product code type list page -->
       <url ServiceParameter="ProductCodeType.List.ListController" pattern="productcodetypes.html" />
