@@ -13,6 +13,7 @@ Abstract class AccessControl
 			switch($role->getId())
 			{
 				case Role::ID_STORE_MANAGER:
+				case Role::ID_PRODUCT_MANAGER:
 				case Role::ID_SYSTEM_ADMIN:
 				case Role::ID_SALES:
 					{
@@ -48,6 +49,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 				{
 					return true;
@@ -64,6 +66,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_PURCHASING:
 			case Role::ID_SALES:
@@ -106,11 +109,25 @@ Abstract class AccessControl
 		}
 		return false;
 	}
+	public static function canAccessCreateProductPage(Role $role)
+	{
+		switch($role->getId())
+		{
+			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
+			case Role::ID_SYSTEM_ADMIN:
+				{
+					return true;
+				}
+		}
+		return false;
+	}
 	public static function canAccessReportsPage(Role $role)
 	{
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 				{
 					return true;
@@ -123,6 +140,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_SALES:
 			case Role::ID_PURCHASING:
@@ -140,6 +158,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_PURCHASING:
 				{
@@ -153,6 +172,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_PURCHASING:
 			case Role::ID_ACCOUNTING:
@@ -168,6 +188,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_PURCHASING:
 			case Role::ID_SALES:
@@ -183,6 +204,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_PURCHASING:
 			case Role::ID_SALES:
@@ -197,6 +219,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_WAREHOUSE:
 				{
@@ -210,6 +233,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_ACCOUNTING:
 				{
@@ -223,6 +247,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_SYSTEM_ADMIN:
+			case Role::ID_PRODUCT_MANAGER:
 				{
 					return true;
 				}
@@ -234,6 +259,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_PURCHASING:
 				{
@@ -247,6 +273,7 @@ Abstract class AccessControl
 		switch($role->getId())
 		{
 			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_WORKSHOP:
 				{

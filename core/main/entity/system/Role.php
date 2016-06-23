@@ -52,6 +52,12 @@ class Role extends BaseEntityAbstract
      */
     const ID_WORKSHOP = 7;
     /**
+     * ID the Productmanager role
+     *
+     * @var int
+     */
+    const ID_PRODUCT_MANAGER = 8;
+    /**
      * The name of the role
      * @var string
      */
@@ -118,6 +124,7 @@ class Role extends BaseEntityAbstract
     				return array(OrderStatus::ID_NEW, OrderStatus::ID_INSUFFICIENT_STOCK);
     			}
 	    		case Role::ID_STORE_MANAGER:
+	    		case Role::ID_PRODUCT_MANAGER:
 	    		case Role::ID_ACCOUNTING:
     			{
     				return array_map(create_function('$a', 'return $a->getId();'), OrderStatus::getAll());
