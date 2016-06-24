@@ -181,10 +181,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				tmp.me._fileReader = new FileReader();
 				tmp.me._fileReader.onload = function(event) {
 					var arr = tmp.me._parseCSV(event.target.result);
-					console.log('arr=', arr);
 					tmp.me._rowNo = 1; // reset rowNo for each file
 					arr.each(function(line) {
-						console.log('line=', line);
 						if(line !== null && line.length > 0) {
 							tmp.cols = [];
 							line.each(function(col) {
@@ -201,7 +199,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 								}
 								tmp.colArray['index'] = tmp.me._rowNo++; // tmp.me._rowNo starts at 1
 								tmp.me._uploadedData[tmp.key] = tmp.colArray;
-								console.log('tmp.me._uploadedData=', tmp.me._uploadedData);
 							}
 						}
 					})
