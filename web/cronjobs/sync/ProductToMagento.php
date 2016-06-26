@@ -53,7 +53,6 @@ abstract class ProductToMagento
     	if(isset($settings['lastUpdatedTime']) && trim($settings['lastUpdatedTime']) !== '')
     		$lastUpdatedTime = new UDate(trim($settings['lastUpdatedTime']));
     	self::_log('GOT LAST SYNC TIME: ' . trim($lastUpdatedTime), '', $preFix);
-
     	$products = self::_getData($lastUpdatedTime, $preFix . self::TAB, $debug);
     	if (count($products) > 0) {
 			$files= self::_genCSV($lastUpdatedTime, array_values($products), $preFix . self::TAB, $debug);
@@ -146,7 +145,7 @@ abstract class ProductToMagento
             $products[$productPrice->getProduct()->getId()] = $productPrice->getProduct();
         }
         //products
-        $productArr = Product::getAllByCriteria('updated > ?', array(trim($lastUpdatedTime)), true);
+        $productArr = Product::getAllByCriteria('updated > ?', array(trim($lastUpdatedTime)), false);
         self::_log('GOT ' . count($productArr) . ' Product(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
         foreach ($productArr as $product) {
             if(array_key_exists($product->getId(), $products))
@@ -168,6 +167,15 @@ abstract class ProductToMagento
             if(!$productImage->getProduct() instanceof Product || array_key_exists($productImage->getProduct()->getId(), $products))
                 continue;
             $products[$productCate->getProduct()->getId()] = $productCate->getProduct();
+        }
+        // check products whether in new products list
+        foreach($products as $key => $product)
+        {
+            $newProduct = NewProduct::getByProductId($product->getId());
+            if (($newProduct instanceof NewProduct) && ($newProduct->getStatus()->getId() != NewProductStatus::ID_STATUS_DONE))
+            {
+                unset($products[$key]);
+            }
         }
         return $products;
     }

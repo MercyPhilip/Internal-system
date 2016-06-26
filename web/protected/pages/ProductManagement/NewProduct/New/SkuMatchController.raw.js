@@ -132,7 +132,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		switch(tmp.me._importDataTypes) {
 			case 'new_product':
 			case 'update_product':
-				tmp.me.csvFileLineFormat = ['sku', 'name', 'description', 'short_description', 'price', 'category', 'stock', 'brand', 'image1', 'image2', 'image3', 'image4', 'image5'];
+				tmp.me.csvFileLineFormat = ['sku', 'name', 'description', 'short_description', 'price', 'category', 'stock', 'brand', 'supplier', 'weight', 'assaccno', 'revaccno', 'cstaccno', 'attributeset', 'image1', 'image2', 'image3', 'image4', 'image5'];
 				break;
 			default:
 				tmp.me.csvFileLineFormat = [];
@@ -192,7 +192,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 								}
 							})
 							tmp.key = tmp.cols.join(',');
-							if(tmp.key !== tmp.me.csvFileLineFormat.join(',')) { //this is not the header line
+							if((tmp.key.trim() != '') && (tmp.key !== tmp.me.csvFileLineFormat.join(','))) { //this is not the header line
 								tmp.colArray = {};
 								for(tmp.j = 0; tmp.j < tmp.me.csvFileLineFormat.size(); tmp.j++) {
 									tmp.colArray[tmp.me.csvFileLineFormat[tmp.j]] = tmp.cols[tmp.j];
@@ -273,7 +273,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			,'onSuccess': function (sender, param) {
 				try {
 					tmp.result = tmp.me.getResp(param, false, true);
-					if(!tmp.result.item.id) {
+					if(!tmp.result || !tmp.result.item || !tmp.result.item.id) {
 						tmp.newRow.update('');
 						return;
 					}
@@ -371,5 +371,4 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me._getProductLineItem(tmp.resultList, 0, tmp.keys);
 		return tmp.me;
 	}
-
 });
