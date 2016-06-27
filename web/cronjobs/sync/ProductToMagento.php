@@ -375,7 +375,7 @@ abstract class ProductToMagento
    	    $attributeSetDefault = 'Default';
    	    $attributeSetName = $attributeSetDefault;
    	    $enabled = true;
-   	    $sku = $statusId = $productName = $rrpPrice = $weight = $shortDescription = $fullDecription = $supplierName = $supplierCode = $manufacturerName = $asNewFrom = $asNewTo = $specialPrice = $specialPriceFromDate = $specialPriceToDate = '';
+   	    $sku = $statusId = $productName = $rrpPrice = $weight = $shortDescription = $fullDecription = $feature = $supplierName = $supplierCode = $manufacturerName = $asNewFrom = $asNewTo = $specialPrice = $specialPriceFromDate = $specialPriceToDate = '';
    	    $categoryIds = array(2); //default category
    	    if ($product instanceof Product) {
    	        $sku = trim($product->getSku());
@@ -451,6 +451,9 @@ abstract class ProductToMagento
    	        if (($asset = Asset::getAsset($product->getFullDescAssetId())) instanceof Asset)
    	            //$fullDecription = '"' . $asset->read() . '"';
    	            $fullDecription = $asset->read();
+   	        //feature
+   	        if (($asset = Asset::getAsset($product->getCustomTabAssetId())) instanceof Asset)
+   	            $feature = $asset->read();
    	        //supplier
    	        if (count($supplierCodes = SupplierCode::getAllByCriteria('productId = ?', array($product->getId()), true, 1, 1)) > 0) {
    	            $supplierName = (($supplier = $supplierCodes[0]->getSupplier()) instanceof Supplier) ? $supplier->getName() : '';
@@ -551,6 +554,8 @@ abstract class ProductToMagento
    				"thumbnail" => '',
    				"media_gallery" => '',
    				"is_recurring" => '',
+   				"customtab" => $feature,
+   				"customtabtitle" => $feature != '' ? 'Feature' : '',
    				"media_gallery_reset" => 0);
    	}
 }

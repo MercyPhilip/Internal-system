@@ -105,6 +105,12 @@ class Product extends InfoEntityAbstract
 	 */
 	private $fullDescAssetId = '';
 	/**
+	 * The asset id of the feature
+	 *
+	 * @var string
+	 */
+	private $customTabAssetId = '';
+	/**
 	 * Marking the product as new from which date
 	 *
 	 * @var UDate|NULL
@@ -593,6 +599,27 @@ class Product extends InfoEntityAbstract
 	{
 	    $this->fullDescAssetId = $value;
 	    return $this;
+	}
+	/**
+	 * Getter for customTabAssetId
+	 *
+	 * @return
+	 */
+	public function getCustomTabAssetId()
+	{
+		return $this->customTabAssetId;
+	}
+	/**
+	 * Setter for customTabAssetId
+	 *
+	 * @param string $value The customTabAssetId
+	 *
+	 * @return Product
+	 */
+	public function setCustomTabAssetId($value)
+	{
+		$this->customTabAssetId = $value;
+		return $this;
 	}
 	/**
 	 * Getter for status
@@ -1085,6 +1112,7 @@ class Product extends InfoEntityAbstract
 				$array['images'] = array_map(create_function('$a', 'return $a->getJson();'), $this->getImages());
 				$array['categories'] = array_map(create_function('$a', '$json = $a->getJson(); return $json["category"];'), Product_Category::getCategories($this));
 				$array['fullDescriptionAsset'] = (($asset = Asset::getAsset($this->getFullDescAssetId())) instanceof Asset ? $asset->getJson() : null) ;
+				$array['customTabAsset'] = (($asset = Asset::getAsset($this->getCustomTabAssetId())) instanceof Asset ? $asset->getJson() : null) ;
 				$array['locations'] = array_map(create_function('$a', 'return $a->getJson();'), PreferredLocation::getPreferredLocations($this));
 				$array['unitCost'] = $this->getUnitCost();
 				$array['priceMatchRule'] = ($i=ProductPriceMatchRule::getByProduct($this)) instanceof ProductPriceMatchRule ? $i->getJson() : null;
@@ -1480,6 +1508,7 @@ class Product extends InfoEntityAbstract
 		DaoMap::setDateType('asNewToDate', 'datetime', true);
 		DaoMap::setStringType('shortDescription', 'varchar', 255);
 		DaoMap::setStringType('fullDescAssetId', 'varchar', 100);
+		DaoMap::setStringType('customTabAssetId', 'varchar', 100);
 		DaoMap::setOneToMany('supplierCodes', 'SupplierCode', 'pro_sup_code');
 		DaoMap::setOneToMany('categories', 'Product_Category', 'pro_cate');
 		DaoMap::setOneToMany('codes', 'ProductCode', 'pro_pro_code');
@@ -1500,6 +1529,7 @@ class Product extends InfoEntityAbstract
 		DaoMap::createIndex('isFromB2B');
 		DaoMap::createIndex('shortDescription');
 		DaoMap::createIndex('fullDescAssetId');
+		DaoMap::createIndex('customTabAssetId');
 		DaoMap::createIndex('sellOnWeb');
 		DaoMap::createIndex('asNewFromDate');
 		DaoMap::createIndex('asNewToDate');
@@ -1540,7 +1570,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return Ambigous <Product, Ambigous, NULL, BaseEntityAbstract>
 	 */
-	public static function create($sku, $name, $mageProductId = '', $stockOnHand = null, $stockOnOrder = null, $isFromB2B = false, $shortDescr = '', $fullDescr = '', Manufacturer $manufacturer = null, $assetAccNo = null, $revenueAccNo = null, $costAccNo = null, $stockMinLevel = null, $stockReorderLevel = null, $manualDatafeed = false, $weight = null, $attributesetId = null)
+	public static function create($sku, $name, $mageProductId = '', $stockOnHand = null, $stockOnOrder = null, $isFromB2B = false, $shortDescr = '', $fullDescr = '', $customTab='', Manufacturer $manufacturer = null, $assetAccNo = null, $revenueAccNo = null, $costAccNo = null, $stockMinLevel = null, $stockReorderLevel = null, $manualDatafeed = false, $weight = null, $attributesetId = null)
 	{
 		if(!($product = self::getBySku($sku)) instanceof Product)
 			$product = new Product();
@@ -1567,9 +1597,13 @@ class Product extends InfoEntityAbstract
 				$product->setRevenueAccNo(trim($revenueAccNo));
 			if($costAccNo !== null && is_string($costAccNo))
 				$product->setCostAccNo(trim($costAccNo));
-			if (($$fullDescr = trim($fullDescr)) !== '') {
+			if (($fullDescr = trim($fullDescr)) !== '') {
 				$asset = Asset::registerAsset('full_desc_' . $sku, $fullDescr, Asset::TYPE_PRODUCT_DEC);
 				$product->setFullDescAssetId(trim($asset->getAssetId()));
+			}
+			if (($customTab = trim($customTab)) !== '') {
+				$asset = Asset::registerAsset('customtab_' . $sku, $customTab, Asset::TYPE_PRODUCT_DEC);
+				$product->setCustomTabAssetId(trim($asset->getAssetId()));
 			}
 			if ($manufacturer instanceof Manufacturer) {
 				$product->setManufacturer($manufacturer);

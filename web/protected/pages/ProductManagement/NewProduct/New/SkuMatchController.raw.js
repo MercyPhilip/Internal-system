@@ -132,7 +132,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		switch(tmp.me._importDataTypes) {
 			case 'new_product':
 			case 'update_product':
-				tmp.me.csvFileLineFormat = ['sku', 'name', 'description', 'short_description', 'price', 'category', 'stock', 'brand', 'supplier', 'weight', 'assaccno', 'revaccno', 'cstaccno', 'attributeset', 'image1', 'image2', 'image3', 'image4', 'image5'];
+				tmp.me.csvFileLineFormat = ['sku', 'name', 'feature','description', 'short_description', 'price', 'category', 'stock', 'brand', 'supplier', 'weight', 'assaccno', 'revaccno', 'cstaccno', 'attributeset', 'image1', 'image2', 'image3', 'image4', 'image5'];
 				break;
 			default:
 				tmp.me.csvFileLineFormat = [];
@@ -258,7 +258,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.newRow = new Element('tr', {'class': 'result_row info'});
 		tmp.me.csvFileLineFormat.each(function(name){
 			$H(tmp.data).each(function(item){
-				if((item.key === name) && (item.key != 'description')) {
+				if((item.key === name) && ((item.key != 'description') && (item.key != 'feature'))) {
 					tmp.newRow.insert({'bottom': new Element('th', {'style': item.value ? '' : 'color:red;'})
 						.insert({'bottom' : new Element('div', {'style' : 'max-width:100px;display:inline-block;word-break: break-all; word-wrap: break-word;'}).update(item.value ? item.value : 'Blank ' + name)})
 					});
@@ -338,7 +338,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		//get header row
 		tmp.theadRow = new Element('tr');
 		tmp.me.csvFileLineFormat.each(function(item){
-			if (item != 'description')
+			if ((item != 'description') && (item != 'feature'))
 				tmp.theadRow.insert({'bottom': new Element('th').update(item)})
 		});
 

@@ -16,6 +16,7 @@ class SkuMatchController extends BPCPageAbstract
 	public $menuItem = 'skuMatch';
 	const PRICE = 'price';
 	const SHORTDESCRIPTION = 'short_description';
+	const FEATURE = 'feature';
 	const LONGDESCRIPTION = 'description';
 	const CATEGORY = 'category';
 	const SKU = 'sku';
@@ -24,10 +25,10 @@ class SkuMatchController extends BPCPageAbstract
 	const BRAND = 'brand';
 	const SUPPLIER = 'supplier';
 	const WEIGHT = 'weight';
-	const ASSETACCNO = ' assaccno';
-	const REVACCNO = ' revaccno';
-	const COSTACCNO = ' cstaccno';
-	const ATTRIBUTESET = ' attributeset';
+	const ASSETACCNO = 'assaccno';
+	const REVACCNO = 'revaccno';
+	const COSTACCNO = 'cstaccno';
+	const ATTRIBUTESET = 'attributeset';
 	const IMAGE1 = 'image1';
 	const IMAGE2 = 'image2';
 	const IMAGE3 = 'image3';
@@ -118,6 +119,7 @@ class SkuMatchController extends BPCPageAbstract
 		$price = isset($row[self::PRICE]) ? trim($row[self::PRICE]) : '';
 		$stockName = isset($row[self::STOCK]) ? trim($row[self::STOCK]) : '';
 		$description = isset($row[self::LONGDESCRIPTION]) ? trim($row[self::LONGDESCRIPTION]) : '';
+		$feature = isset($row[self::FEATURE]) ? trim($row[self::FEATURE]) : '';
 		$short_desc = isset($row[self::SHORTDESCRIPTION]) ? trim($row[self::SHORTDESCRIPTION]) : '';
 		$brandName = isset($row[self::BRAND]) ? trim($row[self::BRAND]) : '';
 		$supplierName = isset($row[self::SUPPLIER]) ? trim($row[self::SUPPLIER]) : '';
@@ -214,7 +216,6 @@ class SkuMatchController extends BPCPageAbstract
 			{
 				$product = new Product();
 			}
-			
 			$product->setSku($sku)->setSellOnWeb(false)->setActive(true);
 			if (trim($weight) != '')  $product->setWeight(doubleval($weight));
 			$categoryAttribute = $this->getDefaultAttribute($categoryIds);
@@ -251,7 +252,13 @@ class SkuMatchController extends BPCPageAbstract
 					$fullAsset = Asset::registerAsset('full_description_for_product.txt', $description, Asset::TYPE_PRODUCT_DEC);
 					$product->setFullDescAssetId($fullAsset->getAssetId());
 			}
-			
+			if ($feature != '')
+			{
+				if(($fullAsset = Asset::getAsset($product->getCustomTabAssetId())) instanceof Asset)
+					Asset::removeAssets(array($fullAsset->getAssetId()));
+					$fullAsset = Asset::registerAsset('customtab_for_product.txt', $feature, Asset::TYPE_PRODUCT_DEC);
+					$product->setCustomTabAssetId($fullAsset->getAssetId());
+			}
 			if ($short_desc != '') $product->setShortDescription($short_desc);
 			$product->save();
 			if ($supplier != null) $product->addSupplier($supplier);
@@ -287,6 +294,13 @@ class SkuMatchController extends BPCPageAbstract
 					Asset::removeAssets(array($fullAsset->getAssetId()));
 					$fullAsset = Asset::registerAsset('full_description_for_product.txt', $description, Asset::TYPE_PRODUCT_DEC);
 					$product->setFullDescAssetId($fullAsset->getAssetId());
+			}
+			if ($feature != '')
+			{
+				if(($fullAsset = Asset::getAsset($product->getCustomTabAssetId())) instanceof Asset)
+					Asset::removeAssets(array($fullAsset->getAssetId()));
+					$fullAsset = Asset::registerAsset('customtab_for_product.txt', $feature, Asset::TYPE_PRODUCT_DEC);
+					$product->setCustomTabAssetId($fullAsset->getAssetId());
 			}
 			// check accountNo and attributeset 
 			// if null then upate
