@@ -1,8 +1,8 @@
 #!/bin/bash
 
 ## run reverse xero exporter ########################################
-if ps ax | grep -v grep | grep "SalesReverseExportor_Xero.php" > /dev/null; then
-echo -n "SalesReverseExportor_Xero is Already Running....... :: "
+if ps ax | grep -v grep | grep "ReverseSalesReportRunnerphp" > /dev/null; then
+echo -n "ReverseSalesReportRunner is Already Running....... :: "
 date
 echo -n " "
 else
