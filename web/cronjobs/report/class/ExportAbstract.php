@@ -6,13 +6,26 @@ class ExportAbstract
 	protected static $_debug = false;
 	private static $_rootDir = '/tmp/export';
 	protected static $_dateRange = array();
-
+	protected static $_statusIds = array();
+	/**
+	 * 
+	 * @param UDate $start
+	 * @param UDate $end
+	 */
 	public static function setStartNEndDate(UDate $start, UDate $end)
 	{
 		self::$_dateRange['start'] = $start;
 		self::$_dateRange['end'] = $end;
 	}
-
+	/**
+	 * set invoice status ids
+	 * 
+	 * @param array $statusIds
+	 */
+	public static function setStatusIds($statusIds = array())
+	{
+		self::$_statusIds = $statusIds;
+	}
 	public static function run($debug = false, $mailOut = true)
 	{
 		try{
@@ -114,10 +127,10 @@ class ExportAbstract
 		$accountEmail = 'accounts@budgetpc.com.au';
 		$marketingEmail = 'marketing@budgetpc.com.au';
 		$salesEmail = 'sales@budgetpc.com.au';
-
 		EmailSender::addEmail('', $helinEmail, $class::_getMailTitle(), $class::_getMailBody(), $assets);
 		EmailSender::addEmail('', $accountEmail, $class::_getMailTitle(), $class::_getMailBody(), $assets);
 		EmailSender::addEmail('', $marketingEmail, $class::_getMailTitle(), $class::_getMailBody(), $assets);
 		EmailSender::addEmail('', $salesEmail, $class::_getMailTitle(), $class::_getMailBody(), $assets);
+
 	}
 }
