@@ -151,7 +151,7 @@ BPCPageJs.prototype = {
 	 */
 	,_signRandID: function(input) {
 		if(!input.id)
-			input.id = 'input_' + String.fromCharCode(65 + Math.floor(Math.random() * 26)) + Date.now();
+			input.id = 'input_' + String.fromCharCode(65 + Math.floor(Math.random() * 26)) + Date.now() +Math.floor(Math.random() * 100000);
 		return this;
 	}
 	/**
