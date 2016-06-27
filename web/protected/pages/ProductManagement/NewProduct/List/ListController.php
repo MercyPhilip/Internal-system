@@ -40,9 +40,11 @@ class ListController extends CRUDPageAbstract
 		$js .= '._loadNewProductStatuses('.json_encode($statuses).')';
 		$js .= "._loadChosen()";
 		$js .= "._bindSearchKey()";
+		$js .= ".setCallbackId('genReportmBtn', '" . $this->genReportmBtn->getUniqueID() . "')";
 		$js .= ".getResults(true, " . $this->pageSize . ");";
 		return $js;
 	}
+	
 	/**
 	 * Getting the items
 	 *
@@ -312,6 +314,195 @@ class ListController extends CRUDPageAbstract
 		->addLog($msg, Log::TYPE_SYSTEM);
 		return $this;
 	}
+	/**
+	 * Getting the items
+	 *
+	 * @param unknown $sender
+	 * @param unknown $param
+	 * @throws Exception
+	 *
+	 */
+	public function genReport($sender, $param)
+	{
+		$results = $errors = array();
+		try
+		{
+			$searchParams = json_decode(json_encode($param->CallbackParameter), true);
+			$wheres = $joins = $params =array();
+			//sku
+			if (isset($searchParams['pro.sku']) && ($sku = trim($searchParams['pro.sku'])) != '')
+			{
+				$wheres[] = 'npro_pro.sku like :sku';
+				$params['sku'] = '%' . $sku . '%';
+			}
+			//name
+			if (isset($searchParams['pro.name']) && ($name = trim($searchParams['pro.name'])) != '')
+			{
+				$wheres[] = 'npro_pro.name like :proName';
+				$params['proName'] = '%' . $name . '%';
+			}
+			if(!isset($searchParams['pro.productCategoryIds']) || is_null($searchParams['pro.productCategoryIds']))
+				$categoryIds = array();
+			else
+				$categoryIds = $searchParams['pro.productCategoryIds'];
+			if (count($categoryIds) > 0)
+			{
+				$ps = array();
+				$keys = array();
+				foreach ($categoryIds as $index => $value) {
+					if(($category = ProductCategory::get($value)) instanceof ProductCategory)
+					{
+						$key = 'cateId_' . $index;
+						$keys[] = ':' . $key;
+						$ps[$key] = $category->getId();
+						$parent_category_ids = array();
+						foreach ($category->getAllChildrenIds() as $child_category_id)
+						{
+							$key = 'cateId_' . $index . '_' . $child_category_id;
+							$keys[] = ':' . $key;
+							$ps[$key] = $child_category_id;
+						}
+					}
+				}
+				NewProduct::getQuery()->eagerLoad('Product.categories', 'inner join', 'pro_cate', 'npro.productId = pro_cate.productId');
+				$wheres[] =  'pro_cate.categoryId in (' . implode(',', $keys) . ')';
+				$params = array_merge($params, $ps);
+			}
+			//product statuses
+			if(!isset($searchParams['pro.productStatusIds']) || is_null($searchParams['pro.productStatusIds']))
+				$productStatusIds = array();
+			else
+				$productStatusIds = $searchParams['pro.productStatusIds'];
+			if (count($productStatusIds) > 0) {
+				$ps = array();
+				$keys = array();
+				foreach ($productStatusIds as $index => $value) {
+					$key = 'stId_' . $index;
+					$keys[] = ':' . $key;
+					$ps[$key] = trim($value);
+				}
+				$wheres[] = 'npro.statusId in (' . implode(',', $keys) . ')';
+				$params = array_merge($params, $ps);
+			}
+			
+			$pageNo = null;
+			$pageSize = DaoQuery::DEFAUTL_PAGE_SIZE;
+
+			$stats = array();
+			NewProduct::getQuery()->eagerLoad('NewProduct.product', 'inner join', 'npro_pro', 'npro.productId = npro_pro.id and npro.active = 1  ');
+			$orderby = array();
+			if (count($wheres) > 0)
+			{
+				$newProducts = NewProduct::getAllByCriteria(implode(' AND ', $wheres), $params, true, $pageNo, $pageSize, array(), $stats);
+			}
+			else
+			{
+				$newProducts = NewProduct::getAll(true, $pageNo, $pageSize, array(), $stats);
+			}
+			if(count($newProducts) === 0)
+				throw new Exception('No result found!');
+			if(count($newProducts) > 5000)
+				throw new Exception('Too many rows are found, please narrow down your search criteria!');
+			if (!($asset = $this->_getExcel($newProducts)) instanceof Asset)
+				throw new Exception('Failed to create a excel file');
+			$results['url'] = $asset->getUrl();
+		}
+		catch(Exception $ex)
+		{
+			$errors[] = $ex->getMessage();
+		}
+		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	}
+	/**
+	 * @return PHPExcel
+	 */
+	private function _getExcel($newProducts)
+	{
+		$phpexcel= new PHPExcel();
+		$activeSheet = $phpexcel->setActiveSheetIndex(0);
+		$columnNo = 0;
+		$rowNo = 1; // excel start at 1 NOT 0
+		// header row
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'sku');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'name');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'feature');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'description');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'short_description');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'price');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'category');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'stock');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'brand');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'supplier');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'weight');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'assaccno');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'revaccno');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'cstaccno');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'attributeset');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'image1');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'image2');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'image3');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'image4');
+		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'image5');
+		$rowNo++;
+		// data row
+		foreach($newProducts as $newProduct)
+		{
+			$categoryNames = array();
+			$columnNo = 0; // excel start at 1 NOT 0
+			$product = $newProduct->getProduct();
+			if (!$product instanceof Product) continue;
+			$NewProductStatus = $newProduct->getStatus();
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $product->getSku()); //sku
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $product->getName()); //name
+			$featureId = $product->getCustomTabAssetId();
+			$fullDescId = $product->getFullDescAssetId();
+			$feature = Asset::getAsset($featureId);
+			$feature = ($feature instanceof Asset) ? $feature->read() : '';
+			$fullDescription = Asset::getAsset($fullDescId);
+			$fullDescription = ($fullDescription instanceof Asset) ? $fullDescription->read() : '';
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $feature); //feature	
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $fullDescription); //description
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $product->getShortDescription()); //short description
+			$price = $product->getRRP() ? $product->getRRP()->getPrice() : 0;
+				
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, StringUtilsAbstract::getCurrency(doubleval($price))); //price
+			$categories = $product->getCategories();
+			
+			foreach($categories as $category)
+			{
+				if (!$category->getCategory() instanceof ProductCategory) continue;
+				$categoryNames[] = $category->getCategory()->getName();
+			}
+			if (count($categoryNames) > 0)
+				$categoryName = implode(';', $categoryNames);
+			else
+				$categoryName = '';
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $categoryName); //categories
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $product->getStatus() instanceof ProductStatus ? $product->getStatus()->getName() : ''); //stock
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $product->getManufacturer() instanceof Manufacturer ? $product->getManufacturer()->getName() : ''); //brand
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, ''); // supplier
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $product->getWeight()); //weight
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $product->getAssetAccNo()); //ass acc no
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $product->getRevenueAccNo());
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $product->getCostAccNo());
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $product->getAttributeSet() instanceof ProductAttributeSet ? $product->getAttributeSet()->getId() : '');
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, ''); //image1
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, ''); //image2
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, ''); //image3
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, ''); //image4
+			$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, ''); //image5
+			$rowNo++;
+		}
+		// Set document properties
+		$now = UDate::now();
+		$objWriter = new PHPExcel_Writer_CSV($phpexcel);
+		$filePath = '/tmp/' . md5($now);
+		$objWriter->save($filePath);
+		$fileName = 'NewProductExport_' . str_replace(':', '_', str_replace('-', '_', str_replace(' ', '_', $now->setTimeZone(SystemSettings::getSettings(SystemSettings::TYPE_SYSTEM_TIMEZONE))))) . '.csv';
+		$asset = Asset::registerAsset($fileName, file_get_contents($filePath), Asset::TYPE_TMP);
+		return $asset;
+	}
+	
 }
 ?>
 
