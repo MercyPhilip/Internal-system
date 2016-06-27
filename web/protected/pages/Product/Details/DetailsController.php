@@ -130,6 +130,18 @@ class DetailsController extends DetailsPageAbstract
 		}
 		return $this;
 	}
+	private function _updateCustomTab(Product &$product, $param)
+	{
+		//update feature
+		if(isset($param->CallbackParameter->customTab) && ($customTab = trim($param->CallbackParameter->customTab)) !== '')
+		{
+			if(($fullAsset = Asset::getAsset($product->getCustomTabAssetId())) instanceof Asset)
+				Asset::removeAssets(array($fullAsset->getAssetId()));
+				$fullAsset = Asset::registerAsset('customtab_for_product.txt', $customTab, Asset::TYPE_PRODUCT_DEC);
+				$product->setCustomTabAssetId($fullAsset->getAssetId());
+		}
+		return $this;
+	}
 	private function _updateCategories(Product &$product, $param)
 	{
 		//update categories
@@ -358,6 +370,7 @@ class DetailsController extends DetailsPageAbstract
 			$product->save();
 
 			$this->_updateFullDescription($product, $param)
+				->_updateCustomTab($product, $param)
 				->_updateCategories($product, $param)
 				->_uploadImages($product, $param)
 				->_setSupplierCodes($product, $param)

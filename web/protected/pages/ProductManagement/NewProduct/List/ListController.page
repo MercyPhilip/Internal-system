@@ -1,11 +1,13 @@
 <com:TContent ID="MainContent">
 	<com:Application.controls.select2.select2 />
+	<com:TCallback ID="genReportmBtn" OnCallback = 'Page.genReport' />
 	<div class="pagewrapper item-list-wrapper">
 		<div class="panel panel-default" id="searchPanel">
 			<div class="panel-heading">
 				<label for="showSearch">Search Criteria</label>
 				<span class="pull-right btn-group">
 					<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span>
+					<span id="exportBtn" class="btn btn-success btn-sm" data-loading-text="exporting ..." onclick="pageJs.genReport(this);" >Export</span>
 				</span>
 			</div>
 			<div class="panel-body search-panel" id="searchDiv">

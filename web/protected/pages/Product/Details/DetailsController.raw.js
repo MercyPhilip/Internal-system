@@ -175,28 +175,10 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		tmp.me._signRandID(input);
-		tmp.editor = new TINY.editor.edit('editor',{
-			id: input.id,
-			width: '100%',
-			height: 100,
-			cssclass: 'tinyeditor',
-			controlclass: 'tinyeditor-control',
-			rowclass: 'tinyeditor-header',
-			dividerclass: 'tinyeditor-divider',
-			controls: ['bold', 'italic', 'underline', 'strikethrough', '|', 'subscript', 'superscript', '|',
-				'orderedlist', 'unorderedlist', '|', 'outdent', 'indent', '|', 'leftalign',
-				'centeralign', 'rightalign', 'blockjustify', '|', 'unformat', '|', 'undo', 'redo', 'n',
-				'font', 'size', 'style', '|', 'image', 'hr', 'link', 'unlink', '|', 'print'],
-			footer: true,
-			fonts: ['Verdana','Arial','Georgia','Trebuchet MS'],
-			xhtml: true,
-			cssfile: 'custom.css',
-			bodyid: 'editor',
-			footerclass: 'tinyeditor-footer',
-			toggle: {text: 'source', activetext: 'wysiwyg', cssclass: 'toggle'},
-			resize: {cssclass: 'resize'}
+		jQuery('#' + input.id).summernote({
+			height: 90,
+			airMode: false
 		});
-		input.store('editor', tmp.editor);
 		return tmp.me;
 	}
 	/**
@@ -204,10 +186,10 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 	 *
 	 * @TODO!!!!
 	 */
-	,_getRichTextEditor: function(text) {
+	,_getRichTextEditor: function(type, text) {
 		var tmp = {};
 		tmp.me = this;
-		tmp.newDiv = new Element('textarea', {'class': 'rich-text-editor', 'save-item': 'fullDescription'}).update(text ? text : '');
+		tmp.newDiv = new Element('div', {'class': 'summernote', 'save': type }).update(text ? text : '');
 		return tmp.newDiv;
 	}
 	/**
@@ -217,11 +199,11 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		tmp.fullDescriptioAssetId = item.fullDescAssetId ? item.fullDescAssetId : '';
-		tmp.loadFullBtn = !item.id ? tmp.me._getRichTextEditor('') : new Element('span', {'class': 'btn btn-default btn-loadFullDesc'}).update('click to show the full description editor')
+		tmp.loadFullBtn = !item.id ? tmp.me._getRichTextEditor('fullDescription','') : new Element('span', {'class': 'btn btn-default btn-loadFullDesc'}).update('click to show the full description editor')
 			.observe('click', function(){
 				tmp.btn = $(this);
 				if(!item.fullDescriptionAsset && !tmp.me._readOnlyMode) {
-					tmp.newTextarea = tmp.me._getRichTextEditor('');
+					tmp.newTextarea = tmp.me._getRichTextEditor('fullDescription','');
 					$(tmp.btn).replace(tmp.newTextarea);
 					tmp.me._loadRichTextEditor(tmp.newTextarea);
 				} else {
@@ -229,7 +211,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 						type: 'GET',
 						url: item.fullDescriptionAsset.url,
 						success: function(result) {
-							tmp.newTextarea = tmp.me._getRichTextEditor(result);
+							tmp.newTextarea = tmp.me._getRichTextEditor('fullDescription',result);
 							if(!tmp.me._readOnlyMode) {
 								$(tmp.btn).replace(tmp.newTextarea);
 								tmp.me._loadRichTextEditor(tmp.newTextarea);
@@ -243,6 +225,41 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				}
 			});
 		tmp.newDiv = tmp.me._getFormGroup('Full Description:', tmp.loadFullBtn);
+		return tmp.newDiv;
+	}
+	/**
+	 * Getting the customtab panel
+	 */
+	,_getcustomTabPanel: function(item) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.customTabAssetId = item.customTabAssetId ? item.customTabAssetId : '';
+		tmp.loadFullBtn = !item.id ? tmp.me._getRichTextEditor('customTab', '') : new Element('span', {'class': 'btn btn-default btn-loadCustomTab'}).update('click to show the feature editor')
+			.observe('click', function(){
+				tmp.btn = $(this);
+				if(!item.customTabAssetId && !tmp.me._readOnlyMode) {
+					tmp.newTextarea = tmp.me._getRichTextEditor('customTab','');
+					$(tmp.btn).replace(tmp.newTextarea);
+					tmp.me._loadRichTextEditor(tmp.newTextarea);
+				} else {
+					jQuery.ajax({
+						type: 'GET',
+						url: item.customTabAsset.url,
+						success: function(result) {
+							tmp.newTextarea = tmp.me._getRichTextEditor('customTab',result);
+							if(!tmp.me._readOnlyMode) {
+								$(tmp.btn).replace(tmp.newTextarea);
+								tmp.me._loadRichTextEditor(tmp.newTextarea);
+							} else {
+								$$('.customTabEl').first().replace(
+									new Element('div', {'class': 'col-sm-12'}).update(tmp.me._getFormGroup('Feature:', new Element('input', {'type': 'text', 'disabled': true, 'value': result ? result : ''}) ) )
+								)
+							}
+						}
+					})
+				}
+			});
+		tmp.newDiv = tmp.me._getFormGroup('Feature:', tmp.loadFullBtn);
 		return tmp.newDiv;
 	}
 	/**
@@ -381,10 +398,12 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				.insert({'bottom': new Element('div', {'class': ''})
 					.insert({'bottom': new Element('div', {'class': 'col-sm-10'}).update(tmp.me._getFormGroup('Short Description:', new Element('input', {'save-item': 'shortDescription', 'type': 'text', 'value': tmp.item.shortDescription ? tmp.item.shortDescription : ''}) ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Weight:', new Element('input', {'save-item': 'weight', 'required': true,'type': 'text', 'value': parseFloat(tmp.item.weight)>0 ? tmp.item.weight : ''}) ) ) })
-
 				})
 				.insert({'bottom': new Element('div', {'class': ''})
 					.insert({'bottom': new Element('div', {'class': 'col-sm-12 fullDescriptionEl'}).update(tmp.me._getFullDescriptionPanel(tmp.item) ) })
+				})
+				.insert({'bottom': new Element('div', {'class': ''})
+					.insert({'bottom': new Element('div', {'class': 'col-sm-12 customTabEl'}).update(tmp.me._getcustomTabPanel(tmp.item) ) })
 				})
 			});
 		// check if sku exist when creating new product
@@ -607,14 +626,17 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 
 		tmp.data.id = tmp.me._item.id;
 		//tricks for fullDescription's editor
-		if ($$('[save-item=fullDescription]').size() > 0 && (tmp.fullDescriptionBox = $$('[save-item=fullDescription]').first()))
+		if ($$('[save=fullDescription]').size() > 0 && (tmp.fullDescriptionBox = $$('[save=fullDescription]').first()))
 		{
 			//sign the value to the textarea
-			tmp.fullDescriptionBox.retrieve('editor').toggle();
-			tmp.fullDescriptionBox.retrieve('editor').toggle();
-			tmp.data['fullDescription'] = $F(tmp.fullDescriptionBox);
+			tmp.data['fullDescription'] = jQuery('#' + tmp.fullDescriptionBox.id).summernote('code');
 		}
-
+		//tricks for feature editor
+		if ($$('[save=customTab]').size() > 0 && (tmp.customTabBox = $$('[save=customTab]').first()))
+		{
+			//sign the value to the textarea
+			tmp.data['customTab'] = jQuery('#' + tmp.customTabBox.id).summernote('code');
+		}
 		//get all categories
 		if(jQuery('#' + tmp.me._productTreeId).length >0) {
 			tmp.data.categoryIds = [];
@@ -879,7 +901,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		tmp.me._bindDatePicker();
-		$$('textarea.rich-text-editor').each(function(item){
+		$$('.summernote').each(function(item){
 			tmp.me._loadRichTextEditor(item);
 		});
 		return tmp.me;

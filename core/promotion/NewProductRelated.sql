@@ -64,3 +64,4 @@ CREATE TABLE `categoryattribute` (
   INDEX `attributesetId` (`attributesetId`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
+ALTER TABLE `product` ADD `customTabAssetId` varchar(100) NOT NULL DEFAULT '' AFTER `fullDescAssetId`, ADD INDEX (`customTabAssetId`) ;

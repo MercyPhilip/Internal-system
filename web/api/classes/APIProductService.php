@@ -110,7 +110,7 @@ class APIProductService extends APIServiceAbstract
 	       //if we have this product already, then skip
 	       if (!($product = Product::getBySku($sku)) instanceof Product) {
 	           $this->_runner->log('new SKU(' . $sku . ') for import, creating ...', '', APIService::TAB);
-	           $product = Product::create($sku, $name, '', null, null, false, $shortDesc, $fullDesc, $manufacturer, $assetAccNo, $revenueAccNo, $costAccNo, null, null, true, $weight, $attributesetId);
+	           $product = Product::create($sku, $name, '', null, null, false, $shortDesc, $fullDesc, '', $manufacturer, $assetAccNo, $revenueAccNo, $costAccNo, null, null, true, $weight, $attributesetId);
 	           $this->log_product("NEW", "=== new === sku=$sku, name=$name, shortDesc=$shortDesc, fullDesc=$fullDesc, category=" . implode(', ', $categoryIds),  '', APIService::TAB);
 	           $canUpdate = true;
 	       } else {
