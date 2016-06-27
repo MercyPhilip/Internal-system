@@ -12,17 +12,20 @@ class ExportAbstract
 	 * @param UDate $start
 	 * @param UDate $end
 	 */
-	public static function setStatusIds($statusIds = array())
-	{
-		self::$_statusIds = $statusIds;
-	}
-	
 	public static function setStartNEndDate(UDate $start, UDate $end)
 	{
 		self::$_dateRange['start'] = $start;
 		self::$_dateRange['end'] = $end;
 	}
-
+	/**
+	 * set invoice status ids
+	 * 
+	 * @param array $statusIds
+	 */
+	public static function setStatusIds($statusIds = array())
+	{
+		self::$_statusIds = $statusIds;
+	}
 	public static function run($debug = false, $mailOut = true)
 	{
 		try{
