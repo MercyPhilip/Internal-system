@@ -214,6 +214,10 @@ class SkuMatchController extends BPCPageAbstract
 			}
 			if (!$product instanceof Product)
 			{
+				if (count($categoryIds) == 0)
+				{
+					throw new Exception("[sku:" . $sku . "] Category cannot be empty! (line:" . $index . ")");
+				}
 				$product = new Product();
 			}
 			$product->setSku($sku)->setSellOnWeb(false)->setActive(true);

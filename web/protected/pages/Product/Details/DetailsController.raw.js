@@ -206,7 +206,14 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					tmp.newTextarea = tmp.me._getRichTextEditor('fullDescription','');
 					$(tmp.btn).replace(tmp.newTextarea);
 					tmp.me._loadRichTextEditor(tmp.newTextarea);
-				} else {
+				} 
+				else if(!item.fullDescriptionAsset && tmp.me._readOnlyMode) {
+					tmp.newTextarea = tmp.me._getRichTextEditor('fullDescription','');
+					$$('.fullDescriptionEl').first().replace(
+							new Element('div', {'class': 'col-sm-12'}).update(tmp.me._getFormGroup('Full Description:', new Element('input', {'type': 'text', 'disabled': true, 'value': ''}) ) )
+						);
+				}
+				else {
 					jQuery.ajax({
 						type: 'GET',
 						url: item.fullDescriptionAsset.url,
@@ -237,11 +244,18 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		tmp.loadFullBtn = !item.id ? tmp.me._getRichTextEditor('customTab', '') : new Element('span', {'class': 'btn btn-default btn-loadCustomTab'}).update('click to show the feature editor')
 			.observe('click', function(){
 				tmp.btn = $(this);
-				if(!item.customTabAssetId && !tmp.me._readOnlyMode) {
+				if(!item.customTabAsset && !tmp.me._readOnlyMode) {
 					tmp.newTextarea = tmp.me._getRichTextEditor('customTab','');
 					$(tmp.btn).replace(tmp.newTextarea);
 					tmp.me._loadRichTextEditor(tmp.newTextarea);
-				} else {
+				} 
+				else if(!item.customTabAsset && tmp.me._readOnlyMode) {
+					tmp.newTextarea = tmp.me._getRichTextEditor('customTab','');
+					$$('.customTabEl').first().replace(
+							new Element('div', {'class': 'col-sm-12'}).update(tmp.me._getFormGroup('Feature:', new Element('input', {'type': 'text', 'disabled': true, 'value': ''}) ) )
+						);
+				}
+				else {
 					jQuery.ajax({
 						type: 'GET',
 						url: item.customTabAsset.url,
@@ -919,7 +933,8 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				tmp.row.addClassName('success');
 		}
 		tmp.newPObtn = $(tmp.parentWindow.document.body).down('#' + tmp.me._btnIdNewPO);
-		if(tmp.newPObtn) {
+		
+		if(tmp.newPObtn && tmp.parentWindow.pageJs && tmp.parentWindow.pageJs.selectProduct) {
 			tmp.parentWindow.pageJs.selectProduct(tmp.me._item, tmp.newPObtn);
 		}
 	}

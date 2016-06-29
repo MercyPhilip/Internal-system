@@ -162,20 +162,11 @@ abstract class ProductToMagento
         }
         //ProductImage
         $productImages = ProductImage::getAllByCriteria('updated > ? and active = 1', array(trim($lastUpdatedTime)));
-        self::_log('GOT ' . count($productCates) . ' ProductImage(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
+        self::_log('GOT ' . count($productImages) . ' ProductImage(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
         foreach ($productImages as $productImage) {
             if(!$productImage->getProduct() instanceof Product || array_key_exists($productImage->getProduct()->getId(), $products))
                 continue;
             $products[$productCate->getProduct()->getId()] = $productCate->getProduct();
-        }
-        // check products whether in new products list
-        foreach($products as $key => $product)
-        {
-            $newProduct = NewProduct::getByProductId($product->getId());
-            if (($newProduct instanceof NewProduct) && ($newProduct->getStatus()->getId() != NewProductStatus::ID_STATUS_DONE))
-            {
-                unset($products[$key]);
-            }
         }
         return $products;
     }
