@@ -174,7 +174,17 @@ class ListController extends CRUDPageAbstract
 			$item = (isset($param->CallbackParameter->item->id) && ($item = $class::get($param->CallbackParameter->item->id)) instanceof $class) ? $item : null;
 			$sku = trim($param->CallbackParameter->item->sku);
 			$name = trim($param->CallbackParameter->item->name);
-			$categories = isset($param->CallbackParameter->item->category) ? explode(',', $param->CallbackParameter->item->category) : array();
+			$categoriesParam = isset($param->CallbackParameter->item->category) ? explode(',', $param->CallbackParameter->item->category) : array();
+			$categories = array();
+			foreach($categoriesParam as $category)
+			{
+				if (trim($category) != '')
+					$categories[] = $category;
+			}
+			if (count($categories) == 0)
+			{
+				throw new Exception("System Error: Category cannot be empty!");
+			}
 			$price = trim($param->CallbackParameter->item->price);
 			$status = (isset($param->CallbackParameter->item->status) && ($status = NewProductStatus::get($param->CallbackParameter->item->status)) instanceof NewProductStatus) ? $status : null;
 			$stock = (isset($param->CallbackParameter->item->stock) && ($stock = ProductStatus::get($param->CallbackParameter->item->stock)) instanceof ProductStatus) ? $stock : null;

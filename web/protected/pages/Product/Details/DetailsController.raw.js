@@ -933,7 +933,8 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				tmp.row.addClassName('success');
 		}
 		tmp.newPObtn = $(tmp.parentWindow.document.body).down('#' + tmp.me._btnIdNewPO);
-		if(tmp.newPObtn) {
+		
+		if(tmp.newPObtn && tmp.parentWindow.pageJs && tmp.parentWindow.pageJs.selectProduct) {
 			tmp.parentWindow.pageJs.selectProduct(tmp.me._item, tmp.newPObtn);
 		}
 	}
