@@ -112,7 +112,8 @@ class Menu extends TTemplateControl
 					'newProducts' => array('url' => '/management/products.html', 'name' => 'New Products', 'icon' => '<span class="glyphicon glyphicon-plus-sign"></span>'),
 					'import' => array('url' => '/management/import.html', 'name' => 'Import(csv)', 'icon' => '<span class="glyphicon glyphicon-upload"></span>'),
 					'msl' => array('url' => '/management/ministocklevel.html', 'name' => 'Minimum Stock Level', 'icon' => '<span class="glyphicon glyphicon-object-align-bottom"></span>'),
-					'categorymanagement' => array('url' => '/management/categorymanagement.html', 'name' => 'Category Management', 'icon' => '<span class="glyphicon glyphicon-folder-open"></span>')
+					'categorymanagement' => array('url' => '/management/categorymanagement.html', 'name' => 'Category Management', 'icon' => '<span class="glyphicon glyphicon-folder-open"></span>'),
+					'stocktake' => array('url' => '/management/stocktake.html', 'name' => 'Stock Take', 'icon' => '<span class="glyphicon glyphicon-folder-open"></span>')
 			);
 		}
 		if(AccessControl::canAccessUsersPage(Core::getRole()) ) {
