@@ -278,7 +278,7 @@ class SalesTarget extends BaseEntityAbstract
 	public static function getCurrentSalesTarget()
 	{
 		try {
-			$objs = self::getAllByCriteria('CURRENT_DATE between dfrom and dto', array(), true, 1, 1);
+			$objs = self::getAllByCriteria("DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') between dfrom and dto", array(), true, 1, 1);
 			$salesTarget = ( count($objs) > 0 ? $objs[0] : null );
 			return $salesTarget;
 		} catch (Exception $e) {
@@ -296,7 +296,7 @@ class SalesTarget extends BaseEntityAbstract
 		try {
 			if ($type === SalesTarget::TYPE_REVENUE_TODAY)
 			{
-				$sql = 'Select * from salesdailylog Where YYYYMMDD = CURRENT_DATE';
+				$sql = "Select * from salesdailylog Where YYYYMMDD = DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d')";
 				$result = Dao::getResultsNative($sql, array(), PDO::FETCH_ASSOC);
 			}
 			else if ($type === SalesTarget::TYPE_REVENUE_UPTODATE)
@@ -305,18 +305,18 @@ class SalesTarget extends BaseEntityAbstract
 				if ($salestarget instanceof SalesTarget)
 				{
 					$startDate = $salestarget->getDfrom();
-					$sql = "select  DATE_FORMAT(CURRENT_DATE,'%Y-%m') YYYYMM, SUM(totalAmount) totalAmount,
+					$sql = "select  DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m') YYYYMM, SUM(totalAmount) totalAmount,
 							SUM(totalPaid) totalPaid, SUM(totalCreditNoteValue) totalCreditNoteValue,
 							SUM(totalMargin) totalMargin, SUM(totalActualMargin) totalActualMargin
-							From salesdailylog Where YYYYMMDD between ? and CURRENT_DATE";
+							From salesdailylog Where YYYYMMDD between ? and DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d')";
 					$result = Dao::getResultsNative($sql, array($startDate), PDO::FETCH_ASSOC);
 				}
 				else
 				{
-					$sql = "select  DATE_FORMAT(CURRENT_DATE,'%Y-%m') YYYYMM, SUM(totalAmount) totalAmount,
+					$sql = "select  DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m') YYYYMM, SUM(totalAmount) totalAmount,
 							SUM(totalPaid) totalPaid, SUM(totalCreditNoteValue) totalCreditNoteValue, 
 							SUM(totalMargin) totalMargin, SUM(totalActualMargin) totalActualMargin 
-							From salesdailylog Where YYYYMMDD between CONCAT(DATE_FORMAT(CURRENT_DATE,'%Y-%m'),'-01') and CURRENT_DATE";
+							From salesdailylog Where YYYYMMDD between CONCAT(DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m'),'-01') and DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d')";
 					$result = Dao::getResultsNative($sql, array(), PDO::FETCH_ASSOC);
 				}
 			}
