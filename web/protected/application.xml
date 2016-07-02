@@ -104,6 +104,8 @@
       <url ServiceParameter="ProductManagement.MiniStockLevel.List.ListController" pattern="/management/ministocklevel.html" />
       <!-- FrontEnd:: product category management list page -->
       <url ServiceParameter="ProductManagement.CategoryManagement.List.ListController" pattern="/management/categorymanagement.html" />
+      <!-- FrontEnd:: product stock take list page -->
+      <url ServiceParameter="ProductManagement.StockTake.List.ListController" pattern="/management/stocktake.html" />
       
       <!-- FrontEnd:: product code type list page -->
       <url ServiceParameter="ProductCodeType.List.ListController" pattern="productcodetypes.html" />
