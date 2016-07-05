@@ -39,18 +39,22 @@ class ListController extends CRUDPageAbstract
 			$statuses[] = $os->getJson();
 		foreach (ProductCategory::getAll() as $os)
 			$productCategoryArray[] = $os->getJson();
+		$locationTypes = array_map(create_function('$a', 'return $a->getJson();'), PreferredLocationType::getAll());
 		
 		$js = parent::_getEndJs();
 		if(($product = Product::get($this->Request['id']))  instanceof Product) {
 			$js .= "$('searchPanel').hide();";
 			$js .= "pageJs._singleProduct = true;";
 		}
-		$js .= 'pageJs._loadManufactures('.json_encode($manufactureArray).')';
+
+		$js .= "pageJs.setPreData(" . json_encode($locationTypes) .  ")";
+		$js .= '._loadManufactures('.json_encode($manufactureArray).')';
 		$js .= '._loadSuppliers('.json_encode($supplierArray).')';
 		$js .= '._loadCategories('.json_encode($productCategoryArray).')';
 		$js .= '._loadProductStatuses('.json_encode($statuses).')';
 		$js .= "._loadChosen()";
 		$js .= "._bindSearchKey()";
+		$js .= ".setCallbackId('applyStockOnHandBtn', '" . $this->applyStockOnHandBtn->getUniqueID() . "')";
 		$js .= ".getResults(true, " . $this->pageSize . ");";
 		return $js;
 	}
@@ -112,11 +116,15 @@ class ListController extends CRUDPageAbstract
             
             $results['pageStats'] = $stats;
             $results['items'] = array();
+            $qty = array();
             foreach($objects as $obj)
             {
-            	$results['items'][] = $obj->getJson();
+               	$tmpArray = $obj->getJson();
+            	$qty = $tmpArray['locations'];
+            	$qty = StockTake::getQuantity($qty);
+            	$tmpArray['locations'] = $qty;
+            	$results['items'][] = $tmpArray;
             }
-            
         }
         catch(Exception $ex)
         {
@@ -309,16 +317,9 @@ class ListController extends CRUDPageAbstract
     		$item = (isset($param->CallbackParameter->item->id) && ($item = $class::get($param->CallbackParameter->item->id)) instanceof $class) ? $item : null;
     		if (!$item instanceof $class)
     			throw new Exception("System Error: Invalid item information passed in!");
-    		$stockOnHand = trim($param->CallbackParameter->item->stockOnHand);
-			$unitCost = $item->getUnitCost();
-			if ($stockOnHand != null && ($stockOnHand = trim($stockOnHand)) !== trim($origStockOnHand = $item->getStockOnHand())) {
-				$item->setTotalOnHandValue($stockOnHand * $unitCost)
-				->setStockOnHand($stockOnHand)->save();
-			}
-			$msg = 'Stock changed: StockOnHand [' . $origStockOnHand . ' => ' . $stockOnHand . ']';
-			$item->snapshotQty(null, ProductQtyLog::TYPE_STOCK_ADJ, 'Manual Adjusted by ' . Core::getUser()->getPerson()->getFullName())->save();
-			
+    		$this->setLocation($item, $param);
     		$results['item'] = $item->getJson();
+    		$results['item']['locations'] = StockTake::getQuantity($results['item']['locations']);
     		Dao::commitTransaction();
     	}
     	catch(Exception $ex)
@@ -328,6 +329,102 @@ class ListController extends CRUDPageAbstract
     	}
     	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
     }
+    /**
+     * set locations
+     * 
+     * @param Product $product
+     * @param unknown $param
+     * @return ListController
+     */
+    private function setLocation(Product &$product, $param)
+    {
+    	if(isset($param->CallbackParameter->item->locations) && count($locations = $param->CallbackParameter->item->locations) > 0)
+    	{
+    		//delete all locations first
+    		$deleteIds = array();
+    		foreach($locations as $location)
+    		{
+    			if(trim($location->active) === '0' && isset($location->id))
+    				$deleteIds[] = trim($location->id);
+    		}
+    		if(count($deleteIds) > 0)
+    		{
+    			PreferredLocation::updateByCriteria('active = 0', 'id in (' . str_repeat('?', count($deleteIds)) . ')', $deleteIds);
+    			StockTake::updateByCriteria('active = 0', 'preferredlocationId in (' . str_repeat('?', count($deleteIds)) . ')', $deleteIds);
+    		}
     
+    		//update or create new
+    		foreach($locations as $location)
+    		{
+    			if(isset($location->id) && in_array(trim($location->id), $deleteIds))
+    				continue;
+    			if(!($type = PreferredLocationType::get(trim($location->typeId))) instanceof PreferredLocationType)
+    				continue;
+    
+    			$locationName = trim($location->value);
+    			$counting = trim($location->counting);
+    			$locs = Location::getAllByCriteria('name = ?', array($locationName), true, 1, 1);
+    			$loc = (count($locs) > 0 ? $locs[0] : Location::create($locationName, $locationName));
+    			if(!isset($location->id) || ($id = trim($location->id)) === '')
+    			{
+    				//if it's deactivated one, ignore
+    				if(trim($location->active) === '1')
+    				{
+    					$preferredLocation = PreferredLocation::create($loc, $product, $type);
+    					StockTake::create($preferredLocation, $counting);
+    				}
+    			}
+    			else if (($preferredLocation= PreferredLocation::get($id)) instanceof PreferredLocation)
+    			{
+    				$preferredLocation->setLocation($loc)
+    				->setActive(trim($location->active) === '1')
+    				->setProduct($product)
+    				->setType($type)
+    				->save();
+    				StockTake::create($preferredLocation, $counting);
+    			}
+    		}
+    	}
+    	return $this;
+    }
+    /**
+     * set new stock on hand to the product
+     *
+     * @param unknown $sender
+     * @param unknown $param
+     * @throws Exception
+     *
+     */
+    public function applyStockOnHand($sender, $param)
+    {
+    	$results = $errors = array();
+    	try
+    	{
+    		Dao::beginTransaction();
+    		$class = trim($this->_focusEntity);
+    		if(!isset($param->CallbackParameter->item))
+    			throw new Exception("System Error: no item information passed in!");
+    		$item = (isset($param->CallbackParameter->item->id) && ($item = $class::get($param->CallbackParameter->item->id)) instanceof $class) ? $item : null;
+    		if (!$item instanceof $class)
+    			throw new Exception("System Error: Invalid item information passed in!");
+    		$stockOnHand = StockTake::getTotalCounting($item->getLocations());
+    		$unitCost = $item->getUnitCost();
+    		if ($stockOnHand != null && ($stockOnHand = trim($stockOnHand)) !== trim($origStockOnHand = $item->getStockOnHand())) {
+    			$item->setTotalOnHandValue($stockOnHand * $unitCost)
+    				->setStockOnHand($stockOnHand)->save();
+    		}
+    		$msg = 'Stock changed: StockOnHand [' . $origStockOnHand . ' => ' . $stockOnHand . ']';
+    		$item->snapshotQty(null, ProductQtyLog::TYPE_STOCK_ADJ, 'Manual Adjusted by ' . Core::getUser()->getPerson()->getFullName())->save();
+    		$results['item'] = $item->getJson();
+    		$results['item']['locations'] = StockTake::getQuantity($results['item']['locations']);
+    		Dao::commitTransaction();
+    	}
+    	catch(Exception $ex)
+    	{
+    		Dao::rollbackTransaction();
+    		$errors[] = $ex->getMessage();
+    	}
+    	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+    }
 }
 ?>
