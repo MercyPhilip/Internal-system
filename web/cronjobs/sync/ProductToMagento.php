@@ -166,7 +166,7 @@ abstract class ProductToMagento
         foreach ($productImages as $productImage) {
             if(!$productImage->getProduct() instanceof Product || array_key_exists($productImage->getProduct()->getId(), $products))
                 continue;
-            $products[$productCate->getProduct()->getId()] = $productCate->getProduct();
+            $products[$productImage->getProduct()->getId()] = $productImage->getProduct();
         }
         return $products;
     }
