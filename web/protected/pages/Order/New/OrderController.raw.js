@@ -662,7 +662,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					})
 				})
 				.insert({'bottom': new Element('div', {'class': 'col-xs-10'})
-					.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'}).update(!product.shortDescription.blank() ? product.shortDescription : product.name)
+					.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'}).update(!product.name.blank() ? product.name : product.shortDescription)
 						.observe('click', function(event){
 							Event.stop(event);
 							$productId = $(this).up('.search-product-result-row').retrieve('data').id;
@@ -736,7 +736,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 						})
 					})
 					.insert({'after': new Element('div', {'class': 'col-xs-4'})
-						.update(new Element('textarea', {'new-order-item': 'itemDescription'}).setStyle('width: 100%').update(!product.shortDescription.blank() ? product.shortDescription : product.name))
+						.update(new Element('textarea', {'new-order-item': 'itemDescription'}).setStyle('width: 100%').update(!product.name.blank() ? product.name : product.shortDescription))
 					});
 				jQuery('#' + tmp.me.modalId).modal('hide');
 				tmp.retailPrice = product.prices.size() === 0 ? 0 : product.prices[0].price;
