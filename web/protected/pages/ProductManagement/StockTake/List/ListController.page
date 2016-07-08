@@ -3,12 +3,14 @@
 <com:Application.controls.fancybox.FancyBox />
 <com:Application.controls.select2.select2 />
 <com:TCallback ID="applyStockOnHandBtn" OnCallback = 'Page.applyStockOnHand' />
+<com:TCallback ID="prepareNewBtn" OnCallback = 'Page.prepareNew' />
 	<div class="pagewrapper productlistwraper">
 		<div class="col-xs-12">
 			<div class="panel panel-default" id="searchPanel">
 				<div class="panel-heading">
 					<label for="showSearch">Search Criteria</label>
 					<span class="pull-right btn-group">
+						<span id="newBtn" class="btn btn-success btn-sm" data-loading-text="preparing ..." onclick="pageJs.prepareNew(this);">New Stock Take</span>
 						<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span>
 					</span>
 				</div>
