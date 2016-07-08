@@ -182,6 +182,39 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		return tmp.me;
 	}
 	/**
+	 * export csv report
+	 */
+	,genReport: function(btn) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.data = {};
+		$$('[search_field]').each(function(item){
+			tmp.data[item.readAttribute('search_field')] = $F(item);
+		});
+		tmp.me.postAjax(tmp.me.getCallbackId('genReportmBtn'), tmp.data, {
+			'onLoading': function() {
+				jQuery(btn).button('loading');
+			}
+			,'onSuccess': function (sender, param) {
+				try {
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result || !tmp.result.url)
+						return;
+					tmp.newWind = window.open(tmp.result.url);
+					if(!tmp.newWind) {
+						throw 'You browser is blocking the popup window, please click <a class="btn btn-xs btn-primary" href="' + tmp.result.url + '" target="__BLANK">here</a> to open it manually.';
+					}
+				} catch (e) {
+					tmp.me.showModalBox('<b>Error:</b>', '<b class="text-danger">' + e + '</b>');
+				}
+			}
+			,'onComplete': function() {
+				jQuery(btn).button('reset');
+			}
+		})
+		return tmp.me;
+	}
+	/**
 	 * Highlisht seleteted row
 	 */
 	,_highlightSelectedRow : function (btn) {
@@ -229,7 +262,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle === true ? 'Product SKU' : tmp.me._getLink('product', row.product.id, row.product.sku) ) })
 			.insert({'bottom': new Element(tmp.tag).update(tmp.isTitle === true ? 'Product Name' : tmp.me._getLink('product', row.product.id, row.product.name)) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-2'}).update(tmp.isTitle === true ? 'Last Purchase Date' : moment(tmp.me.loadUTCTime(row.lastPurchaseTime)).format('ll') ) })
-			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle === true ? 'Qty' : (row.receivingItem.id ? tmp.me._getLink('productqtylog', null, row.product.stockOnHand, null, [{'productid': row.product.id}]) : 'N/A')) })
+			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle === true ? 'Qty' : tmp.me._getLink('productqtylog', null, row.product.stockOnHand, null, [{'productid': row.product.id}])) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-2'}).update(tmp.isTitle === true ? 'Aged Days' : moment().diff(moment(tmp.me.loadUTCTime(row.lastPurchaseTime)), 'days') ) })
 			;
 		return tmp.row;

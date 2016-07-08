@@ -3,12 +3,14 @@
 <com:Application.controls.select2.select2 />
 <com:Application.controls.bootstrapDateTimePicker.bootstrapDateTimePicker />
 <com:TCallback ID="deactivateItemBtn" OnCallback = 'Page.deactivateItems' />
+<com:TCallback ID="genReportmBtn" OnCallback = 'Page.genReport' />
 	<div class="pagewrapper item-list-wrapper">
 		<div class="panel panel-default" id="searchPanel">
 			<div class="panel-heading">
 				<label for="showSearch">Show Search Criteria?</label>
 				<input id="showSearch" type="checkbox" checked onclick="$(this).up('#searchPanel').down('.panel-body').toggle();">
 				<span class="pull-right">
+					<span id="exportBtn" class="btn btn-success btn-sm" data-loading-text="loading ..." onclick="pageJs.genReport(this);">Export</span>
 					<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span>
 				</span>
 			</div>
