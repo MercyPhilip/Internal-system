@@ -55,6 +55,7 @@ class ListController extends CRUDPageAbstract
 		$js .= "._loadChosen()";
 		$js .= "._bindSearchKey()";
 		$js .= ".setCallbackId('applyStockOnHandBtn', '" . $this->applyStockOnHandBtn->getUniqueID() . "')";
+		$js .= ".setCallbackId('prepareNewBtn', '" . $this->prepareNewBtn->getUniqueID() . "')";
 		$js .= ".getResults(true, " . $this->pageSize . ");";
 		return $js;
 	}
@@ -425,6 +426,34 @@ class ListController extends CRUDPageAbstract
     		$errors[] = $ex->getMessage();
     	}
     	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+    }
+    /**
+     * initialize the new stock take table
+     *
+     * @param unknown $sender
+     * @param unknown $param
+     * @throws Exception
+     *
+     */
+    public function prepareNew($sender, $param)
+    {
+    	$results = $errors = array();
+    	try
+    	{
+    		Dao::beginTransaction();
+    		//clear records in stocktake table
+    		StockTake::updateByCriteria('active = 0', 'active != 0');
+    		Dao::commitTransaction();
+    	}
+    	catch(Exception $ex)
+    	{
+    		Dao::rollbackTransaction();
+    		$errors[] = $ex->getMessage();
+    		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+    		return;
+    	}
+    	
+    	$this->getItems($sender, $param);
     }
 }
 ?>
