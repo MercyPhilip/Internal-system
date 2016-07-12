@@ -379,65 +379,73 @@ abstract class ProductToMagento
    	            $attributeSetName = $product->getAttributeSet()->getName();
    	            self::_log('-- attributeSetName ', __CLASS__ . '::' . __FUNCTION__ . "  attributeSetName=$attributeSetName", $preFix);
    	        }
-   	        //RRP
-   	        if(($rrp = $product->getRRP()) instanceof ProductPrice)
-   	            $rrpPrice = StringUtilsAbstract::getValueFromCurrency($rrp->getPrice());
-   	        
-   	        
-   	        //special price
-   	        if (($specialPriceObj = $product->getNearestSpecialPrice()) instanceof ProductPrice) {
-   	        	$specialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
-   	        	$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
-   	        	$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
-   	        	if ($specialPrice == 0)
-   	        	{
-   	        		$specialPrice = '';
-   	        		$specialPriceFromDate = '1990-10-10';
-   	        		$specialPriceToDate = '2009-10-10';
-   	        	}
-   	        }
-   	        else
+   	        //SRP
+   	        if(($srp = $product->getSRP()) instanceof ProductPrice)
    	        {
-   	        	// delete the special price
-   	        	//$specialPrice = StringUtilsAbstract::getValueFromCurrency('99999999');
-   	        	//$specialPrice = '9999999';
+   	        	$rrpPrice = StringUtilsAbstract::getValueFromCurrency($srp->getPrice());
    	        	$specialPrice = '';
    	        	$specialPriceFromDate = '1990-10-10';
    	        	$specialPriceToDate = '2009-10-10';
    	        }
-   	        
-   	        // if it is the daily promotion time then overwrite the special price with the daily special price
-   	        $isDailyPromotionTime = intval(SystemSettings::getSettings(SystemSettings::TYP_ISDAILYPROMOTIONTIME));
-   	        if ($isDailyPromotionTime === 1)
+   	        else
    	        {
-   	        	// get daily promotion price
-   	           	if (($specialPriceObj = $product->getDailySpecialPrice()) instanceof ProductPrice) {
-   	        		$dailySpecialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
-   	        		if ($dailySpecialPrice != 0)
-   	        		{
-   	        			$specialPrice = $dailySpecialPrice;
-   	        			$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
-   	        			$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
-   	        		}
-   	        	}
+	   	        //RRP
+	   	        if(($rrp = $product->getRRP()) instanceof ProductPrice)
+	   	            $rrpPrice = StringUtilsAbstract::getValueFromCurrency($rrp->getPrice());
+	   	        //special price
+	   	        if (($specialPriceObj = $product->getNearestSpecialPrice()) instanceof ProductPrice) {
+	   	        	$specialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
+	   	        	$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
+	   	        	$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
+	   	        	if ($specialPrice == 0)
+	   	        	{
+	   	        		$specialPrice = '';
+	   	        		$specialPriceFromDate = '1990-10-10';
+	   	        		$specialPriceToDate = '2009-10-10';
+	   	        	}
+	   	        }
+	   	        else
+	   	        {
+	   	        	// delete the special price
+	   	        	//$specialPrice = StringUtilsAbstract::getValueFromCurrency('99999999');
+	   	        	//$specialPrice = '9999999';
+	   	        	$specialPrice = '';
+	   	        	$specialPriceFromDate = '1990-10-10';
+	   	        	$specialPriceToDate = '2009-10-10';
+	   	        }
+	   	        
+	   	        // if it is the daily promotion time then overwrite the special price with the daily special price
+	   	        $isDailyPromotionTime = intval(SystemSettings::getSettings(SystemSettings::TYP_ISDAILYPROMOTIONTIME));
+	   	        if ($isDailyPromotionTime === 1)
+	   	        {
+	   	        	// get daily promotion price
+	   	           	if (($specialPriceObj = $product->getDailySpecialPrice()) instanceof ProductPrice) {
+	   	        		$dailySpecialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
+	   	        		if ($dailySpecialPrice != 0)
+	   	        		{
+	   	        			$specialPrice = $dailySpecialPrice;
+	   	        			$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
+	   	        			$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
+	   	        		}
+	   	        	}
+	   	        }
+	   	        
+	   	        // if it is the daily promotion time then overwrite the special price with the daily special price
+	   	        $isWeekendPromotionTime = intval(SystemSettings::getSettings(SystemSettings::TYP_ISWEEKENDPROMOTIONTIME));
+	   	        if ($isWeekendPromotionTime === 1)
+	   	        {
+	   	        	// get weekend promotion price
+	   	        	if (($specialPriceObj = $product->getWeekendSpecialPrice()) instanceof ProductPrice) {
+	   	        		$weekendSpecialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
+	   	        		if ($weekendSpecialPrice != 0)
+	   	        		{
+	   	        			$specialPrice = $weekendSpecialPrice;
+	   	        			$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
+	   	        			$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
+	   	        		}
+	   	        	}
+	   	        }  
    	        }
-   	        
-   	        // if it is the daily promotion time then overwrite the special price with the daily special price
-   	        $isWeekendPromotionTime = intval(SystemSettings::getSettings(SystemSettings::TYP_ISWEEKENDPROMOTIONTIME));
-   	        if ($isWeekendPromotionTime === 1)
-   	        {
-   	        	// get weekend promotion price
-   	        	if (($specialPriceObj = $product->getWeekendSpecialPrice()) instanceof ProductPrice) {
-   	        		$weekendSpecialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
-   	        		if ($weekendSpecialPrice != 0)
-   	        		{
-   	        			$specialPrice = $weekendSpecialPrice;
-   	        			$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
-   	        			$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
-   	        		}
-   	        	}
-   	        }  
-
    	        //full description
    	        if (($asset = Asset::getAsset($product->getFullDescAssetId())) instanceof Asset)
    	            //$fullDecription = '"' . $asset->read() . '"';

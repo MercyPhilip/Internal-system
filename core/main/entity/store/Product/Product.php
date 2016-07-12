@@ -1447,6 +1447,16 @@ class Product extends InfoEntityAbstract
 		return null;
 	}
 	/**
+	 * Getting the SRP for this product
+	 * @return ProductPrice|NULL
+	 */
+	public function getSRP()
+	{
+		if(count($prices = ProductPrice::getPrices($this, ProductPriceType::get(ProductPriceType::ID_SRP), '', '', '', '', 1, 1)) > 0)
+			return $prices[0];
+		return null;
+	}
+	/**
 	 * Getting the RRP for this product
 	 * @return ProductPrice|NULL
 	 */
