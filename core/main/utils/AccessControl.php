@@ -129,6 +129,7 @@ Abstract class AccessControl
 			case Role::ID_STORE_MANAGER:
 			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
+			case Role::ID_SALES:
 				{
 					return true;
 				}
@@ -161,6 +162,7 @@ Abstract class AccessControl
 			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_PURCHASING:
+			case Role::ID_SALES:
 				{
 					return true;
 				}
@@ -236,6 +238,7 @@ Abstract class AccessControl
 			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_ACCOUNTING:
+			case Role::ID_SALES:
 				{
 					return true;
 				}
@@ -276,6 +279,7 @@ Abstract class AccessControl
 			case Role::ID_PRODUCT_MANAGER:
 			case Role::ID_SYSTEM_ADMIN:
 			case Role::ID_WORKSHOP:
+			case Role::ID_SALES:
 				{
 					return true;
 				}
