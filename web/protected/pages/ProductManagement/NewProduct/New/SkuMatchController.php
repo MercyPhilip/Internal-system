@@ -34,6 +34,7 @@ class SkuMatchController extends BPCPageAbstract
 	const IMAGE3 = 'image3';
 	const IMAGE4 = 'image4';
 	const IMAGE5 = 'image5';
+	const SRP = 'srp';
 	/**
 	 * (non-PHPdoc)
 	 * @see BPCPageAbstract::onLoad()
@@ -51,7 +52,7 @@ class SkuMatchController extends BPCPageAbstract
 	 */
 	protected function _getEndJs()
 	{
-		$importDataTypes = array('new_product'=> 'NEW PRODUCT', 'update_product'=>'UPDATE PRODUCT');
+		$importDataTypes = array('new_product'=> 'NEW PRODUCT', 'update_product'=>'UPDATE PRODUCT', 'update_srp' => 'UPDATE SRP(PRICE)');
 
 		$js = parent::_getEndJs();
 		$js .= 'pageJs';
@@ -85,6 +86,11 @@ class SkuMatchController extends BPCPageAbstract
 					break;
 				case 'update_product':
 					$item = $this->importNewProduct($data, true);
+					$result['path'] = $item instanceof Product ? '/product/' . $item->getId() . '.html' : '';
+					$result['item'] = $item instanceof Product ? $item->getJson() : array();
+					break;
+				case 'update_srp':
+					$item = $this->importSRP($data);
 					$result['path'] = $item instanceof Product ? '/product/' . $item->getId() . '.html' : '';
 					$result['item'] = $item instanceof Product ? $item->getJson() : array();
 					break;
@@ -482,5 +488,50 @@ class SkuMatchController extends BPCPageAbstract
 		}
 		return $result;
 	}
+	/**
+	 * import new products
+	 * @param array $rows
+	 * @throws Exception
+	 * @return ListController
+	 */
+	private function importSRP($row)
+	{
+		$row = new ArrayObject($row);
+		$index = $row['index'];
+		$sku = isset($row[self::SKU]) ? trim($row[self::SKU]) : '';
+		if ($sku == '')
+		{
+			throw new Exception('Invalid sku passed in! (line ' . $index .')');
+		}
+		$srp = isset($row[self::SRP]) ? trim($row[self::SRP]) : '';
+		$search = array('$', ',');
+		$replace = array();
+		$price = doubleval(str_replace($search, $replace, $srp));
+		if ($price <= doubleval(0))
+		{
+			throw new Exception('Invalid SRP passed in! (line ' . $index .')');
+		}
+		$product = Product::getBySku($sku);
+		if (!$product instanceof Product)
+		{
+			// no such a product
+			throw new Exception('No such a product (line ' . $index .')');
+		}
+		// get SRP 
+		$prices = ProductPrice::getPrices($product, ProductPriceType::get(ProductPriceType::ID_SRP));
+		if (count($prices) > 0)
+		{
+			$product->removePrice(ProductPriceType::get(ProductPriceType::ID_SRP))
+				->addPrice(ProductPriceType::get(ProductPriceType::ID_SRP), $price);
+		}
+		else
+		{
+			// new srp
+			$product->addPrice(ProductPriceType::get(ProductPriceType::ID_SRP), $price);
+				
+		}
+		return $product;
+	}
+	
 }
 ?>

@@ -134,6 +134,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			case 'update_product':
 				tmp.me.csvFileLineFormat = ['sku', 'name', 'feature','description', 'short_description', 'price', 'category', 'stock', 'brand', 'supplier', 'weight', 'assaccno', 'revaccno', 'cstaccno', 'attributeset', 'image1', 'image2', 'image3', 'image4', 'image5'];
 				break;
+			case 'update_srp':
+				tmp.me.csvFileLineFormat = ['sku', 'srp'];
+				break;
 			default:
 				tmp.me.csvFileLineFormat = [];
 		}

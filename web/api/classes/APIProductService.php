@@ -205,7 +205,7 @@ class APIProductService extends APIServiceAbstract
 	                   // need to update price and stock info                 
 	                   if (doubleval($existigPrice) != doubleval($price))
 	                   {
-		                   	$product->clearAllPrice()
+		                   	$product->removePrice(ProductPriceType::get(ProductPriceType::ID_RRP))
 		                   	->addPrice(ProductPriceType::get(ProductPriceType::ID_RRP), $price);
 		                   	$isUpdated = true;
 	                   }
@@ -265,7 +265,7 @@ class APIProductService extends APIServiceAbstract
 	       		->setManufacturer($manufacturer)
 	       		->setWeight($weight)
 	       		->setSellOnWeb($showOnWeb)
-				->clearAllPrice()
+				->removePrice(ProductPriceType::get(ProductPriceType::ID_RRP))
 	       		->addPrice(ProductPriceType::get(ProductPriceType::ID_RRP), $price);
 	       		//show on web
 		       if (is_array($categoryIds) && count($categoryIds) > 0) {
