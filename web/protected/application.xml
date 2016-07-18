@@ -54,6 +54,9 @@
       <!-- FrontEnd:: orderitem list page -->
       <url ServiceParameter="OrderItem.List.OrderItemController" pattern="orderitems.html"/>
 
+      <!-- FrontEnd:: tier level list page -->
+      <url ServiceParameter="TierLevel.List.TierLevelsController" pattern="tierlevels.html"/>
+
       <!-- FrontEnd:: user page -->
       <url ServiceParameter="User.List.UsersController" pattern="users.html" />
       <!-- FrontEnd:: user edit page -->
@@ -106,6 +109,10 @@
       <url ServiceParameter="ProductManagement.CategoryManagement.List.ListController" pattern="/management/categorymanagement.html" />
       <!-- FrontEnd:: product stock take list page -->
       <url ServiceParameter="ProductManagement.StockTake.List.ListController" pattern="/management/stocktake.html" />
+      <!-- FrontEnd:: product tier rule list page -->
+      <url ServiceParameter="ProductManagement.TierRule.List.ListController" pattern="/management/tierrule.html" />
+      <!-- FrontEnd:: product product tier price list page -->
+      <url ServiceParameter="ProductManagement.ProductTierPrice.List.ListController" pattern="/management/producttierprice.html" />
       
       <!-- FrontEnd:: product code type list page -->
       <url ServiceParameter="ProductCodeType.List.ListController" pattern="productcodetypes.html" />

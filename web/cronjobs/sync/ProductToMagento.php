@@ -168,6 +168,14 @@ abstract class ProductToMagento
                 continue;
             $products[$productImage->getProduct()->getId()] = $productImage->getProduct();
         }
+        //ProductTierPrice
+        $productTierPrices = ProductTierPrice::getAllByCriteria('updated > ?', array(trim($lastUpdatedTime)), false);
+        self::_log('GOT ' . count($productTierPrices) . ' ProductTierPrice(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
+        foreach ($productTierPrices as $productTierPrice) {
+        	if(!$productTierPrice->getProduct() instanceof Product || array_key_exists($productTierPrice->getProduct()->getId(), $products))
+        		continue;
+        	$products[$productTierPrice->getProduct()->getId()] = $productTierPrice->getProduct();
+        }
         return $products;
     }
     /**
@@ -368,6 +376,16 @@ abstract class ProductToMagento
    	    $enabled = true;
    	    $sku = $statusId = $productName = $rrpPrice = $weight = $shortDescription = $fullDecription = $feature = $supplierName = $supplierCode = $manufacturerName = $asNewFrom = $asNewTo = $specialPrice = $specialPriceFromDate = $specialPriceToDate = '';
    	    $categoryIds = array(2); //default category
+   	    $groupPrices =  array();
+   	    $tierPrices = array();
+   	    $tierLevels = TierLevel::getAllByCriteria('id <> 1');
+   	    foreach ($tierLevels as $tierLevel)
+   	    {
+   	    	$keyGroup = 'group_price:' . $tierLevel->getName();
+   	    	$keyTier = 'tier_price:' . $tierLevel->getName();
+   	    	$groupPrices[$keyGroup] = '';
+   	    	$tierPrices[$keyTier] = '';
+   	    }
    	    if ($product instanceof Product) {
    	        $sku = trim($product->getSku());
    	        $productName = trim($product->getName());
@@ -379,65 +397,73 @@ abstract class ProductToMagento
    	            $attributeSetName = $product->getAttributeSet()->getName();
    	            self::_log('-- attributeSetName ', __CLASS__ . '::' . __FUNCTION__ . "  attributeSetName=$attributeSetName", $preFix);
    	        }
-   	        //RRP
-   	        if(($rrp = $product->getRRP()) instanceof ProductPrice)
-   	            $rrpPrice = StringUtilsAbstract::getValueFromCurrency($rrp->getPrice());
-   	        
-   	        
-   	        //special price
-   	        if (($specialPriceObj = $product->getNearestSpecialPrice()) instanceof ProductPrice) {
-   	        	$specialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
-   	        	$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
-   	        	$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
-   	        	if ($specialPrice == 0)
-   	        	{
-   	        		$specialPrice = '';
-   	        		$specialPriceFromDate = '1990-10-10';
-   	        		$specialPriceToDate = '2009-10-10';
-   	        	}
-   	        }
-   	        else
+   	        //SRP
+   	        if(($srp = $product->getSRP()) instanceof ProductPrice)
    	        {
-   	        	// delete the special price
-   	        	//$specialPrice = StringUtilsAbstract::getValueFromCurrency('99999999');
-   	        	//$specialPrice = '9999999';
+   	        	$rrpPrice = StringUtilsAbstract::getValueFromCurrency($srp->getPrice());
    	        	$specialPrice = '';
    	        	$specialPriceFromDate = '1990-10-10';
    	        	$specialPriceToDate = '2009-10-10';
    	        }
-   	        
-   	        // if it is the daily promotion time then overwrite the special price with the daily special price
-   	        $isDailyPromotionTime = intval(SystemSettings::getSettings(SystemSettings::TYP_ISDAILYPROMOTIONTIME));
-   	        if ($isDailyPromotionTime === 1)
+   	        else
    	        {
-   	        	// get daily promotion price
-   	           	if (($specialPriceObj = $product->getDailySpecialPrice()) instanceof ProductPrice) {
-   	        		$dailySpecialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
-   	        		if ($dailySpecialPrice != 0)
-   	        		{
-   	        			$specialPrice = $dailySpecialPrice;
-   	        			$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
-   	        			$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
-   	        		}
-   	        	}
+	   	        //RRP
+	   	        if(($rrp = $product->getRRP()) instanceof ProductPrice)
+	   	            $rrpPrice = StringUtilsAbstract::getValueFromCurrency($rrp->getPrice());
+	   	        //special price
+	   	        if (($specialPriceObj = $product->getNearestSpecialPrice()) instanceof ProductPrice) {
+	   	        	$specialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
+	   	        	$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
+	   	        	$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
+	   	        	if ($specialPrice == 0)
+	   	        	{
+	   	        		$specialPrice = '';
+	   	        		$specialPriceFromDate = '1990-10-10';
+	   	        		$specialPriceToDate = '2009-10-10';
+	   	        	}
+	   	        }
+	   	        else
+	   	        {
+	   	        	// delete the special price
+	   	        	//$specialPrice = StringUtilsAbstract::getValueFromCurrency('99999999');
+	   	        	//$specialPrice = '9999999';
+	   	        	$specialPrice = '';
+	   	        	$specialPriceFromDate = '1990-10-10';
+	   	        	$specialPriceToDate = '2009-10-10';
+	   	        }
+	   	        
+	   	        // if it is the daily promotion time then overwrite the special price with the daily special price
+	   	        $isDailyPromotionTime = intval(SystemSettings::getSettings(SystemSettings::TYP_ISDAILYPROMOTIONTIME));
+	   	        if ($isDailyPromotionTime === 1)
+	   	        {
+	   	        	// get daily promotion price
+	   	           	if (($specialPriceObj = $product->getDailySpecialPrice()) instanceof ProductPrice) {
+	   	        		$dailySpecialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
+	   	        		if ($dailySpecialPrice != 0)
+	   	        		{
+	   	        			$specialPrice = $dailySpecialPrice;
+	   	        			$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
+	   	        			$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
+	   	        		}
+	   	        	}
+	   	        }
+	   	        
+	   	        // if it is the daily promotion time then overwrite the special price with the daily special price
+	   	        $isWeekendPromotionTime = intval(SystemSettings::getSettings(SystemSettings::TYP_ISWEEKENDPROMOTIONTIME));
+	   	        if ($isWeekendPromotionTime === 1)
+	   	        {
+	   	        	// get weekend promotion price
+	   	        	if (($specialPriceObj = $product->getWeekendSpecialPrice()) instanceof ProductPrice) {
+	   	        		$weekendSpecialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
+	   	        		if ($weekendSpecialPrice != 0)
+	   	        		{
+	   	        			$specialPrice = $weekendSpecialPrice;
+	   	        			$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
+	   	        			$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
+	   	        		}
+	   	        	}
+	   	        }  
    	        }
-   	        
-   	        // if it is the daily promotion time then overwrite the special price with the daily special price
-   	        $isWeekendPromotionTime = intval(SystemSettings::getSettings(SystemSettings::TYP_ISWEEKENDPROMOTIONTIME));
-   	        if ($isWeekendPromotionTime === 1)
-   	        {
-   	        	// get weekend promotion price
-   	        	if (($specialPriceObj = $product->getWeekendSpecialPrice()) instanceof ProductPrice) {
-   	        		$weekendSpecialPrice = StringUtilsAbstract::getValueFromCurrency($specialPriceObj->getPrice());
-   	        		if ($weekendSpecialPrice != 0)
-   	        		{
-   	        			$specialPrice = $weekendSpecialPrice;
-   	        			$specialPriceFromDate = $specialPriceObj->getStart()->format('Y-m-d H:i:sP');
-   	        			$specialPriceToDate = $specialPriceObj->getEnd()->format('Y-m-d H:i:sP');
-   	        		}
-   	        	}
-   	        }  
-
    	        //full description
    	        if (($asset = Asset::getAsset($product->getFullDescAssetId())) instanceof Asset)
    	            //$fullDecription = '"' . $asset->read() . '"';
@@ -473,9 +499,47 @@ abstract class ProductToMagento
    	        if($product->getStatus() instanceof ProductStatus) {
    	        	$statusId = $product->getStatus()->getName();
    	        }
+   	        //ProductTierPrices
+   	        $productTierPrices = ProductTierPrice::getAllByCriteria('productId = ?', array($product->getId()));
+   	        $unitCost = $product->getUnitCost();
+   	        // if there is no unit cost 
+   	        // then skip this product
+   	        if ($unitCost > 0)
+   	        {
+	   	        foreach($productTierPrices as $productTierPrice)
+	   	        {
+	   	        	//if (!$productTierPrice->getTierLevel() instanceof  TierLevel) continue;
+	   	        	$tierName = $productTierPrice->getTierLevel()->getName();
+	   	        	$tierQuantity = intval($productTierPrice->getQuantity());
+	   	        	$tierPriceTypeId = $productTierPrice->getTierPriceType()->getId();
+	   	        	$tierPriceValue = doubleval($productTierPrice->getValue());
+	   	        	if ($tierPriceTypeId == 1)
+	   	        	{
+	   	        		$tierPriceValue = round(($unitCost * ($tierPriceValue / 100) + $unitCost) * 1.1, 2);
+	   	        	}
+	   	        	$rrp = $product->getSRP() instanceof ProductPrice? doubleval($product->getSRP()->getPrice()) : $product->getRRP() instanceof ProductPrice ? doubleval($product->getRRP()->getPrice()) : 0;
+	   	        	$tierPriceValue = $tierPriceValue > $rrp ? $rrp : $tierPriceValue;
+	   	        	if ($tierQuantity == 0)
+	   	        	{
+	   	        		//group price
+	   	        		$key = 'group_price:' . $tierName;
+	   	        		$groupPrices[$key] =  $tierPriceValue;
+	   	        		
+	   	        	}
+	   	        	else
+	   	        	{
+	   	        		//tier price
+	   	        		$key = 'tier_price:' . $tierName;
+	   	        		if (isset($tierPrices[$key]) && (trim($tierPrices[$key]) !== ''))
+	   	        			$tierPrices[$key] = $tierPrices[$key] . ';' . $tierQuantity . ':' . $tierPriceValue;
+	   	        		else
+	   	        			$tierPrices[$key] = $tierQuantity . ':' . $tierPriceValue;
+	   	        	}
+	   	        }
+   	        }
    	    }
    	    $categoryIds = array_unique($categoryIds);
-   		return array("store" => 'default',
+   		$result = array("store" => 'default',
    				"websites" => 'base',
    				"attribute_set" => $attributeSetName, //attribute_name
    				"type" => 'simple',
@@ -548,6 +612,18 @@ abstract class ProductToMagento
    				"customtab" => $feature,
    				"customtabtitle" => $feature != '' ? 'Feature' : '',
    				"media_gallery_reset" => 0);
+   		if (count($groupPrices) > 0)
+   		{
+   			foreach($groupPrices as $key => $groupPrice)
+   				$result[$key] = $groupPrice;
+   		}
+   		if (count($tierPrices) > 0)
+   		{
+   			foreach($tierPrices as $key => $tierPrice)
+   				$result[$key] = $tierPrice;
+   		}
+
+   		return $result;
    	}
 }
 

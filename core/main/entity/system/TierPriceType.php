@@ -1,20 +1,16 @@
 <?php
 /**
- * Entity for ProductPriceType
+ * Entity for TierPriceType
  *
  * @package    Core
  * @subpackage Entity
- * @author     lhe<helin16@gmail.com>
+ * @author    
  */
-class ProductPriceType extends BaseEntityAbstract
+class TierPriceType extends BaseEntityAbstract
 {
-	const ID_RRP = 1;
-	const ID_CASUAL_SPECIAL = 2;
-	CONST ID_SPECIAL_GROUP_1 = 3;
-	CONST ID_SPECIAL_GROUP_2 = 4;
-	CONST ID_DAILY_SPECIAL = 5;
-	CONST ID_WEEKEND_SPECIAL = 6;
-	const ID_SRP = 7;
+	const ID_PERCENTAGE = 1;
+	const ID_PRICE = 2;
+
 	/**
 	 * The name of the product
 	 * 
@@ -27,34 +23,6 @@ class ProductPriceType extends BaseEntityAbstract
 	 * @var string
 	 */
 	private $description = '';
-	/**
-	 * Whether the price will be applied to a time period
-	 * 
-	 * @var bool
-	 */
-	private $needTime = false;
-	/** 
-	 * Getter for needTime
-	 * 
-	 * @return boolean
-	 */
-	public function getNeedTime ()
-	{
-		return $this->needTime;
-	}
-	/** 
-	 * 
-	 * Setter for needTime
-	 * 
-	 * @param bool $value
-	 * 
-	 * @return ProductPriceType
-	 */
-	public function setNeedTime($value)
-	{
-		$this->needTime = $value;
-		return $this;
-	}
 	/**
 	 * Getter for name
 	 *
@@ -69,7 +37,7 @@ class ProductPriceType extends BaseEntityAbstract
 	 *
 	 * @param string $value The name
 	 *
-	 * @return Product
+	 * @return TierPriceType
 	 */
 	public function setName($value) 
 	{
@@ -90,7 +58,7 @@ class ProductPriceType extends BaseEntityAbstract
 	 *
 	 * @param string $value The description
 	 *
-	 * @return ProductCodeType
+	 * @return TierPriceType
 	 */
 	public function setDescription($value) 
 	{
@@ -98,10 +66,10 @@ class ProductPriceType extends BaseEntityAbstract
 	    return $this;
 	}
 	/**
-	 * Creating the product based on sku
+	 * Creating the tier price type
 	 * 
-	 * @param string $name        The name of the productpricetype
-	 * @param string $description The decription of the productpricetype
+	 * @param string $name        The name of the TierPriceType
+	 * @param string $description The decription of the TierPriceType
 	 * 
 	 * @return Ambigous <Product, Ambigous, NULL, BaseEntityAbstract>
 	 */
@@ -127,14 +95,13 @@ class ProductPriceType extends BaseEntityAbstract
 	 */
 	public function __loadDaoMap()
 	{
-		DaoMap::begin($this, 'pro_price_type');
+		DaoMap::begin($this, 'tr_price_type');
 		DaoMap::setStringType('name', 'varchar', 100);
 		DaoMap::setStringType('description', 'varchar', 255);
-		DaoMap::setBoolType('needTime');
 		parent::__loadDaoMap();
 		
 		DaoMap::createUniqueIndex('name');
-		DaoMap::createIndex('needTime');
 		DaoMap::commit();
 	}
+
 }

@@ -12,8 +12,8 @@ class ListController extends CRUDPageAbstract
 	 * (non-PHPdoc)
 	 * @see BPCPageAbstract::$menuItem
 	 */
-	public $menuItem = 'products';
-	protected $_focusEntity = 'Product';
+	public $menuItem = 'tiers';
+	protected $_focusEntity = 'ProductTierPrice';
 	
 	/**
 	 * constructor
@@ -33,35 +33,26 @@ class ListController extends CRUDPageAbstract
 		$manufactureArray = $supplierArray = $statuses = $productCategoryArray = array();
 		foreach (Manufacturer::getAll() as $os)
 			$manufactureArray[] = $os->getJson();
+		foreach (ProductCategory::getAll() as $os)
+			$productCategoryArray[] = $os->getJson();
+		$tierLevels = array_map(create_function('$a', 'return $a->getJson();'), TierLevel::getAllByCriteria('id <> 1'));
+		$tierPriceType = array_map(create_function('$a', 'return $a->getJson();'), TierPriceType::getAll());;
 		foreach (Supplier::getAll() as $os)
 			$supplierArray[] = $os->getJson();
 		foreach (ProductStatus::getAll() as $os)
 			$statuses[] = $os->getJson();
-		foreach (ProductCategory::getAll() as $os)
-			$productCategoryArray[] = $os->getJson();
-		$locationTypes = array_map(create_function('$a', 'return $a->getJson();'), PreferredLocationType::getAll());
-		
+					
 		$js = parent::_getEndJs();
-		if(($product = Product::get($this->Request['id']))  instanceof Product) {
-			$js .= "$('searchPanel').hide();";
-			$js .= "pageJs._singleProduct = true;";
-		}
-
-		$js .= "pageJs.setPreData(" . json_encode($locationTypes) .  ")";
+		$js .= "pageJs.setPreData(" . json_encode($tierLevels) . "," .json_encode($tierPriceType) . ")";
 		$js .= '._loadManufactures('.json_encode($manufactureArray).')';
-		$js .= '._loadSuppliers('.json_encode($supplierArray).')';
 		$js .= '._loadCategories('.json_encode($productCategoryArray).')';
+		$js .= '._loadSuppliers('.json_encode($supplierArray).')';
 		$js .= '._loadProductStatuses('.json_encode($statuses).')';
 		$js .= "._loadChosen()";
 		$js .= "._bindSearchKey()";
-		$js .= ".setCallbackId('applyStockOnHandBtn', '" . $this->applyStockOnHandBtn->getUniqueID() . "')";
-		$js .= ".setCallbackId('prepareNewBtn', '" . $this->prepareNewBtn->getUniqueID() . "')";
+		$js .= ".setCallbackId('clearAllBtn', '" . $this->clearAllBtn->getUniqueID() . "')";
 		$js .= ".getResults(true, " . $this->pageSize . ");";
 		return $js;
-	}
-	public function getRequestProductID()
-	{
-		return ($product = Product::get($this->Request['id']))  instanceof Product ? $product->getId() : '';
 	}
 
 	/**
@@ -77,53 +68,45 @@ class ListController extends CRUDPageAbstract
         $results = $errors = array();
         try
         {
-            $class = trim($this->_focusEntity);
-            if(!isset($param->CallbackParameter->searchCriteria) || count($serachCriteria = json_decode(json_encode($param->CallbackParameter->searchCriteria), true)) === 0)
-                throw new Exception('System Error: search criteria not provided!');
+            $serachCriteria = json_decode(json_encode($param->CallbackParameter->searchCriteria), true);
+            
             $sumArray = array();
-            if(isset($serachCriteria['pro.id']) && ($product = Product::get($serachCriteria['pro.id'])) instanceof Product) {
-            	$objects = array($product);
-            	$stats = array('totalPages' => 1);
-            } else {
-	            $pageNo = 1;
-	            $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE;
-
-	            if(isset($param->CallbackParameter->pagination))
-	            {
-	                $pageNo = $param->CallbackParameter->pagination->pageNo;
-	                $pageSize = $param->CallbackParameter->pagination->pageSize;
-	            }
-
-	            $stats = array();
-	            
-	            $serachCriteria = $this->getSearchCriteria($serachCriteria);
-	            $objects = $this->getProducts(
-	            		$serachCriteria->sku
-	            		,$serachCriteria->name
-	            		,$serachCriteria->supplierIds
-	            		,$serachCriteria->manufacturerIds
-	            		,$serachCriteria->categoryIds
-	            		,$serachCriteria->productStatusIds
-	            		,$serachCriteria->active
-	            		,$pageNo
-	            		,$pageSize
-	            		,array('pro.sku' => 'asc')
-	            		,$stats
-	            		,$serachCriteria->sh_from
-	            		,$serachCriteria->sh_to
-	            		,$serachCriteria->sellOnWeb
-	            		);
+            $pageNo = 1;
+            $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE;
+            if(isset($param->CallbackParameter->pagination))
+            {
+                $pageNo = $param->CallbackParameter->pagination->pageNo;
+                $pageSize = $param->CallbackParameter->pagination->pageSize;
             }
+
+            $stats = array();
+            
+            $serachCriteria = $this->getSearchCriteria($serachCriteria);
+            $objects = $this->getProducts(
+            		$serachCriteria->sku
+            		,$serachCriteria->name
+            		,$serachCriteria->supplierIds
+            		,$serachCriteria->manufacturerIds
+            		,$serachCriteria->categoryIds
+            		,$serachCriteria->productStatusIds
+            		,$serachCriteria->active
+            		,$pageNo
+            		,$pageSize
+            		,array('pro.sku' => 'asc')
+            		,$stats
+            		,$serachCriteria->sh_from
+            		,$serachCriteria->sh_to
+            		,$serachCriteria->sellOnWeb
+            		);
             
             $results['pageStats'] = $stats;
             $results['items'] = array();
-            $qty = array();
+            $tierPrices = array();
             foreach($objects as $obj)
             {
                	$tmpArray = $obj->getJson();
-            	$qty = $tmpArray['locations'];
-            	$qty = StockTake::getQuantity($qty);
-            	$tmpArray['locations'] = $qty;
+            	$tierPrices = ProductTierPrice::getTierPrices($obj);
+            	$tmpArray['tierprices'] = $tierPrices;
             	$results['items'][] = $tmpArray;
             }
         }
@@ -245,6 +228,7 @@ class ListController extends CRUDPageAbstract
     	}
     	$products = Product::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, $orderBy, $stats);
     	return $products;
+    	
     }
 	/**
 	 * getSearchCriteria
@@ -312,15 +296,19 @@ class ListController extends CRUDPageAbstract
     	try
     	{
     		Dao::beginTransaction();
-    		$class = trim($this->_focusEntity);
     		if(!isset($param->CallbackParameter->item))
     			throw new Exception("System Error: no item information passed in!");
-    		$item = (isset($param->CallbackParameter->item->id) && ($item = $class::get($param->CallbackParameter->item->id)) instanceof $class) ? $item : null;
-    		if (!$item instanceof $class)
-    			throw new Exception("System Error: Invalid item information passed in!");
-    		$this->setLocation($item, $param);
-    		$results['item'] = $item->getJson();
-    		$results['item']['locations'] = StockTake::getQuantity($results['item']['locations']);
+    		if (!isset($param->CallbackParameter->item->id) || !($item = Product::get($param->CallbackParameter->item->id)) instanceof Product)
+    		{
+    			throw new Exception("System Error: Invalid product passed in!");
+    		}
+    		$tierprices = isset($param->CallbackParameter->item->tierprices) ? json_decode(json_encode($param->CallbackParameter->item->tierprices), true) : array();
+    		$this->setTierPrices($item, $tierprices);
+    		$tmpArray = $item->getJson();
+    		$tierPrices = ProductTierPrice::getTierPrices($item);
+    		$tmpArray['tierprices'] = $tierPrices;
+    		$results['item'] = $tmpArray;
+    		
     		Dao::commitTransaction();
     	}
     	catch(Exception $ex)
@@ -331,93 +319,113 @@ class ListController extends CRUDPageAbstract
     	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
     }
     /**
-     * set locations
+     * set tier prices
      * 
      * @param Product $product
      * @param unknown $param
      * @return ListController
      */
-    private function setLocation(Product &$product, $param)
+    private function setTierPrices(Product $product, $tierprices)
     {
-    	if(isset($param->CallbackParameter->item->locations) && count($locations = $param->CallbackParameter->item->locations) > 0)
+    	if(isset($tierprices) && count($tierprices) > 0)
     	{
-    		//delete all locations first
+    		//delete all tier prices first
     		$deleteIds = array();
-    		foreach($locations as $location)
+    		foreach($tierprices as $key => $tierprice)
     		{
-    			if(trim($location->active) === '0' && isset($location->id))
-    				$deleteIds[] = trim($location->id);
+    			if(trim($tierprice['active']) === '0' && isset($tierprice['id']))
+    			{
+    				$deleteIds[] = trim($tierprice['id']);
+    				unset($tierprices[$key]);
+    			}
+    		}
+    		// check duplicate
+    		// tierId and quantity are keys.
+    		$tierKey = array();
+    		foreach($tierprices as $tierprice)
+    		{
+    			$key = $tierprice['tierId'] . intval(trim($tierprice['quantity']));
+    			if (isset($tierKey[$key]))
+    			{
+    				throw new Exception("System Error: Duplicate tier price tier level and quantity.");
+    			}
+    			$tierKey[$key] = $key;
     		}
     		if(count($deleteIds) > 0)
     		{
-    			PreferredLocation::updateByCriteria('active = 0', 'id in (' . implode(',', $deleteIds) . ')');
-    			StockTake::updateByCriteria('active = 0', 'preferredlocationId in (' . implode(',', $deleteIds) . ')');
+    			ProductTierPrice::updateByCriteria('active = 0', 'id in (' . implode(',', $deleteIds) . ')');
     		}
     
     		//update or create new
-    		foreach($locations as $location)
+    		foreach($tierprices as $tierprice)
     		{
-    			if(isset($location->id) && in_array(trim($location->id), $deleteIds))
+    			if(isset($tierprice['id']) && in_array(trim($tierprice['id']), $deleteIds))
     				continue;
-    			if(!($type = PreferredLocationType::get(trim($location->typeId))) instanceof PreferredLocationType)
+    			if(!($type = TierPriceType::get(trim($tierprice['typeId']))) instanceof TierPriceType)
     				continue;
-    
-    			$locationName = trim($location->value);
-    			$counting = trim($location->counting);
-    			$locs = Location::getAllByCriteria('name = ?', array($locationName), true, 1, 1);
-    			$loc = (count($locs) > 0 ? $locs[0] : Location::create($locationName, $locationName));
-    			if(!isset($location->id) || ($id = trim($location->id)) === '')
+    			$tierLevelId = trim($tierprice['tierId']);
+    			$tierLevel = TierLevel::get($tierLevelId);
+    			$quantity = trim($tierprice['quantity']);
+    			$value = trim($tierprice['value']);
+    			if(!isset($tierprice['id']) || ($id = trim($tierprice['id'])) === '')
     			{
     				//if it's deactivated one, ignore
-    				if(trim($location->active) === '1')
+    				if(trim($tierprice['active']) === '1')
     				{
-    					$preferredLocation = PreferredLocation::create($loc, $product, $type);
-    					StockTake::create($preferredLocation, $counting);
+    					$newproductTierPrice = new ProductTierPrice();
+    					$newproductTierPrice->setProduct($product)
+    						->setTierLevel($tierLevel)
+    						->setQuantity($quantity)
+    						->setTierPriceType($type)
+    						->setValue($value)
+    						->setPriorityId(ProductTierPrice::PRIORITY_ID_PID)
+    						->save();
     				}
     			}
-    			else if (($preferredLocation= PreferredLocation::get($id)) instanceof PreferredLocation)
+    			else if (($productTierPrice= ProductTierPrice::get($id)) instanceof ProductTierPrice)
     			{
-    				$preferredLocation->setLocation($loc)
-    				->setActive(trim($location->active) === '1')
-    				->setProduct($product)
-    				->setType($type)
-    				->save();
-    				StockTake::create($preferredLocation, $counting);
+    				$productTierPrice->setQuantity($quantity)
+    					->setActive(trim($tierprice['active']) === '1')
+    					->setTierLevel($tierLevel)
+    					->setTierPriceType($type)
+    					->setValue($value)
+    					->setPriorityId(ProductTierPrice::PRIORITY_ID_PID)
+    					->setTierRule(null)
+    					->save();
     			}
     		}
     	}
     	return $this;
     }
     /**
-     * set new stock on hand to the product
+     * delete the items
      *
      * @param unknown $sender
      * @param unknown $param
      * @throws Exception
      *
      */
-    public function applyStockOnHand($sender, $param)
+    public function deleteItems($sender, $param)
     {
+    
     	$results = $errors = array();
     	try
     	{
     		Dao::beginTransaction();
-    		$class = trim($this->_focusEntity);
-    		if(!isset($param->CallbackParameter->item))
-    			throw new Exception("System Error: no item information passed in!");
-    		$item = (isset($param->CallbackParameter->item->id) && ($item = $class::get($param->CallbackParameter->item->id)) instanceof $class) ? $item : null;
-    		if (!$item instanceof $class)
-    			throw new Exception("System Error: Invalid item information passed in!");
-    		$stockOnHand = StockTake::getTotalCounting($item->getLocations());
-    		$unitCost = $item->getUnitCost();
-    		if ($stockOnHand != null && ($stockOnHand = trim($stockOnHand)) !== trim($origStockOnHand = $item->getStockOnHand())) {
-    			$item->setTotalOnHandValue($stockOnHand * $unitCost)
-    				->setStockOnHand($stockOnHand)->save();
+    		$id = isset($param->CallbackParameter->id) ? $param->CallbackParameter->id : '';
+    		$item = Product::get($id);
+    		if($item instanceof Product)
+    		{
+    			ProductTierPrice::updateByCriteria('active = 0', 'productId = ? and active = 1', array($item->getId()));
     		}
-    		$msg = 'Stock changed: StockOnHand [' . $origStockOnHand . ' => ' . $stockOnHand . ']';
-    		$item->snapshotQty(null, ProductQtyLog::TYPE_STOCK_ADJ, 'Manual Adjusted by ' . Core::getUser()->getPerson()->getFullName())->save();
-    		$results['item'] = $item->getJson();
-    		$results['item']['locations'] = StockTake::getQuantity($results['item']['locations']);
+    		else
+    		{
+    			throw new Exception("System Error: Invalid product passed in!");
+    		}
+    		$tmpArray = $item->getJson();
+    		$tierPrices = ProductTierPrice::getTierPrices($item);
+    		$tmpArray['tierprices'] = $tierPrices;
+    		$results['item'] = $tmpArray;
     		Dao::commitTransaction();
     	}
     	catch(Exception $ex)
@@ -435,14 +443,14 @@ class ListController extends CRUDPageAbstract
      * @throws Exception
      *
      */
-    public function prepareNew($sender, $param)
+    public function clearAll($sender, $param)
     {
     	$results = $errors = array();
     	try
     	{
     		Dao::beginTransaction();
     		//clear records in stocktake table
-    		StockTake::updateByCriteria('active = 0', 'active != 0');
+    		ProductTierPrice::updateByCriteria('active = 0', 'active != 0');
     		Dao::commitTransaction();
     	}
     	catch(Exception $ex)
@@ -452,7 +460,7 @@ class ListController extends CRUDPageAbstract
     		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
     		return;
     	}
-    	
+    	 
     	$this->getItems($sender, $param);
     }
 }

@@ -29,8 +29,12 @@ class ListController extends CRUDPageAbstract
 	 */
 	protected function _getEndJs()
 	{
+		foreach (TierLevel::getAll() as $tier)
+			$tiers[] = $tier->getJson();
 		$js = parent::_getEndJs();
 		$js .= "pageJs._bindSearchKey()";
+		$js .= '._loadTiers('.json_encode($tiers).')';
+		$js .= "._loadChosen()";
 		$js .= ".setCallbackId('deactivateItems', '" . $this->deactivateItemBtn->getUniqueID() . "')";
 		$js .= ".getResults(true, " . $this->pageSize . ");";
 		return $js;
@@ -59,7 +63,7 @@ class ListController extends CRUDPageAbstract
             }
             
             $serachCriteria = isset($param->CallbackParameter->searchCriteria) ? json_decode(json_encode($param->CallbackParameter->searchCriteria), true) : array();
-
+             
             $where = array(1);
             $params = array();
             
@@ -74,7 +78,7 @@ class ListController extends CRUDPageAbstract
             		case 'cust.name': 
 					{
 						$where[] = 'cust.name like ?';
-            			$params[] = '%' . $value . '%';
+						$params[] = '%' . $value . '%';
 						break;
 					}
 					case 'cust.email': 
@@ -89,7 +93,14 @@ class ListController extends CRUDPageAbstract
 						$params[] = $value;
 						break;
 					}
-            	}
+					case 'cust.tier':
+					{
+						if (count($value) > 0) {
+							$where[] = 'cust.tierId in (' . implode(',', $value) . ')';
+						}
+						break;
+					}
+				}
             }
 
             $stats = array();
