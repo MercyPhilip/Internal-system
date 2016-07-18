@@ -39,6 +39,7 @@ abstract class SystemCoreAbstract
 			$base . '/utils/connector/',
 			$base . '/utils/connector/courier/',
 			$base . '/utils/connector/magento/',
+			$base . '/utils/connector/magento/Customer/',
 			$base . '/utils/connector/magento/Order/',
 			$base . '/utils/connector/pricematch/',
 			$base . '/utils/html_parser/',

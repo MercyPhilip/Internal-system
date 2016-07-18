@@ -146,7 +146,7 @@ abstract class CRUDPageAbstract extends BPCPageAbstract
 			$class = trim($this->_focusEntity);
 			$ids = isset($param->CallbackParameter->ids) ? $param->CallbackParameter->ids : array();
 			if(count($ids) > 0)
-				$class::deleteByCriteria('id in (' . str_repeat('?', count($ids)) . ')', $ids);
+				$class::deleteByCriteria('id in (' . implode(',', $ids) . ')');
 		}
 		catch(Exception $ex)
 		{

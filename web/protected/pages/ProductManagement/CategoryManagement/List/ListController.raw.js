@@ -362,7 +362,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		if (row.totalOnHandValue != 0 && row.stockOnHand != 0 && tmp.price !=0)
 		{
 			tmp.avgcost = row.totalOnHandValue/row.stockOnHand;
-			tmp.margin = (((tmp.price - tmp.avgcost) / tmp.price) * 100).toFixed(2) + '%';
+			tmp.margin = (((tmp.price - tmp.avgcost * 1.1) / tmp.price) * 100).toFixed(2) + '%';
 			tmp.avgcost = tmp.me.getCurrency(tmp.avgcost);
 		}
 		else

@@ -680,7 +680,8 @@ class ListController extends CRUDPageAbstract
     		if (isset($rowNoData['totalOnHandValue']) && $rowNoData['totalOnHandValue'] !=0 && isset($rowNoData['stockOnHand']) && $rowNoData['stockOnHand'] != 0  && $sellingPrice != 0)
     		{
     			$avgCost = ($rowNoData['totalOnHandValue'] / $rowNoData['stockOnHand']);
-    			$margin = number_format( (($sellingPrice - $avgCost) / $sellingPrice) * 100, 2 ) . '%';
+    			// avgrage cost is excl.
+    			$margin = number_format( (($sellingPrice - $avgCost * 1.1) / $sellingPrice) * 100, 2 ) . '%';
     			$avgCost = StringUtilsAbstract::getCurrency($avgCost);
     		}
     		else

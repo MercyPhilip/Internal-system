@@ -373,7 +373,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			.insert({'bottom': new Element('td', {'class': 'pONo col-xs-1 ide-when-info hidden-sm' }).setStyle('style:word-wrap: break-word; word-break: break-all;').update(
 					tmp.isTitle ? 'PO No.' : new Element('div').update(row.pONo)
 			)})
-			.insert({'bottom': new Element('td', {'class': 'customer'}).update(
+			.insert({'bottom': new Element('td', {'class': 'customer', 'title': tmp.isTitle === true? '' : row.customer.tier.name}).update(
 					tmp.isTitle === true ? 'Customer' : row.customer.name
 			) })
 			.insert({'bottom': new Element('td', {'class': 'Terms'}).update(

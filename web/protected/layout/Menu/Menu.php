@@ -113,13 +113,16 @@ class Menu extends TTemplateControl
 					'import' => array('url' => '/management/import.html', 'name' => 'Import(csv)', 'icon' => '<span class="glyphicon glyphicon-upload"></span>'),
 					'msl' => array('url' => '/management/ministocklevel.html', 'name' => 'Minimum Stock Level', 'icon' => '<span class="glyphicon glyphicon-object-align-bottom"></span>'),
 					'categorymanagement' => array('url' => '/management/categorymanagement.html', 'name' => 'Category Management', 'icon' => '<span class="glyphicon glyphicon-folder-open"></span>'),
-					'stocktake' => array('url' => '/management/stocktake.html', 'name' => 'Stock Take', 'icon' => '<span class="glyphicon glyphicon-folder-open"></span>')
+					'stocktake' => array('url' => '/management/stocktake.html', 'name' => 'Stock Take', 'icon' => '<span class="glyphicon glyphicon-transfer"></span>'),
+					'tierrule' => array('url' => '/management/tierrule.html', 'name' => 'Tier Rule Setting', 'icon' => '<span class="glyphicon glyphicon-cog"></span>'),
+					'producttierprice' => array('url' => '/management/producttierprice.html', 'name' => 'Product Tier Price', 'icon' => '<span class="glyphicon glyphicon-usd"></span>')
 			);
 		}
 		if(AccessControl::canAccessUsersPage(Core::getRole()) ) {
 			$array['Systems'] = array(
 					'icon' => '<span class="glyphicon glyphicon-cog"></span>',
 					'users' => array('url' => '/users.html', 'name' => 'Users', 'icon' => '<span class="glyphicon glyphicon-user"></span>'),
+					'tierlevels' => array('url' => '/tierlevels.html', 'name' => 'TierLevels', 'icon' => '<span class="glyphicon glyphicon-cog"></span>'),
 					'salestarget' => array('url' => '/salestarget.html', 'name' => 'SalesTarget', 'icon' => '<span class="glyphicon glyphicon-usd"></span>'),
 					'messages' => array('url' => '/messages.html', 'name' => 'Messages', 'icon' => '<span class="glyphicon glyphicon-envelope"></span>'),
 					'logs' => array('url' => '/logs.html', 'name' => 'Logs', 'icon' => '<span class="fa fa-book"></span>'),

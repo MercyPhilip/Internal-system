@@ -1,6 +1,7 @@
 <com:TContent ID="MainContent">
 <com:Application.controls.fancybox.FancyBox />
 <com:Application.controls.chosen.Chosen />
+<com:Application.controls.select2.select2 />
 <com:TCallback ID="deactivateItemBtn" OnCallback = 'Page.deactivateItems' />
 	<div class="pagewrapper item-list-wrapper">
 		<div class="panel panel-default" id="searchPanel">
@@ -13,22 +14,28 @@
 			</div>
 			<div class="panel-body search-panel" id="searchDiv" style="display: none;">
 				<div class="row">
-					<div class="col-sm-4">
+					<div class="col-sm-3">
 						<div class="form-group form-group-sm input-group">
                            <label class="input-group-addon">Name:</label>
                            <input type="text" search_field="cust.name" placeholder="The name of the customer" class="form-control input-sm">
                        </div>
 					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-3">
 						<div class="form-group form-group-sm input-group">
                            <label class="input-group-addon">Email:</label>
                            <input type="text" search_field="cust.email" placeholder="The email of the customer" class="form-control input-sm">
                        </div>
 					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-3">
 						<div class="form-group form-group-sm input-group">
                            <label class="input-group-addon">Description:</label>
                            <input type="text" search_field="cust.description" placeholder="The description of the customer" class="form-control input-sm">
+                       </div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group form-group-sm input-group">
+                           <label class="input-group-addon">Tier:</label>
+                           <select type="text" search_field="cust.tier" multiple class="chosen form-control input-sm"></select>
                        </div>
 					</div>
 				</div>

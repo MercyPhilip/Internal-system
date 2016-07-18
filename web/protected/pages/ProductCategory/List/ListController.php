@@ -155,7 +155,7 @@ class ListController extends CRUDPageAbstract
 						->save();
 					$parents[] = $item->getParent()->getJson();
 				}
-				$class::deleteByCriteria('id in (' . str_repeat('?', count($ids)) . ')', $ids);
+				$class::deleteByCriteria('id in (' . implode(',', $ids) . ')');
 				$results['parents'] = $parents;
 			}
 		}

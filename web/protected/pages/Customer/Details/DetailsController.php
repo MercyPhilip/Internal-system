@@ -44,8 +44,10 @@ class DetailsController extends DetailsPageAbstract
 		else if(!($customer = Customer::get($this->Request['id'])) instanceof Customer)
 			die('Invalid Customer!');
 		
+		foreach (TierLevel::getAll() as $tier)
+			$tiers[] = $tier->getJson();
 		$js = parent::_getEndJs();
-		$js .= "pageJs.setPreData(" . json_encode($customer->getJson()) . ")";
+		$js .= "pageJs.setPreData(" . json_encode($customer->getJson()) . ',' . json_encode($tiers) . ")";
 		$js .= ".load()";
 		$js .= ".bindAllEventNObjects()";
 		$js .= "._bindSaveKey();";
@@ -62,13 +64,13 @@ class DetailsController extends DetailsPageAbstract
 		try
 		{
 			Dao::beginTransaction();
-
 			
 			$name = trim($param->CallbackParameter->name);
 			$id = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->id);
 			$active = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->active);
 			$email = trim($param->CallbackParameter->email);
 			$terms = intval(trim($param->CallbackParameter->terms));
+			$tierLevel = intval(trim($param->CallbackParameter->tier));
 			$isBlocked = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->isBlocked);
 			$contactNo = trim($param->CallbackParameter->contactNo);
 			$billingCompanyName = trim($param->CallbackParameter->billingCompanyName);
@@ -87,7 +89,10 @@ class DetailsController extends DetailsPageAbstract
 			$shippingState = trim($param->CallbackParameter->shippingState);
 			$shippingCountry = trim($param->CallbackParameter->shippingCountry);
 			$shippingPosecode = trim($param->CallbackParameter->shippingPosecode);
-
+			$tier = TierLevel::get(trim($tierLevel));
+			if (!$tier instanceof TierLevel)
+				throw new Exception('Invalid Tier Level passed in!');
+			
 			if(is_numeric($param->CallbackParameter->id)) {
 				$customer = Customer::get(trim($param->CallbackParameter->id));
 				if(!$customer instanceof Customer)
@@ -97,9 +102,12 @@ class DetailsController extends DetailsPageAbstract
 				{
 					throw new Exception('You do not have privileges to change isBlocked attribute, please inquire Administrator for support!');
 				}
+				$oldTierId = $customer->getTier()->getId();
+				
 				$customer->setName($name)
 					->setEmail($email)
 					->setTerms($terms)
+					->setTier($tier)
 					->setIsBlocked($isBlocked)
 					->setContactNo($contactNo)
 					->setActive($active);
@@ -132,7 +140,23 @@ class DetailsController extends DetailsPageAbstract
 					$customer->setShippingAddress(Address::create($shippingStreet, $shippingCity, $shippingState, $shippingCountry, $shippingPosecode, $shippingName, $shippingContactNo, $shippingCompanyName));
 				}
 				$customer->save();
-
+				if ($oldTierId != $tierLevel)
+				{
+					//need to update magento customer info
+					$connector = CustomerConnector::getConnector(B2BConnector::CONNECTOR_TYPE_CUSTOMER,
+							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_WSDL),
+							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_USER),
+							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_KEY));
+					$custInfo = array();
+					if ($customer->getMageId() > 0)
+					{
+						// update
+						$custInfo = array('group_id' => $tierLevel);
+						$result = $connector->updateCustomer($customer->getMageId(), $custInfo);
+						if (!$result)
+							throw new Exception('***warning*** update Customer "' . $customerId . '" info to magento faled. Message from Magento: "' . $e -> getMessage() . '"');
+					}
+				}
 			} else {
 				if(trim($billingStreet) === '' && trim($billingCity) === '' && trim($billingState) === '' && trim($billingCountry) === '' && trim($billingPostcode) === '' && trim($billingName) === '' && trim($billingContactNo) === '' && trim($billingCompanyName) === '')
 					$billingAdressFull = null;
@@ -142,11 +166,10 @@ class DetailsController extends DetailsPageAbstract
 					$shippingAdressFull = null;
 				else
 					$shippingAdressFull = Address::create($shippingStreet, $shippingCity, $shippingState, $shippingCountry, $shippingPosecode, $shippingName, $shippingContactNo, $shippingCompanyName);
-				$customer = Customer::create($name, $contactNo, $email, $billingAdressFull, false, '', $shippingAdressFull, 0, $terms, $isBlocked);
+				$customer = Customer::create($name, $contactNo, $email, $billingAdressFull, false, '', $shippingAdressFull, 0, $terms, $isBlocked, $tierLevel);
 				if(!$customer instanceof Customer)
 					throw new Exception('Error creating customer!');
 			}
-
 			$results['url'] = '/customer/' . $customer->getId() . '.html';
 			$results['item'] = $customer->getJson();
 			Dao::commitTransaction();

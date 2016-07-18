@@ -70,7 +70,10 @@ class OrderConnector extends B2BConnector
 							true,
 							'',
 							$this->_createAddr($order->shipping_address, $shippingAddr),
-							isset($order->customer_id) ? trim($order->customer_id) : 0
+							isset($order->customer_id) ? trim($order->customer_id) : 0,
+							0,
+							false,
+							trim($order->customer_group_id)
 					);
 
 					$o->setOrderNo(trim($order->increment_id))

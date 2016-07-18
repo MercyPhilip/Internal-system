@@ -168,6 +168,14 @@ abstract class ProductToMagento
                 continue;
             $products[$productImage->getProduct()->getId()] = $productImage->getProduct();
         }
+        //ProductTierPrice
+        $productTierPrices = ProductTierPrice::getAllByCriteria('updated > ?', array(trim($lastUpdatedTime)), false);
+        self::_log('GOT ' . count($productTierPrices) . ' ProductTierPrice(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
+        foreach ($productTierPrices as $productTierPrice) {
+        	if(!$productTierPrice->getProduct() instanceof Product || array_key_exists($productTierPrice->getProduct()->getId(), $products))
+        		continue;
+        	$products[$productTierPrice->getProduct()->getId()] = $productTierPrice->getProduct();
+        }
         return $products;
     }
     /**
@@ -368,6 +376,16 @@ abstract class ProductToMagento
    	    $enabled = true;
    	    $sku = $statusId = $productName = $rrpPrice = $weight = $shortDescription = $fullDecription = $feature = $supplierName = $supplierCode = $manufacturerName = $asNewFrom = $asNewTo = $specialPrice = $specialPriceFromDate = $specialPriceToDate = '';
    	    $categoryIds = array(2); //default category
+   	    $groupPrices =  array();
+   	    $tierPrices = array();
+   	    $tierLevels = TierLevel::getAllByCriteria('id <> 1');
+   	    foreach ($tierLevels as $tierLevel)
+   	    {
+   	    	$keyGroup = 'group_price:' . $tierLevel->getName();
+   	    	$keyTier = 'tier_price:' . $tierLevel->getName();
+   	    	$groupPrices[$keyGroup] = '';
+   	    	$tierPrices[$keyTier] = '';
+   	    }
    	    if ($product instanceof Product) {
    	        $sku = trim($product->getSku());
    	        $productName = trim($product->getName());
@@ -481,9 +499,47 @@ abstract class ProductToMagento
    	        if($product->getStatus() instanceof ProductStatus) {
    	        	$statusId = $product->getStatus()->getName();
    	        }
+   	        //ProductTierPrices
+   	        $productTierPrices = ProductTierPrice::getAllByCriteria('productId = ?', array($product->getId()));
+   	        $unitCost = $product->getUnitCost();
+   	        // if there is no unit cost 
+   	        // then skip this product
+   	        if ($unitCost > 0)
+   	        {
+	   	        foreach($productTierPrices as $productTierPrice)
+	   	        {
+	   	        	//if (!$productTierPrice->getTierLevel() instanceof  TierLevel) continue;
+	   	        	$tierName = $productTierPrice->getTierLevel()->getName();
+	   	        	$tierQuantity = intval($productTierPrice->getQuantity());
+	   	        	$tierPriceTypeId = $productTierPrice->getTierPriceType()->getId();
+	   	        	$tierPriceValue = doubleval($productTierPrice->getValue());
+	   	        	if ($tierPriceTypeId == 1)
+	   	        	{
+	   	        		$tierPriceValue = round(($unitCost * ($tierPriceValue / 100) + $unitCost) * 1.1, 2);
+	   	        	}
+	   	        	$rrp = $product->getSRP() instanceof ProductPrice? doubleval($product->getSRP()->getPrice()) : $product->getRRP() instanceof ProductPrice ? doubleval($product->getRRP()->getPrice()) : 0;
+	   	        	$tierPriceValue = $tierPriceValue > $rrp ? $rrp : $tierPriceValue;
+	   	        	if ($tierQuantity == 0)
+	   	        	{
+	   	        		//group price
+	   	        		$key = 'group_price:' . $tierName;
+	   	        		$groupPrices[$key] =  $tierPriceValue;
+	   	        		
+	   	        	}
+	   	        	else
+	   	        	{
+	   	        		//tier price
+	   	        		$key = 'tier_price:' . $tierName;
+	   	        		if (isset($tierPrices[$key]) && (trim($tierPrices[$key]) !== ''))
+	   	        			$tierPrices[$key] = $tierPrices[$key] . ';' . $tierQuantity . ':' . $tierPriceValue;
+	   	        		else
+	   	        			$tierPrices[$key] = $tierQuantity . ':' . $tierPriceValue;
+	   	        	}
+	   	        }
+   	        }
    	    }
    	    $categoryIds = array_unique($categoryIds);
-   		return array("store" => 'default',
+   		$result = array("store" => 'default',
    				"websites" => 'base',
    				"attribute_set" => $attributeSetName, //attribute_name
    				"type" => 'simple',
@@ -556,6 +612,18 @@ abstract class ProductToMagento
    				"customtab" => $feature,
    				"customtabtitle" => $feature != '' ? 'Feature' : '',
    				"media_gallery_reset" => 0);
+   		if (count($groupPrices) > 0)
+   		{
+   			foreach($groupPrices as $key => $groupPrice)
+   				$result[$key] = $groupPrice;
+   		}
+   		if (count($tierPrices) > 0)
+   		{
+   			foreach($tierPrices as $key => $tierPrice)
+   				$result[$key] = $tierPrice;
+   		}
+
+   		return $result;
    	}
 }
 

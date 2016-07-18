@@ -196,7 +196,7 @@ class DetailsController extends DetailsPageAbstract
 					$deleteIds[] = trim($price->id);
 			}
 			if(count($deleteIds) > 0)
-				ProductPrice::updateByCriteria('active = 0', 'id in (' . str_repeat('?', count($deleteIds)) . ')', $deleteIds);
+				ProductPrice::updateByCriteria('active = 0', 'id in (' . implode(',', $deleteIds) . ')');
 			//update or create new
 			foreach($prices as $price)
 			{
@@ -243,7 +243,7 @@ class DetailsController extends DetailsPageAbstract
 					$deleteIds[] = trim($location->id);
 			}
 			if(count($deleteIds) > 0)
-				PreferredLocation::updateByCriteria('active = 0', 'id in (' . str_repeat('?', count($deleteIds)) . ')', $deleteIds);
+				PreferredLocation::updateByCriteria('active = 0', 'id in (' . implode(',', $deleteIds) . ')');
 
 			//update or create new
 			foreach($locations as $location)

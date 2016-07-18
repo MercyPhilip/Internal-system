@@ -75,6 +75,11 @@ class Customer extends BaseEntityAbstract
 	 */
 	private $isBlocked = false;
 	/**
+	 *  The tier level of the customer
+	 * @var unknown
+	 */
+	protected $tier = null;
+	/**
 	 * Getter for name
 	 *
 	 * @return string
@@ -287,6 +292,28 @@ class Customer extends BaseEntityAbstract
 	    return $this;
 	}
 	/**
+	 * Getter for tier
+	 *
+	 * @return TierLevel
+	 */
+	public function getTier()
+	{
+		$this->loadManyToOne('tier');
+		return $this->tier;
+	}
+	/**
+	 * Setter for tier
+	 *
+	 * @param TierLevel $value The tier
+	 *
+	 * @return Customer
+	 */
+	public function setTier(TierLevel $value = null)
+	{
+		$this->tier = $value;
+		return $this;
+	}
+	/**
 	 * Creating a instance of this
 	 *
 	 * @param string  $name
@@ -304,7 +331,7 @@ class Customer extends BaseEntityAbstract
 	 *
 	 * @return Ambigous <GenericDAO, BaseEntityAbstract>
 	 */
-	public static function create($name, $contactNo, $email, Address $billingAddr = null, $isFromB2B = false, $description = '', Address $shippingAddr = null, $mageId = 0, $terms = 0, $isBlocked = false)
+	public static function create($name, $contactNo, $email, Address $billingAddr = null, $isFromB2B = false, $description = '', Address $shippingAddr = null, $mageId = 0, $terms = 0, $isBlocked = false, $tierId = TierLevel::ID_GENERAL)
 	{
 		$name = trim($name);
 		$contactNo = trim($contactNo);
@@ -325,6 +352,9 @@ class Customer extends BaseEntityAbstract
 			$obj = new $class();
 			$obj->setIsFromB2B($isFromB2B);
 		}
+		$tier = TierLevel::get($tierId);
+		if (!$tier instanceof TierLevel)
+			$tier = TierLevel::get(TierLevel::ID_GENERAL);
 		$obj->setName($name)
 			->setDescription(trim($description))
 			->setContactNo($contactNo)
@@ -333,9 +363,10 @@ class Customer extends BaseEntityAbstract
 			->setShippingAddress($shippingAddr)
 			->setMageId($mageId)
 			->setTerms($terms)
+			->setTier($tier)
 			->setIsBlocked($isBlocked)
 			->save();
-		$comments = 'Customer(ID=' . $obj->getId() . ')' . (count($objects) > 0 ? 'updated' : 'created') . ' via B2B with (name=' . $name . ', contactNo=' . $contactNo . ', email=' . $email . ', terms=' . $terms .', isBlocked=' . $isBlocked .')';
+		$comments = 'Customer(ID=' . $obj->getId() . ')' . (count($objects) > 0 ? 'updated' : 'created') . ' via B2B with (name=' . $name . ', contactNo=' . $contactNo . ', email=' . $email . ', terms=' . $terms . ', tierLevel=' . $tier->getId().  ', isBlocked=' . $isBlocked .')';
 		if($isFromB2B === true)
 			Comments::addComments($obj, $comments, Comments::TYPE_SYSTEM);
 		Log::LogEntity($obj, $comments, Log::TYPE_SYSTEM, '', $class . '::' . __FUNCTION__);
@@ -368,6 +399,7 @@ class Customer extends BaseEntityAbstract
 			$array['address']['shipping'] = $this->getShippingAddress() instanceof Address ? $this->getShippingAddress()->getJson() : array();
 			$array['address']['billing'] = $this->getBillingAddress() instanceof Address ? $this->getBillingAddress()->getJson() : array();
 			$array['creditpool'] = $this->getCreditPool() instanceof CreditPool ? $this->creditPool->getJson() : array();
+			$array['tier'] = $this->getTier() instanceof TierLevel ? $this->getTier()->getJson() : array();
 		}
 		return parent::getJson($array, $reset);
 	}
@@ -389,6 +421,7 @@ class Customer extends BaseEntityAbstract
 		DaoMap::setIntType('mageId');
 		DaoMap::setBoolType('isFromB2B');
 		DaoMap::setBoolType('isBlocked');
+		DaoMap::setManyToOne('tier', 'TierLevel', 'cust_tier', true);
 		parent::__loadDaoMap();
 
 		DaoMap::createIndex('name');
@@ -398,6 +431,7 @@ class Customer extends BaseEntityAbstract
 		DaoMap::createIndex('isFromB2B');
 		DaoMap::createIndex('isBlocked');
 		DaoMap::createIndex('mageId');
+		DaoMap::createIndex('tier');
 
 		DaoMap::commit();
 	}
