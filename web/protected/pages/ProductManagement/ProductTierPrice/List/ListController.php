@@ -50,11 +50,58 @@ class ListController extends CRUDPageAbstract
 		$js .= '._loadProductStatuses('.json_encode($statuses).')';
 		$js .= "._loadChosen()";
 		$js .= "._bindSearchKey()";
+		$js .= "._bindNewRuleBtn()";
 		$js .= ".setCallbackId('clearAllBtn', '" . $this->clearAllBtn->getUniqueID() . "')";
+		$js .= ".setCallbackId('newRule', '" . $this->newRuleBtn->getUniqueID() . "')";
 		$js .= ".getResults(true, " . $this->pageSize . ");";
 		return $js;
 	}
-
+	/**
+	 * create new rule
+	 * @param unknown $sender
+	 * @param unknown $param
+	 * @throws Exception
+	 */
+	public function newRule($sender, $param)
+	{
+		$results = $errors = array();
+		try
+		{
+			Dao::beginTransaction();
+			if(!isset($param->CallbackParameter->productId) || !($product = Product::get(trim($param->CallbackParameter->productId))) instanceof Product)
+				throw new Exception('Invalid Product Id passed in, "' . $param->CallbackParameter->productId . '" given');
+			if(!isset($param->CallbackParameter->rule))
+				throw new Exception('Invalid TierPriceRule passed in, "' . $param->CallbackParameter->rule . '" given');
+			if(!isset($param->CallbackParameter->active))
+				throw new Exception('Must pass in active (bool) for TierPriceRule, "' . $param->CallbackParameter->active . '" given');
+			else $active = $param->CallbackParameter->active;
+			$tierprices = isset($param->CallbackParameter->rule) ? json_decode(json_encode($param->CallbackParameter->rule), true) : array();
+			if($active === false)
+			{
+				ProductTierPrice::updateByCriteria('active = 0', 'productId = ? and active = 1', array($product->getId()));
+			}
+			elseif($active === true)
+			{
+				// first delete all
+				// then create new
+				ProductTierPrice::updateByCriteria('active = 0', 'productId = ? and active = 1', array($product->getId()));
+				$this->setTierPrices($product, $tierprices);
+			}
+			$tmpArray = array();
+			$tmpArray = $product->getJson();				
+			$tierprices = ProductTierPrice::getTierPrices($product);
+			$tmpArray['tierprices'] = $tierprices;
+			$results['item'] = $tmpArray;
+			Dao::commitTransaction();
+		}
+		catch(Exception $ex)
+		{
+			Dao::rollbackTransaction();
+			$errors[] = $ex->getMessage();
+		}
+		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	
+	}
 	/**
 	 * Getting the items
 	 *
