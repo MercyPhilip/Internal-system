@@ -3,13 +3,15 @@
 <com:Application.controls.fancybox.FancyBox />
 <com:Application.controls.select2.select2 />
 <com:TCallback ID="clearAllBtn" OnCallback = 'Page.clearAll' />
+<com:TCallback ID="newRuleBtn" OnCallback = 'Page.newRule' />
 	<div class="pagewrapper productlistwraper">
 		<div class="col-xs-12">
 			<div class="panel panel-default" id="searchPanel">
 				<div class="panel-heading">
 					<label for="showSearch">Search Criteria</label>
 					<span class="pull-right btn-group">
-						<span id="newBtn" class="btn btn-success btn-sm" data-loading-text="preparing ..." onclick="pageJs.clearAll(this);">Clear All</span>
+						<span id="clearBtn" class="btn btn-success btn-sm" data-loading-text="preparing ..." onclick="pageJs.clearAll(this);">Clear All</span>
+						<span id="newRuleBtn" class="btn btn-info btn-sm" data-loading-text="preparing ..." >New Rule</span>
 						<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span>
 					</span>
 				</div>
@@ -92,7 +94,7 @@
 				<div class="panel-heading">
 					<div class="row">
 						<div class="col-xs-4">
-							Found <label id="total-found-count">0</label> Products.
+							Found <label id="total-found-count">0</label> Products.<label id="total-selected-count">0</label> Selected
 						</div>
 					</div>
 				</div>

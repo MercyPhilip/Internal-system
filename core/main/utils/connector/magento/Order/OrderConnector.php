@@ -10,6 +10,7 @@ class OrderConnector extends B2BConnector
 	 */
 	public function importOrders($lastUpdatedTime = '')
 	{
+		date_default_timezone_set("UTC");
 		$totalItems = 0;
 		$this->_log(0, get_class($this), 'starting ...', self::LOG_TYPE, 'start', __FUNCTION__);
 		if(($lastUpdatedTime = trim($lastUpdatedTime)) === '')
