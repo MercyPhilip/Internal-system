@@ -142,6 +142,32 @@ class DetailsController extends DetailsPageAbstract
 		}
 		return $this;
 	}
+	/**
+	 * get asset/revenue/cost account no and attributest by category id
+	 *
+	 * @param array category ids
+	 * @return array CategoryAttribute
+	 */
+	private function getDefaultAttribute($categoryIds)
+	{
+		if (!is_array($categoryIds))
+			throw new Exception('must passin category ids as an array');
+		$result = null;
+		foreach ($categoryIds as $categoryId)
+		{
+			$categoryId = trim($categoryId);
+			if($categoryId !== '')
+			{
+				$categoryAttribute = CategoryAttribute::getByCategoryId($categoryId);
+				if ($categoryAttribute instanceof CategoryAttribute)
+				{
+					$result = $categoryAttribute;
+					break;
+				}
+			}
+		}
+		return $result;
+	}
 	private function _updateCategories(Product &$product, $param)
 	{
 		//update categories
@@ -377,7 +403,13 @@ class DetailsController extends DetailsPageAbstract
 				->_setBarcodes($product, $param)
 				->_setPrices($product, $param)
 				->_setLocation($product, $param);
-
+			$categoryAttribute = $this->getDefaultAttribute($param->CallbackParameter->categoryIds);
+			if ($categoryAttribute instanceof CategoryAttribute)
+			{
+				$attributesetId = $categoryAttribute->getAttributesetId();
+				if($attributesetId !== null && is_string($attributesetId))
+					$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
+			}
 			$product->save();
 			$results['url'] = '/product/' . $product->getId() . '.html';
 			$results['item'] = $product->getJson();
