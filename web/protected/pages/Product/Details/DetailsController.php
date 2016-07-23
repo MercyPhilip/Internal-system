@@ -403,7 +403,8 @@ class DetailsController extends DetailsPageAbstract
 				->_setBarcodes($product, $param)
 				->_setPrices($product, $param)
 				->_setLocation($product, $param);
-			$categoryAttribute = $this->getDefaultAttribute($param->CallbackParameter->categoryIds);
+			$categoryIds = isset($param->CallbackParameter->categoryIds) ? $param->CallbackParameter->categoryIds : array();
+			$categoryAttribute = $this->getDefaultAttribute($categoryIds);
 			if ($categoryAttribute instanceof CategoryAttribute)
 			{
 				$attributesetId = $categoryAttribute->getAttributesetId();
