@@ -34,7 +34,7 @@ class OrderDetailsController extends BPCPageAbstract
 		$purchaseEdit = $warehouseEdit = $accounEdit = $statusEdit = 'false';
 		if($order->canEditBy(Core::getRole())) {
 			$statusEdit = ($order->canEditBy(Core::getRole()) && Core::getRole()->getId() === trim(Role::ID_SYSTEM_ADMIN)) ? 'true' : 'false';
-			if(in_array(intval(Core::getRole()->getId()), array(Role::ID_SYSTEM_ADMIN, Role::ID_STORE_MANAGER, Role::ID_SALES)))
+			if(in_array(intval(Core::getRole()->getId()), array(Role::ID_SYSTEM_ADMIN, Role::ID_STORE_MANAGER, Role::ID_PRODUCT_MANAGER, Role::ID_SALES)))
 				$purchaseEdit = $warehouseEdit = $accounEdit = 'true';
 			else
 			{
@@ -47,7 +47,7 @@ class OrderDetailsController extends BPCPageAbstract
 				}
 			}
 		}
-		if(in_array(intval(Core::getRole()->getId()), array(Role::ID_SYSTEM_ADMIN, Role::ID_STORE_MANAGER, Role::ID_ACCOUNTING, Role::ID_SALES)))
+		if(in_array(intval(Core::getRole()->getId()), array(Role::ID_SYSTEM_ADMIN, Role::ID_STORE_MANAGER, Role::ID_PRODUCT_MANAGER, Role::ID_ACCOUNTING, Role::ID_SALES)))
 			$accounEdit = 'true';
 		$orderArray = $order->getJson();
 		$orderArray['childrenOrders'] = array_map(create_function('$a', 'return $a->getOrder()->getJson();'), OrderInfo::getAllByCriteria('typeId = ? and value = ?', array(OrderInfoType::ID_CLONED_FROM_ORDER_NO, trim($order->getOrderNo()))));
