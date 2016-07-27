@@ -63,14 +63,14 @@ class OpenInvoiceExport extends ExportAbstract
 		}
 		self::$_fromDate = $fromDate;
 		self::$_toDate= $toDate;
-		$orders = Order::getAllByCriteria('invDate >= :fromDate and invDate <= :toDate', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate)));
+		$orders = Order::getAllByCriteria('invDate >= :fromDate and invDate <= :toDate and storeId = :storeId', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate), 'storeId' => Core::getUser()->getStore()->getId()));
 
 		$return = array();
 		foreach($orders as $order)
 		{
 			//common fields
 			$customer = $order->getCustomer();
-			$creditNotes = CreditNote::getAllByCriteria('orderId = ?', array($order->getId()));
+			$creditNotes = CreditNote::getAllByCriteria('orderId = ? and storeId = ?', array($order->getId(), Core::getUser()->getStore()->getId()));
 			$row = array(
 				'Invoice No.' => $order->getInvNo()
 				,'Invoice Date' => $order->getInvDate()->setTimeZone('Australia/Melbourne')->__toString()
@@ -93,7 +93,7 @@ class OpenInvoiceExport extends ExportAbstract
 	}
 	protected static function _getMailTitle()
 	{
-		return 'Open Invoice from "' . self::$_fromDate->setTimeZone('Australia/Melbourne')->__toString() . '" to "' . self::$_toDate->setTimeZone('Australia/Melbourne')->__toString()  . '"';
+		return Core::getUser()->getStore()->getName() . ' : Open Invoice from "' . self::$_fromDate->setTimeZone('Australia/Melbourne')->__toString() . '" to "' . self::$_toDate->setTimeZone('Australia/Melbourne')->__toString()  . '"';
 	}
 	protected static function _getMailBody()
 	{

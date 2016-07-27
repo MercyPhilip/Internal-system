@@ -133,8 +133,10 @@ class Product_Category extends BaseEntityAbstract
 		$array = $extra;
 		if(!$this->isJsonLoaded($reset))
 		{
-			$array['product'] = $this->getProduct() instanceof Product ? array('id' => $this->getProduct()->getId(), 'name' => $this->getProduct()->getName()) : null;
-			$array['category'] = $this->getCategory() instanceof ProductCategory ? array('id' => $this->getCategory()->getId(), 'name' => $this->getCategory()->getName()) : null;
+			$product = $this->getProduct();
+			$category = $this->getCategory();
+			$array['product'] = $product instanceof Product ? array('id' => $product->getId(), 'name' => $product->getName()) : null;
+			$array['category'] = $category instanceof ProductCategory ? array('id' => $category->getId(), 'name' => $category->getName()) : null;
 		}
 		return parent::getJson($array, $reset);
 	}

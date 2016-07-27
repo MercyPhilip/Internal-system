@@ -60,7 +60,7 @@ InsufficientStockOrdersListPanelJs.prototype = {
 		tmp.loadingDiv = new Element('div', {'class': 'panel-body'}).update(tmp.me._pageJs.getLoadingImg());
 		tmp.ajax = new Ajax.Request('/ajax/getInsufficientStockOrders', {
 			method: 'get'
-			,parameters: {'pageNo': 1, 'pageSize': 30}
+			,parameters: {'pageNo': 1, 'pageSize': 30, 'storeId' : jQuery('#storeId').attr('value'), 'userId' : jQuery('#userId').attr('value')}
 			,onLoading: function() {
 				$(tmp.me._panelHTMLID).insert({'bottom': tmp.loadingDiv});
 			}

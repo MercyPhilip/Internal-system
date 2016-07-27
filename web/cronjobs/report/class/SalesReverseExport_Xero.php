@@ -43,6 +43,8 @@ class SalesReverseExport_Xero extends SalesExport_Xero
 		}
 		$wheres[] = 'type = :type';
 		$params['type'] = Order::TYPE_INVOICE;
+		$wheres[] = 'storeId = :storeId';
+		$params['storeId'] = Core::getUser()->getStore()->getId();
 		$orders = Order::getAllByCriteria(implode(' and ', $wheres), $params);
 		$return = array();
 		foreach($orders as $order)
@@ -117,9 +119,9 @@ class SalesReverseExport_Xero extends SalesExport_Xero
 	protected static function _getMailTitle()
 	{
 		if (count(self::$_statusIds) == 1)
-			return 'Reverse Sales Export for Xero (Cancelled)';
+			return Core::getUser()->getStore()->getName() . ' : Reverse Sales Export for Xero (Cancelled)';
 		else
-			return 'Reverse Sales Export for Xero (Except Cancelled, Shipped and Picked) ';
+			return Core::getUser()->getStore()->getName() . ' : Reverse Sales Export for Xero (Except Cancelled, Shipped and Picked) ';
 	}
 	/**
 	 * get Mail Body

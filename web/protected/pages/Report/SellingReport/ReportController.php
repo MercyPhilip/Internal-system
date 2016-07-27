@@ -116,11 +116,12 @@ class ReportController extends BPCPageAbstract
             $to = isset($dateRange['to']) ? New UDate($dateRange['to']) : UDate::now();
             $wheres[] = "oi.updated between '" . $from . "' and '" . $to . "'";
             
-            $joins[] = 'inner join orderitem oi on (oi.productId = pro.id and oi.active =1 and oi.isShipped = 1)';
-            $joins[] = 'inner join `order` ord on (ord.id = oi.orderId and ord.active = 1 and ord.statusId = 8)';
+            $joins[] = 'inner join orderitem oi on (oi.productId = pro.id and oi.active =1 and oi.isShipped = 1 and oi.storeId = :storeId)';
+            $joins[] = 'inner join `order` ord on (ord.id = oi.orderId and ord.active = 1 and ord.statusId = 8 and ord.storeId = :storeId)';
             $joins[] = 'LEFT OUTER JOIN  manufacturer m on (pro.manufacturerId = m.`id` and m.active =1)';
-            $joins[] = 'LEFT OUTER JOIN  customer cst on (cst.`id` = ord.`customerId` and cst.active =1)';
-            $joins[] = 'LEFT OUTER JOIN  sellingitem si on (si.productId = oi.productId and si.orderId = oi.orderId and si.orderItemId = oi.id and si.active =1)';
+            $joins[] = 'LEFT OUTER JOIN  customer cst on (cst.`id` = ord.`customerId` and cst.active =1 and cst.storeId = :storeId)';
+            $joins[] = 'LEFT OUTER JOIN  sellingitem si on (si.productId = oi.productId and si.orderId = oi.orderId and si.orderItemId = oi.id and si.active =1 and si.storeId = :storeId)';
+            $params['storeId'] = Core::getUser()->getStore()->getId();
             $sql = "select pro.id `productId`, pro.sku `sku`, pro.name `name`, 
             		ifnull(oi.unitPrice, '') sellingprice, ifnull(DATE_FORMAT(oi.updated, '%Y-%m-%d'), '') sellingdate, 
             		m.`name` brand, ord.invNo invNo, cst.`name` customer, if(si.kitId is null, 'no', 'yes') isKit,

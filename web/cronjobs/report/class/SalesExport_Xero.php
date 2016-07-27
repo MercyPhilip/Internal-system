@@ -60,7 +60,7 @@ class SalesExport_Xero extends ExportAbstract
 			$toDate = self::$_dateRange['end'];
 		}
 		//$orders = Order::getAllByCriteria('invDate >= :fromDate and invDate < :toDate and statusId != :cancelStatusId', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate), 'cancelStatusId' => trim(OrderStatus::ID_CANCELLED)));
-		$orders = Order::getAllByCriteria('invDate >= :fromDate and invDate < :toDate ', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate)));
+		$orders = Order::getAllByCriteria('invDate >= :fromDate and invDate < :toDate and storeId = :storeId', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate), 'storeId' => Core::getUser()->getStore()->getId()));
 		
 		$return = array();
 		foreach($orders as $order)
@@ -129,7 +129,7 @@ class SalesExport_Xero extends ExportAbstract
 	}
 	protected static function _getMailTitle()
 	{
-		return 'Sales Export for Xero from last day';
+		return Core::getUser()->getStore()->getName() . ' : Sales Export for Xero from last day';
 	}
 	protected static function _getMailBody()
 	{

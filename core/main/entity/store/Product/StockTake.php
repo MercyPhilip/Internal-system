@@ -90,6 +90,7 @@ class StockTake extends BaseEntityAbstract
 		DaoMap::begin($this, 'prost');
 		DaoMap::setManyToOne('preferredlocation', 'PreferredLocation', 'prost_pre');
 		DaoMap::setIntType('qty', 'int', 10, false);
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createIndex('preferredlocation');
@@ -117,6 +118,7 @@ class StockTake extends BaseEntityAbstract
 		
 		return $obj->setPreferredLocation($preferredLocation)
 		->setQty(intval($qty))
+		->setStore(Core::getUser()->getStore())
 		->save()
 		->addLog('StockTake(' . $originalQty . ' => ' . $qty . '), location[' . $preferredLocation->getLocation()->getName(). '] by [' . Core::getUser()->getUserName() . ']', Log::TYPE_SYSTEM, 'STOCKTAKE_QTY_CHG', __CLASS__ . '::' . __FUNCTION__);
 	}
@@ -135,7 +137,7 @@ class StockTake extends BaseEntityAbstract
 		{
 			$locationArray = $location;
 
-			$obj = self::getAllByCriteria('preferredlocationId = ? ', array(trim($location['id'])), true, 1, 1);
+			$obj = self::getAllByCriteria('preferredlocationId = ? and storeId = ? ', array(trim($location['id']), Core::getUser()->getStore()->getId()), true, 1, 1);
 			if (count($obj) === 0)
 				$locationArray['counting'] = 0;
 			else
@@ -162,7 +164,7 @@ class StockTake extends BaseEntityAbstract
 			if(isset($location->id))
 				$locationIds[] = trim($location->id);
 		}
-		$sql = 'select SUM(qty) totalcounting from stocktake where active = 1 and preferredlocationId in (' . implode(',', $locationIds)  . ')';
+		$sql = 'select SUM(qty) totalcounting from stocktake where active = 1 and storeId= ' . Core::getUser()->getStore()->getId(). ' and preferredlocationId in (' . implode(',', $locationIds)  . ')';
 		$result = Dao::getResultsNative($sql, array(), PDO::FETCH_ASSOC);
 		if(count($result) === 0)
 			return 0;

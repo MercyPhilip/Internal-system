@@ -75,6 +75,7 @@ class Location extends BaseEntityAbstract
 		$obj = new $class();
 		$obj->setName(trim($name))
 			->setDescription(trim($description))
+			->setStore(Core::getUser()->getStore())
 			->save();
 		return $obj;
 	}
@@ -95,6 +96,7 @@ class Location extends BaseEntityAbstract
 		DaoMap::begin($this, 'location');
 		DaoMap::setStringType('name', 'varchar', 100);
 		DaoMap::setStringType('description', 'varchar', 255);
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 		
 		DaoMap::createUniqueIndex('name');

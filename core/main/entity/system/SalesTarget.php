@@ -230,7 +230,7 @@ class SalesTarget extends BaseEntityAbstract
 		DaoMap::setIntType('targetprofit', 'double', '12,4');
 		DaoMap::setIntType('uid','int', 10);
 		DaoMap::setStringType('status','varchar', 50);
-
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createIndex('dfrom');
@@ -268,6 +268,7 @@ class SalesTarget extends BaseEntityAbstract
 			->setTargetProfit(doubleval(trim($targetprofit)))
 			->setStatus($status)
 			->setUid($uid)
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 	/**
@@ -275,10 +276,14 @@ class SalesTarget extends BaseEntityAbstract
 	 * 
 	 * @return SalesTarget
 	 */
-	public static function getCurrentSalesTarget()
+	public static function getCurrentSalesTarget($storeId = 0)
 	{
 		try {
-			$objs = self::getAllByCriteria("DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') between dfrom and dto", array(), true, 1, 1);
+			if ($storeId == 0)
+			{
+				$storeId = Core::getUser()->getStore()->getId();
+			}
+			$objs = self::getAllByCriteria("DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') between dfrom and dto and storeId = ?", array($storeId), true, 1, 1);
 			$salesTarget = ( count($objs) > 0 ? $objs[0] : null );
 			return $salesTarget;
 		} catch (Exception $e) {
@@ -291,33 +296,35 @@ class SalesTarget extends BaseEntityAbstract
 	 * @param string $type
 	 * @return SalesTarget
 	 */
-	public static function getSalesInfo($type)
+	public static function getSalesInfo($type, $storeId = 0)
 	{
 		try {
+			if ($storeId == 0)
+				$storeId = Core::getUser()->getStore()->getId();
 			if ($type === SalesTarget::TYPE_REVENUE_TODAY)
 			{
-				$sql = "Select * from salesdailylog Where YYYYMMDD = DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d')";
-				$result = Dao::getResultsNative($sql, array(), PDO::FETCH_ASSOC);
+				$sql = "Select * from salesdailylog Where YYYYMMDD = DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') and storeId = ?";
+				$result = Dao::getResultsNative($sql, array($storeId), PDO::FETCH_ASSOC);
 			}
 			else if ($type === SalesTarget::TYPE_REVENUE_UPTODATE)
 			{
-				$salestarget = self::getCurrentSalesTarget();
+				$salestarget = self::getCurrentSalesTarget($storeId);
 				if ($salestarget instanceof SalesTarget)
 				{
 					$startDate = $salestarget->getDfrom();
 					$sql = "select  DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m') YYYYMM, SUM(totalAmount) totalAmount,
 							SUM(totalPaid) totalPaid, SUM(totalCreditNoteValue) totalCreditNoteValue,
 							SUM(totalMargin) totalMargin, SUM(totalActualMargin) totalActualMargin
-							From salesdailylog Where YYYYMMDD between ? and DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d')";
-					$result = Dao::getResultsNative($sql, array($startDate), PDO::FETCH_ASSOC);
+							From salesdailylog Where YYYYMMDD between ? and DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') and storeId = ?";
+					$result = Dao::getResultsNative($sql, array($startDate, $storeId), PDO::FETCH_ASSOC);
 				}
 				else
 				{
 					$sql = "select  DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m') YYYYMM, SUM(totalAmount) totalAmount,
 							SUM(totalPaid) totalPaid, SUM(totalCreditNoteValue) totalCreditNoteValue, 
 							SUM(totalMargin) totalMargin, SUM(totalActualMargin) totalActualMargin 
-							From salesdailylog Where YYYYMMDD between CONCAT(DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m'),'-01') and DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d')";
-					$result = Dao::getResultsNative($sql, array(), PDO::FETCH_ASSOC);
+							From salesdailylog Where YYYYMMDD between CONCAT(DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'),'%Y-%m'),'-01') and DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') and storeId = ?";
+					$result = Dao::getResultsNative($sql, array($storeId), PDO::FETCH_ASSOC);
 				}
 			}
 			else
@@ -348,14 +355,14 @@ class SalesTarget extends BaseEntityAbstract
 			if ($salestarget instanceof SalesTarget)
 			{
 				// update existing one
-				$sql = '((:dfrom between dfrom and dto) or (:dto between dfrom and dto) or (dfrom >= :dfrom and dto <= :dto))  and id <> :id';
-				$params = array(':dfrom' => $dFrom, ':dto' => $dTo, ':id' => $salestarget->getId());
+				$sql = '((:dfrom between dfrom and dto) or (:dto between dfrom and dto) or (dfrom >= :dfrom and dto <= :dto))  and id <> :id and storeId = :storeId';
+				$params = array(':dfrom' => $dFrom, ':dto' => $dTo, ':id' => $salestarget->getId(), ':storeId' => Core::getUser()->getStore()->getId());
 			}
 			else
 			{
 				// new one
-				$sql = '((:dfrom between dfrom and dto) or (:dto between dfrom and dto) or (dfrom >= :dfrom and dto <= :dto))';
-				$params = array(':dfrom' => $dFrom, ':dto' => $dTo);
+				$sql = '((:dfrom between dfrom and dto) or (:dto between dfrom and dto) or (dfrom >= :dfrom and dto <= :dto)) and storeId = :storeId ';
+				$params = array(':dfrom' => $dFrom, ':dto' => $dTo, ':storeId' => Core::getUser()->getStore()->getId());
 			}
 			$objs = self::getAllByCriteria($sql, $params, true, 1, 1);
 			if (count($objs) > 0)

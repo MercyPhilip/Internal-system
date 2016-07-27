@@ -340,7 +340,7 @@ class Customer extends BaseEntityAbstract
 		$terms = intval(trim($terms));
 		$isBlocked = ($isBlocked === true);
 		$class =__CLASS__;
-		$objects = self::getAllByCriteria('email = ?', array($email), true, 1, 1);
+		$objects = self::getAllByCriteria('email = ? and storeId = ?', array($email, Core::getUser()->getStore()->getId()), true, 1, 1);
 		if(count($objects) > 0 && $email !== '')
 		{
 			$obj = $objects[0];
@@ -365,6 +365,7 @@ class Customer extends BaseEntityAbstract
 			->setTerms($terms)
 			->setTier($tier)
 			->setIsBlocked($isBlocked)
+			->setStore(Core::getUser()->getStore())
 			->save();
 		$comments = 'Customer(ID=' . $obj->getId() . ')' . (count($objects) > 0 ? 'updated' : 'created') . ' via B2B with (name=' . $name . ', contactNo=' . $contactNo . ', email=' . $email . ', terms=' . $terms . ', tierLevel=' . $tier->getId().  ', isBlocked=' . $isBlocked .')';
 		if($isFromB2B === true)
@@ -422,6 +423,7 @@ class Customer extends BaseEntityAbstract
 		DaoMap::setBoolType('isFromB2B');
 		DaoMap::setBoolType('isBlocked');
 		DaoMap::setManyToOne('tier', 'TierLevel', 'cust_tier', true);
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createIndex('name');

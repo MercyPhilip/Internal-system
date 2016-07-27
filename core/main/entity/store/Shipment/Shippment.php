@@ -389,7 +389,7 @@ class Shippment extends BaseEntityAbstract
 		DaoMap::setStringType('deliveryInstructions', 'varchar', 255);
 		DaoMap::setStringType('mageShipmentId', 'varchar', 100);
 
-
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 		DaoMap::createIndex('receiver');
 		DaoMap::createIndex('conNoteNo');
@@ -436,6 +436,7 @@ class Shippment extends BaseEntityAbstract
 			->setDeliveryInstructions(trim($deliveryInstructions))
 			->setMageShipmentId(trim($mageShipmentId))
 			->setActive(true)
+			->setStore(Core::getUser()->getStore())
 			->save()
 			->addLog($msg, Log::TYPE_SYSTEM, get_class($shippment) . '_CREATION', __CLASS__ . '::' . __FUNCTION__);
 		$order->addComment($msg, Comments::TYPE_SYSTEM)

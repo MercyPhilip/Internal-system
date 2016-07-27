@@ -237,7 +237,7 @@ class PurchaseOrderItem extends BaseEntityAbstract
 		DaoMap::setIntType('unitPrice', 'double', '10,4');
 		DaoMap::setIntType('totalPrice', 'double', '10,4', false);
 		DaoMap::setBoolType('stockCalculated');
-		
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 		DaoMap::createIndex('qty');
 		DaoMap::createIndex('receivedQty');
@@ -266,6 +266,7 @@ class PurchaseOrderItem extends BaseEntityAbstract
 			->setProduct($product)
 			->setUnitPrice($unitPrice)
 			->setQty($qty)
+			->setStore(Core::getUser()->getStore())
 			->setReceivedQty($receivedQty)
 			->setTotalPrice(trim($totalPrice) !== '' ? $totalPrice : ($unitPrice * $qty))
 			->save()

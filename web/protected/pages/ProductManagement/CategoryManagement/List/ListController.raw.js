@@ -9,6 +9,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	,productStatuses: []
 	,_nextPageColSpan: 9
 	,_autoLoading: false
+	,_priceReadOnlyMode : false
 	,_getTitleRowData: function() {
 		return {'sku': 'SKU', 'name': 'Product Name','shortDesc': 'Short Description', 'manufacturer' : {'name': 'Brand'}, 'supplierCodes': [{'supplier': {'name': 'Supplier'}, 'code': ''}],  'stockOnHand': 'SOH'};
 	}
@@ -404,7 +405,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 							new Element('div', {'class': 'row'})
 								.insert({'bottom': new Element('div', {'class': 'col-xs-3', 'title': 'Stock on Hand'}).update(row.stockOnHand) })
 								.insert({'bottom': new Element('div', {'class': 'col-xs-3 ', 'title': 'totalOnHandValue is ' + row.totalOnHandValue}).update(tmp.avgcost) })
-								.insert({'bottom': new Element('div', {'class': 'col-xs-3 '}).update(new Element('input', {'class': 'click-to-edit price-input', 'product-id': row.id, 'value': tmp.me.getCurrency(tmp.price) }).setStyle('width: 80%'))})
+								.insert({'bottom': new Element('div', {'class': 'col-xs-3 '}).update(tmp.txtprice =new Element('input', {'class': 'click-to-edit price-input', 'product-id': row.id, 'value': tmp.me.getCurrency(tmp.price) }).setStyle('width: 80%'))})
 								.insert({'bottom': new Element('div', {'class': 'col-xs-3 ', 'title': 'Margin'}).update(new Element('div', {'class':'margin'}).update(tmp.margin)) })
 			)
 			})
@@ -421,6 +422,10 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 								.insert({'bottom': new Element('div', {'class': 'col-xs-4 hide-when-info', 'title': 'Run rate of 1 month'}).update(row.om) })
 					)
 			});
+		if (tmp.me._priceReadOnlyMode)
+		{
+			jQuery(tmp.txtprice).prop("disabled", true);
+		}
 		return tmp.row;
 	}
 	/**
@@ -673,5 +678,10 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			}
 		});
 		return tmp.me;
+	}
+	,priceReadOnlyMode: function(){
+		var tmp = {};
+		tmp.me = this;
+		tmp.me._priceReadOnlyMode = true;
 	}
 });

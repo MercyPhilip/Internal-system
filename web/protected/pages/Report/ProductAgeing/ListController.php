@@ -95,7 +95,7 @@ class ListController extends CRUDPageAbstract
 					}
 					case 'po.id':
 					{
-						ProductAgeingLog::getQuery()->eagerLoad('ProductAgeingLog.purchaseOrderItem', 'inner join', 'pal_po');
+						ProductAgeingLog::getQuery()->eagerLoad('ProductAgeingLog.purchaseOrderItem', 'inner join', 'pal_po', 'pal.storeId = pal_po.storeId');
 						$where[] = '(pal_po.id = ? )';
 						$params[] = $value;
 						break;
@@ -106,11 +106,13 @@ class ListController extends CRUDPageAbstract
 						break;
 					}
 					
-            	}
-            }
-            $params = array_merge($joinParams, $params);
-            $stats = array();
-            $objects = $class::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('pal.lastPurchaseTime' => 'asc'), $stats);
+				}
+			}
+			$params = array_merge($joinParams, $params);
+			$where[] = 'pal.storeId = ?';
+			$params[] = Core::getUser()->getStore()->getId();
+			$stats = array();
+			$objects = $class::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('pal.lastPurchaseTime' => 'asc'), $stats);
 
             $results['pageStats'] = $stats;
             $results['items'] = array();
@@ -140,12 +142,10 @@ class ListController extends CRUDPageAbstract
 			$pageNo = null;
 			$pageSize = DaoQuery::DEFAUTL_PAGE_SIZE;
 			$searchParams = json_decode(json_encode($param->CallbackParameter), true);
-
 			$where = array(1);
 			$params = array();
 			$joinParams = array();
 			$query = $class::getQuery();
-			
 			//id
 			if (isset($searchParams['pro.ids']) && trim($searchParams['pro.ids']) != '' )
 			{
@@ -172,7 +172,7 @@ class ListController extends CRUDPageAbstract
 			if (isset($searchParams['po.id']) && trim($searchParams['po.id']) != '' )
 			{
 				$value = $searchParams['po.id'];
-				ProductAgeingLog::getQuery()->eagerLoad('ProductAgeingLog.purchaseOrderItem', 'inner join', 'pal_po');
+				ProductAgeingLog::getQuery()->eagerLoad('ProductAgeingLog.purchaseOrderItem', 'inner join', 'pal_po', 'pal.storeId = pal_po.storeId');
 				$where[] = '(pal_po.id = ? )';
 				$params[] = $value;
 			}
@@ -182,6 +182,8 @@ class ListController extends CRUDPageAbstract
 				$where[] = 'date_add(pal.lastPurchaseTime, INTERVAL ' . intval($value) . ' DAY) < NOW()';
 			}
 			$params = array_merge($joinParams, $params);
+			$where[] = 'pal.storeId = ?';
+			$params[] = Core::getUser()->getStore()->getId();
 			$stats = array();
 			$objects = $class::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('pal.lastPurchaseTime' => 'asc'), $stats);
 			if(count($objects) === 0)
@@ -252,6 +254,5 @@ class ListController extends CRUDPageAbstract
 		$asset = Asset::registerAsset($fileName, file_get_contents($filePath), Asset::TYPE_TMP);
 		return $asset;
 	}
-	
 }
 ?>

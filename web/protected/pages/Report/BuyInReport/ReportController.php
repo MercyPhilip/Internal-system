@@ -117,10 +117,11 @@ class ReportController extends BPCPageAbstract
             $wheres[] = "rec.updated between '" . $from . "' and '" . $to . "'";
             
             $joins[] = 'inner join productprice pp on (pp.productId = pro.id and pp.active = 1 and pp.typeId = 1)';
-            $joins[] = 'inner join receivingitem rec on (rec.productId = pro.id and rec.active =1)';
-            $joins[] = 'inner join purchaseorder po on (po.id = rec.purchaseOrderId and po.active =1)';
+            $joins[] = 'inner join receivingitem rec on (rec.productId = pro.id and rec.active =1 and rec.storeId = :storeId)';
+            $joins[] = 'inner join purchaseorder po on (po.id = rec.purchaseOrderId and po.active =1 and po.storeId = :storeId)';
             $joins[] = 'left outer join supplier s on (po.supplierId = s.`id` and s.active =1)';
             $joins[] = 'left outer join manufacturer m on (pro.manufacturerId = m.`id` and m.active =1)';
+            $params['storeId'] = Core::getUser()->getStore()->getId();
             $sql = "select pro.id `productId`, pro.sku `sku`, pro.name `name`, 
             		ifnull(rec.unitPrice, '') buyinprice, ifnull(DATE_FORMAT(rec.updated, '%Y-%m-%d'), '') buyindate, 
             		s.`name` supplier, m.`name` brand, po.purchaseOrderNo purchaseOrderNo,

@@ -86,13 +86,13 @@ class ListController extends CRUDPageAbstract
 					}
 					case 'ra.description':
 					{
-						$where[] =  'cn.description like ?';
+						$where[] =  'ra.description like ?';
 						$params[] = "%" . $value . "%";
 						break;
 					}
 					case 'ord.orderNo':
 					{
-						$query->eagerLoad("RMA.order", 'inner join', 'ord', '');
+						$query->eagerLoad("RMA.order", 'inner join', 'ord', 'ra.orderId = ord.id and ra.storeId = ord.storeId');
 						$where[] = 'ord.orderNo = ?';
 						$params[] = trim($value);
 						break;
@@ -107,7 +107,7 @@ class ListController extends CRUDPageAbstract
             		case 'pro.ids':
 					{
 						$value = explode(',', $value);
-						$query->eagerLoad("RMA.items", 'inner join', 'ra_item', 'ra_item.RMAId = ra.id and ra_item.active = 1');
+						$query->eagerLoad("RMA.items", 'inner join', 'ra_item', 'ra_item.RMAId = ra.id and ra_item.active = 1 and ra.storeid = ra_item.storeId');
 						$where[] = 'ra_item.productId in ('.implode(", ", array_fill(0, count($value), "?")).')';
 						$params = array_merge($params, $value);
 						break;
@@ -115,6 +115,8 @@ class ListController extends CRUDPageAbstract
             	}
             }
 
+            $where[] = 'ra.storeId = ?';
+            $params[] = Core::getUser()->getStore()->getId();
             $stats = array();
 
             $objects = $class::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('ra.raNo' => 'desc'), $stats);

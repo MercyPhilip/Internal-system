@@ -25,6 +25,8 @@ class AjaxController extends TService
   			$method = '_' . ((isset($this->Request['method']) && trim($this->Request['method']) !== '') ? trim($this->Request['method']) : '');
             if(!method_exists($this, $method))
                 throw new Exception('No such a method: ' . $method . '!');
+            $userId = intval(trim(isset($_REQUEST['userId']) ? $_REQUEST['userId'] : ''));
+            if ($userId > 0) Core::setUser(UserAccount::get($userId));
 			$results = $this->$method($_REQUEST);
 		}
 		catch (Exception $ex)
@@ -50,9 +52,11 @@ class AjaxController extends TService
   		$pageSize = (isset($params['pageSize']) && ($pageSize = trim($params['pageSize'])) !== '' ? $pageSize : DaoQuery::DEFAUTL_PAGE_SIZE);
   		$pageNo = (isset($params['pageNo']) && ($pageNo = trim($params['pageNo'])) !== '' ? $pageNo : 1);
   		$orderBy = (isset($params['orderBy']) ? $params['orderBy'] : array('created' => 'desc'));
-
-  		$where ='entityName = ? and entityId = ?';
-  		$sqlParams = array($entity, $entityId);
+  		$storeId = trim(isset($params['storeId']) ? $params['storeId'] : '');
+  		if($storeId === '')
+  			throw new Exception('StoreId is needed');
+  		$where ='entityName = ? and entityId = ? and storeId = ?';
+  		$sqlParams = array($entity, $entityId, $storeId);
   		if(isset($params['type']) && ($commentType = trim($params['type'])) !== '')
   		{
   			$where .= 'and type = ?';
@@ -71,12 +75,15 @@ class AjaxController extends TService
   		$searchTxt = trim(isset($params['searchTxt']) ? $params['searchTxt'] : '');
   		if($searchTxt === '')
   			throw new Exception('SearchTxt is needed');
+  		$storeId = trim(isset($params['storeId']) ? $params['storeId'] : '');
+  		if($storeId === '')
+  			throw new Exception('StoreId is needed');
   		$pageSize = (isset($params['pageSize']) && ($pageSize = trim($params['pageSize'])) !== '' ? $pageSize : DaoQuery::DEFAUTL_PAGE_SIZE);
   		$pageNo = (isset($params['pageNo']) && ($pageNo = trim($params['pageNo'])) !== '' ? $pageNo : null);
   		$orderBy = (isset($params['orderBy']) ? $params['orderBy'] : array());
 
-  		$where = array('name like :searchTxt or email like :searchTxt or contactNo like :searchTxt');
-  		$sqlParams = array('searchTxt' => '%' . $searchTxt . '%');
+  		$where = array('(name like :searchTxt or email like :searchTxt or contactNo like :searchTxt) and storeId = :storeId');
+  		$sqlParams = array('searchTxt' => '%' . $searchTxt . '%', 'storeId' => $storeId);
   		$stats = array();
   		$items = Customer::getAllByCriteria(implode(' AND ', $where), $sqlParams, true, $pageNo, $pageSize, $orderBy, $stats);
   		$results = array();
@@ -142,6 +149,8 @@ class AjaxController extends TService
   		$where = array('purchaseOrderNo like :searchTxt');
   		$sqlParams = array('searchTxt' => '%' . $searchTxt . '%'/*, 'searchTxtExact' => $searchTxt*/);
   		$stats = array();
+  		$where[] = 'storeId = :storeId';
+  		$sqlParams['storeId'] = Core::getUser()->getStore()->getId();
   		$items = PurchaseOrder::getAllByCriteria(implode(' AND ', $where), $sqlParams, true, $pageNo, $pageSize, $orderBy, $stats);
   		$results = array();
   		$results['items'] = array_map(create_function('$a', 'return $a->getJson();'), $items);
@@ -152,15 +161,17 @@ class AjaxController extends TService
   	{
   		$pageNo = isset($params['pageNo']) ? trim($params['pageNo']) : 1;
   		$pageSize = isset($params['pageSize']) ? trim($params['pageSize']) : DaoQuery::DEFAUTL_PAGE_SIZE;
-  		$sql = "select distinct pro.id, sum(ord_item.qtyOrdered) `orderedQty`, pro.stockOnHand, pro.stockOnPO
+  		$storeId = isset($params['storeId']) ? trim($params['storeId']) : 0;
+  		$sql = "select distinct pro.id, sum(ord_item.qtyOrdered) `orderedQty`, pro_stock_info.stockOnHand, pro_stock_info.stockOnPO
   				from product pro
+  				inner join productstockinfo pro_stock_info on (pro.id = pro_stock_info.productId and pro_stock_info.storeId = :storeId)
   				inner join orderitem ord_item on (ord_item.productId = pro.id and ord_item.active = 1)
-  				inner join `order` ord on (ord.id = ord_item.orderId and ord.active = 1 and ord.type in (:ordType1, :ordType2) and ord.statusId in (:ordStatusId1, :ordStatusId2))
-  				where pro.active = 1
+  				inner join `order` ord on (ord.id = ord_item.orderId and ord.storeId = ord_item.storeId and ord.active = 1 and ord.type in (:ordType1, :ordType2) and ord.statusId in (:ordStatusId1, :ordStatusId2))
+  				where pro.active = 1 and ord.storeId = :storeId
   				group by pro.id
-  				having `orderedQty` > (pro.stockOnHand + pro.stockOnPO)
+  				having `orderedQty` > (pro_stock_info.stockOnHand + pro_stock_info.stockOnPO)
   				order by ord.id";
-  		$result = Dao::getResultsNative($sql, array('ordType1' => Order::TYPE_ORDER, 'ordType2' => Order::TYPE_INVOICE, 'ordStatusId1' => OrderStatus::ID_NEW, 'ordStatusId2' => OrderStatus::ID_INSUFFICIENT_STOCK), PDO::FETCH_ASSOC);
+  		$result = Dao::getResultsNative($sql, array('ordType1' => Order::TYPE_ORDER, 'ordType2' => Order::TYPE_INVOICE, 'ordStatusId1' => OrderStatus::ID_NEW, 'ordStatusId2' => OrderStatus::ID_INSUFFICIENT_STOCK, 'storeId' => $storeId), PDO::FETCH_ASSOC);
   		if(count($result) === 0)
   			return array();
 
@@ -169,8 +180,8 @@ class AjaxController extends TService
 			$productMap[$row['id']] = $row;
 		}
 
-  		OrderItem::getQuery()->eagerLoad('OrderItem.order', 'inner join', 'ord', 'ord.id = ord_item.orderId and ord.active = 1 and ord.type in (?,?) and ord.statusId in (?,?)');
-  		$sqlParams = array(Order::TYPE_ORDER, Order::TYPE_INVOICE, OrderStatus::ID_NEW, OrderStatus::ID_INSUFFICIENT_STOCK);
+  		OrderItem::getQuery()->eagerLoad('OrderItem.order', 'inner join', 'ord', 'ord.id = ord_item.orderId and ord.active = 1 and ord.type in (?,?) and ord.statusId in (?,?) and ord.storeId = ord_item.storeId and ord.storeId = ?');
+  		$sqlParams = array(Order::TYPE_ORDER, Order::TYPE_INVOICE, OrderStatus::ID_NEW, OrderStatus::ID_INSUFFICIENT_STOCK, $storeId);
   		$where = 'ord_item.active = 1 and ord_item.productId in (' . implode(', ', array_fill(0, count(array_keys($productMap)), '?')) . ')';
   		$sqlParams = array_merge($sqlParams, array_keys($productMap));
   		$items = OrderItem::getAllByCriteria($where, $sqlParams, true, $pageNo, $pageSize, array('ord_item.id' => 'desc'));
@@ -191,9 +202,12 @@ class AjaxController extends TService
   	private function _getDeliveryMethods($params)
   	{
   		$searchTxt = (isset($params['searchTxt']) && ($searchTxt = trim($params['searchTxt'])) !== '' ? $searchTxt : '');
-  		$sql = 'select distinct value from orderinfo where value like ? and active = 1 and typeId = ' . OrderInfoType::ID_MAGE_ORDER_SHIPPING_METHOD;
+  		$storeId = trim(isset($params['storeId']) ? $params['storeId'] : '');
+  		if($storeId === '')
+  			throw new Exception('StoreId is needed');
+  		$sql = 'select distinct `value` from orderinfo where value like ? and storeId = ? and active = 1 and typeId = ' . OrderInfoType::ID_MAGE_ORDER_SHIPPING_METHOD;
   		$results = array();
-  		$results['items'] = array_map(create_function('$a', 'return $a["value"];'), Dao::getResultsNative($sql, array('%' . trim($searchTxt) . '%'), PDO::FETCH_ASSOC));
+  		$results['items'] = array_map(create_function('$a', 'return $a["value"];'), Dao::getResultsNative($sql, array('%' . trim($searchTxt) . '%', $storeId), PDO::FETCH_ASSOC));
   		return $results;
   	}
   	/**
@@ -242,20 +256,22 @@ class AjaxController extends TService
   	 */
   	private function _getSalesTarget($params)
   	{
+  		$storeId = isset($params['storeId']) ? intval(trim($params['storeId'])) : intval(0);
+  		$userId = isset($params['userId']) ? intval(trim($params['userId'])) : intval(0);
   		$salesinfo = array();
   		// get the sales target
-  		$salestarget = SalesTarget::getCurrentSalesTarget();
+  		$salestarget = SalesTarget::getCurrentSalesTarget($storeId);
   		if (!$salestarget instanceof SalesTarget)
   		{
   			return array();
   		}
   		$salesinfo['sales'] = $salestarget->getJson();
   		// get today's sales info
-  		$result = SalesTarget::getSalesInfo(SalesTarget::TYPE_REVENUE_TODAY);
+  		$result = SalesTarget::getSalesInfo(SalesTarget::TYPE_REVENUE_TODAY, $storeId);
   		$salesinfo['today'] = $result;
   		
   		// get sales info of up to date
-  		$result = SalesTarget::getSalesInfo(SalesTarget::TYPE_REVENUE_UPTODATE);
+  		$result = SalesTarget::getSalesInfo(SalesTarget::TYPE_REVENUE_UPTODATE, $storeId);
   		$salesinfo['period'] = $result;
   		
   		// get days left

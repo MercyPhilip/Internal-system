@@ -116,6 +116,7 @@ class PreferredLocation extends BaseEntityAbstract
 		DaoMap::setManyToOne('location', 'Location', 'preloc_loc');
 		DaoMap::setManyToOne('product', 'Product', 'preloc_pro');
 		DaoMap::setManyToOne('type', 'PreferredLocationType', 'preloc_loc_type');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 		
 		DaoMap::commit();
@@ -131,12 +132,13 @@ class PreferredLocation extends BaseEntityAbstract
 	public static function create(Location $location, Product $product, PreferredLocationType $type)
 	{
 		$obj = new PreferredLocation();
-		$items = self::getAllByCriteria('locationId = ? and productId = ? and typeId = ?', array($location->getId(), $product->getId(), $type->getId()), true, 1, 1);
+		$items = self::getAllByCriteria('locationId = ? and productId = ? and typeId = ? and storeId = ?', array($location->getId(), $product->getId(), $type->getId(), Core::getUser()->getStore()->getId()), true, 1, 1);
 		if(count($items) > 0)
 			return $items[0];
 		$obj->setLocation($location)
 			->setProduct($product)
 			->setType($type)
+			->setStore(Core::getUser()->getStore())
 			->save();
 		return $obj;
 	}
@@ -154,8 +156,8 @@ class PreferredLocation extends BaseEntityAbstract
 	 */
 	public static function getPreferredLocations(Product $product, PreferredLocationType $type = null, $activeOnly = true, $pageNo = null, $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE, $orderBy = array(), &$stats = array())
 	{
-		$where = array('productId = ? ');
-		$params = array($product->getId());
+		$where = array('productId = ? and storeId = ? ');
+		$params = array($product->getId(), Core::getUser()->getStore()->getId());
 		if($type instanceof PreferredLocationType)
 		{
 			$where[] = 'typeId = ?';

@@ -25,7 +25,6 @@ SalesTargetListPanelJs.prototype = {
 	,_getListItem: function(item, list) {
 		var tmp = {};
 		tmp.me = this;
-		
 		targetrevenue = item.sales.targetrevenue ? item.sales.targetrevenue : 0;
 		targetprofit = item.sales.targetprofit ? item.sales.targetprofit : 0;
 		tmp.div1 = new Element('a', {'class': 'list-group-item'})
@@ -53,7 +52,6 @@ SalesTargetListPanelJs.prototype = {
 				.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update('Total Days : <strong>' + item.sales.dperiod + '</strong>') })
 			});
 		list.insert({'bottom': tmp.div3 });
-		
 		tmp.div4 = new Element('a', {'class': 'list-group-item', 'style' : 'background-color:#f5f5f5'})
 		.store('data', item)
 		.insert({'bottom': new Element('div', {'class': 'row'})
@@ -106,13 +104,12 @@ SalesTargetListPanelJs.prototype = {
 		tmp.loadingDiv = new Element('div', {'class': 'panel-body'}).update(tmp.me._pageJs.getLoadingImg());
 		tmp.ajax = new Ajax.Request('/ajax/getSalesTarget', {
 			method: 'get'
-			,parameters: {'pageNo': 1, 'pageSize': 30}
+			,parameters: {'pageNo': 1, 'pageSize': 30, 'storeId' : jQuery('#storeId').attr('value'), 'userId' : jQuery('#userId').attr('value')}
 			,onCreate: function() {
 				$(tmp.me._panelHTMLID).insert({'bottom': tmp.loadingDiv});
 			}
 			,onSuccess: function(transport) {
 				try {
-					
 					tmp.result = tmp.me._pageJs.getResp(transport.responseText, false, true);
 					if(!tmp.result || !tmp.result.items)
 					{

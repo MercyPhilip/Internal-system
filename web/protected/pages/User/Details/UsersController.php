@@ -80,11 +80,13 @@ class UsersController extends BPCPageAbstract
 			
 			$person->setFirstName($firstName)
 				->setLastName($lastName)
+				->setStore(Core::getUser()->getStore())
 				->save();
 			
 			$userAccount->setUserName($userName)
 				->setPassword($newpassword)
 				->setPerson($person)
+				->setStore(Core::getUser()->getStore())
 				->save();
 			
 			$results = $userAccount->clearRoles()

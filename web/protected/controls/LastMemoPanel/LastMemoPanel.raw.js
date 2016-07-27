@@ -171,7 +171,7 @@ LastMemoPanelJs.prototype = {
 			 $(tmp.me._panelHTMLID).update(tmp.loadingDiv);
 		 tmp.ajax = new Ajax.Request('/ajax/getComments', {
 				method: 'get'
-				,parameters: {'entity': tmp.me._entityName, 'entityId': tmp.me._entityId, 'orderBy': {'id':'desc'}, 'pageNo': 1, 'pageSize': 1, 'type': 'MEMO'}
+				,parameters: {'entity': tmp.me._entityName, 'entityId': tmp.me._entityId, 'orderBy': {'id':'desc'}, 'pageNo': 1, 'pageSize': 1, 'type': 'MEMO', 'storeId' : jQuery('#storeId').attr('value'), 'userId' : jQuery('#userId').attr('value')}
 				,'onSuccess': function(transport) {
 					try {
 						tmp.result = tmp.me._pageJs.getResp(transport.responseText, false, true);

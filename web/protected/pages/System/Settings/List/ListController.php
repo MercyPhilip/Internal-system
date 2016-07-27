@@ -20,7 +20,7 @@ class ListController extends CRUDPageAbstract
 	public function __construct()
 	{
 		parent::__construct();
-		if(!AccessControl::canAccessUsersPage(Core::getRole()))
+		if(!AccessControl::canAccessUsersPage(Core::getRole()) && (Core::getUser()->getStore()->getId() != 1))
 			die('You do NOT have access to this page');
 	}
 	/**

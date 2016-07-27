@@ -63,6 +63,10 @@ class ProductController extends CRUDPageAbstract
 		$js .= ".setCallbackId('toggleManualFeed', '" . $this->toggleManualFeedBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('newRule', '" . $this->newRuleBtn->getUniqueID() . "')";
 		$js .= ".getResults(true, " . $this->pageSize . ");";
+// 		if(!AccessControl::canEditPrice())
+// 			$js .= "pageJs.readOnlyMode();";
+		$mode = AccessControl::canEditPrice();
+		$js .= "pageJs.readOnlyMode(" . intval($mode) .  "," . Core::getUser()->getStore()->getId() . "," . Core::getRole()->getId() . ");";
 		return $js;
 	}
 	public function newRule($sender, $param)
@@ -93,14 +97,10 @@ class ProductController extends CRUDPageAbstract
 			{
 				
 				$rule = ProductPriceMatchRule::create($product, $company, trim($param->CallbackParameter->rule->price_from), trim($param->CallbackParameter->rule->price_to), trim($param->CallbackParameter->rule->offset));
-				//file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ': run' . date('Y-m-d\TH:i:sP') . PHP_EOL, FILE_APPEND | LOCK_EX);
 				PriceMatchConnector::run($product->getSku(), true);
-				//file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ': getMinRecord' . date('Y-m-d\TH:i:sP'). PHP_EOL, FILE_APPEND | LOCK_EX);
 				
 				PriceMatchConnector::getMinRecord($product->getSku(), true);
-				//file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ': getNewPrice' . date('Y-m-d\TH:i:sP') . PHP_EOL, FILE_APPEND | LOCK_EX);
 				PriceMatchConnector::getNewPrice($product->getSku(), true, true);
-				//file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ': end' . date('Y-m-d\TH:i:sP'). PHP_EOL, FILE_APPEND | LOCK_EX);
 				$results = $rule->getJson();
 			}
 			
@@ -194,7 +194,27 @@ class ProductController extends CRUDPageAbstract
             $results['pageStats'] = $stats;
             $results['items'] = array();
             foreach($objects as $obj)
-                $results['items'][] = $obj->getJson();
+            {
+                $tmpArray = $obj->getJson();
+                $tier0Prices = ProductTierPrice::getAllByCriteria('productId = ? and tierLevelId = 0', array($obj->getId()));
+                $objsOfStore1 = ProductStockInfo::getAllByCriteria('productId = ? and storeId = 1', array($obj->getId()));
+                $unitCostOfStore1 = 0;
+                if (count($objsOfStore1) > 0)
+                {
+                	$objsOfStore1 = $objsOfStore1[0];
+                	$unitCostOfStore1 = intval($objsOfStore1->getStockOnHand()) === 0 ? 0 : round(abs($objsOfStore1->getTotalOnHandValue()) / abs(intval($objsOfStore1->getStockOnHand())), 2);
+                }
+                $rets = array();
+                foreach($tier0Prices as $tier0Price)
+                {
+                	$ret = array();
+                	$ret = $tier0Price->getJson();
+                	$ret['unitCost'] = $unitCostOfStore1;
+                	$rets[] = $ret;
+                }
+                $tmpArray['tierprices'] = $rets;
+                $results['items'][] = $tmpArray;
+            }
             $results['totalStockOnHand'] = isset($sumArray['totalStockOnHand']) ? trim($sumArray['totalStockOnHand']) : 0;
             $results['totalOnHandValue'] = isset($sumArray['totalOnHandValue']) ? trim($sumArray['totalOnHandValue']) : 0;
 
@@ -305,6 +325,11 @@ class ProductController extends CRUDPageAbstract
     		$id = isset($param->CallbackParameter->productId) ? $param->CallbackParameter->productId : '';
     		if(!($product = Product::get($id)) instanceof Product)
     			throw new Exception('Invalid product!');
+    		$sellOnWeb = intval($param->CallbackParameter->isSellOnWeb);
+    		if (($product->getStockOnHand() > 0) && !$sellOnWeb)
+    		{
+    			throw new Exception("Can't take off this product from online because SOH is not zero.");
+    		}
     		$product->setSellOnWeb(intval($param->CallbackParameter->isSellOnWeb))
     		->save();
     		$results['item'] = $product->getJson();

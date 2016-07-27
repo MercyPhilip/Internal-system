@@ -208,7 +208,7 @@ class RMAItem extends BaseEntityAbstract
 	public function postSave()
 	{
 		if(trim($this->getReceivedDate()) !== trim(UDate::zeroDate())) {
-			if(self::countByCriteria('RMAId = ? and receivedDate = ?', array($this->getRMA()->getId(), trim(UDate::zeroDate()))) > 0)
+			if(self::countByCriteria('RMAId = ? and receivedDate = ? and storeId = ?', array($this->getRMA()->getId(), trim(UDate::zeroDate()), Core::getUser()->getStore()->getId())) > 0)
 				$this->getRMA()
 					->setStatus(RMA::STATUS_RECEIVING)
 					->save()
@@ -235,6 +235,7 @@ class RMAItem extends BaseEntityAbstract
 		DaoMap::setIntType('unitCost', 'double', '10,4');
 		DaoMap::setStringType('itemDescription', 'varchar', '255');
 		DaoMap::setDateType('receivedDate');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 
 		parent::__loadDaoMap();
 
@@ -261,6 +262,7 @@ class RMAItem extends BaseEntityAbstract
 		$item->setRMA($rma)
 			->setProduct($product)
 			->setQty($qty)
+			->setStore(Core::getUser()->getStore())
 			->setItemDescription(trim($itemDescription))
 			->setUnitCost($unitCost !== null ? $unitCost : $product->getUnitCost())
 			->save();
@@ -287,6 +289,7 @@ class RMAItem extends BaseEntityAbstract
 			->setOrderItem($orderItem)
 			->setProduct($orderItem->getProduct())
 			->setQty($qty)
+			->setStore(Core::getUser()->getStore())
 			->setItemDescription(trim($itemDescription))
 			->setUnitCost($unitCost !== null ? $unitCost : $orderItem->getUnitCost())
 			->save();
@@ -304,7 +307,7 @@ class RMAItem extends BaseEntityAbstract
 	public static function getByRMA($rma)
 	{
 		$rma = $rma instanceof RMA ? $rma : RMA::get(trim($rma));
-		$rma = $rma instanceof RMA ? $rma : (count($rmas = RMA::getAllByCriteria('RMAId = ?', array(trim($rma)), true, 1, 1)) > 0 ? $rmas[0] : null);
-		return $rma instanceof RMA ? (count($items = self::getAllByCriteria('RMAId = ?', array($rma->getId()), true)) > 0 ? $items : null) : null;
+		$rma = $rma instanceof RMA ? $rma : (count($rmas = RMA::getAllByCriteria('RMAId = ? and storeId = ?', array(trim($rma), Core::getUser()->getStore()->getId()), true, 1, 1)) > 0 ? $rmas[0] : null);
+		return $rma instanceof RMA ? (count($items = self::getAllByCriteria('RMAId = ? and storeId = ?', array($rma->getId(), Core::getUser()->getStore()->getId()), true)) > 0 ? $items : null) : null;
 	}
 }

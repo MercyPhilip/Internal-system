@@ -46,7 +46,7 @@ class DetailsController extends BPCPageAbstract
 			$js .= "pageJs._order=" . json_encode($order->getJson(array('customer'=> $order->getCustomer()->getJson(), 'items'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson()));'), $order->getOrderItems())))) . ";";
 		else $js .= "pageJs._customer=" . json_encode($customer) . ";";
 		if($rma instanceof RMA)
-			$js .= "pageJs._RMA=" . json_encode($rma->getJson(array('customer'=> $rma->getCustomer()->getJson(), 'items'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson()));'), $rma->getRMAItems())))) . ";";
+			$js .= "pageJs._RMA=" . json_encode($rma->getJson(array('customer'=> $rma->getCustomer()->getJson(), 'raItems'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson()));'), $rma->getRMAItems())))) . ";";
 		$js .= "pageJs._statusOptions=" . json_encode($statusOptions) . ";";
 		$js .= "pageJs";
 			$js .= ".setHTMLID('itemDiv', 'detailswrapper')";
@@ -74,7 +74,7 @@ class DetailsController extends BPCPageAbstract
 		{
 			$items = array();
 			$searchTxt = isset($param->CallbackParameter->searchTxt) ? trim($param->CallbackParameter->searchTxt) : '';
-			foreach(Customer::getAllByCriteria('name like :searchTxt or contactNo = :searchTxtExact or 	email = :searchTxtExact', array('searchTxt' => $searchTxt . '%', 'searchTxtExact' => $searchTxt)) as $customer)
+			foreach(Customer::getAllByCriteria('(name like :searchTxt or contactNo = :searchTxtExact or email = :searchTxtExact) and storeId = :storeId', array('searchTxt' => '%' . $searchTxt . '%', 'searchTxtExact' => $searchTxt, 'storeId' => Core::getUser()->getStore()->getId())) as $customer)
 			{
 				$items[] = $customer->getJson();
 			}
@@ -128,17 +128,17 @@ class DetailsController extends BPCPageAbstract
 				$array['lastSupplierPrice'] = 0;
 				$array['minSupplierPrice'] = 0;
 
-				$minProductPriceProduct = PurchaseOrderItem::getAllByCriteria('productId = ?', array($product->getId()), true, 1, 1, array('unitPrice'=> 'asc'));
+				$minProductPriceProduct = PurchaseOrderItem::getAllByCriteria('productId = ? and storeId = ?', array($product->getId(), Core::getUser()->getStore()->getId()), true, 1, 1, array('unitPrice'=> 'asc'));
 				$minProductPrice = sizeof($minProductPriceProduct) ? $minProductPriceProduct[0]->getUnitPrice() : 0;
 				$minProductPriceId = sizeof($minProductPriceProduct) ? $minProductPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
 				PurchaseOrderItem::getQuery()->eagerLoad('PurchaseOrderItem.purchaseOrder');
-				$lastSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ?', array($product->getId(), $supplierID), true, 1, 1, array('po_item.id'=> 'desc'));
+				$lastSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ? and po_item.storeId = ?', array($product->getId(), $supplierID, Core::getUser()->getStore()->getId()), true, 1, 1, array('po_item.id'=> 'desc'));
 				$lastSupplierPrice = sizeof($lastSupplierPriceProduct) ? $lastSupplierPriceProduct[0]->getUnitPrice() : 0;
 				$lastSupplierPriceId = sizeof($lastSupplierPriceProduct) ? $lastSupplierPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
 				PurchaseOrderItem::getQuery()->eagerLoad('PurchaseOrderItem.purchaseOrder');
-				$minSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ?', array($product->getId(), $supplierID), true, 1, 1, array('po_item.unitPrice'=> 'asc'));
+				$minSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ? and po_item.storeId = ?', array($product->getId(), $supplierID, Core::getUser()->getStore()->getId()), true, 1, 1, array('po_item.unitPrice'=> 'asc'));
 				$minSupplierPrice = sizeof($minSupplierPriceProduct) ? $minSupplierPriceProduct[0]->getUnitPrice() : 0;
 				$minSupplierPriceId = sizeof($minSupplierPriceProduct) ? $minSupplierPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
@@ -241,6 +241,11 @@ public function saveOrder($sender, $param)
 			}
 			$RMA->setTotalValue($totalPaymentDue)->setStatus($status)->save();
 			$results['item'] = $RMA->getJson();
+// 			$order = $RMA->getOrder();
+// 			$customer = $RMA->getCustomer();
+// 			$raItems = $RMA->getRMAItems();
+// 			$results['item'] = $RMA->getJson(array('order'=> empty($order) ? '' : $order->getJson(), 'customer'=> $customer->getJson(), 'raItems'=> $raItems ? array_map(create_function('$a', 'return $a->getJson();'), $raItems) : ''));
+				
 // 			if($printItAfterSave === true)
 // 				$results['printURL'] = '/print/rma/' . $RMA->getId() . '.html?pdf=1';
 			Dao::commitTransaction();

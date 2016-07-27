@@ -135,6 +135,7 @@ class Person extends BaseEntityAbstract
         DaoMap::setStringType('firstName');
         DaoMap::setStringType('lastName');
         DaoMap::setOneToMany('userAccounts', 'UserAccount', 'ua');
+        DaoMap::setManyToOne('store', 'Store', 'si');
         parent::__loadDaoMap();
         
         DaoMap::createIndex('firstName');

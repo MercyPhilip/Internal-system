@@ -73,6 +73,7 @@ class CreditPool extends BaseEntityAbstract
 
 		DaoMap::setManyToOne('customer', 'Customer', 'cn_cus');
 		DaoMap::setIntType('totalCreditLeft', 'double', '10,4');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::commit();
@@ -95,7 +96,7 @@ class CreditPool extends BaseEntityAbstract
 			return null;
 		}
 		// if created from customer
-		$objs = self::getAllByCriteria('customerId = ?', array($customer->getId()), true, 1, 1);
+		$objs = self::getAllByCriteria('customerId = ? and storeId = ?', array($customer->getId(), Core::getUser()->getStore()->getId()), true, 1, 1);
 		$creditpool = ( count($objs) > 0 ? $objs[0] : new CreditPool() );
 		
 		// if created from order
@@ -107,6 +108,7 @@ class CreditPool extends BaseEntityAbstract
 			{
 				$creditpool->setCustomer($customer)
 					->setTotalCreditLeft(0)
+					->setStore(Core::getUser()->getStore())
 					->save();
 				return $creditpool;
 			}
@@ -116,14 +118,19 @@ class CreditPool extends BaseEntityAbstract
 		if ($order instanceof  Order)
 		{
 			$totalPaid = $order->getTotalPaid();
+			if (($totalPaid > 0) && ($totalPaid >= $totalCredit))
+			{
+				$totalPaid = $totalCredit;
+			}
 		}
-		if (($totalPaid > 0) && ($totalPaid >= $totalCredit))
+		else
 		{
 			$totalPaid = $totalCredit;
 		}
 		$creditAmount = doubleval($totalPaid);
 		$creditpool->setCustomer($customer)
 			->setTotalCreditLeft($creditAmount)
+			->setStore(Core::getUser()->getStore())
 			->save();
 		
 		//Create log for creditpool
@@ -225,7 +232,8 @@ class CreditPool extends BaseEntityAbstract
 	 */
 	public static function getCreditPoolByCustomer($customer)
 	{
-		$objs = self::getAllByCriteria('customerId = ?', array($customer->getId()), true, 1, 1);
+		if (!$customer instanceof Customer) return null;
+		$objs = self::getAllByCriteria('customerId = ? and storeId = ?', array($customer->getId(), Core::getUser()->getStore()->getId()), true, 1, 1);
 		if (count($objs) <= 0)
 		{
 			// if cant find the customer
@@ -252,6 +260,8 @@ class CreditPool extends BaseEntityAbstract
 			if ($payment->getMethod()->getId() != PaymentMethod::ID_STORE_CREDIT)
 			{
 				// the payment method is not offset credit ( id= 11)
+				// check if the customer overpaid
+				// if yes, then need to create credit pool for the customer
 				return;
 			}
 			$creditpool = CreditPool::applyToOrder($entity, $payment);

@@ -247,7 +247,7 @@ class CreditNoteItem extends BaseEntityAbstract
 		DaoMap::setIntType('unitCost', 'double', '10,4');
 		DaoMap::setIntType('totalPrice', 'double', '10,4');
 		DaoMap::setStringType('itemDescription', 'varchar', '255');
-
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::commit();
@@ -270,6 +270,7 @@ class CreditNoteItem extends BaseEntityAbstract
 		$item->setCreditNote($creditNote)
 			->setProduct($product)
 			->setQty($qty)
+			->setStore(Core::getUser()->getStore())
 			->setUnitPrice($unitPrice)
 			->setItemDescription(trim($itemDescription))
 			->setTotalPrice($totalPrice)
@@ -299,6 +300,7 @@ class CreditNoteItem extends BaseEntityAbstract
 			->setOrderItem($orderItem)
 			->setProduct($orderItem->getProduct())
 			->setQty($qty)
+			->setStore(Core::getUser()->getStore())
 			->setUnitPrice($unitPrice === null ? $orderItem->getUnitPrice() : $unitPrice)
 			->setItemDescription(trim($itemDescription))
 			->setUnitCost($unitCost !== null ? $unitCost : $orderItem->getUnitCost())
@@ -318,7 +320,7 @@ class CreditNoteItem extends BaseEntityAbstract
 	public static function getByCreditNote($creditNote)
 	{
 		$creditNote = $creditNote instanceof CreditNote ? $creditNote : CreditNote::get(trim($creditNote));
-		$creditNote = $creditNote instanceof CreditNote ? $creditNote : (count($creditNotes = CreditNote::getAllByCriteria('creditNoteNo = ?', array(trim($creditNote)), true, 1, 1)) > 0 ? $creditNotes[0] : null);
-		return $creditNote instanceof CreditNote ? (count($items = self::getAllByCriteria('creditNoteId = ?', array($creditNote->getId()), true)) > 0 ? $items : null) : null;
+		$creditNote = $creditNote instanceof CreditNote ? $creditNote : (count($creditNotes = CreditNote::getAllByCriteria('creditNoteNo = ?  and storeId = ?', array(trim($creditNote), Core::getUser()->getStore()->getId()), true, 1, 1)) > 0 ? $creditNotes[0] : null);
+		return $creditNote instanceof CreditNote ? (count($items = self::getAllByCriteria('creditNoteId = ? and storeId = ?', array($creditNote->getId(), Core::getUser()->getStore()->getId()), true)) > 0 ? $items : null) : null;
 	}
 }

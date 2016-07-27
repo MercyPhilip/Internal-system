@@ -163,6 +163,7 @@ class CreditNoteStatus extends BaseEntityAbstract
 		DaoMap::setIntType('creditAmount', 'double', '10,4');
 		DaoMap::setIntType('creditAmountAvailable', 'double', '10,4');
 		DaoMap::setStringType('status', 'varchar', '50');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::commit();
@@ -190,9 +191,12 @@ class CreditNoteStatus extends BaseEntityAbstract
 		if ($order instanceof  Order)
 		{
 			$totalPaid = $order->getTotalPaid();
+			if (($totalPaid > 0) && ($totalPaid >= $totalCredit))
+			{
+				$totalPaid = $totalCredit;
 		}
-		
-		if (($totalPaid > 0) && ($totalPaid >= $totalCredit))
+		}
+		else
 		{
 			$totalPaid = $totalCredit;
 		}
@@ -216,6 +220,7 @@ class CreditNoteStatus extends BaseEntityAbstract
 		$creditNoteStatus->setCreditPool($creditPool)
 			->setCreditNote($creditNote)
 			->setStatus($status)
+			->setStore(Core::getUser()->getStore())
 			->setCreditAmount($creditAmount)
 			->setCreditAmountAvailable($creditAmountAvailable)
 			->save();
@@ -230,7 +235,7 @@ class CreditNoteStatus extends BaseEntityAbstract
 	 */
 	public static function Update(CreditPool $creditPool, CreditNote $creditNote, Payment $payment)
 	{
-		$objs = self::getAllByCriteria('creditpoolId = ? and creditNoteId = ? ', array($creditPool->getId(), $creditNote->getId()), true, 1, 1);
+		$objs = self::getAllByCriteria('creditpoolId = ? and creditNoteId = ? and storeId = ? ', array($creditPool->getId(), $creditNote->getId(), Core::getUser()->getStore()->getId()), true, 1, 1);
 		if (count($objs) <= 0)
 		{
 			return;
@@ -269,7 +274,7 @@ class CreditNoteStatus extends BaseEntityAbstract
 			return $creditNoteSts;
 		}
 		$creditPoolId = $creditPool->getId();
-		$creditNoteSts = self::getAllByCriteria('creditpoolId = ? and status <> ?', array($creditPool->getId(), CreditNoteStatus::TYPE_FULL), true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('created' => 'ASC'));
+		$creditNoteSts = self::getAllByCriteria('creditpoolId = ? and status <> ? and storeId = ?', array($creditPool->getId(), CreditNoteStatus::TYPE_FULL, Core::getUser()->getStore()->getId()), true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('created' => 'ASC'));
 		return $creditNoteSts;
 	}
 	/**
@@ -283,7 +288,7 @@ class CreditNoteStatus extends BaseEntityAbstract
 		{
 			return null;
 		}
-		$objs = self::getAllByCriteria('creditNoteId = ? ', array($creditNote->getId()), true, 1, 1);
+		$objs = self::getAllByCriteria('creditNoteId = ? and storeId = ?', array($creditNote->getId(), Core::getUser()->getStore()->getId()), true, 1, 1);
 		if (count($objs) <= 0)
 		{
 			return null;

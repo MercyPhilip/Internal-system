@@ -254,6 +254,7 @@ class Payment extends BaseEntityAbstract
 		DaoMap::setIntType('value', 'Double', '10,4', false);
 		DaoMap::setStringType('type', 'varchar', '10');
 		DaoMap::setDateType('paymentDate');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createIndex('type');
@@ -277,6 +278,7 @@ class Payment extends BaseEntityAbstract
 			->setMethod($method)
 			->setValue($value)
 			->setPaymentDate(new UDate(trim($paymentDate) === '' ? 'now' : trim($paymentDate)))
+			->setStore(Core::getUser()->getStore())
 			->save()
 			->addComment($message, Comments::TYPE_ACCOUNTING)
 			->addLog($message, Log::TYPE_SYSTEM, get_class($payment) . '_CREATION', __CLASS__ . '::' . __FUNCTION__);
@@ -302,6 +304,7 @@ class Payment extends BaseEntityAbstract
 			->setMethod($method)
 			->setValue($value)
 			->setPaymentDate(new UDate(trim($paymentDate) === '' ? 'now' : trim($paymentDate)))
+			->setStore(Core::getUser()->getStore())
 			->save()
 			->addComment($message, Comments::TYPE_ACCOUNTING)
 			->addLog($message, Log::TYPE_SYSTEM, get_class($payment) . '_CREATION', __CLASS__ . '::' . __FUNCTION__);

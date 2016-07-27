@@ -1391,7 +1391,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					type: 'GET',
 					dataType: "json",
 					url: '/ajax/getComments',
-					data: {'entity': tmp.item.attr('comments-entity'), 'entityId': tmp.item.attr('comments-entity-Id'), 'type': tmp.item.attr('comments-type') },
+					data: {'entity': tmp.item.attr('comments-entity'), 'entityId': tmp.item.attr('comments-entity-Id'), 'type': tmp.item.attr('comments-type'), 'storeId' : jQuery('#storeId').attr('value'), 'userId' : jQuery('#userId').attr('value')  },
 					success: function(result) {
 						tmp.newDiv = 'N/A';
 						if(result.resultData && result.resultData.items && result.resultData.items.length > 0) {

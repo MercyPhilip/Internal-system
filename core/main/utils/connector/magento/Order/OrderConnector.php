@@ -1,6 +1,8 @@
 <?php
 class OrderConnector extends B2BConnector
 {
+	const PICKUP_STORE1 = 'In-Store Pickup (Mount Waverley, VIC) - Store Pickup';
+	const PICKUP_STORE2 = 'In-Store Pickup (Moorabin, VIC) - Store Pickup';
 	/**
 	 * Import Orders
 	 *
@@ -32,7 +34,14 @@ class OrderConnector extends B2BConnector
 				foreach($orders as $index => $order)
 				{
 					$this->_log(0, get_class($this), 'Found order from Magento with orderNo = ' . trim($order->increment_id) . '.', self::LOG_TYPE, '', __FUNCTION__);
-
+					if (trim($order->shipping_description) == OrderConnector::PICKUP_STORE1)
+					{						
+						Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT_STORE1));
+					}
+					else if (trim($order->shipping_description) == OrderConnector::PICKUP_STORE2)
+					{
+						Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT_STORE2));
+					}
 					$order = $this->getOrderInfo(trim($order->increment_id));
 					if(!is_object($order))
 					{
@@ -86,6 +95,7 @@ class OrderConnector extends B2BConnector
 						->setShippingAddr($customer->getShippingAddress())
 						->setBillingAddr($customer->getBillingAddress())
 						->setCustomer($customer)
+						->setStore(Core::getUser()->getStore())
 						->save();
 					$this->_log(0, get_class($this), 'Saved the order, ID = ' . $o->getId(), self::LOG_TYPE, '$index = ' . $index, __FUNCTION__);
 					$totalShippingCost = StringUtilsAbstract::getValueFromCurrency(trim($order->shipping_amount)) * 1.1;

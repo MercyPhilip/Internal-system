@@ -134,7 +134,7 @@ class Controller extends CRUDPageAbstract
             			{
             				if(trim($value) !== '')
             				{
-            					$where[] = 'id in (select purchaseOrderId from receivingitem rec_item where po.id = rec_item.purchaseOrderId and rec_item.active =1 and rec_item.invoiceNo like ?)';
+            					$where[] = 'id in (select purchaseOrderId from receivingitem rec_item where po.id = rec_item.purchaseOrderId and rec_item.active =1 and po.storeId = rec_item.storeId and rec_item.invoiceNo like ?)';
             					$params[] = '%' . trim($value) . '%';
             				}
             				break;
@@ -142,7 +142,7 @@ class Controller extends CRUDPageAbstract
             		case 'pro.ids':
             			{
 							$value = explode(',', $value);
-							$query->eagerLoad("PurchaseOrder.items", 'inner join', 'po_item', 'po_item.purchaseOrderId = po.id and po_item.active = 1');
+							$query->eagerLoad("PurchaseOrder.items", 'inner join', 'po_item', 'po_item.purchaseOrderId = po.id and po_item.active = 1 and po.storeId = po_item.storeId');
 							$where[] = 'po_item.productId in ('.implode(", ", array_fill(0, count($value), "?")).')';
 							$params = array_merge($params, $value);
 							break;
@@ -150,7 +150,8 @@ class Controller extends CRUDPageAbstract
             	}
             	$noSearch = false;
             }
-
+            $where[] = 'po.storeId = ?';
+            $params[] = Core::getUser()->getStore()->getId();
             $objects = PurchaseOrder::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('po.id' => 'desc'), $stats);
             $results['pageStats'] = $stats;
             $results['items'] = array();

@@ -193,7 +193,7 @@ class ReceivingItem extends BaseEntityAbstract
 				->addComment($msg, Comments::TYPE_WAREHOUSE);
 			$this->getProduct()->received($qty, $this->getUnitPrice(), $msg, $this);
 
-			$nofullReceivedItems = PurchaseOrderItem::getAllByCriteria('productId = ? and purchaseOrderId = ?', array($this->getProduct()->getId(), $this->getPurchaseOrder()->getId()), true, 1, 1, array('po_item.receivedQty' => 'asc'));
+			$nofullReceivedItems = PurchaseOrderItem::getAllByCriteria('productId = ? and purchaseOrderId = ? and storeId = ?', array($this->getProduct()->getId(), $this->getPurchaseOrder()->getId(), Core::getUser()->getStore()->getId()), true, 1, 1, array('po_item.receivedQty' => 'asc'));
 			if(count($nofullReceivedItems) > 0) {
 				$nofullReceivedItems[0]
 					->setReceivedQty($nofullReceivedItems[0]->getReceivedQty() + $qty)
@@ -201,7 +201,7 @@ class ReceivingItem extends BaseEntityAbstract
 					->addLog(Log::TYPE_SYSTEM, $msg, $log_Comments, __CLASS__ . '::' . __FUNCTION__)
 					->addComment($msg, Comments::TYPE_WAREHOUSE);
 			}
-			$totalCount = PurchaseOrderItem::countByCriteria('active = 1 and purchaseOrderId = ? and receivedQty < qty', array($this->getPurchaseOrder()->getId()));
+			$totalCount = PurchaseOrderItem::countByCriteria('active = 1 and purchaseOrderId = ? and receivedQty < qty and storeId = ?', array($this->getPurchaseOrder()->getId(), Core::getUser()->getStore()->getId()));
 			$this->getPurchaseOrder()->setStatus($totalCount > 0 ? PurchaseOrder::STATUS_RECEIVING : PurchaseOrder::STATUS_RECEIVED)
 				->save()
 				->addComment($msg, Comments::TYPE_WAREHOUSE);
@@ -235,7 +235,7 @@ class ReceivingItem extends BaseEntityAbstract
 		DaoMap::setStringType('serialNo', 'varchar', '100');
 		DaoMap::setStringType('invoiceNo', 'varchar', '20');
 		DaoMap::setIntType('qty', 'int', 10, false);
-
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 		DaoMap::createIndex('serialNo');
 		DaoMap::createIndex('unitPrice');
@@ -264,6 +264,7 @@ class ReceivingItem extends BaseEntityAbstract
 			->setUnitPrice($unitPrice)
 			->setInvoiceNo($invoiceNo)
 			->setSerialNo($serialNo)
+			->setStore(Core::getUser()->getStore())
 			->save()
 			->addComment($comments, Comments::TYPE_WAREHOUSE)
 			->addLog($msg, Log::TYPE_SYSTEM, Log::TYPE_SYSTEM, get_class($entity) . '_CREATE', __CLASS__ . '::' . __FUNCTION__);

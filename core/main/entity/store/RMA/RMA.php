@@ -285,6 +285,7 @@ class RMA extends BaseEntityAbstract
 		DaoMap::setIntType('totalValue', 'double', '10,4');
 		DaoMap::setStringType('description', 'varchar', '255');
 		DaoMap::setOneToMany('items', 'RMAItem', 'ra_item');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		
 		parent::__loadDaoMap();
 
@@ -306,6 +307,7 @@ class RMA extends BaseEntityAbstract
 		$ra = new RMA();
 		return $ra->setCustomer($customer)
 			->setDescription(trim($description))
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 	/**
@@ -322,6 +324,7 @@ class RMA extends BaseEntityAbstract
 		$ra = $ra->setOrder($order)
 			->setCustomer($customer instanceof Customer ? $customer : $order->getCustomer())
 			->setDescription(trim($description))
+			->setStore(Core::getUser()->getStore())
 			->save();
 		$msg = 'A RMA(' . $ra->getRaNo() . ') has been created for Order(ID= ' . $order->getId() . ', OrderNo.=' . $order->getOrderNo() . '): ' . $description;
 		$order->addComment($msg, Comments::TYPE_SYSTEM)

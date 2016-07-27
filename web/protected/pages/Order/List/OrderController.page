@@ -38,13 +38,19 @@
 	                   </div>
 	               </div>
 	               <div class='row'>
-	               	  <div class="col-xs-6">
+	               	  <div class="col-xs-3">
 	                       <div class="form-group form-group-sm input-group">
-	                           <label for="type" class="input-group-addon">D.Method: </label>
-	                           <input search_field="delivery_method" class="form-control input-sm" />
+	                           <label for="type" class="input-group-addon">SKU: </label>
+	                           <input id='productId' search_field="productId" class="form-control input-sm sku" placeholder="The SKU" />
 	                       </div>
 	                   </div>
-	                   <div class="col-sm-3">
+	               	  <div class="col-xs-4">
+	                       <div class="form-group form-group-sm input-group">
+	                           <label for="type" class="input-group-addon">D.Method: </label>
+	                           <input search_field="delivery_method" class="form-control input-sm delivery_method" />
+	                       </div>
+	                   </div>
+	                   <div class="col-sm-2">
 	                       <div class="form-group form-group-sm input-group">
 	                           <label for="status" class="input-group-addon">Paid: </label>
 	                           <select search_field="ord.passPaymentCheck" class="form-control input-sm">

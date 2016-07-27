@@ -106,8 +106,10 @@ class ReportController extends BPCPageAbstract
                 $joins[] = 'inner join product_category x on (x.productId = pro.id and x.active = 1 and x.categoryId in (' . implode(',', $array) . '))';
             }
             $joins[] = 'inner join productprice pp on (pp.productId = pro.id and pp.active = 1 and pp.typeId = 1)';
-            $sql = 'select pro.id `proId`, pro.sku `proSku`, pro.name `proName`, pro.stockOnHand, 
-            		pro.totalOnHandValue, pp.price from product pro ' . implode(' ', $joins) . (count($wheres) > 0 ? (' where ' . implode(' AND ', $wheres)) : '');
+            $joins[] = 'inner join productstockinfo prosinfo on (pro.id = prosinfo.productId and prosinfo.active = 1 and prosinfo.storeId = :storeId)';
+            $params['storeId'] = Core::getUser()->getStore()->getId();
+            $sql = 'select pro.id `proId`, pro.sku `proSku`, pro.name `proName`, prosinfo.stockOnHand, 
+            		prosinfo.totalOnHandValue, pp.price from product pro ' . implode(' ', $joins) . (count($wheres) > 0 ? (' where ' . implode(' AND ', $wheres)) : '');
             $sql = $sql . ' order by pro.sku ';
             $result = Dao::getResultsNative($sql, $params, PDO::FETCH_ASSOC);
             if(count($result) === 0)
@@ -177,8 +179,8 @@ class ReportController extends BPCPageAbstract
 		            sum(if(ord.orderDate >= '" . $_6mthBefore . "', ord_item.qtyOrdered, 0)) `6month`,
 		            sum(if(ord.orderDate >= '" . $_12mthBefore . "', ord_item.qtyOrdered, 0)) `12month`
 		            from `orderitem` ord_item
-		            inner join `order` ord on (ord.type = :type and ord.active = 1 and ord.id = ord_item.orderId)
-		            where ord_item.active = 1 and ord_item.productId in (" . implode(', ', $productIds) . ")
+		            inner join `order` ord on (ord.type = :type and ord.active = 1 and ord.id = ord_item.orderId and ord.storeId = ord_item.storeId)
+		            where ord_item.active = 1 and ord_item.productId in (" . implode(', ', $productIds) . ") and ord.storeId = " . Core::getUser()->getStore()->getId() . "
 		            group by ord_item.productId";
 	    }
 	    else
@@ -188,8 +190,8 @@ class ReportController extends BPCPageAbstract
 	    	$sql = "select ord_item.productId `proId`,
 		            sum(ifnull(ord_item.qtyOrdered, 0)) `[" . $from->getDateTimeString() . " - " . $to->getDateTimeString() . "]`
 		            from `orderitem` ord_item
-		            inner join `order` ord on (ord.type = :type and ord.active = 1 and ord.id = ord_item.orderId)
-		            where ord_item.active = 1 and ord_item.productId in (" . implode(', ', $productIds) . ")
+		            inner join `order` ord on (ord.type = :type and ord.active = 1 and ord.id = ord_item.orderId and ord.storeId = ord_item.storeId)
+		            where ord_item.active = 1 and ord_item.productId in (" . implode(', ', $productIds) . ") and ord.storeId = " . Core::getUser()->getStore()->getId() . "
 		            and ord.orderDate between '" . $from . "' and '" . $to . "'
 		            group by ord_item.productId";
 	    }
@@ -222,7 +224,7 @@ class ReportController extends BPCPageAbstract
 									max(rec2.updated) `updated`
 								FROM
 									receivingitem rec2
-								WHERE rec2.active = 1
+								WHERE rec2.active = 1 and rec2.storeId = ?
 								GROUP BY
 									rec2.productId
 							) rec3
@@ -231,7 +233,7 @@ class ReportController extends BPCPageAbstract
 						AND rec1.updated = rec3.updated
 					) LB
 		WHERE LB.productId in (" . implode(', ', $productIds) . ")";
-		return Dao::getResultsNative($sql, array(), PDO::FETCH_ASSOC);
+		return Dao::getResultsNative($sql, array(Core::getUser()->getStore()->getId()), PDO::FETCH_ASSOC);
 	}
 	
 	/**

@@ -152,6 +152,14 @@ abstract class ProductToMagento
                 continue;
             $products[$product->getId()] = $product;
         }
+        //product stock info
+        $productStocks = ProductStockInfo::getAllByCriteria('updated > ?', array(trim($lastUpdatedTime)), true);
+        self::_log('GOT ' . count($productStocks) . ' Product Stock(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
+        foreach ($productStocks as $productStock) {
+            if(!($product = Product::get($productStock->getProductId())) instanceof Product || array_key_exists($productStock->getProductId(), $products))
+                continue;
+        	$products[$productStock->getProductId()] = $product;
+        }
         //Product_Category
         $productCates = Product_Category::getAllByCriteria('updated > ?', array(trim($lastUpdatedTime)));
         self::_log('GOT ' . count($productCates) . ' Product_Category(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
@@ -169,7 +177,7 @@ abstract class ProductToMagento
             $products[$productImage->getProduct()->getId()] = $productImage->getProduct();
         }
         //ProductTierPrice
-        $productTierPrices = ProductTierPrice::getAllByCriteria('updated > ?', array(trim($lastUpdatedTime)), false);
+        $productTierPrices = ProductTierPrice::getAllByCriteria('updated > ? and tierLevelId > 0', array(trim($lastUpdatedTime)), false);
         self::_log('GOT ' . count($productTierPrices) . ' ProductTierPrice(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
         foreach ($productTierPrices as $productTierPrice) {
         	if(!$productTierPrice->getProduct() instanceof Product || array_key_exists($productTierPrice->getProduct()->getId(), $products))
@@ -374,11 +382,12 @@ abstract class ProductToMagento
    	    $attributeSetDefault = 'Default';
    	    $attributeSetName = $attributeSetDefault;
    	    $enabled = true;
+   	    $totalStockOnHand = 0;
    	    $sku = $statusId = $productName = $rrpPrice = $weight = $shortDescription = $fullDecription = $feature = $supplierName = $supplierCode = $manufacturerName = $asNewFrom = $asNewTo = $specialPrice = $specialPriceFromDate = $specialPriceToDate = '';
    	    $categoryIds = array(2); //default category
    	    $groupPrices =  array();
    	    $tierPrices = array();
-   	    $tierLevels = TierLevel::getAllByCriteria('id <> 1');
+   	    $tierLevels = TierLevel::getAllByCriteria('id > 1');
    	    foreach ($tierLevels as $tierLevel)
    	    {
    	    	$keyGroup = 'group_price:' . $tierLevel->getName();
@@ -500,7 +509,7 @@ abstract class ProductToMagento
    	        	$statusId = $product->getStatus()->getName();
    	        }
    	        //ProductTierPrices
-   	        $productTierPrices = ProductTierPrice::getAllByCriteria('productId = ?', array($product->getId()));
+   	        $productTierPrices = ProductTierPrice::getAllByCriteria('productId = ? and tierLevelId > 0', array($product->getId()));
    	        $unitCost = $product->getUnitCost();
    	        // if there is no unit cost 
    	        // then skip this product
@@ -535,8 +544,24 @@ abstract class ProductToMagento
 	   	        		else
 	   	        			$tierPrices[$key] = $tierQuantity . ':' . $tierPriceValue;
 	   	        	}
-	   	        }
+   	        	}
+   	    	}
+	       	$stock1 = $stock2  = 0;
+   	        foreach($product->getStocks() as $stock)
+   	        {
+   	        	switch ($stock->getStore()->getId())
+   	        	{
+   	        		case 1:
+   	        			$stock1 = intval($stock->getStatus()->getId());
+   	        			break;
+   	        		case 2:
+   	        			$stock2 = intval($stock->getStatus()->getId());
+   	        			break;
+   	        		default:
+   	        			break;
+   	        	}
    	        }
+   	        $totalStockOnHand = $stock2 . $stock1;
    	    }
    	    $categoryIds = array_unique($categoryIds);
    		$result = array("store" => 'default',
@@ -586,7 +611,7 @@ abstract class ProductToMagento
    				"backorders" => '',
    				"use_config_backorders" => '',
    				"min_sale_qty" => '',
-   				"use_config_min_sale_qty" => '',
+   				"use_config_min_sale_qty" => $totalStockOnHand,
    				"max_sale_qty" => '',
    				"use_config_max_sale_qty" => '',
    				"all_ln_stock" => $statusId,

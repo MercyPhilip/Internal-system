@@ -89,7 +89,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 	 */
 	,_getTierSelBox: function () {
 		var tmp = {};
-		var tierIdSelected;
+		var tierIdSelected = 1; //default is General
 		tmp.me = this;
 		if(tmp.me._customer) {
 			tierIdSelected = tmp.me._customer.tier.id;

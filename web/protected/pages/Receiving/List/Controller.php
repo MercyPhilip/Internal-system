@@ -86,6 +86,8 @@ class Controller extends CRUDPageAbstract
 				$where[] = 'purchaseOrderId in ('.implode(", ", array_fill(0, count($value), "?")).')';
 				$params = array_merge($params, $value);
 			}
+			$where[] = 'storeId = ?';
+			$params[] = Core::getUser()->getStore()->getId();
 			$objects = array();
 			if(count($where) > 0)
 				$objects = ReceivingItem::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('rec_item.productId' => 'desc'), $stats);

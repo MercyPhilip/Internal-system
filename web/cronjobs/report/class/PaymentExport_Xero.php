@@ -15,7 +15,7 @@ class PaymentExport_Xero extends ExportAbstract
 			$toDate = self::$_dateRange['end'];
 		}
 		$dataType = 'created';
-		$items = Payment::getAllByCriteria($dataType . ' >= :fromDate and ' . $dataType . ' < :toDate', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate))	);
+		$items = Payment::getAllByCriteria($dataType . ' >= :fromDate and ' . $dataType . ' < :toDate and storeId = :storeId', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate), Core::getUser()->getStore()->getId()));
 		$now = new UDate();
 		$now->setTimeZone('Australia/Melbourne');
 		$return = array();
@@ -32,14 +32,14 @@ class PaymentExport_Xero extends ExportAbstract
 					,'Processed By' => $item->getCreatedBy() instanceof UserAccount ? $item->getCreatedBy()->getPerson()->getFullName() : ''
 					,'Method'=> ($item->getMethod() instanceof PaymentMethod ? trim($item->getMethod()->getName()) : '')
 					,'Amount'=> StringUtilsAbstract::getCurrency($item->getCreditNote() instanceof CreditNote ? (0 - $item->getValue()) : $item->getValue())
-					, 'Comments' => trim(implode(',', array_map(create_function('$a', 'return $a->getComments();'), Comments::getAllByCriteria('entityName = ? and entityId = ?', array(get_class($item), $item->getId())))) )
+					, 'Comments' => trim(implode(',', array_map(create_function('$a', 'return $a->getComments();'), Comments::getAllByCriteria('entityName = ? and entityId = ? and storeId = ?', array(get_class($item), $item->getId(), Core::getUser()->getStore()->getId())))) )
 			);
 		}
 		return $return;
 	}
 	protected static function _getMailTitle()
 	{
-		return 'Payments Export for Xero from last day';
+		return Core::getUser()->getStore()->getName() . ' : Payments Export for Xero from last day';
 	}
 	protected static function _getMailBody()
 	{

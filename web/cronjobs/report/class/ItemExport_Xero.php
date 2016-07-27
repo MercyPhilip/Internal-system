@@ -16,7 +16,7 @@ class ItemExport_Xero extends ExportAbstract
 		$myobCodeType = ProductCodeType::get(ProductCodeType::ID_MYOB);
 		foreach(Product::getAll(true) as $product)
 		{
-			$logs = ProductQtyLog::getAllByCriteria('productId = ? and created <= ?', array($product->getId(), trim($toDate)), true, 1, 1, array('id' => 'desc'));
+			$logs = ProductQtyLog::getAllByCriteria('productId = ? and created <= ? and storeId = ?', array($product->getId(), trim($toDate), Core::getUser()->getStore()->getId()), true, 1, 1, array('id' => 'desc'));
 			$log = count($logs) > 0 ? $logs[0] : null;
 			$myobCodes = ProductCode::getCodes($product, $myobCodeType, true, 1, 1);
 			$return[] = array(
@@ -43,7 +43,7 @@ class ItemExport_Xero extends ExportAbstract
 	}
 	protected static function _getMailTitle()
 	{
-		return 'Item List Export on ' . trim(new UDate());
+		return Core::getUser()->getStore()->getName() . ' : Item List Export on ' . trim(new UDate());
 	}
 	protected static function _getMailBody()
 	{

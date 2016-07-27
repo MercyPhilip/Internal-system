@@ -60,6 +60,25 @@ Abstract class AccessControl
 				}
 		}
 	}
+	public static function canEditPrice()
+	{
+		$storeId = Core::getUser()->getStore()->getId();
+		if ($storeId <> 1) return false;
+		$roleId = Core::getRole()->getId();
+		switch($roleId)
+		{
+			case Role::ID_STORE_MANAGER:
+			case Role::ID_PRODUCT_MANAGER:
+			case Role::ID_SYSTEM_ADMIN:
+				{
+					return true;
+				}
+			default:
+				{
+					return false;
+				}
+		}
+	}
 	public static function canEditOrder(Order $order, Role $role)
 	{
 		$canAcessOrderByStatus = in_array($order->getStatus()->getId(), self::canAccessOrderStatusIds($role));
@@ -195,6 +214,17 @@ Abstract class AccessControl
 			case Role::ID_PURCHASING:
 			case Role::ID_SALES:
 			case Role::ID_WORKSHOP:
+				{
+					return true;
+				}
+		}
+		return false;
+	}
+	public static function canAccessTierUserPage(Role $role)
+	{
+		switch($role->getId())
+		{
+			case Role::ID_TIERS:
 				{
 					return true;
 				}

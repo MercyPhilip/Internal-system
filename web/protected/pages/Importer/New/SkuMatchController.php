@@ -31,8 +31,11 @@ class SkuMatchController extends BPCPageAbstract
 	 */
 	protected function _getEndJs()
 	{
-		$importDataTypes = array('myob_ean'=> 'MYOB EAN', 'myob_upc'=> 'MYOB UPC', 'stockAdjustment' => 'Stock Adjustment', 'accounting' => 'Accounting Code for Products', 'accountingCode' => 'Accounting Code for Categories');
-
+		if (Core::getUser()->getStore()->getId() == 1)
+			$importDataTypes = array('myob_ean'=> 'MYOB EAN', 'myob_upc'=> 'MYOB UPC', 'stockAdjustment' => 'Stock Adjustment', 'accounting' => 'Accounting Code for Products', 'accountingCode' => 'Accounting Code for Categories');
+		else
+			$importDataTypes = array('stockAdjustment' => 'Stock Adjustment');
+				
 		$js = parent::_getEndJs();
 		$js .= 'pageJs';
 		$js .= ".setHTMLID('importerDiv', 'importer_div')";

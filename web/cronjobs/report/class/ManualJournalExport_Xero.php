@@ -15,11 +15,12 @@ class ManualJournalExport_Xero extends ExportAbstract
 			$toDate = self::$_dateRange['end'];
 		}
 		$dataType = 'created';
-		$items = ProductQtyLog::getAllByCriteria($dataType . ' >= :fromDate and ' . $dataType . ' < :toDate and type in (:type1, :type2)',
+		$items = ProductQtyLog::getAllByCriteria($dataType . ' >= :fromDate and ' . $dataType . ' < :toDate and type in (:type1, :type2) and storeId = :storeId',
 				array('fromDate' => trim($fromDate),
 					'toDate' => trim($toDate),
 					'type1' => ProductQtyLog::TYPE_SALES_ORDER,
-					'type2' => ProductQtyLog::TYPE_STOCK_ADJ
+					'type2' => ProductQtyLog::TYPE_STOCK_ADJ,
+					'storeId' => Core::getUser()->getStore()->getId()
 			)
 		);
 		$now = new UDate();
@@ -71,7 +72,7 @@ class ManualJournalExport_Xero extends ExportAbstract
 	}
 	protected static function _getMailTitle()
 	{
-		return 'Manual Journal Export for Xero from last day';
+		return Core::getUser()->getStore()->getName() . ' : Manual Journal Export for Xero from last day';
 	}
 	protected static function _getMailBody()
 	{

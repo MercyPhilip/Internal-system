@@ -116,17 +116,17 @@ class DetailsController extends DetailsPageAbstract
 				$array['lastSupplierPrice'] = 0;
 				$array['minSupplierPrice'] = 0;
 
-				$minProductPriceProduct = PurchaseOrderItem::getAllByCriteria('productId = ?', array($product->getId()), true, 1, 1, array('unitPrice'=> 'asc'));
+				$minProductPriceProduct = PurchaseOrderItem::getAllByCriteria('productId = ? and storeId = ?', array($product->getId(), Core::getUser()->getStore()->getId()), true, 1, 1, array('unitPrice'=> 'asc'));
 				$minProductPrice = sizeof($minProductPriceProduct) ? $minProductPriceProduct[0]->getUnitPrice() : 0;
 				$minProductPriceId = sizeof($minProductPriceProduct) ? $minProductPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
 				PurchaseOrderItem::getQuery()->eagerLoad('PurchaseOrderItem.purchaseOrder');
-				$lastSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ?', array($product->getId(), $supplierID), true, 1, 1, array('po_item.id'=> 'desc'));
+				$lastSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ? and po_item.storeid = ?', array($product->getId(), $supplierID, Core::getUser()->getStore()->getId()), true, 1, 1, array('po_item.id'=> 'desc'));
 				$lastSupplierPrice = sizeof($lastSupplierPriceProduct) ? $lastSupplierPriceProduct[0]->getUnitPrice() : 0;
 				$lastSupplierPriceId = sizeof($lastSupplierPriceProduct) ? $lastSupplierPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
 				PurchaseOrderItem::getQuery()->eagerLoad('PurchaseOrderItem.purchaseOrder');
-				$minSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ?', array($product->getId(), $supplierID), true, 1, 1, array('po_item.unitPrice'=> 'asc'));
+				$minSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ? and po_item.storeid = ?', array($product->getId(), $supplierID, Core::getUser()->getStore()->getId()), true, 1, 1, array('po_item.unitPrice'=> 'asc'));
 				$minSupplierPrice = sizeof($minSupplierPriceProduct) ? $minSupplierPriceProduct[0]->getUnitPrice() : 0;
 				$minSupplierPriceId = sizeof($minSupplierPriceProduct) ? $minSupplierPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
@@ -176,7 +176,7 @@ class DetailsController extends DetailsPageAbstract
 			$handlingCost = trim($param->CallbackParameter->handlingCost);
 			$comment = trim($param->CallbackParameter->comments);
 			$status = trim($param->CallbackParameter->status);
-
+			$eta =trim($param->CallbackParameter->ETA);
 			$purchaseOrderTotalAmount = trim($param->CallbackParameter->totalAmount);
 			$purchaseOrderTotalPaid = trim($param->CallbackParameter->totalPaid);
 			$purchaseOrder->setTotalAmount($purchaseOrderTotalAmount)
@@ -187,6 +187,7 @@ class DetailsController extends DetailsPageAbstract
 				->setshippingCost($shippingCost)
 				->sethandlingCost($handlingCost)
 				->setStatus($status)
+				->setEta($eta)
 				->save();
 			$purchaseOrder->addComment($comment, Comments::TYPE_PURCHASING);
 			foreach ($param->CallbackParameter->items as $item) {

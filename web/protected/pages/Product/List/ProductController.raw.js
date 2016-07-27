@@ -11,6 +11,9 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	,_showRightPanel: false
 	,_nextPageColSpan: 9
 	,_autoLoading: false
+	,_readOnlyMode: false
+	,_storeId: 1
+	,_roleId: 0
 	,_postIndex: null // for new rule post, start from 0
 	,_selected: null // for new rule post, selected products
 	,_priceMatchRule: null // for new rule post, the rule itself
@@ -883,20 +886,52 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		if(row.prices) {
 			row.prices.each(function(price) {
 				if(price.type && parseInt(price.type.id) === 1) {
-					tmp.price = price.price;
+					tmp.price = Number(price.price);
 					tmp.updatedDate = price.updated;
 				}
 				else if(price.type && (parseInt(price.type.id) === 2))
 				{
-					tmp.specilaPrice = price.price;
+					tmp.specilaPrice = Number(price.price);
 				}
 				else if(price.type && (parseInt(price.type.id) === 7))
 				{
-					tmp.srp = price.price;
+					tmp.srp = Number(price.price);
 				}
 			});
 		}
-
+		tiers = row.tierprices;
+		tmp.tierStrings = [];
+		if (tiers && tiers.length > 0)
+		{
+			tiers.each(function(tier) {
+				warning = false;
+				if (Number(tier.unitCost) > 0)
+				{
+					if (tier.tierPriceType.id == 1)
+					{
+						tierPrice = Number((tier.unitCost * (tier.value / 100) + tier.unitCost) * 1.1).toFixed(2);
+					}
+					else
+					{
+						tierPrice = Number(tier.value).toFixed(2);
+					}
+					if (tmp.srp && tierPrice > tmp.srp)
+						warning = true;
+					if (tmp.price && tierPrice > tmp.price)
+						warning = true;
+				}
+				else
+				{
+					tierPrice = 0;
+				}
+				tmp.tierStrings.push('<div ' + (warning? 'style="color : red;"' : '') + '>' + (tierPrice > 0 ? tmp.me.getCurrency(tierPrice) : 'N/A') + (tier.quantity > 0 ? ': <abbr title="Quantity" >' +  tier.quantity  + ' </abbr>' : '</div>'));
+			})
+		}
+		else
+		{
+			tmp.tierStrings.push('N/A');
+		}
+		buyinPrice = tmp.tierStrings.join('');
 		tmp.row = new Element('tr', {'class': 'visible-xs visible-md visible-lg visible-sm ' + (tmp.isTitle === true ? '' : 'product_item ' + (parseInt(row.stockOnHand,10) <= parseInt(row.stockMinLevel,10) ? 'danger': (parseInt(row.stockOnHand,10) <= parseInt(row.stockReorderLevel,10) ? 'warning' : '' ))), 'product_id' : row.id})
 			.store('data', row)
 
@@ -960,7 +995,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					})
 						.insert({'bottom': new Element('div', {'class': 'col-sm-9'}).update(tmp.srp === '' ? row.name: '<abbr title="SRP: '  + tmp.me.getCurrency(tmp.srp) + '">' + row.name + '</abbr>') }).setStyle(tmp.srp === '' ? ';' : 'color: green;')
 	
-						.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(new Element('input', {'type': 'checkbox', 'checked': row.isKit})
+						.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.kitcbx = new Element('input', {'type': 'checkbox', 'checked': row.isKit})
 							.observe('click', function(event) {
 								tmp.btn = this;
 								tmp.checked = $(tmp.btn).checked;
@@ -974,28 +1009,28 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				)
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'hidden-xs hide-when-info hidden-sm row'}).addClassName('col-xs-2').setStyle(tmp.me._showRightPanel ? 'display: none' : '')
-				.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.isTitle === true ? 'Price' : new Element('input', {'class': "click-to-edit price-input", 'value': tmp.me.getCurrency(tmp.price), 'product-id': row.id}).setStyle('width: 80%') ) })
-				.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.isTitle === true ? 'Special Price' : new Element('input', {'class': "click-to-edit price-input", 'value': tmp.me.getCurrency(tmp.specilaPrice), 'product-id': row.id, 'isSpecial' : '1'}).setStyle('width: 80%') ) })
+				.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.isTitle === true ? 'Price' : tmp.txtprice = new Element('input', {'class': "click-to-edit price-input", 'value': tmp.me.getCurrency(tmp.price), 'product-id': row.id}).setStyle('width: 80%') ) })
+				.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.isTitle === true ? 'Special Price' : tmp.txtsp = new Element('input', {'class': "click-to-edit price-input", 'value': tmp.me.getCurrency(tmp.specilaPrice), 'product-id': row.id, 'isSpecial' : '1'}).setStyle('width: 80%') ) })
 			})
 			.insert({'bottom': tmp.match = new Element(tmp.tag, {'class': 'match'+ row.id +' hide-when-info hidden-sm', 'style':'width:5%' }).addClassName('col-xs-1').update(
 					
 				)
 				.insert({'bottom': new Element('div', {'class': 'col-sm-12'}).update(tmp.isTitle === true ? 'Match' : new Element('span').update((row.priceMatchRule && row.priceMatchRule.priceMatchCompany) ? '<abbr title="Updated: '  + tmp.updatedDate + '">' + row.priceMatchRule.priceMatchCompany.companyName + '</abbr>' : '').setStyle('width: 100%') ) })
 			 })
-			.insert({'bottom': new Element(tmp.tag, {'class': 'ManFeed hide-when-info hidden-sm', 'style':'width:5%'}).addClassName('col-xs-1')
-				.insert({'bottom': new Element('div', {'class': 'col-xs-12'})
-				.insert({'bottom': tmp.isTitle === true ? 'ManFeed?' : new Element('input', {'type': 'checkbox', 'checked': row.manualDatafeed})
-					.observe('click', function(event) {
-						tmp.btn = this;
-						tmp.checked = $(tmp.btn).checked;
-						if(confirm(tmp.checked === true ? 'You are about to manual datafeed this product.\n Continue?' : 'You are about to NOT manfual datafeed this product.\n Continue?')) {
-							tmp.me.toggleManualFeed(tmp.checked, row);
-						} else $(tmp.btn).checked = !tmp.checked;
-					})
-				})
-			})
+//			.insert({'bottom': new Element(tmp.tag, {'class': 'ManFeed hide-when-info hidden-sm', 'style':'width:5%'}).addClassName('col-xs-1')
+//				.insert({'bottom': new Element('div', {'class': 'col-xs-12'})
+//				.insert({'bottom': tmp.isTitle === true ? 'ManFeed?' : tmp.mancbx = new Element('input', {'type': 'checkbox', 'checked': row.manualDatafeed})
+//					.observe('click', function(event) {
+//						tmp.btn = this;
+//						tmp.checked = $(tmp.btn).checked;
+//						if(confirm(tmp.checked === true ? 'You are about to manual datafeed this product.\n Continue?' : 'You are about to NOT manfual datafeed this product.\n Continue?')) {
+//							tmp.me.toggleManualFeed(tmp.checked, row);
+//						} else $(tmp.btn).checked = !tmp.checked;
+//						})
+//					})
+//				})
 	
-			 })			
+//			 })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'locations hide-when-info hidden-sm', 'style' : 'width:8%'}).addClassName('col-xs-1').update(
 					row.locations ? tmp.me._getLocations(row.locations, isTitle) : ''
 			) })
@@ -1004,7 +1039,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.insert({'bottom': (
 					new Element('div', {'class': 'row'})
 						.insert({'bottom': new Element('div', {'class': 'col-sm-3 text-right'})
-							.insert({'bottom': tmp.isTitle === true ? 'SOW?' : new Element('input', {'type': 'checkbox', 'checked': row.sellOnWeb})
+							.insert({'bottom': tmp.isTitle === true ? 'SOW?' : tmp.sowcbx = new Element('input', {'type': 'checkbox', 'checked': row.sellOnWeb})
 								.observe('click', function(event) {
 									tmp.btn = this;
 									tmp.checked = $(tmp.btn).checked;
@@ -1029,22 +1064,33 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					tmp.isTitle === true ?
 							new Element('div', {'class': 'row'})
 								.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Stock on Hand'}).update('SH') })
-								.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Average Cost'}).update('Cost') })
 								.insert({'bottom': new Element('div', {'class': 'col-xs-4 hide-when-info', 'title': 'Stock On PO'}).update('SP') })
+								.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Average Cost'}).update('Cost') })
+								//.insert({'bottom': new Element('div', {'class': 'col-xs-5', 'title': 'Buyin price from Store1'}).update(tmp.me._storeId !=1 ? 'Buyin' : '') })
 							:
 							new Element('div', {'class': 'row'})
 								.update(new Element('a', {'href': '/productqtylog.html?productid=' + row.id, 'target': '_BLANK'})
 									.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Stock on Hand'}).update(row.stockOnHand) })
-									.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Average Cost'}).update((row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : 'N/A') })
 									.insert({'bottom': new Element('div', {'class': 'col-xs-4 hide-when-info', 'title': 'Stock On PO'}).update(row.stockOnPO) })
+									.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Average Cost'}).update((row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : 'N/A') })
+									//.insert({'bottom': new Element('div', {'class': 'col-xs-5', 'title': 'Buyin price from Store1'}).update(tmp.me._storeId !=1 ? buyinPrice : '') })
 								)
+					)
+			})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'buyinprice hide-when-info', 'style' : 'width:5%;' }).addClassName('col-xs-1').setStyle(tmp.me._storeId === 1 ? 'display: none;' : '').update(
+					tmp.isTitle === true ? 
+					new Element('div', {'class': 'row'})
+						.insert({'bottom': new Element('div', {'class': 'col-xs-12', 'title': 'Buyin price from Store1'}).update('Buyin') })
+					:
+					new Element('div', {'class': 'row'})
+						.insert({'bottom': new Element('div', {'class': 'col-xs-12 ', 'title': 'Buyin price from Store1'}).update(buyinPrice) })
 					)
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'product_active hide-when-info hidden-sm ', 'style' : 'width:4%'}).addClassName('col-xs-1')
 				.insert({'bottom': (
 					new Element('div', {'class': 'row'})
 						.insert({'bottom': new Element('div', {'class': 'col-xs-2 text-right'})
-							.insert({'bottom': tmp.isTitle === true ? 'Act?' : new Element('input', {'type': 'checkbox', 'checked': row.active})
+							.insert({'bottom': tmp.isTitle === true ? 'Act?' : tmp.actcbx = new Element('input', {'type': 'checkbox', 'checked': row.active})
 								.observe('click', function(event) {
 									tmp.btn = this;
 									tmp.checked = $(tmp.btn).checked;
@@ -1093,7 +1139,27 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				// do nothing
 			}
 		}
-
+		if (tmp.me._readOnlyMode)
+		{
+			jQuery(tmp.kitcbx).prop("disabled", true);
+			jQuery(tmp.txtprice).prop("disabled", true);
+			jQuery(tmp.txtsp).prop("disabled", true);
+			jQuery(tmp.mancbx).prop("disabled", true);
+			jQuery(tmp.sowcbx).prop("disabled", true);
+			jQuery(tmp.actcbx).prop("disabled", true);
+		}
 		return tmp.row;
+	}
+	,readOnlyMode: function(mode, storeId, roleId){
+		var tmp = {};
+		tmp.me = this;
+		tmp.me._readOnlyMode = !mode;
+		tmp.me._storeId = storeId;
+		tmp.me._roleId = roleId;
+		if (tmp.me._readOnlyMode || tmp.me._storeId !== 1)
+		{
+			jQuery('#newProductBtn').hide();
+			jQuery('#newPriceMatchRuleBtn').hide();
+		}
 	}
 });

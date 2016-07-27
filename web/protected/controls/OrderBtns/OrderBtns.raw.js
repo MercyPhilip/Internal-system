@@ -110,6 +110,12 @@ OrderBtnsJs.prototype = {
 				})
 			})
 			.insert({'bottom': new Element('div')
+				.insert({'bottom': tmp.me._getFormGroup('Reply to address (default is sales@budgetpc.com.au):',
+						new Element('input', {'value': 'sales@budgetpc.com.au', 'confirm-email': 'replyEmailAddress', 'required': true, 'placeholder': 'The email address that you want the customer to reply to.'})
+					)
+				})
+			})
+			.insert({'bottom': new Element('div')
 				.insert({'bottom': new Element('em')
 					.insert({'bottom': new Element('small').update('The above email will be used to send the email to. WIll NOT update the customer\'s email with this.') })
 				})

@@ -65,8 +65,8 @@ class ReceivingController extends BPCPageAbstract
 			if($searchTxt === '')
 				$results['items'] = '';
 			else {
-				PurchaseOrder::getQuery()->eagerLoad('PurchaseOrder.supplier');
-				$pos = PurchaseOrder::getAllByCriteria('(po.purchaseOrderNo like :searchTxt OR po.supplierRefNo like :searchTxt OR po_sup.name like :suplierName) AND (status = :statusReceiving OR status = :statusOrdered)', array('searchTxt' => $searchTxt . '%', 'suplierName' => '%' . $searchTxt . '%', 'statusReceiving' => PurchaseOrder::STATUS_RECEIVING, 'statusOrdered' => PurchaseOrder::STATUS_ORDERED), true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('id'=> 'desc'));
+				PurchaseOrder::getQuery()->eagerLoad('PurchaseOrder.supplier', 'inner join', 'po_sup', 'po.supplierId = po_sup.id');
+				$pos = PurchaseOrder::getAllByCriteria('(po.purchaseOrderNo like :searchTxt OR po.supplierRefNo like :searchTxt OR po_sup.name like :suplierName) AND (status = :statusReceiving OR status = :statusOrdered) AND po.storeId = :storeId', array('searchTxt' => $searchTxt . '%', 'suplierName' => '%' . $searchTxt . '%', 'statusReceiving' => PurchaseOrder::STATUS_RECEIVING, 'statusOrdered' => PurchaseOrder::STATUS_ORDERED, 'storeId' => Core::getUser()->getStore()->getId()), true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('id'=> 'desc'));
 				foreach($pos as $po)
 				{
 					if(!$po instanceof PurchaseOrder)
@@ -96,14 +96,14 @@ class ReceivingController extends BPCPageAbstract
 		$array['totalReceivedValue'] = $po->getTotalRecievedValue();
 
 		$array['purchaseOrderItem'] = array();
-		foreach (PurchaseOrderItem::getAllByCriteria('po_item.purchaseOrderId = :purchaseOrderId', array('purchaseOrderId'=> $po->getId() )) as $purchaseOrderItem)
+		foreach (PurchaseOrderItem::getAllByCriteria('po_item.purchaseOrderId = :purchaseOrderId and po_item.storeId = :storeId', array('purchaseOrderId'=> $po->getId(), 'storeId' => Core::getUser()->getStore()->getId() )) as $purchaseOrderItem)
 		{
 			$product = $purchaseOrderItem->getProduct();
 			$EANcodes = ProductCode::getAllByCriteria('pro_code.productId = :productId and pro_code.typeId = :typeId', array('productId'=> $product->getId(), 'typeId'=> ProductCodeType::ID_EAN), true, 1, 1);
 			$EANcodes = count($EANcodes) ? $EANcodes[0]->getCode() : '';
 			$UPCcodes = ProductCode::getAllByCriteria('pro_code.productId = :productId and pro_code.typeId = :typeId', array('productId'=> $product->getId(), 'typeId'=> ProductCodeType::ID_UPC), true, 1, 1);
 			$UPCcodes = count($UPCcodes) ? $UPCcodes[0]->getCode() : '';
-			$warehouseLocations = PreferredLocation::getAllByCriteria('productId = :productId and typeId = :typeId', array('productId'=> $product->getId(), 'typeId'=> PreferredLocationType::ID_WAREHOUSE), true, 1, 1);
+			$warehouseLocations = PreferredLocation::getAllByCriteria('productId = :productId and typeId = :typeId and storeId = :storeId', array('productId'=> $product->getId(), 'typeId'=> PreferredLocationType::ID_WAREHOUSE, 'storeId' => Core::getUser()->getStore()->getId()), true, 1, 1);
 			$warehouseLocation = (count($warehouseLocations) > 0 && $warehouseLocations[0]->getLocation() instanceof Location) ? $warehouseLocations[0]->getLocation()->getName() : '';
 			$productArray = $product->getJson();
 			$productArray['codes'] = array('EAN'=>$EANcodes, 'UPC'=>$UPCcodes);
@@ -134,7 +134,7 @@ class ReceivingController extends BPCPageAbstract
 			$product = Product::get(trim($param->CallbackParameter->product->id));
 			if(!$product instanceof Product)
 				throw new Exception('Invalid Product passed in!');
-			$results['count'] = PurchaseOrderItem::countByCriteria('purchaseOrderId = :purchaseOrderId and productId = :productId', array('purchaseOrderId' => $purchaseOrder->getId(), 'productId' => $product->getId()));
+			$results['count'] = PurchaseOrderItem::countByCriteria('purchaseOrderId = :purchaseOrderId and productId = :productId and storeId = :storeId', array('purchaseOrderId' => $purchaseOrder->getId(), 'productId' => $product->getId(), 'storeId' => Core::getUser()->getStore()->getId()));
 		}
 		catch(Exception $ex)
 		{
@@ -246,7 +246,7 @@ class ReceivingController extends BPCPageAbstract
 					}
 				}
 				if(isset($item->product->warehouseLocation) && ($locationName = trim($item->product->warehouseLocation)) !== '') {
-					$locs = Location::getAllByCriteria('name = ?', array($locationName), true, 1, 1);
+					$locs = Location::getAllByCriteria('name = ? and storeId = ?', array($locationName, Core::getUser()->getStore()->getId()), true, 1, 1);
 					$loc = (count($locs) > 0 ? $locs[0] : Location::create($locationName, $locationName));
 					$product->addLocation(PreferredLocationType::get(PreferredLocationType::ID_WAREHOUSE), $loc);
 				}
@@ -262,13 +262,14 @@ class ReceivingController extends BPCPageAbstract
 					$comments = trim($serial->comments);
 					ReceivingItem::create($purchaseOrder, $product, $unitPrice, $qty, $serialNo, $invoiceNo, $comments);
 				}
-				OrderItem::getQuery()->eagerLoad('OrderItem.order', 'inner join', 'ord', 'ord.id = ord_item.orderId and ord.active = 1 and ord.type = :ordType and ord_item.productId = :productId and ord.statusId in ( :statusId1, :statusId2, :statusId3)');
-				$orderItems = OrderItem::getAllByCriteria('ord_item.active = 1', array(
+				OrderItem::getQuery()->eagerLoad('OrderItem.order', 'inner join', 'ord', 'ord.id = ord_item.orderId and ord.active = 1 and ord.type = :ordType and ord_item.productId = :productId and ord.statusId in ( :statusId1, :statusId2, :statusId3) and ord.storeId = :storeId');
+				$orderItems = OrderItem::getAllByCriteria('ord_item.active = 1 and ord.storeId = ord_item.storeId', array(
 						'ordType' => Order::TYPE_INVOICE
 						,'productId' => $product->getId()
 						,'statusId1' => OrderStatus::ID_INSUFFICIENT_STOCK
 						,'statusId2' => OrderStatus::ID_ETA
 						,'statusId3' => OrderStatus::ID_STOCK_CHECKED_BY_PURCHASING
+						,'storeId' => Core::getUser()->getStore()->getId()
 				));
 				if(count($orderItems) > 0) {
 					$orders = array();

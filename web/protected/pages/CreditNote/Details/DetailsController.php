@@ -91,7 +91,7 @@ class DetailsController extends BPCPageAbstract
 		{
 			$items = array();
 			$searchTxt = isset($param->CallbackParameter->searchTxt) ? trim($param->CallbackParameter->searchTxt) : '';
-			foreach(Customer::getAllByCriteria('name like :searchTxt or contactNo = :searchTxtExact or 	email = :searchTxtExact', array('searchTxt' => $searchTxt . '%', 'searchTxtExact' => $searchTxt)) as $customer)
+			foreach(Customer::getAllByCriteria('( name like :searchTxt or contactNo = :searchTxtExact or email = :searchTxtExact ) and storeId = :storeId ', array('searchTxt' => '%' . $searchTxt . '%', 'searchTxtExact' => $searchTxt, 'storeId' => Core::getUser()->getStore()->getId())) as $customer)
 			{
 				$items[] = $customer->getJson();
 			}
@@ -145,17 +145,17 @@ class DetailsController extends BPCPageAbstract
 				$array['lastSupplierPrice'] = 0;
 				$array['minSupplierPrice'] = 0;
 
-				$minProductPriceProduct = PurchaseOrderItem::getAllByCriteria('productId = ?', array($product->getId()), true, 1, 1, array('unitPrice'=> 'asc'));
+				$minProductPriceProduct = PurchaseOrderItem::getAllByCriteria('productId = ? and storeId = ?', array($product->getId(), Core::getUser()->getStore()->getId()), true, 1, 1, array('unitPrice'=> 'asc'));
 				$minProductPrice = sizeof($minProductPriceProduct) ? $minProductPriceProduct[0]->getUnitPrice() : 0;
 				$minProductPriceId = sizeof($minProductPriceProduct) ? $minProductPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
 				PurchaseOrderItem::getQuery()->eagerLoad('PurchaseOrderItem.purchaseOrder');
-				$lastSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ?', array($product->getId(), $supplierID), true, 1, 1, array('po_item.id'=> 'desc'));
+				$lastSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ? and po_item.storeId = ?', array($product->getId(), $supplierID, Core::getUser()->getStore()->getId()), true, 1, 1, array('po_item.id'=> 'desc'));
 				$lastSupplierPrice = sizeof($lastSupplierPriceProduct) ? $lastSupplierPriceProduct[0]->getUnitPrice() : 0;
 				$lastSupplierPriceId = sizeof($lastSupplierPriceProduct) ? $lastSupplierPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
 				PurchaseOrderItem::getQuery()->eagerLoad('PurchaseOrderItem.purchaseOrder');
-				$minSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ?', array($product->getId(), $supplierID), true, 1, 1, array('po_item.unitPrice'=> 'asc'));
+				$minSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ? and po_item.storeId = ?', array($product->getId(), $supplierID, Core::getUser()->getStore()->getId()), true, 1, 1, array('po_item.unitPrice'=> 'asc'));
 				$minSupplierPrice = sizeof($minSupplierPriceProduct) ? $minSupplierPriceProduct[0]->getUnitPrice() : 0;
 				$minSupplierPriceId = sizeof($minSupplierPriceProduct) ? $minSupplierPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
@@ -229,9 +229,9 @@ class DetailsController extends BPCPageAbstract
 				$creditNote->addComment($comments, Comments::TYPE_SALES);
 			}
 			$totalPaymentDue = $creditNote->getShippingValue();
-			$hasShipped = ($creditNote->getOrder() instanceof Order && (Shippment::countByCriteria('orderId = ?', array($creditNote->getOrder()->getId())) > 0));
+			$hasShipped = ($creditNote->getOrder() instanceof Order && (Shippment::countByCriteria('orderId = ? and storeId = ?', array($creditNote->getOrder()->getId(), Core::getUser()->getStore()->getId())) > 0));
 			$creditNoteItemsMap = array();
-			
+				
 			foreach ($param->CallbackParameter->items as $item) {
 				if(!($product = Product::get(trim($item->product->id))) instanceof Product)
 					throw new Exception('Invalid Product passed in!');
@@ -306,13 +306,13 @@ class DetailsController extends BPCPageAbstract
 					}
 				} else {
 					//revert all the shipped stock
-					foreach(OrderItem::getAllByCriteria('ord_item.orderId = ? and ord_item.isShipped = 1', array($creditNote->getOrder()->getId())) as $orderItem) {
+					foreach(OrderItem::getAllByCriteria('ord_item.orderId = ? and ord_item.isShipped = 1 and ord_item.storeId = ?', array($creditNote->getOrder()->getId(), Core::getUser()->getStore()->getId())) as $orderItem) {
 						$orderItem
 							->setIsShipped(false)
 							->save();
 					}
 					//revert all the picked stock
-					foreach(OrderItem::getAllByCriteria('ord_item.orderId = ? and ord_item.isPicked = 1', array($creditNote->getOrder()->getId())) as $orderItem) {
+					foreach(OrderItem::getAllByCriteria('ord_item.orderId = ? and ord_item.isPicked = 1 and ord_item.storeId = ?', array($creditNote->getOrder()->getId(), Core::getUser()->getStore()->getId())) as $orderItem) {
 						$orderItem
 							->setIsPicked(false)
 							->save();
@@ -335,6 +335,7 @@ class DetailsController extends BPCPageAbstract
 			}
 			$creditNote->setTotalValue($totalPaymentDue)
 				->setApplyTo($applyTo)
+				->setStore(Core::getUser()->getStore())
 				->save();
 
 			//if need to check half credited orders

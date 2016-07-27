@@ -14,6 +14,8 @@ class UserAccount extends BaseEntityAbstract
      * @var int
      */
     const ID_SYSTEM_ACCOUNT = 10;
+    const ID_SYSTEM_ACCOUNT_STORE1 = 11;
+    const ID_SYSTEM_ACCOUNT_STORE2 = 12;
     /**
      * The username
      *
@@ -203,6 +205,7 @@ class UserAccount extends BaseEntityAbstract
         DaoMap::setStringType('password', 'varchar', 40);
         DaoMap::setManyToOne("person", "Person", "p");
         DaoMap::setManyToMany("roles", "Role", DaoMap::LEFT_SIDE, "r", false);
+        DaoMap::setManyToOne('store', 'Store', 'si');
         parent::__loadDaoMap();
 
         DaoMap::createUniqueIndex('username');

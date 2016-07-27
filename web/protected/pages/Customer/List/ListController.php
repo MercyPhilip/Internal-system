@@ -29,7 +29,7 @@ class ListController extends CRUDPageAbstract
 	 */
 	protected function _getEndJs()
 	{
-		foreach (TierLevel::getAll() as $tier)
+		foreach (TierLevel::getAllByCriteria('id > 0') as $tier)
 			$tiers[] = $tier->getJson();
 		$js = parent::_getEndJs();
 		$js .= "pageJs._bindSearchKey()";
@@ -63,7 +63,7 @@ class ListController extends CRUDPageAbstract
             }
             
             $serachCriteria = isset($param->CallbackParameter->searchCriteria) ? json_decode(json_encode($param->CallbackParameter->searchCriteria), true) : array();
-             
+
             $where = array(1);
             $params = array();
             
@@ -78,7 +78,7 @@ class ListController extends CRUDPageAbstract
             		case 'cust.name': 
 					{
 						$where[] = 'cust.name like ?';
-						$params[] = '%' . $value . '%';
+            			$params[] = '%' . $value . '%';
 						break;
 					}
 					case 'cust.email': 
@@ -97,14 +97,16 @@ class ListController extends CRUDPageAbstract
 					{
 						if (count($value) > 0) {
 							$where[] = 'cust.tierId in (' . implode(',', $value) . ')';
-						}
+            	}
 						break;
 					}
 				}
             }
 
             $stats = array();
-
+            $where[] = 'cust.storeId = ?';
+            $params[] = Core::getUser()->getStore()->getId();
+            
             $objects = $class::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('cust.name' => 'asc'), $stats);
 
             $results['pageStats'] = $stats;

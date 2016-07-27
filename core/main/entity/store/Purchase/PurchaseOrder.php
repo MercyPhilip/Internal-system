@@ -275,7 +275,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 *
 	 * @param string $value The shippingCost
 	 *
-	 * @return string
+	 * @return PurchaseOrder
 	 */
 	public function setShippingCost($value)
 	{
@@ -296,7 +296,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 *
 	 * @param string $value The handlingCost
 	 *
-	 * @return string
+	 * @return PurchaseOrder
 	 */
 	public function setHandlingCost($value)
 	{
@@ -571,6 +571,7 @@ class PurchaseOrder extends BaseEntityAbstract
 		DaoMap::setIntType('totalAmount', 'Double', '10,4');
 		DaoMap::setIntType('totalPaid', 'Double', '10,4');
 		DaoMap::setOneToMany('items', 'PurchaseOrderItem', 'po_item');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createUniqueIndex('purchaseOrderNo');
@@ -614,7 +615,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function getPurchaseOrderItems()
 	{
-		return PurchaseOrderItem::getAllByCriteria('po_item.purchaseOrderId = ?', array($this->getId()));
+		return PurchaseOrderItem::getAllByCriteria('po_item.purchaseOrderId = ? and po_item.storeId = ?', array($this->getId(), Core::getUser()->getStore()->getId()));
 	}
 	/**
 	 * creating a PO
@@ -640,6 +641,7 @@ class PurchaseOrder extends BaseEntityAbstract
 			->sethandlingCost($handlingCost)
 			->setIsCredit($isCredit)
 			->setFromPO($fromPO)
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 	/**

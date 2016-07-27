@@ -18,13 +18,15 @@ CREATE TABLE `tierlevel` (
 
 SET SESSION sql_mode='NO_AUTO_VALUE_ON_ZERO';
 insert into tierlevel (`id`, `name`, `magId`, `active`, `created`, `createdById`, `updated`, `updatedById` ) values
-    ('0', 'NOT LOGGED IN', 0, 1, NOW(), 10, NOW(), 10);
+    ('0', 'Tier0', null, 1, NOW(), 10, NOW(), 10);
 insert into tierlevel (`id`, `name`, `magId`, `active`, `created`, `createdById`, `updated`, `updatedById` ) values
     ('1', 'General', 1, 1, NOW(), 10, NOW(), 10);
 insert into tierlevel (`id`, `name`, `magId`, `active`, `created`, `createdById`, `updated`, `updatedById` ) values
     ('2', 'Tier1', 2, 1, NOW(), 10, NOW(), 10);
 insert into tierlevel (`id`, `name`, `magId`, `active`, `created`, `createdById`, `updated`, `updatedById` ) values
     ('3', 'Tier2', 3, 1, NOW(), 10, NOW(), 10);
+insert into tierlevel (`id`, `name`, `magId`, `active`, `created`, `createdById`, `updated`, `updatedById` ) values
+    ('4', 'Tier3', 4, 1, NOW(), 10, NOW(), 10);
     
 ALTER TABLE `customer` ADD `tierId` int(10) NOT NULL DEFAULT '1' AFTER `terms`, ADD INDEX (`tierId`) ;
 
@@ -89,10 +91,8 @@ CREATE TABLE `tierpricetype` (
 insert into tierpricetype (`name`, `description`,`active`, `created`, `createdById`, `updated`, `updatedById` ) values
     ('Percentage(%)', 'The price will be UnitCost*Percentage*1.1', 1, NOW(), 10, NOW(), 10);
 insert into tierpricetype (`name`, `description`,`active`, `created`, `createdById`, `updated`, `updatedById` ) values
-    ('Price', 'This is be the retail price', 1, NOW(), 10, NOW(), 10);
+    ('Price(Inc)', 'This is be the retail price', 1, NOW(), 10, NOW(), 10);
 
-insert into tierlevel (`id`, `name`, `magId`, `active`, `created`, `createdById`, `updated`, `updatedById` ) values
-    ('3', 'Tier2', 3, 1, NOW(), 10, NOW(), 10);
     
 DROP TABLE IF EXISTS `producttierprice`;
 CREATE TABLE `producttierprice` (

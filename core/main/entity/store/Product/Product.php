@@ -160,6 +160,13 @@ class Product extends InfoEntityAbstract
 	 */
 	protected $codes = array();
 	/**
+	 * The stock info of the product
+	 * 
+	 * @var ProductStockInfo array
+	 */
+	protected $stocks = array();
+	protected $stock = null;
+	/**
 	 * the asset number for accounting purpose
 	 * @var string
 	 */
@@ -242,6 +249,45 @@ class Product extends InfoEntityAbstract
 	    $this->codes = $value;
 	    return $this;
 	}
+	/**
+	 * Getter for codes
+	 *
+	 * @return array()
+	 */
+	public function getStocks()
+	{
+		if (count($this->stocks) === 0)
+			$this->loadOneToMany('stocks');
+		return $this->stocks;
+	}
+	public function getStock()
+	{
+ 		if (!$this->stock instanceof ProductStockInfo)
+	 	{
+	 		$stocks = ProductStockInfo::getAllByCriteria('productId = ? and storeId = ?', array($this->getId(), Core::getUser()->getStore()->getId()));
+	 		//file_put_contents('E:\tmp\web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ': count==' . Core::getUser()->getStore()->getId() . PHP_EOL, FILE_APPEND | LOCK_EX);
+	 		$this->stock = count($stocks) > 0 ? $stocks[0] : null;
+	 	}
+		return $this->stock;
+	}
+	public function setStock()
+	{
+		$this->stock = $value;
+		return $this;
+	}
+	/**
+	 * Setter for codes
+	 *
+	 * @param array $value The codes
+	 *
+	 * @return ProductStockInfo
+	 */
+	public function setStocks($value)
+	{
+		$this->stocks = $value;
+		return $this;
+	}
+	
 	/**
 	 * Getter for supplierCodes
 	 *
@@ -401,7 +447,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockOnOrder()
 	{
-	    return $this->stockOnOrder;
+	    return $this->getStock()->getStockOnOrder();
 	}
 	/**
 	 * Setter for stockOnOrder
@@ -412,7 +458,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockOnOrder($value)
 	{
-	    $this->stockOnOrder = $value;
+	   $this->getStock()->setStockOnOrder($value)->save();
 	    return $this;
 	}
 	/**
@@ -422,7 +468,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockOnHand()
 	{
-	    return $this->stockOnHand;
+	    return $this->getStock()->getStockOnHand();
 	}
 	/**
 	 * Setter for stockOnHand
@@ -433,7 +479,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockOnHand($value)
 	{
-	    $this->stockOnHand = $value;
+	     $this->getStock()->setStockOnHand($value)->save();
 	    return $this;
 	}
 	/**
@@ -443,7 +489,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockOnPO()
 	{
-	    return $this->stockOnPO;
+	    return  $this->getStock()->getStockOnPO();
 	}
 	/**
 	 * Setter for stockOnPO
@@ -454,7 +500,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockOnPO($value)
 	{
-	    $this->stockOnPO = $value;
+	     $this->getStock()->setStockOnPO($value)->save();
 	    return $this;
 	}
 	/**
@@ -464,7 +510,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockInParts()
 	{
-	    return $this->stockInParts;
+	    return $this->getStock()->getStockInParts();
 	}
 	/**
 	 * Setter for stockInParts
@@ -475,7 +521,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockInParts($value)
 	{
-	    $this->stockInParts = $value;
+	    $this->getStock()->setStockInParts($value)->save();
 	    return $this;
 	}
 	/**
@@ -485,7 +531,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockInRMA()
 	{
-	    return $this->stockInRMA;
+	    return $this->getStock()->getStockInRMA();
 	}
 	/**
 	 * Setter for stockInRMA
@@ -496,7 +542,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockInRMA($value)
 	{
-	    $this->stockInRMA = $value;
+	    $this->getStock()->setStockInRMA($value)->save();
 	    return $this;
 	}
 	/**
@@ -506,7 +552,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockMinLevel()
 	{
-		return $this->stockMinLevel;
+		return $this->getStock()->getStockMinLevel();
 	}
 	/**
 	 * Setter for stockMinLevel
@@ -515,7 +561,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockMinLevel($stockMinLevel)
 	{
-		$this->stockMinLevel = $stockMinLevel;
+		$this->getStock()->setStockMinLevel($stockMinLevel)->save();
 		return $this;
 	}
 	/**
@@ -525,7 +571,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockReorderLevel()
 	{
-		return $this->stockReorderLevel;
+		return $this->getStock()->getStockReorderLevel();
 	}
 	/**
 	 * Setter for stockReorderLevel
@@ -534,7 +580,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockReorderLevel($stockReorderLevel)
 	{
-		$this->stockReorderLevel = $stockReorderLevel;
+		$this->getStock()->setStockReorderLevel($stockReorderLevel)->save();
 		return $this;
 	}
 	/**
@@ -628,8 +674,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStatus ()
 	{
-		$this->loadManyToOne('status');
-		return $this->status;
+		//$this->loadManyToOne('status');
+		return $this->getStock()->getStatus();
 	}
 	/**
 	 * Setter for status
@@ -640,7 +686,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStatus($value)
 	{
-		$this->status = $value;
+		$this->getStock()->setStatus($value)->save();
 		return $this;
 	}
 	/**
@@ -672,7 +718,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getTotalOnHandValue  ()
 	{
-		return $this->totalOnHandValue ;
+		return $this->getStock()->getTotalOnHandValue();
 	}
 	/**
 	 * Setter for totalOnHandValue
@@ -683,7 +729,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setTotalOnHandValue ($value )
 	{
-		$this->totalOnHandValue = $value;
+		$this->getStock()->setTotalOnHandValue($value)->save();
 		return $this;
 	}
 	/**
@@ -693,7 +739,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getTotalInPartsValue  ()
 	{
-		return $this->totalInPartsValue ;
+		return $this->getStock()->getTotalInPartsValue();
 	}
 	/**
 	 * Setter for totalInPartsValue
@@ -704,7 +750,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setTotalInPartsValue ($value )
 	{
-		$this->totalInPartsValue = $value;
+		$this->getStock()->setTotalInPartsValue($value)->save();
 		return $this;
 	}
 	/**
@@ -777,7 +823,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getTotalRMAValue()
 	{
-	    return $this->totalRMAValue;
+	    return $this->getStock()->getTotalRMAValue();
 	}
 	/**
 	 * Setter for totalRMAValue
@@ -788,7 +834,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setTotalRMAValue($value)
 	{
-	    $this->totalRMAValue = $value;
+	    $this->getStock()->setTotalRMAValue($value)->save();
 	    return $this;
 	}
 	/**
@@ -1105,19 +1151,55 @@ class Product extends InfoEntityAbstract
 			$array = $extra;
 			if(!$this->isJsonLoaded($reset))
 			{
-				$array['prices'] = array_map(create_function('$a', 'return $a->getJson();'), $this->getPrices());
+				$prices = $this->getPrices();
+				$array['prices'] = array();
+				foreach($prices as $price) 
+					$array['prices'][] = $price->getJson();
 				$array['manufacturer'] = $this->getManufacturer() instanceof Manufacturer ? $this->getManufacturer()->getJson() : null;
-				$array['supplierCodes'] = array_map(create_function('$a', 'return $a->getJson();'), SupplierCode::getAllByCriteria('productId = ?', array($this->getId())));
-				$array['productCodes'] = array_map(create_function('$a', 'return $a->getJson();'), ProductCode::getAllByCriteria('productId = ?', array($this->getId())));
-				$array['images'] = array_map(create_function('$a', 'return $a->getJson();'), $this->getImages());
-				$array['categories'] = array_map(create_function('$a', '$json = $a->getJson(); return $json["category"];'), Product_Category::getCategories($this));
+				$supplierCodes = SupplierCode::getAllByCriteria('productId = ?', array($this->getId()));
+				$array['supplierCodes'] = array();
+				foreach($supplierCodes as $supplierCode) 
+					$array['supplierCodes'][] = $supplierCode->getJson();
+				$productCodes = ProductCode::getAllByCriteria('productId = ?', array($this->getId()));
+				$array['productCodes'] = array();
+				foreach($productCodes as $productCode) 
+					$array['productCodes'][] = $productCode->getJson();
+				$images = $this->getImages();
+				$array['images'] = array();
+				foreach($images as $image) 
+					$array['images'][] = $image->getJson();
+				$categories = Product_Category::getCategories($this);
+				$array['categories'] = array();
+				foreach($categories as $category) 
+				{
+					$json = $category->getJson();
+					$array['categories'][] = $json["category"];
+				}	
 				$array['fullDescriptionAsset'] = (($asset = Asset::getAsset($this->getFullDescAssetId())) instanceof Asset ? $asset->getJson() : null) ;
 				$array['customTabAsset'] = (($asset = Asset::getAsset($this->getCustomTabAssetId())) instanceof Asset ? $asset->getJson() : null) ;
-				$array['locations'] = array_map(create_function('$a', 'return $a->getJson();'), PreferredLocation::getPreferredLocations($this));
+				$locations = PreferredLocation::getPreferredLocations($this);
+				$array['locations'] = array();
+				foreach($locations as $location)
+					$array['locations'][] = $location->getJson();
 				$array['unitCost'] = $this->getUnitCost();
 				$array['priceMatchRule'] = ($i=ProductPriceMatchRule::getByProduct($this)) instanceof ProductPriceMatchRule ? $i->getJson() : null;
 				$array['attributeSet'] = ($i=$this->getAttributeSet()) instanceof ProductAttributeSet ? $i->getJson() : null;
 				$array['status'] = ($i=$this->getStatus()) instanceof ProductStatus ? $i->getJson() : null;
+				$stocks = $this->getStocks();
+				$array['stocks'] = array();
+				foreach($stocks as $stock)
+					$array['stocks'][] = $stock->getJson();
+				$array['stock'] = ($this->getStock()) instanceof ProductStockInfo ? $this->getStock()->getJson() : null;
+				$array['StockOnOrder'] = $this->getstock()->getStockOnOrder();
+				$array['stockOnHand'] = $this->getstock()->getStockOnHand();
+				$array['stockOnPO'] = $this->getstock()->getStockOnPO();
+				$array['stockInParts'] = $this->getstock()->getStockInParts();
+				$array['stockInRMA'] = $this->getstock()->getStockInRMA();
+				$array['stockMinLevel'] = $this->getstock()->getStockMinLevel();
+				$array['stockReorderLevel'] = $this->getstock()->getStockReorderLevel();
+				$array['totalRMAValue'] = $this->getstock()->getTotalRMAValue();
+				$array['totalOnHandValue'] = $this->getstock()->getTotalOnHandValue();
+				$array['totalInPartsValue'] = $this->getstock()->getTotalInPartsValue();
 			}
 	
 		}
@@ -1497,22 +1579,22 @@ class Product extends InfoEntityAbstract
 		DaoMap::setStringType('sku', 'varchar', 50);
 		DaoMap::setStringType('name', 'varchar', 100);
 		DaoMap::setStringType('mageId', 'varchar', 10);
-		DaoMap::setIntType('totalOnHandValue', 'double', '10,4', false);
-		DaoMap::setIntType('totalInPartsValue', 'double', '10,4', false);
-		DaoMap::setIntType('stockOnHand', 'int', 10, false);
-		DaoMap::setIntType('stockOnOrder', 'int', 10, false);
-		DaoMap::setIntType('stockOnPO', 'int', 10, false);
-		DaoMap::setIntType('stockInParts', 'int', 10, false);
-		DaoMap::setIntType('stockInRMA', 'int', 10, false);
-		DaoMap::setIntType('stockMinLevel', 'int', 10, true, true);
-		DaoMap::setIntType('stockReorderLevel', 'int', 10, true, true);
-		DaoMap::setIntType('totalRMAValue', 'double', '10,4', false);
+// 		DaoMap::setIntType('totalOnHandValue', 'double', '10,4', false);
+// 		DaoMap::setIntType('totalInPartsValue', 'double', '10,4', false);
+// 		DaoMap::setIntType('stockOnHand', 'int', 10, false);
+// 		DaoMap::setIntType('stockOnOrder', 'int', 10, false);
+// 		DaoMap::setIntType('stockOnPO', 'int', 10, false);
+// 		DaoMap::setIntType('stockInParts', 'int', 10, false);
+// 		DaoMap::setIntType('stockInRMA', 'int', 10, false);
+// 		DaoMap::setIntType('stockMinLevel', 'int', 10, true, true);
+// 		DaoMap::setIntType('stockReorderLevel', 'int', 10, true, true);
+// 		DaoMap::setIntType('totalRMAValue', 'double', '10,4', false);
 		DaoMap::setStringType('assetAccNo', 'varchar', 10);
 		DaoMap::setStringType('revenueAccNo', 'varchar', 10);
 		DaoMap::setStringType('costAccNo', 'varchar', 10);
 		DaoMap::setBoolType('isFromB2B');
 		DaoMap::setBoolType('sellOnWeb');
-		DaoMap::setManyToOne('status', 'ProductStatus', 'pro_status', true);
+// 		DaoMap::setManyToOne('status', 'ProductStatus', 'pro_status', true);
 		DaoMap::setManyToOne('manufacturer', 'Manufacturer', 'pro_man', true);
 		DaoMap::setDateType('asNewFromDate', 'datetime', true);
 		DaoMap::setDateType('asNewToDate', 'datetime', true);
@@ -1522,6 +1604,7 @@ class Product extends InfoEntityAbstract
 		DaoMap::setOneToMany('supplierCodes', 'SupplierCode', 'pro_sup_code');
 		DaoMap::setOneToMany('categories', 'Product_Category', 'pro_cate');
 		DaoMap::setOneToMany('codes', 'ProductCode', 'pro_pro_code');
+		DaoMap::setOneToMany('stocks', 'ProductStockInfo', 'pro_stock_info');
 		DaoMap::setBoolType('isKit');
 		DaoMap::setManyToOne('attributeSet', 'ProductAttributeSet', 'pro_attr_set', true);
 		DaoMap::setBoolType('manualDatafeed');
@@ -1531,11 +1614,11 @@ class Product extends InfoEntityAbstract
 		DaoMap::createUniqueIndex('sku');
 		DaoMap::createIndex('name');
 		DaoMap::createIndex('mageId');
-		DaoMap::createIndex('stockOnHand');
-		DaoMap::createIndex('stockOnOrder');
-		DaoMap::createIndex('stockOnPO');
-		DaoMap::createIndex('stockInParts');
-		DaoMap::createIndex('stockInRMA');
+// 		DaoMap::createIndex('stockOnHand');
+// 		DaoMap::createIndex('stockOnOrder');
+// 		DaoMap::createIndex('stockOnPO');
+// 		DaoMap::createIndex('stockInParts');
+// 		DaoMap::createIndex('stockInRMA');
 		DaoMap::createIndex('isFromB2B');
 		DaoMap::createIndex('shortDescription');
 		DaoMap::createIndex('fullDescAssetId');
@@ -1593,6 +1676,10 @@ class Product extends InfoEntityAbstract
 		if (trim($product->getId()) === '') {
 			$product->setIsFromB2B($isFromB2B)
 			->setShortDescription($shortDescr);
+			$product->save();
+			$stores = Store::getAll();
+			foreach($stores as $store)
+				$stock = ProductStockInfo::create($product, null, $store);
 			if($stockOnOrder !== null && is_numeric($stockOnOrder))
 				$product->setStockOnOrder(intval($stockOnOrder));
 			if($stockOnHand !== null && is_numeric($stockOnHand))
@@ -1643,7 +1730,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return Ambigous <Ambigous, multitype:, multitype:BaseEntityAbstract >
 	 */
-	public static function getProducts($sku, $name, array $supplierIds = array(), array $manufacturerIds = array(), array $categoryIds = array(), array $statusIds = array(), $active = null, $pageNo = null, $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE, $orderBy = array(), &$stats = array(), $stockLevel = null, &$sumValues = null, $sh_from = null, $sh_to = null, $sellOnWeb = null, $barcode = null)
+	public static function getProducts($sku, $name, array $supplierIds = array(), array $manufacturerIds = array(), array $categoryIds = array(), array $statusIds = array(), $active = null, $pageNo = null, $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE, $orderBy = array(), &$stats = array(), $stockLevel = null, &$sumValues = null, $sh_from = null, $sh_to = null, $sellOnWeb = null,  $barcode= null)
 	{
 		$where = array(1);
 		$params = array();
@@ -1677,13 +1764,19 @@ class Product extends InfoEntityAbstract
 			$where[] = 'pro.sellOnWeb = :sellOnWeb';
 			$params['sellOnWeb'] = intval($sellOnWeb);
 		}
+		
+		self::getQuery()->eagerLoad('Product.stocks', 'inner join', 'pro_stock_info', 'pro.id = pro_stock_info.productId and pro_stock_info.storeId = :storeId');
+		if (is_array($sumValues)) {
+			$innerJoins[] = 'inner join productstockinfo pro_stock_info on (pro.id = pro_stock_info.productId and pro_stock_info.storeId = :storeId)';
+		}
+		$params['storeId'] = Core::getUser()->getStore()->getId();
+		
 		if (($barcode = trim($barcode)) !== '') {
 			self::getQuery()->eagerLoad('Product.codes', 'inner join', 'pro_code', 'pro.id = pro_code.productId and pro_code.code = :barcode');
 			if (is_array($sumValues)) {
 				$innerJoins[] = 'inner join productcode pro_code on (pro.id = pro_code.productId and pro_code.code = :barcode)';
 			}
 			$params['barcode'] = $barcode;
-				
 		}
 		if (count($manufacturerIds) > 0) {
 			$ps = array();
@@ -1704,8 +1797,8 @@ class Product extends InfoEntityAbstract
 				$keys[] = ':' . $key;
 				$ps[$key] = trim($value);
 			}
-			$where[] = 'pro.statusId in (' . implode(',', $keys) . ')';
-			$params = array_merge($params, $ps);
+ 			$where[] = 'pro_stock_info.statusId in (' . implode(',', $keys) . ')';
+ 			$params = array_merge($params, $ps);
 		}
 		if (count($supplierIds) > 0) {
 			$ps = array();
@@ -1746,21 +1839,23 @@ class Product extends InfoEntityAbstract
 			}
 			$params = array_merge($params, $ps);
 		}
+		
+		
 		if (($stockLevel = trim($stockLevel)) !== '') {
-			$where[] = 'pro.stockOnHand <= pro.' . $stockLevel. ' and pro.' . $stockLevel . ' is not null';
+			$where[] = 'pro_stock_info.stockOnHand <= pro_stock_info.' . $stockLevel. ' and pro_stock_info.' . $stockLevel . ' is not null';
 		}
+		
 		if (($sh_from = trim($sh_from)) !== '') {
-			$where[] = 'pro.stockOnHand >= :stockOnHand_from';
+			$where[] = 'pro_stock_info.stockOnHand >= :stockOnHand_from';
 			$params['stockOnHand_from'] = intval($sh_from);
 		}
 		if (($sh_to = trim($sh_to)) !== '') {
-			$where[] = 'pro.stockOnHand <= :stockOnHand_to';
+			$where[] = 'pro_stock_info.stockOnHand <= :stockOnHand_to';
 			$params['stockOnHand_to'] = intval($sh_to);
 		}
-
 		$products = Product::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, $orderBy, $stats);
 		if (is_array($sumValues)) {
-			$sql = 'select sum(pro.stockOnHand) `totalStockOnHand`, sum(pro.totalOnHandValue) `totalOnHandValue` from product pro ' . implode(' ', $innerJoins) . ' where pro.active = 1 and (' . implode(' AND ', $where) . ')';
+			$sql = 'select sum(pro_stock_info.stockOnHand) `totalStockOnHand`, sum(pro_stock_info.totalOnHandValue) `totalOnHandValue` from product pro ' . implode(' ', $innerJoins) . ' where pro.active = 1 and (' . implode(' AND ', $where) . ')';
 			$sumResult = Dao::getResultsNative($sql, $params);
 			if (count($sumResult) > 0 ) {
 				$sumValues['totalStockOnHand'] = $sumResult[0]['totalStockOnHand'];

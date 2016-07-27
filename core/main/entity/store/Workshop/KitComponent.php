@@ -158,7 +158,7 @@ class KitComponent extends BaseEntityAbstract
 		if(trim($this->getId()) === '') { //when we are creating a new one
 			$this->getComponent()->installedIntoKit($this->getQty(), $this->getUnitCost(), 'KITCOMPONENT CREATED', $this->getKit());
 			$this->getKit()->addComment('A KitComponent(SKU=' . $this->getComponent()->getSku() . ', UnitPrice=' . StringUtilsAbstract::getCurrency($this->getUnitPrice()) . ', qty=' . $this->getQty() . ', UnitCost=' . StringUtilsAbstract::getCurrency($this->getUnitCost()) . ') has been ADDED INTO  this kit (' . $this->getKit()->getBarcode() . ')', Comments::TYPE_WORKSHOP);
-		} else if(intval($this->getActive()) === 0 && self::countByCriteria('id = ? and active = 1', array($this->getId())) > 0) { //trying to deactivate the kitcomponent
+		} else if(intval($this->getActive()) === 0 && self::countByCriteria('id = ? and active = 1 and storeId = ?', array($this->getId(), Core::getUser()->getStore()->getId())) > 0) { //trying to deactivate the kitcomponent
 				$this->getComponent()->installedIntoKit(0 - $this->getQty(), $this->getUnitCost(), 'DEACTIVATED KITCOMPONENT',  $this);
 				$this->getKit()->addComment('A KitComponent(SKU=' . $this->getComponent()->getSku() . ', UnitPrice=' . StringUtilsAbstract::getCurrency($this->getUnitPrice()) . ', qty=' . $this->getQty() . ', UnitCost=' . StringUtilsAbstract::getCurrency($this->getUnitCost()) . ') has been REMOVED FROM this kit (' . $this->getKit()->getBarcode() . ')', Comments::TYPE_WORKSHOP);
 		} else if(intval($this->getActive()) === 1) {
@@ -207,7 +207,7 @@ class KitComponent extends BaseEntityAbstract
 		DaoMap::setIntType('qty');
 		DaoMap::setIntType('unitCost', 'double', '10,4');
 		DaoMap::setIntType('unitPrice', 'double', '10,4');
-
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::commit();
@@ -228,6 +228,7 @@ class KitComponent extends BaseEntityAbstract
 			->setComponent($component)
 			->setQty(intval($qty))
 			->setUnitPrice($unitPrice)
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 

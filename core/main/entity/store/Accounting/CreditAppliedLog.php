@@ -102,6 +102,7 @@ class CreditAppliedLog extends BaseEntityAbstract
 		DaoMap::setManyToOne('payment', 'Payment', 'cah_pm');
 		DaoMap::setManyToOne('creditNote', 'CreditNote', 'cah_cn');
 		DaoMap::setIntType('creditAmount', 'double', '10,4');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::commit();
@@ -125,6 +126,7 @@ class CreditAppliedLog extends BaseEntityAbstract
 		$creditAppliedLog->setCreditNote($creditNote)
 			->setPayment($payment)
 			->setCreditAmount($creditAmountApplied)
+			->setStore(Core::getUser()->getStore())
 			->save();
 		return $creditAppliedLog;
 	}

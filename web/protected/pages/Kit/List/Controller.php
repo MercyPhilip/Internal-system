@@ -125,7 +125,7 @@ class Controller extends CRUDPageAbstract
 					$keys[] = ":" . ($key = "componentProductId" . $index);
 					$params[$key] = $componentProductId;
 				}
-				$where[] = 'id in (select kitcom.kitId from kitcomponent kitcom where kitcom.componentId in (' . implode(', ', $keys) . '))';
+				$where[] = 'id in (select kitcom.kitId from kitcomponent kitcom where kitcom.storeId = :storeId and kitcom.componentId in (' . implode(', ', $keys) . '))';
 			}
 			if(isset($serachCriteria['customer.id']) && trim($customerIds = $serachCriteria['customer.id']) !== '' && count($customerIds = explode(',', $customerIds)) > 0) {
 				$keys = array();
@@ -137,6 +137,8 @@ class Controller extends CRUDPageAbstract
 				$where[] = 'soldToCustomerId in (' . implode(', ', $keys) . ')';
 			}
 			$stats = array();
+			$where[] = 'storeId = :storeId';
+			$params['storeId'] = Core::getUser()->getStore()->getId();
 			$objects = $class::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('id' => 'desc'), $stats);
 			$results['pageStats'] = $stats;
 			$results['items'] = array();

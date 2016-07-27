@@ -74,7 +74,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				tmp.me._signRandID(item);
 				tmp.date = jQuery('#' + item.id).data('DateTimePicker').date();
 				tmp.me._searchCriteria[tmp.field] = tmp.date ? new Date(tmp.date.local().format('YYYY-MM-DDT' + (tmp.field === 'orderDate_from' || tmp.field === 'invDate_from' ? '00:00:00' : '23:59:59'))) : '';
-			} else {
+			} 
+			else {
 				tmp.me._searchCriteria[tmp.field] = $F(item);
 			}
 			if(($F(item) instanceof Array && $F(item).size() > 0) || (typeof $F(item) === 'string' && !$F(item).blank()))
@@ -387,7 +388,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					.insert({'bottom': new Element('div', {'class': 'text-right col-xs-4 '}).update(
 						tmp.isTitle ? 'Paid Amt' : tmp.me._getPaymentCell(row, 'totalPaid')
 					)})
-					.insert({'bottom': new Element('div', {'class': 'col-xs-4 ' + (row.totalCreditNoteValue > 0 ? 'tr-red' : '')}).setStyle('padding: 0px;').update(
+					.insert({'bottom': new Element('div', {'class': 'text-right col-xs-4 ' + (row.totalCreditNoteValue > 0 ? 'tr-red' : '')}).setStyle('padding: 0px;').update(
 						tmp.isTitle ? 'Credit Amt' : tmp.me._getPaymentCell(row, 'totalCreditAvailable')
 					)})
 			) })
@@ -413,18 +414,20 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		jQuery('#' + tmp.selectBox.id).select2({
 			 minimumInputLength: 3,
 			 multiple: true,
+			 allowClear: true,
 			 ajax: {
 				 delay: 250
 				 ,url: '/ajax/getDeliveryMethods'
 		         ,type: 'POST'
 	        	 ,data: function (params) {
-	        		 return {"searchTxt": params};
+	        		 return {"searchTxt": params, 'storeId' : jQuery('#storeId').attr('value'), 'userId' : jQuery('#userId').attr('value')};
 	        	 }
 				 ,results: function(data, page, query) {
 					 tmp.result = [];
 					 if(data.resultData && data.resultData.items) {
 						 data.resultData.items.each(function(item){
-							 tmp.result.push({'id': item + '{|}', 'text': item.stripTags()});
+							 text = item.trim().stripTags();
+							 tmp.result.push({ 'id': text + '{}', 'text': text, 'data': text });
 						 });
 					 }
 		    		 return { 'results' : tmp.result };
@@ -448,7 +451,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				 ,url: '/ajax/getCustomers'
 		         ,type: 'POST'
 	        	 ,data: function (params) {
-	        		 return {"searchTxt": params};
+	        		 return {"searchTxt": params, 'storeId' : jQuery('#storeId').attr('value'), 'userId' : jQuery('#userId').attr('value')};
 	        	 }
 				 ,results: function(data, page, query) {
 					 tmp.result = [];
@@ -514,6 +517,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			.store('SalesTargetListPanelJs', tmp.salesTargetListPanelJs = new SalesTargetListPanelJs(tmp.me))
 			.update(tmp.salesTargetListPanelJs.getListPanel().addClassName('panel-default'));
 		tmp.salesTargetListPanelJs.load();
+		tmp.me._loadProducts();
 		return tmp.me;
 	}
 	/**
@@ -554,5 +558,50 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		}
 		
 	}
-	
+	/**
+	 * load products
+	 */
+	,_loadProducts: function() {
+		var tmp = {};
+		tmp.me = this;
+		tmp.selectBox = $(tmp.me.searchDivId).down('[search_field="productId"]');
+		tmp.me._signRandID(tmp.selectBox);
+		jQuery('#' + tmp.selectBox.id).select2({
+			minimumInputLength: 3,
+			multiple: false,
+			allowClear: true,
+			ajax: { url: "/ajax/getAll",
+				dataType: 'json',
+				delay: 10,
+				type: 'POST',
+				data: function(params, page) {
+					return {"searchTxt": 'sku like ? and active = 1', 'searchParams': ['%' + params + '%'], 'entityName': 'Product', 'pageNo': page, 'userId' : jQuery('#userId').attr('value')};
+				},
+				results: function (data, page, query) {
+					 tmp.result = [];
+					 if(data.resultData && data.resultData.items) {
+						 data.resultData.items.each(function(item){
+							 tmp.result.push({'id': item.id, 'text': item.sku, 'data': item});
+						 });
+					 }
+					 return { 'results' : tmp.result, 'more': (data.resultData && data.resultData.pagination && data.resultData.pagination.totalPages && page < data.resultData.pagination.totalPages) };
+				},
+				cache: true
+			},
+			formatResult : function(result) {
+				if(!result)
+					return '';
+				return '<div class="row"><div class="col-xs-12">' + result.data.sku + '</div></div>';
+			},
+			formatSelection: function(result) {
+				if(!result)
+					 return '';
+				tmp.text = result.text;
+				tmp.newDiv = new Element('div').update(tmp.text);
+				return tmp.newDiv;
+			},
+			escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+		});
+		return tmp.me;
+	}
 });

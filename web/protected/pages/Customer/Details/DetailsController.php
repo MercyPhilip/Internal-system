@@ -44,7 +44,7 @@ class DetailsController extends DetailsPageAbstract
 		else if(!($customer = Customer::get($this->Request['id'])) instanceof Customer)
 			die('Invalid Customer!');
 		
-		foreach (TierLevel::getAll() as $tier)
+		foreach (TierLevel::getAllByCriteria('id > 0') as $tier)
 			$tiers[] = $tier->getJson();
 		$js = parent::_getEndJs();
 		$js .= "pageJs.setPreData(" . json_encode($customer->getJson()) . ',' . json_encode($tiers) . ")";
@@ -64,6 +64,7 @@ class DetailsController extends DetailsPageAbstract
 		try
 		{
 			Dao::beginTransaction();
+
 			
 			$name = trim($param->CallbackParameter->name);
 			$id = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->id);
@@ -92,7 +93,6 @@ class DetailsController extends DetailsPageAbstract
 			$tier = TierLevel::get(trim($tierLevel));
 			if (!$tier instanceof TierLevel)
 				throw new Exception('Invalid Tier Level passed in!');
-			
 			if(is_numeric($param->CallbackParameter->id)) {
 				$customer = Customer::get(trim($param->CallbackParameter->id));
 				if(!$customer instanceof Customer)
@@ -103,7 +103,6 @@ class DetailsController extends DetailsPageAbstract
 					throw new Exception('You do not have privileges to change isBlocked attribute, please inquire Administrator for support!');
 				}
 				$oldTierId = $customer->getTier()->getId();
-				
 				$customer->setName($name)
 					->setEmail($email)
 					->setTerms($terms)
@@ -148,7 +147,7 @@ class DetailsController extends DetailsPageAbstract
 							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_USER),
 							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_KEY));
 					$custInfo = array();
-					if ($customer->getMageId() > 0)
+					if (($customer->getMageId() > 0) && $tierLevel != 0)
 					{
 						// update
 						$custInfo = array('group_id' => $tierLevel);
@@ -170,6 +169,7 @@ class DetailsController extends DetailsPageAbstract
 				if(!$customer instanceof Customer)
 					throw new Exception('Error creating customer!');
 			}
+
 			$results['url'] = '/customer/' . $customer->getId() . '.html';
 			$results['item'] = $customer->getJson();
 			Dao::commitTransaction();

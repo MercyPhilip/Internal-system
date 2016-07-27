@@ -81,6 +81,7 @@ class Comments extends BaseEntityAbstract
 			->setComments($comments)
 			->setType($type)
 			->setGroupId(($groupId = trim($groupId)) === '' ? self::genGroupId() : $groupId)
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 	/**
@@ -215,7 +216,7 @@ class Comments extends BaseEntityAbstract
 		DaoMap::setStringType('comments','varchar', 255);
 		DaoMap::setStringType('groupId','varchar', 100);
 		DaoMap::setStringType('type','varchar', 50);
-
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createIndex('entityId');

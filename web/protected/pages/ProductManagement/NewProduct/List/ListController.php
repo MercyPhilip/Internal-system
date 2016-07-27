@@ -227,6 +227,9 @@ class ListController extends CRUDPageAbstract
 						->save();
 				$this->_updateCategories($product, $categories)
 					->_setPrices($product, $price);
+				$stores = Store::getAll();
+				foreach($stores as $store)
+					$status = ProductStockInfo::create($product, $stock, $store);
 				$item = NewProduct::create($product);
 			}
 			$results['item'] = $item->getJson();
@@ -261,8 +264,7 @@ class ListController extends CRUDPageAbstract
 			{
 				$item->getProduct()->setActive(false)->save();
 				
-				$item->setActive(false)
-				->save();
+				$item->setActive(false)->save();
 			}
 			Dao::commitTransaction();
 		}

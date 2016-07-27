@@ -438,6 +438,7 @@ class CreditNote extends BaseEntityAbstract
 		DaoMap::setIntType('shippingValue', 'double', '10,4');
 		DaoMap::setStringType('description', 'varchar', 255);
 		DaoMap::setOneToMany('items', 'CreditNoteItem', 'cn_item');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createUniqueIndex('creditNoteNo');
@@ -458,6 +459,7 @@ class CreditNote extends BaseEntityAbstract
 		$creditNote = new CreditNote();
 		return $creditNote->setCustomer($customer)
 			->setDescription(trim($description))
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 	/**
@@ -474,6 +476,7 @@ class CreditNote extends BaseEntityAbstract
 		$creditNote = $creditNote->setOrder($order)
 			->setCustomer($customer instanceof Customer ? $customer : $order->getCustomer())
 			->setDescription(trim($description))
+			->setStore(Core::getUser()->getStore())
 			->save();
 		return $creditNote;
 	}

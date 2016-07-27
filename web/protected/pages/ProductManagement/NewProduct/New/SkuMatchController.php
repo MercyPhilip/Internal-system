@@ -253,7 +253,6 @@ class SkuMatchController extends BPCPageAbstract
 					$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
 			}
 			if ($name != '') $product->setName($name);
-			if ($stock != null) $product->setStatus($stock);
 			if ($brand != null) $product->setManufacturer($brand);
 			if ($description != '')
 			{
@@ -271,6 +270,13 @@ class SkuMatchController extends BPCPageAbstract
 			}
 			if ($short_desc != '') $product->setShortDescription($short_desc);
 			$product->save();
+			if (!$product->getStock() instanceof ProductStockInfo )
+			{
+				$stores = Store::getAll();
+				foreach($stores as $store)
+					$status = ProductStockInfo::create($product, $stock, $store);
+			}
+			if ($stock != null) $product->setStatus($stock);
 			if ($supplier != null) $product->addSupplier($supplier);
 			$this->_updateCategories($product, $categoryIds)
 				->_setPrices($product, $price);
@@ -528,10 +534,8 @@ class SkuMatchController extends BPCPageAbstract
 		{
 			// new srp
 			$product->addPrice(ProductPriceType::get(ProductPriceType::ID_SRP), $price);
-				
 		}
 		return $product;
 	}
-	
 }
 ?>

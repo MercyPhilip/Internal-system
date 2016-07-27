@@ -66,6 +66,8 @@ class ListController extends CRUDPageAbstract
 				$where[] = 'pre_loc_type.name like ?';
 				$params[] = '%' . $name . '%';
 			}
+// 			$where[] = 'storeId = ?';
+// 			$params[] = Core::getUser()->getStore()->getId();
 			$stats = array();
 			$objects = $class::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('pre_loc_type.name' => 'asc'), $stats);
 			$results['pageStats'] = $stats;
