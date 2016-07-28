@@ -85,7 +85,7 @@ ALTER TABLE bpcinternal.sellingitem ADD COLUMN `storeId` INT(10) NOT NULL DEFAUL
 ALTER TABLE bpcinternal.shippment ADD COLUMN `storeId` INT(10) NOT NULL DEFAULT 1 AFTER `id`, ADD INDEX(`storeId`);
 ALTER TABLE bpcinternal.task ADD COLUMN `storeId` INT(10) NOT NULL DEFAULT 1 AFTER `id`, ADD INDEX(`storeId`);
 ALTER TABLE bpcinternal.useraccount ADD COLUMN `storeId` INT(10) NOT NULL DEFAULT 1 AFTER `id`, ADD INDEX(`storeId`);
-
+ALTER TABLE bpcinternal.message ADD COLUMN `storeId` INT(10) NOT NULL DEFAULT 1 AFTER `id`, ADD INDEX(`storeId`);
 
 
 insert into productstockinfo(storeId, productId, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId)

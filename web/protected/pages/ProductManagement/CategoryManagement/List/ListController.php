@@ -137,7 +137,7 @@ class ListController extends CRUDPageAbstract
 	            		,$serachCriteria->active
 	            		,$pageNo
 	            		,$pageSize
-	            		,array('pro.sku' => 'asc')
+	            		,array('pro.manufacturerId' => 'asc', 'pro.sku' => 'asc')
 	            		,$stats
 	            		,$serachCriteria->sh_from
 	            		,$serachCriteria->sh_to
