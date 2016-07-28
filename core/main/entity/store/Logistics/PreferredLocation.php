@@ -163,6 +163,7 @@ class PreferredLocation extends BaseEntityAbstract
 			$where[] = 'typeId = ?';
 			$params[] = $type->getId();
 		}
+		self::getQuery()->eagerLoad('PreferredLocation.location', 'inner join', 'preloc_loc', 'preloc.locationId = preloc_loc.id and preloc_loc.active = 1');
 		return self::getAllByCriteria(implode(' AND ', $where), $params, $activeOnly, $pageNo , $pageSize, $orderBy, $stats);
 	}
 }
