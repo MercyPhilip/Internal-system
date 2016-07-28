@@ -222,14 +222,14 @@ class ListController extends CRUDPageAbstract
 				$product = new Product();
 				$product->setSku($sku)
 						->setName($name)
-						->setStatus($stock)
 						->setSellOnWeb(false)
 						->save();
 				$this->_updateCategories($product, $categories)
 					->_setPrices($product, $price);
 				$stores = Store::getAll();
 				foreach($stores as $store)
-					$status = ProductStockInfo::create($product, $stock, $store);
+					$status = ProductStockInfo::create($product, null, $store);
+				if ($stock != null) $product->setStatus($stock);
 				$item = NewProduct::create($product);
 			}
 			$results['item'] = $item->getJson();

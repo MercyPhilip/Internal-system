@@ -274,7 +274,7 @@ class SkuMatchController extends BPCPageAbstract
 			{
 				$stores = Store::getAll();
 				foreach($stores as $store)
-					$status = ProductStockInfo::create($product, $stock, $store);
+					$status = ProductStockInfo::create($product, null, $store);
 			}
 			if ($stock != null) $product->setStatus($stock);
 			if ($supplier != null) $product->addSupplier($supplier);

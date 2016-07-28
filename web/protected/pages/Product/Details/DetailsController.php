@@ -372,7 +372,8 @@ class DetailsController extends DetailsPageAbstract
 				{
 					$stores = Store::getAll();
 					foreach($stores as $store)
-						$stock = ProductStockInfo::create($product, $status, $store);
+						$stock = ProductStockInfo::create($product, null, $store);
+					if ($status != null) $product->setStatus($status);
 				}
 				else
 				{
@@ -424,7 +425,7 @@ class DetailsController extends DetailsPageAbstract
 				$shortDescription = trim($param->CallbackParameter->shortDescription);
 				$sellOnWeb = (trim($param->CallbackParameter->sellOnWeb) === '1');
 				$weight = doubleval(trim($param->CallbackParameter->weight));
-				if (($product->getStockOnHand() > 0) && !$sellOnWeb)
+				if (($product->getStock() instanceof ProductStockInfo) && ($product->getStockOnHand() > 0) && !$sellOnWeb)
 				{
 					throw new Exception("Can't take off this product from online because SOH is not zero.");
 				}

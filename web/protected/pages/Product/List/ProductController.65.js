@@ -375,7 +375,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					.insert({'bottom': new Element('div', {'class': 'panel-body'}).update('<h4>Reserved for Next Phase of Developing</h4>')})
 				})
 			})
-			.insert({'bottom': new Element('div', {'class': 'col-md-6'})
+			.insert({'bottom': tmp.me._readOnlyMode ? '' : new Element('div', {'class': 'col-md-6'})
 				.insert({'bottom': new Element('div', {'class': 'panel panel-default'})
 					.insert({'bottom': new Element('div', {'class': 'panel-heading'}).update('<strong>Price Match Rule</strong>')})
 					.insert({'bottom': new Element('div', {'class': 'panel-body'}).update(tmp.ProductRuleEl = tmp.me._getPriceMatchRuleEl(product))})
@@ -806,7 +806,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				tmp.me._updatePrice(jQuery(this).attr('product-id'), jQuery(this).val(), tmp.me.getValueFromCurrency( jQuery(this).attr('original-price') ), jQuery(this).attr('isSpecial'));
 			})
 			.addClass('price-input-binded');
-		jQuery('.stockMinLevel-input[product-id]').not('.stockMinLevel-input-binded')
+			jQuery('.stockMinLevel-input[product-id]').not('.stockMinLevel-input-binded')
 			.click(function (){
 				jQuery(this)
 				.attr('original-stockMinLevel', jQuery(this).val())
@@ -859,6 +859,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 						.observe('click', function() {
 							tmp.me._pagination.pageNo = tmp.me._pagination.pageNo*1 + 1;
 							jQuery(this).button('loading');
+							tmp.me.deSelectProduct();
 							tmp.me.getResults(false, tmp.me._pagination.pageSize, false, true);
 						})
 					})
@@ -867,7 +868,10 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 							if(tmp.totalQty > 1000)
 								tmp.me.showModalBox('Warning', '<h3>There are ' + tmp.totalQty + ' products for current search conditions. <br/>Please narrow down the search');
 							else
+							{
+								tmp.me.deSelectProduct();
 								tmp.me.getResults(false, tmp.me._pagination.pageSize, true);
+							}
 						})
 					})
 				})
@@ -940,6 +944,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.observe('click', function(e){
 					tmp.me._signRandID($(this));
 					if (e.target.nodeName != "INPUT") {
+						if (jQuery('#'+$(this).id).find(":checkbox").prop("disabled")) return;
 				        jQuery('#'+$(this).id).find(":checkbox").prop("checked", !jQuery('#'+$(this).id).find(":checkbox").prop("checked"));
 				        if(tmp.isTitle === true) {
 				        	tmp.checked = jQuery('#'+$(this).id).find(":checkbox").prop("checked");
@@ -953,7 +958,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				})
 				
 				.insert({'bottom': new Element('span').setStyle('margin: 0 5px 0 0')
-					.insert({'bottom': new Element('input', {'type': 'checkbox', 'class': 'product-selected'})
+					.insert({'bottom': tmp.skucbx = new Element('input', {'type': 'checkbox', 'class': 'product-selected'})
 						.observe('click', function(e){
 							tmp.checked = this.checked;
 							if(tmp.isTitle === true) {
@@ -1081,10 +1086,10 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'buyinprice hide-when-info', 'style' : 'width:5%;' }).addClassName('col-xs-1').setStyle(tmp.me._storeId === 1 ? 'display: none;' : '').update(
 					tmp.isTitle === true ? 
 					new Element('div', {'class': 'row'})
-						.insert({'bottom': new Element('div', {'class': 'col-xs-12', 'title': 'Buyin price from Store1'}).update('Buyin') })
+						.insert({'bottom': new Element('div', {'class': 'col-xs-12 text-right', 'title': 'Buyin price from Store1'}).update('Buyin') })
 					:
 					new Element('div', {'class': 'row'})
-						.insert({'bottom': new Element('div', {'class': 'col-xs-12 ', 'title': 'Buyin price from Store1'}).update(buyinPrice) })
+						.insert({'bottom': new Element('div', {'class': 'col-xs-12 text-right ', 'title': 'Buyin price from Store1'}).update(buyinPrice) })
 					)
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'product_active hide-when-info hidden-sm ', 'style' : 'width:4%'}).addClassName('col-xs-1')
@@ -1142,6 +1147,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		}
 		if (tmp.me._readOnlyMode)
 		{
+			jQuery(tmp.skucbx).prop("disabled", true);
 			jQuery(tmp.kitcbx).prop("disabled", true);
 			jQuery(tmp.txtprice).prop("disabled", true);
 			jQuery(tmp.txtsp).prop("disabled", true);

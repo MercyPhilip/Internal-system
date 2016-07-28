@@ -480,7 +480,7 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 					if(!tmp.result || !tmp.result.items || tmp.result.items.size() === 0)
 						throw new Element('span')
 							.insert({'bottom': new Element('span').update('Nothing Found for: ' + tmp.searchTxt)})
-							.insert({'bottom': new Element('span', {'class': 'btn btn-success btn-xs pull-right'})
+							.insert({'bottom': jQuery('#storeId').attr('value') != 1 ? '' : new Element('span', {'class': 'btn btn-success btn-xs pull-right'})
 								.insert({'bottom': new Element('i', {'class': 'fa fa-plus', 'title': 'add new product'})})
 								.observe('click', function(e){
 									tmp.newProductBtn = $(this);
