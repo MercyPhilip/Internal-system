@@ -100,8 +100,10 @@ class PreferredLocation extends BaseEntityAbstract
 		$array = $extra;
 		if(!$this->isJsonLoaded($reset))
 		{
+			$array['locationId'] = $this->getLocation()->getId();
 			$array['value'] = $this->getLocation()->getName();
 			$array['type'] = $this->getType()->getJson();
+			$array['location'] = $this->getLocation()->getJson();
 		}
 		return parent::getJson($array, $reset);
 	}
@@ -156,14 +158,14 @@ class PreferredLocation extends BaseEntityAbstract
 	 */
 	public static function getPreferredLocations(Product $product, PreferredLocationType $type = null, $activeOnly = true, $pageNo = null, $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE, $orderBy = array(), &$stats = array())
 	{
-		$where = array('productId = ? and storeId = ? ');
+		$where = array('preloc.productId = ? and preloc.storeId = ? ');
 		$params = array($product->getId(), Core::getUser()->getStore()->getId());
 		if($type instanceof PreferredLocationType)
 		{
 			$where[] = 'typeId = ?';
 			$params[] = $type->getId();
 		}
-		self::getQuery()->eagerLoad('PreferredLocation.location', 'inner join', 'preloc_loc', 'preloc.locationId = preloc_loc.id and preloc_loc.active = 1');
+		self::getQuery()->eagerLoad('PreferredLocation.location', 'inner join', 'preloc_loc', 'preloc.storeId = preloc_loc.storeId and preloc.locationId = preloc_loc.id and preloc_loc.active = 1');
 		return self::getAllByCriteria(implode(' AND ', $where), $params, $activeOnly, $pageNo , $pageSize, $orderBy, $stats);
 	}
 }

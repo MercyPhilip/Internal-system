@@ -65,10 +65,10 @@ class ListController extends CRUDPageAbstract
 				$where[] = 'location.name like ?';
 				$params[] = '%' . $name . '%';
 			}
-			$where[] = 'storeId = ?';
+			$where[] = 'location.storeId = ?';
 			$params[] = Core::getUser()->getStore()->getId();
 			$stats = array();
-			$objects = $class::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('location.name' => 'asc'), $stats);
+			$objects = $class::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('location.name' => 'asc'), $stats);
 			$results['pageStats'] = $stats;
 			$results['items'] = array();
 			foreach($objects as $obj)
@@ -110,6 +110,30 @@ class ListController extends CRUDPageAbstract
 				$item = $class::create($name, $description, false);
 			}
 			$results['item'] = $item->getJson();
+		}
+		catch(Exception $ex)
+		{
+			$errors[] = $ex->getMessage();
+		}
+		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	}
+	/**
+	 * delete the items
+	 *
+	 * @param unknown $sender
+	 * @param unknown $param
+	 * @throws Exception
+	 *
+	 */
+	public function deleteItems($sender, $param)
+	{
+		$results = $errors = array();
+		try
+		{
+			$class = trim($this->_focusEntity);
+			$ids = isset($param->CallbackParameter->ids) ? $param->CallbackParameter->ids : array();
+			if(count($ids) > 0)
+				$class::updateByCriteria('active = 0', 'id in (' . implode(',', $ids) . ')');
 		}
 		catch(Exception $ex)
 		{

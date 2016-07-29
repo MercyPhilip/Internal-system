@@ -169,7 +169,7 @@ class SkuMatchController extends BPCPageAbstract
 			}
 			else
 			{
-				throw new Exception("[sku:" . $sku . "] invalid stock name [" . $brandName . "] ! (line:" . $index . ")");
+				throw new Exception("[sku:" . $sku . "] invalid brand name [" . $brandName . "] ! (line:" . $index . ")");
 			}
 		}
 		else

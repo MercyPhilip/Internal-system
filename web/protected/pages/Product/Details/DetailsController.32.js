@@ -269,7 +269,8 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 							if(!tmp.me._readOnlyMode) {
 								$(tmp.btn).replace(tmp.newTextarea);
 								tmp.me._loadRichTextEditor(tmp.newTextarea);
-								jQuery('.summernote[save="customTab"]').summernote('disable');
+								if (tmp.me._storeId != 1)
+									jQuery('.summernote[save="customTab"]').summernote('disable');
 							} else {
 								$$('.customTabEl').first().replace(
 									new Element('div', {'class': 'col-sm-12'}).update(tmp.me._getFormGroup('Feature:', new Element('input', {'type': 'text', 'disabled': true, 'value': result ? result : ''}) ) )
