@@ -15,7 +15,7 @@ class PaymentExport_Xero extends ExportAbstract
 			$toDate = self::$_dateRange['end'];
 		}
 		$dataType = 'created';
-		$items = Payment::getAllByCriteria($dataType . ' >= :fromDate and ' . $dataType . ' < :toDate and storeId = :storeId', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate), Core::getUser()->getStore()->getId()));
+		$items = Payment::getAllByCriteria($dataType . ' >= :fromDate and ' . $dataType . ' < :toDate and storeId = :storeId', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate), 'storeId' => Core::getUser()->getStore()->getId()));
 		$now = new UDate();
 		$now->setTimeZone('Australia/Melbourne');
 		$return = array();
