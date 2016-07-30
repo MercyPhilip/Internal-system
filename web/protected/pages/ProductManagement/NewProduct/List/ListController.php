@@ -204,6 +204,22 @@ class ListController extends CRUDPageAbstract
 					$sellOnWeb = true;
 				else
 					$sellOnWeb = false;
+				$categoryAttribute = $this->getDefaultAttribute($categories);
+				if ($categoryAttribute instanceof CategoryAttribute)
+				{
+					$assetAccNo = $categoryAttribute->getAssetAccNo();
+					$revenueAccNo = $categoryAttribute->getRevenueAccNo();
+					$costAccNo = $categoryAttribute->getCostAccNo();
+					$attributesetId = $categoryAttribute->getAttributesetId();
+					if($assetAccNo !== null && is_string($assetAccNo))
+						$product->setAssetAccNo(trim($assetAccNo));
+					if($revenueAccNo !== null && is_string($revenueAccNo))
+						$product->setRevenueAccNo(trim($revenueAccNo));
+					if($costAccNo !== null && is_string($costAccNo))
+						$product->setCostAccNo(trim($costAccNo));
+					if($attributesetId !== null && is_string($attributesetId))
+						$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
+				}
 				$product->setName($name)
 					->setSellOnWeb($sellOnWeb)
 					->setStatus($stock)
@@ -220,6 +236,22 @@ class ListController extends CRUDPageAbstract
 					throw new Exception("The product has already existed!");
 				}
 				$product = new Product();
+				$categoryAttribute = $this->getDefaultAttribute($categories);
+				if ($categoryAttribute instanceof CategoryAttribute)
+				{
+					$assetAccNo = $categoryAttribute->getAssetAccNo();
+					$revenueAccNo = $categoryAttribute->getRevenueAccNo();
+					$costAccNo = $categoryAttribute->getCostAccNo();
+					$attributesetId = $categoryAttribute->getAttributesetId();
+					if($assetAccNo !== null && is_string($assetAccNo))
+						$product->setAssetAccNo(trim($assetAccNo));
+					if($revenueAccNo !== null && is_string($revenueAccNo))
+						$product->setRevenueAccNo(trim($revenueAccNo));
+					if($costAccNo !== null && is_string($costAccNo))
+						$product->setCostAccNo(trim($costAccNo));
+					if($attributesetId !== null && is_string($attributesetId))
+						$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
+				}
 				$product->setSku($sku)
 						->setName($name)
 						->setSellOnWeb(false)
@@ -241,6 +273,32 @@ class ListController extends CRUDPageAbstract
 			$errors[] = $ex->getMessage();
 		}
 		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	}
+	/**
+	 * get asset/revenue/cost account no and attributest by category id
+	 *
+	 * @param array category ids
+	 * @return array CategoryAttribute
+	 */
+	private function getDefaultAttribute($categoryIds)
+	{
+		if (!is_array($categoryIds))
+			throw new Exception('must passin category ids as an array');
+		$result = null;
+		foreach ($categoryIds as $categoryId)
+		{
+			$categoryId = trim($categoryId);
+			if($categoryId !== '')
+			{
+				$categoryAttribute = CategoryAttribute::getByCategoryId($categoryId);
+				if ($categoryAttribute instanceof CategoryAttribute)
+				{
+					$result = $categoryAttribute;
+					break;
+				}
+			}
+		}
+		return $result;
 	}
 	/**
 	 * delete the items
