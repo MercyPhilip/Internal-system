@@ -232,33 +232,6 @@ class OrderController extends BPCPageAbstract
 					->save();
 			}
 			$totalPaymentDue = 0;
-			if (trim($param->CallbackParameter->paymentMethodId))
-			{
-				$paymentMethod = PaymentMethod::get(trim($param->CallbackParameter->paymentMethodId));
-				if(!$paymentMethod instanceof PaymentMethod)
-					throw new Exception('Invalid PaymentMethod passed in!');
-				$totalPaidAmount = trim($param->CallbackParameter->totalPaidAmount);
-				//check if the payment is offset credit
-				$paymentMethodId = $paymentMethod->getId();
-				if ($paymentMethodId == PaymentMethod::ID_STORE_CREDIT)
-				{
-					$creditAvailable = $customer->getCreditPool() instanceof CreditPool ? doubleval($customer->getCreditPool()->getTotalCreditLeft()) : 0;
-					if ($creditAvailable == 0 || $creditAvailable < $totalPaidAmount)
-					{
-						throw new Exception('The customer has not enough credit for this payment. The amount of credit left is : ' .  StringUtilsAbstract::getCurrency($creditAvailable));
-					}
-				}
-				$order->addPayment($paymentMethod, $totalPaidAmount);
-				$order = Order::get($order->getId());
-				$order->addInfo(OrderInfoType::ID_MAGE_ORDER_PAYMENT_METHOD, $paymentMethod->getName(), true);
-				if($shipped === true)
-					$order->setType(Order::TYPE_INVOICE);
-			}
-			else
-			{
-				$paymentMethod = '';
-				$totalPaidAmount = 0;
-			}
 			foreach ($param->CallbackParameter->items as $item)
 			{
 				$product = Product::get(trim($item->product->id));
@@ -343,15 +316,43 @@ class OrderController extends BPCPageAbstract
 				$courier = '';
 				$totalShippingCost = 0;
 			}
+			
 			$totalPaymentDue += $totalShippingCost;
+			$order->setTotalAmount($totalPaymentDue)->save();
+			if (trim($param->CallbackParameter->paymentMethodId))
+			{
+				$paymentMethod = PaymentMethod::get(trim($param->CallbackParameter->paymentMethodId));
+				if(!$paymentMethod instanceof PaymentMethod)
+					throw new Exception('Invalid PaymentMethod passed in!');
+					$totalPaidAmount = trim($param->CallbackParameter->totalPaidAmount);
+					//check if the payment is offset credit
+					$paymentMethodId = $paymentMethod->getId();
+					if ($paymentMethodId == PaymentMethod::ID_STORE_CREDIT)
+					{
+						$creditAvailable = $customer->getCreditPool() instanceof CreditPool ? doubleval($customer->getCreditPool()->getTotalCreditLeft()) : 0;
+						if ($creditAvailable == 0 || $creditAvailable < $totalPaidAmount)
+						{
+							throw new Exception('The customer has not enough credit for this payment. The amount of credit left is : ' .  StringUtilsAbstract::getCurrency($creditAvailable));
+						}
+					}
+					$order->addPayment($paymentMethod, $totalPaidAmount);
+					$order = Order::get($order->getId());
+					$order->addInfo(OrderInfoType::ID_MAGE_ORDER_PAYMENT_METHOD, $paymentMethod->getName(), true);
+					if($shipped === true)
+						$order->setType(Order::TYPE_INVOICE);
+			}
+			else
+			{
+				$paymentMethod = '';
+				$totalPaidAmount = 0;
+			}
 			$comments = (isset($param->CallbackParameter->comments) ? trim($param->CallbackParameter->comments) : '');
 			$order = $order->addComment($comments, Comments::TYPE_SALES)
 				->setTotalPaid($totalPaidAmount);
 			if($shipped === true) {
 				$order->setStatus(OrderStatus::get(OrderStatus::ID_SHIPPED));
 			}
-			$order->setTotalAmount($totalPaymentDue)
-				->save();
+
 			if(isset($param->CallbackParameter->newMemo) && ($newMemo = trim($param->CallbackParameter->newMemo)) !== '')
 				$order->addComment($newMemo, Comments::TYPE_MEMO);
 

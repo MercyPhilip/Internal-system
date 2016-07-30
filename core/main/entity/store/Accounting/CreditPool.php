@@ -262,6 +262,19 @@ class CreditPool extends BaseEntityAbstract
 				// the payment method is not offset credit ( id= 11)
 				// check if the customer overpaid
 				// if yes, then need to create credit pool for the customer
+				$totalPaid = doubleval($entity->getTotalPaid());
+				$totalAmt = doubleval($entity->getTotalAmount());
+				$payAmt = doubleval($payment->getValue());
+				if ($totalPaid > $totalAmt)
+				{
+					$creditAmt  = $payAmt;
+					self::createByOrder($entity, $creditAmt);
+				}
+				else if (($totalPaid + $payAmt) > $totalAmt)
+				{
+					$creditAmt  = $totalPaid + $payAmt - $totalAmt;
+					self::createByOrder($entity, $creditAmt);
+				}
 				return;
 			}
 			$creditpool = CreditPool::applyToOrder($entity, $payment);
@@ -330,5 +343,34 @@ class CreditPool extends BaseEntityAbstract
 			}
 		}
 	}
+	/**
+	 * Creating a CreditPool
+	 *
+	 * @param Order $order
+	 * @param number $creditAmount
+	 *
+	 * @return CreditPool
+	 */
+	public static function createByOrder(Order $order, $creditAmt)
+	{
+		$customer = $order->getCustomer();
+		if (!$customer instanceof Customer)
+		{
+			// must have customer info to create credit
+			return null;
+		}
+		// if created from customer
+		$objs = self::getAllByCriteria('customerId = ? and storeId = ?', array($customer->getId(), Core::getUser()->getStore()->getId()), true, 1, 1);
+		$creditpool = ( count($objs) > 0 ? $objs[0] : new CreditPool() );
+
+		$creditAmt = doubleval($creditAmt);
+		$creditpool->setCustomer($customer)
+		->setTotalCreditLeft($creditAmt)
+		->setStore(Core::getUser()->getStore())
+		->save();
 	
+		//Create log for creditpool
+		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_CREDIT, $order->getId(), $creditAmt);
+		return $creditpool;
+	}
 }
