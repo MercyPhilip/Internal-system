@@ -15,6 +15,17 @@ CREATE TABLE `store` (
   KEY `updatedById` (`updatedById`) 
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
+insert into store (`name`,  `created`, `createdById`, `updated`, `updatedById` ) values
+    ('Mount Waverley', NOW(), 10, NOW(), 10);
+insert into store (`name`,  `created`, `createdById`, `updated`, `updatedById` ) values
+    ('Moorabbin', NOW(), 10, NOW(), 10);
+
+INSERT INTO `useraccount` VALUES ('11', '1', 'b81b7c0ca8a16a5b31bdacfc0e08e6fdc8d1d1ce', 'disabled', '11', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:36:02', '10');
+INSERT INTO `useraccount` VALUES ('12', '2', 'b9e94e700a72f60b2cf0fea69e6b46142166863a', 'disabled', '12', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:38:14', '10');
+
+INSERT INTO `person` VALUES ('11', '1', 'System', 'MountWaverley', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:37:11', '10');
+INSERT INTO `person` VALUES ('12', '2', 'System', 'Moorabbin', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:38:24', '10');
+
 -- ----------------------------
 -- Table structure for productstockinfo
 -- ----------------------------
