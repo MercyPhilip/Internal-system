@@ -88,11 +88,94 @@ ALTER TABLE bpcinternal.useraccount ADD COLUMN `storeId` INT(10) NOT NULL DEFAUL
 ALTER TABLE bpcinternal.message ADD COLUMN `storeId` INT(10) NOT NULL DEFAULT 1 AFTER `id`, ADD INDEX(`storeId`);
 
 
-insert into productstockinfo(storeId, productId, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId)
-select 1, id, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId from product;
 
-insert into productstockinfo(storeId, productId, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId)
-select 2, id, 0, 0, 0, 0, 0, 0, 0, stockMinLevel, stockReorderLevel, 0, 4 from product;
+insert into productstockinfo(storeId, productId, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId, createdById, updatedById)
+select 1, id, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId, createdById, updatedById from product;
 
-insert into productstockinfo(storeId, productId, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId)
-select 3, id, 0, 0, 0, 0, 0, 0, 0, stockMinLevel, stockReorderLevel, 0, 4 from product;
+insert into productstockinfo(storeId, productId, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId, createdById, updatedById)
+select 2, id, 0, 0, 0, 0, 0, 0, 0, stockMinLevel, stockReorderLevel, 0, 4, createdById, updatedById from product;
+
+-- insert into productstockinfo(storeId, productId, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId, createdById, updatedById)
+-- select 3, id, 0, 0, 0, 0, 0, 0, 0, stockMinLevel, stockReorderLevel, 0, 4, createdById, updatedById from product;
+DROP TRIGGER IF EXISTS update_stock_status;
+
+DROP TRIGGER IF EXISTS update_sku_map;
+DELIMITER $$
+CREATE TRIGGER update_sku_map Before UPDATE ON product 
+FOR EACH ROW 
+BEGIN
+  declare $productId int default null;
+  if old.sku <> new.sku then
+    select productId into $productId from productskumap where productId = old.id and active = 1;
+    if (isnull($productId)) then
+        insert into productskumap(productId, msku, fsku, created, createdById, updatedById) values( old.id, old.sku, new.sku, now(), new.updatedById, new.updatedById);
+    else
+        update productskumap set fsku = new.sku, updatedById=new.updatedById where productId =old.id and active = 1;
+    end if;
+  end if;
+END $$
+DELIMITER ;
+
+ALTER TABLE bpcinternal.product 
+   DROP COLUMN totalOnHandValue, 
+   DROP COLUMN totalInPartsValue, 
+   DROP COLUMN stockOnHand, 
+   DROP COLUMN stockOnOrder, 
+   DROP COLUMN stockOnPO,
+   DROP COLUMN stockInParts, 
+   DROP COLUMN stockInRMA, 
+   DROP COLUMN stockMinLevel, 
+   DROP COLUMN stockReorderLevel, 
+   DROP COLUMN totalRMAValue, 
+   DROP COLUMN statusId;
+
+DROP TRIGGER IF EXISTS update_stock_sow;
+DELIMITER $$
+CREATE TRIGGER update_stock_sow Before UPDATE ON productstockinfo 
+FOR EACH ROW 
+BEGIN
+  declare $min_in_stock_amount int;
+  declare $supplier_quantity int;
+  declare $mel_quantity int;
+  declare $other_quantity int;
+  declare $sellOnWeb int;
+  select value into $min_in_stock_amount from systemsettings where type='min_in_stock_amount' and active = 1;
+  if old.stockOnHand = new.stockOnHand then
+    begin
+    end;
+  else
+     begin
+     select IFNULL(sum(canSupplyQty),0) into $supplier_quantity from suppliercode where productId = old.productId and active = 1;
+     set $mel_quantity  = substr(LPAD(cast($supplier_quantity as char(10)),10,'0'),1,5);
+     set $other_quantity = substr(LPAD(cast($supplier_quantity as char(10)),10,'0'),6,5);
+     set $mel_quantity = new.stockOnHand + $mel_quantity;
+     if $mel_quantity  >= $min_in_stock_amount then
+         set new.statusId = 2;
+     elseif $mel_quantity >0 then
+         set new.statusId = 5;
+     elseif  $other_quantity > 0 then
+         set new.statusId = 4;
+     else
+        set new.statusId = 8;
+     end if;
+     if new.stockOnHand > 1 then
+         select sellOnWeb into $sellOnWeb from product where id = old.productId;
+         if $sellOnWeb <> 1 then
+           update product set sellOnWeb = 1 where id = old.productId;
+         end if;
+     end if;
+     end;
+  end if;
+END $$
+DELIMITER ;
+
+DROP TRIGGER IF EXISTS updateproductpricehistory;
+delimiter //
+CREATE TRIGGER updateproductpricehistory BEFORE UPDATE ON productprice 
+FOR EACH ROW 
+BEGIN
+  if NEW.price <> OLD.price then
+    INSERT INTO productprice_history SELECT NULL, h.*, NEW.price, NOW() FROM productprice h WHERE id = OLD.id;
+  end if;
+END;//
+
