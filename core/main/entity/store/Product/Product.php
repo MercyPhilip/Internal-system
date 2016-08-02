@@ -315,7 +315,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return Ambigous <UDate, NULL>
 	 */
-	public function getAsNewFromDate ()
+	public function getAsNewFromDate()
 	{
 	    if($this->asNewFromDate !== null)
 	        return new UDate(trim($this->asNewFromDate));
@@ -338,7 +338,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return Ambigous <UDate, NULL>
 	 */
-	public function getAsNewToDate ()
+	public function getAsNewToDate()
 	{
 	    if($this->asNewToDate !== null)
 	        return new UDate(trim($this->asNewToDate));
@@ -361,7 +361,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return boolean
 	 */
-	public function getSellOnWeb ()
+	public function getSellOnWeb()
 	{
 		return $this->sellOnWeb;
 	}
@@ -479,7 +479,11 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockOnHand($value)
 	{
-	     $this->getStock()->setStockOnHand($value)->save();
+	    $productStockInfo = $this->getStock();
+	    if ($productStockInfo instanceof ProductStockInfo)
+	    {
+	    	$productStockInfo->setStockOnHand($value)->save();
+	    }
 	    return $this;
 	}
 	/**
@@ -672,7 +676,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return ProductStatus
 	 */
-	public function getStatus ()
+	public function getStatus()
 	{
 		//$this->loadManyToOne('status');
 		return $this->getStock()->getStatus();
@@ -694,7 +698,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return Manufacturer
 	 */
-	public function getManufacturer ()
+	public function getManufacturer()
 	{
 		$this->loadManyToOne('manufacturer');
 		return $this->manufacturer;
@@ -716,7 +720,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return double
 	 */
-	public function getTotalOnHandValue  ()
+	public function getTotalOnHandValue()
 	{
 		return $this->getStock()->getTotalOnHandValue();
 	}
@@ -727,9 +731,11 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return Product
 	 */
-	public function setTotalOnHandValue ($value )
+	public function setTotalOnHandValue($value )
 	{
-		$this->getStock()->setTotalOnHandValue($value)->save();
+		$productStockInfo = $this->getStock();
+		if ($productStockInfo instanceof ProductStockInfo)
+			$productStockInfo->setTotalOnHandValue($value)->save();
 		return $this;
 	}
 	/**
@@ -737,7 +743,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return double
 	 */
-	public function getTotalInPartsValue  ()
+	public function getTotalInPartsValue()
 	{
 		return $this->getStock()->getTotalInPartsValue();
 	}
@@ -748,7 +754,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return Product
 	 */
-	public function setTotalInPartsValue ($value )
+	public function setTotalInPartsValue($value )
 	{
 		$this->getStock()->setTotalInPartsValue($value)->save();
 		return $this;
@@ -758,7 +764,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return string
 	 */
-	public function getAssetAccNo  ()
+	public function getAssetAccNo()
 	{
 		return $this->assetAccNo ;
 	}
@@ -769,7 +775,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return Product
 	 */
-	public function setAssetAccNo ($value )
+	public function setAssetAccNo($value )
 	{
 		$this->assetAccNo = $value;
 		return $this;
@@ -779,7 +785,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return string
 	 */
-	public function getRevenueAccNo  ()
+	public function getRevenueAccNo()
 	{
 		return $this->revenueAccNo ;
 	}
@@ -790,7 +796,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return Product
 	 */
-	public function setRevenueAccNo ($value )
+	public function setRevenueAccNo($value )
 	{
 		$this->revenueAccNo = $value;
 		return $this;
@@ -800,7 +806,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return string
 	 */
-	public function getCostAccNo  ()
+	public function getCostAccNo()
 	{
 		return $this->costAccNo ;
 	}
@@ -811,7 +817,7 @@ class Product extends InfoEntityAbstract
 	 *
 	 * @return Product
 	 */
-	public function setCostAccNo ($value )
+	public function setCostAccNo($value )
 	{
 		$this->costAccNo = $value;
 		return $this;
@@ -1132,8 +1138,8 @@ class Product extends InfoEntityAbstract
 			$totalValue = (trim($result[0]['totalValue']) === '' ? '0.0000' : trim($result[0]['totalValue']));
 			$totalCount = (trim($result[0]['totalCount']) === '' ? '0' : trim($result[0]['totalCount']));
 			if(($originalTotalOnHandValue = trim($this->getTotalInPartsValue())) !== $totalValue || ($originalStockOnHand = trim($this->getStockOnHand())) !== $totalCount) { //if not matched, then we need to adjust the qty
-				$this->setStockOnHand($totalCount)
-				->setTotalOnHandValue($totalValue)
+				$this->setTotalOnHandValue($totalValue)
+				->setStockOnHand($totalCount)
 				->snapshotQty($this, ProductQtyLog::TYPE_STOCK_ADJ, 'Realigning the TotalInPartsValue to ' . StringUtilsAbstract::getCurrency($totalValue) . ' and StockOnHand to ' . $totalCount)
 				->save()
 				->addLog('StockOnHand(' . $originalStockOnHand . ' => ' . $this->getStockOnHand() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
@@ -1288,9 +1294,9 @@ class Product extends InfoEntityAbstract
 		$newStockOnOrder = ($originStockOnOrder = $this->getStockOnOrder()) + $qty;
 		if($newStockOnOrder < 0  && intval(SystemSettings::getSettings(SystemSettings::TYPE_ALLOW_NEGTIVE_STOCK)) !== 1)
 			throw new Exception('Product (SKU:' . $this->getSKU() . ') can NOT be ' . $action . ' , as there is not enough stock: new stock on order will fall below zero');
-		return $this->setStockOnHand($newQty)
-		->setStockOnOrder($newStockOnOrder)
+		return $this->setStockOnOrder($newStockOnOrder)
 		->setTotalOnHandValue(($origTotalOnHandValue = $this->getTotalOnHandValue()) - $totalCost)
+		->setStockOnHand($newQty)
 		->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_SALES_ORDER, $action . ': ' . ($order instanceof Order ? '[' . $order->getOrderNo() . ']' : '') . $comments)
 		->save()
 		->addLog('StockOnHand(' . $originStockOnHand . ' => ' . $this->getStockOnHand() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
@@ -1323,8 +1329,8 @@ class Product extends InfoEntityAbstract
 		}
 	
 		return $this->setStockOnPO(($origStockOnPO = $this->getStockOnPO()) - $qty)
-		->setStockOnHand($newStockOnHand)
 		->setTotalOnHandValue($newStockOnHandValue)
+		->setStockOnHand($newStockOnHand)
 		->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_PO, 'Stock received: ' . $comments)
 		->save()
 		->addLog('StockOnPO(' . $origStockOnPO . ' => ' .$this->getStockOnPO() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
@@ -1398,8 +1404,8 @@ class Product extends InfoEntityAbstract
 	public function createAsAKit($comments, Kit $entity)
 	{
 		$task = ($entity instanceof Kit ? $entity->getTask() : null);
-		return $this->setStockOnHand(($originalStockOnHand = $this->getStockOnHand()) + 1)
-		->setTotalOnHandValue(($originalTotalOnHandValue = $this->getTotalOnHandValue()) + $entity->getCost())
+		return $this->setTotalOnHandValue(($originalTotalOnHandValue = $this->getTotalOnHandValue()) + $entity->getCost())
+		->setStockOnHand(($originalStockOnHand = $this->getStockOnHand()) + 1)
 		->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_WORKSHOP,
 				'Created a Kit[' . $entity->getBarcode() . '] with value(cost=' . StringUtilsAbstract::getCurrency($entity->getCost())  . ')' . ($task instanceof Task ? ' generated from Task[' . $task->getId() . ']' : '') . (trim($comments) === '' ? '.' : ': ' . $comments))
 				->save()
@@ -1421,10 +1427,10 @@ class Product extends InfoEntityAbstract
 		$kitComponent = $entity instanceof KitComponent ? $entity : null;
 		$kit = ($kitComponent instanceof KitComponent ? $kitComponent->getKit() : ($entity instanceof Kit ? $entity : null));
 		$task = ($kit instanceof Kit ? $kit->getTask() : null);
-		return $this->setStockOnHand(($originalStockOnHand = $this->getStockOnHand()) - $qty)
-		->setTotalOnHandValue(($originalTotalOnHandValue = $this->getTotalOnHandValue()) - ($qty * $unitCost))
+		return $this->setTotalOnHandValue(($originalTotalOnHandValue = $this->getTotalOnHandValue()) - ($qty * $unitCost))
 		->setStockInParts(($originalStockInParts = $this->getStockInParts()) + $qty)
 		->setTotalInPartsValue(($originalTotalInPartValue = $this->getTotalInPartsValue()) + ($qty * $unitCost))
+		->setStockOnHand(($originalStockOnHand = $this->getStockOnHand()) - $qty)
 		->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_WORKSHOP,
 				'Stock ' . (intval($qty) <= 0 ? 'uninstalled from' : 'installed into') . ($kit instanceof Kit ? ' Kit [' . $kit->getBarcode() . ']' : '') . ($task instanceof Task ? ' generated from Task [' . $task->getId() . ']' : '') . (trim($comments) === '' ? '.' : ': ' . $comments))
 				->save()
@@ -1445,8 +1451,8 @@ class Product extends InfoEntityAbstract
 	{
 		$creditNote = ($entity instanceof CreditNote ? $entity : ($entity instanceof CreditNoteItem ? $entity->getCreditNote() : null));
 		$order = ($creditNote instanceof CreditNote ? $creditNote->getOrder() : null);
-		return $this->setStockOnHand(($originalStockOnHand = $this->getStockOnHand()) + $qty)
-		->setTotalOnHandValue(($originalTotalOnHandValue = $this->getTotalOnHandValue()) + ($qty * $unitCost))
+		return $this->setTotalOnHandValue(($originalTotalOnHandValue = $this->getTotalOnHandValue()) + ($qty * $unitCost))
+		->setStockOnHand(($originalStockOnHand = $this->getStockOnHand()) + $qty)
 		->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_RMA, 'Return StockOnHand ' . ($creditNote instanceof CreditNote ? ' from CreditNote[' . $creditNote->getCreditNoteNo() . ']' : '') . ($order instanceof Order ? ' generated from Order[' . $order->getOrderNo() . ']' : '') . (trim($comments) === '' ? '.' : ': ' . $comments))
 		->save()
 		->addLog('StockOnHand(' . $originalStockOnHand . ' => ' . $this->getStockOnHand() . '), TotalRMAValue(' . $originalTotalOnHandValue . ' => ' . $this->getTotalOnHandValue() . ')' . (trim($comments) === '' ? '.' : ': ' . $comments),
@@ -1468,8 +1474,8 @@ class Product extends InfoEntityAbstract
 		$unitCostFromRMA = intval($this->getStockInRMA()) === 0 ? 0 : ($this->getTotalRMAValue() /  $this->getStockInRMA());
 		return $this->setStockInRMA(($originalStockOnRMA = $this->getStockInRMA()) - $qty)
 		->setTotalRMAValue(($originalTotalRMAValue = $this->getTotalRMAValue()) - ($qty * $unitCostFromRMA))
-		->setStockOnHand(($originStockOnHand = $this->getStockOnHand()) + $qty)
 		->setTotalOnHandValue(($originalTotalOnHandValue = $this->getTotalOnHandValue()) + ($qty * $unitCostFromRMA))
+		->setStockOnHand(($originStockOnHand = $this->getStockOnHand()) + $qty)
 		->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_RMA, 'Stock Fixed from: ' . ($creditNote instanceof CreditNote ? 'RMA[' . $rma->getRaNo() . ']' : '') . ($order instanceof Order ? ' generated from Order[' . $order->getOrderNo() . ']' : ''). (trim($comments) === '' ? '.' : ': ' . $comments))
 		->save()
 		->addLog('StockInRMA(' . $originalStockOnRMA . ' => ' . $this->getStockInRMA() . '), TotalRMAValue(' . $originalTotalRMAValue . ' => ' . $this->getTotalRMAValue() . '), StockOnHand(' . $originStockOnHand . ' => ' . $this->getStockOnHand() . '), TotalOnHandValue(' . $originalTotalOnHandValue . ' => ' . $this->getTotalOnHandValue() . ')' . (trim($comments) === '' ? '.' : ': ' . $comments)
@@ -1491,10 +1497,6 @@ class Product extends InfoEntityAbstract
 			throw new Exception('At least one of these quuanties needed: stockOnHand, stockOnOrder, stockInParts or stockInRMA');
 		$unitCost = $this->getUnitCost();
 		$originalProduct = self::get($this->getId());
-		if ($stockOnHand != null && ($stockOnHand = trim($stockOnHand)) !== trim($origStockOnHand = $originalProduct->getStockOnHand())) {
-			$this->setTotalOnHandValue($stockOnHand * $unitCost)
-			->setStockOnHand($stockOnHand);
-		}
 		if ($stockOnOrder != null && ($stockOnOrder = trim($stockOnOrder)) !== trim($origStockOnOrder = $originalProduct->getStockOnOrder())) {
 			$this->setStockOnOrder($stockOnOrder);
 		}
@@ -1507,6 +1509,10 @@ class Product extends InfoEntityAbstract
 		}
 		if ($stockOnPO != null && ($stockOnPO = trim($stockOnPO)) !== trim($origStockOnPO = $originalProduct->getStockOnPO())) {
 			$this->setStockOnPO($stockOnPO);
+		}
+		if ($stockOnHand != null && ($stockOnHand = trim($stockOnHand)) !== trim($origStockOnHand = $originalProduct->getStockOnHand())) {
+			$this->setTotalOnHandValue($stockOnHand * $unitCost)
+			->setStockOnHand($stockOnHand);
 		}
 		$msg = 'Stock changed: StockOnHand [' . $origStockOnHand . ' => ' . $this->getStockOnHand() . '], '
 				. 'StockOnOrder [' . $origStockOnOrder . ' => ' . $this->getStockOnOrder() . '], '
@@ -1682,12 +1688,12 @@ class Product extends InfoEntityAbstract
 				$stock = ProductStockInfo::create($product, null, $store);
 			if($stockOnOrder !== null && is_numeric($stockOnOrder))
 				$product->setStockOnOrder(intval($stockOnOrder));
-			if($stockOnHand !== null && is_numeric($stockOnHand))
-				$product->setStockOnHand(intval($stockOnHand));
 			if($stockMinLevel !== null && is_numeric($stockMinLevel))
 				$product->setStockMinLevel(intval($stockMinLevel));
 			if($stockReorderLevel !== null && is_numeric($stockReorderLevel))
 				$product->setStockReorderLevel(intval($stockReorderLevel));
+			if($stockOnHand !== null && is_numeric($stockOnHand))
+				$product->setStockOnHand(intval($stockOnHand));
 			if($assetAccNo !== null && is_string($assetAccNo))
 				$product->setAssetAccNo(trim($assetAccNo));
 			if($revenueAccNo !== null && is_string($revenueAccNo))

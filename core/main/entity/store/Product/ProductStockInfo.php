@@ -412,12 +412,12 @@ class ProductStockInfo extends BaseEntityAbstract
 			$stock->setStatus($status);
 			if($stockOnOrder !== null && is_numeric($stockOnOrder))
 				$stock->setStockOnOrder(intval($stockOnOrder));
-			if($stockOnHand !== null && is_numeric($stockOnHand))
-				$stock->setStockOnHand(intval($stockOnHand));
 			if($stockMinLevel !== null && is_numeric($stockMinLevel))
 				$stock->setStockMinLevel(intval($stockMinLevel));
 			if($stockReorderLevel !== null && is_numeric($stockReorderLevel))
 				$stock->setStockReorderLevel(intval($stockReorderLevel));
+			if($stockOnHand !== null && is_numeric($stockOnHand))
+				$stock->setStockOnHand(intval($stockOnHand));
 			return $stock->save();
 		}
 		return null;

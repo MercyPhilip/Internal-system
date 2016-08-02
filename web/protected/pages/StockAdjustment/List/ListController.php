@@ -103,7 +103,7 @@ class ListController extends BPCPageAbstract
 		{
 			Dao::beginTransaction();
 			$items = array();
-			var_dump($param->CallbackParameter->products);
+			//var_dump($param->CallbackParameter->products);
 			$products = array();
 			foreach ($param->CallbackParameter->products as $item)
 			{
@@ -111,8 +111,6 @@ class ListController extends BPCPageAbstract
 					throw new Exception('Invalid Product passed in!');
 				if(($stockOnPO = trim($item->stockOnPO)) !== $product->getstockOnPO())
 					$product->setStockOnPO($stockOnPO);
-				if(($stockOnHand = trim($item->stockOnHand)) !== $product->getStockOnHand())
-					$product->setStockOnHand($stockOnHand);
 				if(($stockOnOrder = trim($item->stockOnOrder)) !== $product->getStockOnOrder())
 					$product->setStockOnOrder($stockOnOrder);
 				if(($stockInRMA = trim($item->stockInRMA)) !== $product->getStockInRMA())
@@ -121,9 +119,10 @@ class ListController extends BPCPageAbstract
 					$product->setStockInParts($stockInParts);
 				if(($totalInPartsValue = trim($item->totalInPartsValue)) !== $product->getTotalInPartsValue())
 					$product->setTotalInPartsValue($totalInPartsValue);
-				if(($totalOnHandValue = trim($item->totalOnHandValue)) !== $product->getTotalOnHandValue()) {
+				if(($totalOnHandValue = trim($item->totalOnHandValue)) !== $product->getTotalOnHandValue())
 					$product->setTotalOnHandValue($totalOnHandValue);
-				}
+				if(($stockOnHand = trim($item->stockOnHand)) !== $product->getStockOnHand())
+					$product->setStockOnHand($stockOnHand);
 				$product->snapshotQty(null, ProductQtyLog::TYPE_STOCK_ADJ, 'Manual Adjusted by ' . Core::getUser()->getPerson()->getFullName())->save();
 				$products[] = $product->getJson();
 			}

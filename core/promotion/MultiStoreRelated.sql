@@ -104,10 +104,10 @@ insert into productstockinfo(storeId, productId, totalOnHandValue, totalInPartsV
 select 1, id, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId, createdById, updatedById from product;
 
 insert into productstockinfo(storeId, productId, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId, createdById, updatedById)
-select 2, id, 0, 0, 0, 0, 0, 0, 0, stockMinLevel, stockReorderLevel, 0, 4, createdById, updatedById from product;
+select 2, id, 0, 0, 0, 0, 0, 0, 0, stockMinLevel, stockReorderLevel, 0, 8, createdById, updatedById from product;
 
 -- insert into productstockinfo(storeId, productId, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId, createdById, updatedById)
--- select 3, id, 0, 0, 0, 0, 0, 0, 0, stockMinLevel, stockReorderLevel, 0, 4, createdById, updatedById from product;
+-- select 3, id, 0, 0, 0, 0, 0, 0, 0, stockMinLevel, stockReorderLevel, 0, 8, createdById, updatedById from product;
 DROP TRIGGER IF EXISTS update_stock_status;
 
 DROP TRIGGER IF EXISTS update_sku_map;
