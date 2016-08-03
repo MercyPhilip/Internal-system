@@ -290,7 +290,16 @@ abstract class Dao
              
             //if it's just a private data for this entity class
             if (!isset($properties['rel']))
+            {
                 $params[$field] = self::_getProperty($entity, $field);
+                if (isset($properties['type']) && ($properties['type'] == 'bool'))
+                {
+                	if (!isset($params[$field]) || ($params[$field] == ''))
+                	{
+                		$params[$field] = $properties['default'];
+                	}
+                }
+            }
             //if it's a relationship then we need to consider repopulate object(s)
             else if ($properties['rel'] === DaoMap::MANY_TO_ONE || ($properties['rel'] === DaoMap::ONE_TO_ONE))
             {
