@@ -1083,7 +1083,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 								)
 					)
 			})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'buyinprice hide-when-info', 'style' : 'width:5%;' }).addClassName('col-xs-1').setStyle(tmp.me._storeId === 1 ? 'display: none;' : '').update(
+			.insert({'bottom': tmp.me._storeId == 1 ? '' : new Element(tmp.tag, {'class': 'buyinprice hide-when-info', 'style' : 'width:5%;' }).addClassName('col-xs-1').update(
 					tmp.isTitle === true ? 
 					new Element('div', {'class': 'row'})
 						.insert({'bottom': new Element('div', {'class': 'col-xs-12 text-right', 'title': 'Buyin price from Store1'}).update('Buyin') })
@@ -1163,7 +1163,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.me._readOnlyMode = !mode;
 		tmp.me._storeId = storeId;
 		tmp.me._roleId = roleId;
-		if (tmp.me._readOnlyMode || tmp.me._storeId !== 1)
+		if (tmp.me._readOnlyMode || tmp.me._storeId != 1)
 		{
 			jQuery('#newProductBtn').hide();
 			jQuery('#newPriceMatchRuleBtn').hide();
