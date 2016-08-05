@@ -333,7 +333,7 @@ class ListController extends CRUDPageAbstract
     				continue;
     			$tierLevelId = trim($tierprice['tierId']);
     			$tierLevel = TierLevel::get($tierLevelId);
-    			$quantity = trim($tierprice['quantity']);
+    			$quantity = intval(trim($tierprice['quantity']));
     			$value = trim($tierprice['value']);
     			if(!isset($tierprice['id']) || ($id = trim($tierprice['id'])) === '')
     			{

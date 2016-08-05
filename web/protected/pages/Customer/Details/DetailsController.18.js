@@ -83,6 +83,11 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		if(tmp.row) {
 			tmp.row.replace(tmp.parentWindow.pageJs._getResultRow(tmp.me._item).addClassName('success'));
 		}
+		else
+		{
+			if (tmp.parentWindow.pageJs && (typeof tmp.parentWindow.pageJs.getSearchCriteria == 'function'))
+				tmp.parentWindow.pageJs.getSearchCriteria().getResults(true, tmp.parentWindow.pageJs._pagination.pageSize);
+		}
 	}
 	/**
 	 * Load the tier level
@@ -129,7 +134,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Terms', new Element('input', {'save-item': 'terms', 'type': 'value', 'value': tmp.item.terms ? tmp.item.terms : ''}) ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Tier Level', tmp.me._getTierSelBox() ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('IsBlocked?', new Element('input', {'save-item': 'isBlocked', 'type': 'checkbox', 'checked': tmp.item.isBlocked ? tmp.item.isBlocked : false}) ) ) })
-					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Active?', new Element('input', {'save-item': 'active', 'type': 'checkbox', 'checked': tmp.item.active ? tmp.item.active : true}) ) ) })
+					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Active?', new Element('input', {'save-item': 'active', 'type': 'checkbox', 'checked': tmp.item.active ? tmp.item.active : false}) ) ) })
 				})
 			})
 		;

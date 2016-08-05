@@ -35,7 +35,9 @@ class ListController extends CRUDPageAbstract
 		$js .= "pageJs._bindSearchKey()";
 		$js .= '._loadTiers('.json_encode($tiers).')';
 		$js .= "._loadChosen()";
+		$js .= "._bindMergeCustomersBtn()";
 		$js .= ".setCallbackId('deactivateItems', '" . $this->deactivateItemBtn->getUniqueID() . "')";
+		$js .= ".setCallbackId('mergeCustomers', '" . $this->mergeBtn->getUniqueID() . "')";
 		$js .= ".getResults(true, " . $this->pageSize . ");";
 		return $js;
 	}
@@ -149,6 +151,78 @@ class ListController extends CRUDPageAbstract
             $errors[] = $ex->getMessage() . $ex->getTraceAsString();
         }
         $param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	}
+	/**
+	 * merge customers
+	 * @param unknown $sender
+	 * @param unknown $param
+	 * @throws Exception
+	 */
+	public function mergeCustomers($sender, $param)
+	{
+		$results = $errors = array();
+		try
+		{
+			Dao::beginTransaction();
+			$customers = isset($param->CallbackParameter) && isset($param->CallbackParameter->item) ? $param->CallbackParameter->item : array();
+			if (count($customers) > 1)
+			{
+				// select one as base
+				$baseCustomer = $customers[0]->id;
+				$baseCustomer = Customer::get($baseCustomer);
+				if (!$baseCustomer instanceof Customer)
+				{
+					throw new Exception('Invalid customer!');
+				}
+				if ($baseCustomer->getCreditPool() instanceof CreditPool)
+				{
+					$baseCustomerCredit = $baseCustomer->getCreditPool();
+				}
+				else
+				{
+					// create new one
+					$baseCustomerCredit = new CreditPool();
+					$baseCustomerCredit->setCustomer($baseCustomer)
+						->setStore(Core::getUser()->getStore())
+						->setTotalCreditLeft(0)->save();
+				}
+				foreach($customers as $customer)
+				{
+					$customer = $customer->id;
+					$customer = Customer::get($customer);
+					if (!$customer instanceof Customer) continue;
+					if ($customer->getId() == $baseCustomer->getId()) continue;
+					// 1) replace customerId in creditnote, order, rma, task tables
+					//$orders = Dao::execSql('update `order` set customerId = :baseCustomerId where customerId = :customerId and active = 1', array('baseCustomerId' => $baseCustomer->getId(), 'customerId' => $customer->getId()));
+					$orders = Order::updateByCriteria('customerId = :baseCustomerId', 'customerId = :customerId and active = 1', array('baseCustomerId' => $baseCustomer->getId(), 'customerId' => $customer->getId()));
+					//$rmas = Dao::execSql('update `rma` set customerId = :baseCustomerId where customerId = :customerId and active = 1',  array('baseCustomerId' => $baseCustomer->getId(), 'customerId' => $customer->getId()));
+					$rmas = RMA::updateByCriteria('customerId = :baseCustomerId', 'customerId = :customerId and active = 1', array('baseCustomerId' => $baseCustomer->getId(), 'customerId' => $customer->getId()));
+					//$tasks = Dao::execSql('update `task` set customerId = :baseCustomerId where customerId = :customerId and active = 1',  array('baseCustomerId' => $baseCustomer->getId(), 'customerId' => $customer->getId()));
+					$tasks = Task::updateByCriteria('customerId = :baseCustomerId', 'customerId = :customerId and active = 1', array('baseCustomerId' => $baseCustomer->getId(), 'customerId' => $customer->getId()));
+					//$creditnotes = Dao::execSql('update `creditnote` set customerId = :baseCustomerId where customerId = :customerId and active = 1',  array('baseCustomerId' => $baseCustomer->getId(), 'customerId' => $customer->getId()));
+					$creditnotes = CreditNote::updateByCriteria('customerId = :baseCustomerId', 'customerId = :customerId and active = 1', array('baseCustomerId' => $baseCustomer->getId(), 'customerId' => $customer->getId()));
+					// 2) merge credit to one customer and delete the others
+					$customerCreditPool =  $customer->getCreditPool();
+					if ($customerCreditPool instanceof CreditPool)
+					{
+						$credits = $customerCreditPool->getTotalCreditLeft();
+						$baseCustomerCredit->setTotalCreditLeft($credits)->save();
+						$customerCreditPool->setActive(false)->save();
+					}
+					
+					// 3) deactivate the customer in customer table
+					$customer->setActive(false)->save();
+				}
+			}
+			Dao::commitTransaction();
+		}
+		catch(Exception $ex)
+		{
+			Dao::rollbackTransaction();
+			$errors[] = $ex->getMessage();
+		}
+		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	
 	}
 }
 ?>

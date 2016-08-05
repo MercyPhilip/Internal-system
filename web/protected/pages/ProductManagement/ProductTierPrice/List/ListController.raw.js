@@ -128,6 +128,10 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 							.insert({'bottom': new Element('i', {'class': 'btn btn-success btn-lg pull-right'}).update('Yes').setStyle(tmp.selected.length === 0 ? 'display: none;' : '') 
 								.observe('click', function(){
 									jQuery("#select2-drop-mask").select2("close"); // close all select2
+									jQuery('#' + tmp.me.modalId).on("hidden.bs.modal", function(){
+										if (jQuery('.tooltip'))
+											jQuery('.tooltip').remove();
+									});
 									$(this).up('.modal-body').update('')
 										.insert({'bottom': tmp.ruleContainer = tmp.me._getTierPriceRuleEl(null, tmp.selected) })
 										.insert({'bottom': new Element('div', {'class': 'row', 'id': tmp.me.newRuleResultContainerId}) });
@@ -164,6 +168,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.insert({'bottom': new Element('i', {'class': 'btn btn-sm btn-success btn-new-rule right-panel'}).update('Confirm') 
 					.observe('click', function(e){
 						tmp.me._tierPriceRule = tmp.me._collectFormData($(this).up('.modal-body'), 'list-panel-row', 'list-item');
+						if (tmp.me._tierPriceRule == null) return;
 						tmp.me._selected = tmp.product === null ? tmp.selected : tmp.product;
 						tmp.me._postIndex = 0;
 						tmp.me.postNewRule($(this));
@@ -723,6 +728,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					} else {
 						$(this).up('.list-panel-row').remove();
 					}
+					if (jQuery('.tooltip'))
+						jQuery('.tooltip').remove();
 				})
 			});
 		tmp.newRow.insert({'bottom': new Element(tmp.tag).update( tmp.isTitle === true ? titleData.value : tmp.inputBoxDiv.wrap(new Element('div', {'class': 'form-group'})) ) });

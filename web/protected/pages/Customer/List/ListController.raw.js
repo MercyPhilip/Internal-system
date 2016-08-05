@@ -122,6 +122,67 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		jQuery('#' + btn.id).popover('toggle');
 		return tmp.me;
 	}
+	,_bindMergeCustomersBtn: function(btn) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.btn = (btn || $('mergeBtn'));
+		
+		tmp.me.observeClickNDbClick(
+				tmp.btn
+				,function(){
+					tmp.selected = tmp.me._getSelection();
+					tmp.totalQty = $('total-found-count').innerHTML;
+					
+					if(tmp.selected !== null && tmp.selected.length > 1) {
+						if(confirm('You are about to merge multiple customers.\n' + (tmp.selected.length - 1) + ' customer(s) will be deleted. Continue?'))
+						{
+							// continue;
+							tmp.me.postAjax(tmp.me.getCallbackId('mergeCustomers'), {'item': tmp.selected}, {
+								'onLoading': function () {
+									
+								}
+								,'onSuccess': function(sender, param) {
+									try{
+										// refresh all
+										tmp.me.getSearchCriteria().getResults(true, tmp.me._pagination.pageSize);
+										tmp.result = tmp.me.getResp(param, false, true);
+									} catch (e) {
+										tmp.me.showModalBox('<span class="text-danger">ERROR:</span>', e, true);
+									}
+								}
+							});
+						}
+						return tmp.me;
+					}
+					else
+					{
+						alert('Please select at least two customers that you want to merge!');
+					}
+				}
+				,null
+				);
+		return tmp.me;
+	}
+	/**
+	 * get selected
+	 */
+	,_getSelection: function() {
+		var tmp = {}
+		tmp.me = this;
+		tmp.customers = [];
+		
+		tmp.itemList = $('item-list');
+		tmp.itemList.getElementsBySelector('.btn-hide-row.item_row').each(function(row){
+			tmp.checked = row.down('input.customer-selected[type="checkbox"]').checked;
+			tmp.customerId = row.readAttribute('item_id');
+			if(tmp.checked === true && jQuery.isNumeric(tmp.customerId) === true)
+				tmp.customers.push(row.retrieve('data'));
+		});
+		
+		$('total-selected-count').update(tmp.customers.length);
+		
+		return tmp.customers;
+	}
 	/**
 	 * get result row for data given
 	 */
@@ -131,19 +192,30 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.tag = (tmp.isTitle === true ? 'th' : 'td');
 		tmp.isTitle = (isTitle || false);
 		tmp.row = new Element('tr', {'class': (tmp.isTitle === true ? 'item_top_row' : 'btn-hide-row item_row') + (row.active == 0 ? ' danger' : ''), 'item_id': (tmp.isTitle === true ? '' : row.id)}).store('data', row)
-			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-1'}).update(row.name) 
-				.observe('click', function(){
-					tmp.me._highlightSelectedRow(this);
-					$$('.popover-loaded').each(function(item){
-						jQuery(item).popover('hide');
-					});
-				})	
-				.observe('dblclick', function(){
-					$$('.popover-loaded').each(function(item){
-						jQuery(item).popover('hide');
-					});
-					tmp.me._openEditPage(row);
-				})	
+			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-2'})
+				.insert({'bottom': tmp.isTitle == true? '' : new Element('span').setStyle('margin: 0 5px 0 0')
+					.insert({'bottom': new Element('input', {'type': 'checkbox', 'class': 'customer-selected'})
+						.observe('click', function(e){
+							tmp.checked = this.checked;
+							tmp.me._getSelection();
+						})
+					})
+				})
+				.insert({'bottom': new Element('span').setStyle('margin: 0 5px 0 0')
+					.update(row.name) 
+					.observe('click', function(){
+						tmp.me._highlightSelectedRow(this);
+						$$('.popover-loaded').each(function(item){
+							jQuery(item).popover('hide');
+						});
+					})	
+					.observe('dblclick', function(){
+						$$('.popover-loaded').each(function(item){
+							jQuery(item).popover('hide');
+						});
+						tmp.me._openEditPage(row);
+					})
+				})
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'email col-xs-1', 'style': 'text-decoration: underline;'}).update(row.email) 
 				.observe('click', function(){

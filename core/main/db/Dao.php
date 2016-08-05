@@ -294,10 +294,7 @@ abstract class Dao
                 $params[$field] = self::_getProperty($entity, $field);
                 if (isset($properties['type']) && ($properties['type'] == 'bool'))
                 {
-                	if (!isset($params[$field]) || ($params[$field] == ''))
-                	{
-                		$params[$field] = $properties['default'];
-                	}
+                	$params[$field] = intval($params[$field]);
                 }
             }
             //if it's a relationship then we need to consider repopulate object(s)
