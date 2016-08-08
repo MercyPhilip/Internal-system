@@ -877,6 +877,23 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				})
 			});
 	}
+	,_getOtherStocks: function(product) {
+		var tmp = {};
+		var stocks = {};
+		ret = '';
+		tmp.stockString = [];
+		if (!product || !product.stock || !product.stock.storeId) return ret;
+		currentStoreId = product.stock.storeId.id;
+		stocks = product.stocks;
+		stocks.each(function(stock) {
+			if (stock.storeId.id != currentStoreId)
+			{
+				//tmp.stockString.push('<abbr title="'  + stock.storeId.name + '">' + (stock.stockOnHand) + '</abbr>');
+				tmp.stockString.push(stock.stockOnHand);
+			}
+		});
+		return tmp.stockString.join(', ');
+	}
 	/**
 	 * Getting each row for displaying the result list
 	 */
@@ -988,7 +1005,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.update(tmp.isTitle === true ? new Element('div', {'class': 'row'})
 				.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update('')})
 						.insert({'bottom': new Element('div', {'class': 'col-sm-9'}).update('Product Name')})
-						.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update('IsKit?')})
+						.insert({'bottom': tmp.me._storeId != 1 ? '': new Element('div', {'class': 'col-sm-2'}).update('IsKit?')})
 					:
 					new Element('div', {'class': 'row'})
 						.insert({'bottom': new Element('div', {'class': 'col-sm-1'})
@@ -1001,7 +1018,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					})
 						.insert({'bottom': new Element('div', {'class': 'col-sm-9'}).update(tmp.srp === '' ? row.name: '<abbr title="SRP: '  + tmp.me.getCurrency(tmp.srp) + '">' + row.name + '</abbr>') }).setStyle(tmp.srp === '' ? ';' : 'color: green;')
 	
-						.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.kitcbx = new Element('input', {'type': 'checkbox', 'checked': row.isKit})
+						.insert({'bottom': tmp.me._storeId != 1 ? '': new Element('div', {'class': 'col-sm-2'}).update(tmp.kitcbx = new Element('input', {'type': 'checkbox', 'checked': row.isKit})
 							.observe('click', function(event) {
 								tmp.btn = this;
 								tmp.checked = $(tmp.btn).checked;
@@ -1040,7 +1057,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'locations hide-when-info hidden-sm', 'style' : 'width:8%'}).addClassName('col-xs-1').update(
 					row.locations ? tmp.me._getLocations(row.locations, isTitle) : ''
 			) })
-			.insert({'bottom': new Element(tmp.tag, {'class': 'sellonweb hide-when-info hidden-sm ', 'style' : 'width:1%'}).addClassName('col-xs-1')
+			.insert({'bottom': tmp.me._storeId != 1 ? '' : new Element(tmp.tag, {'class': 'sellonweb hide-when-info hidden-sm ', 'style' : 'width:1%'}).addClassName('col-xs-1')
 				
 				.insert({'bottom': (
 					new Element('div', {'class': 'row'})
@@ -1083,13 +1100,15 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 								)
 					)
 			})
-			.insert({'bottom': tmp.me._storeId == 1 ? '' : new Element(tmp.tag, {'class': 'buyinprice hide-when-info', 'style' : 'width:5%;' }).addClassName('col-xs-1').update(
+			.insert({'bottom': tmp.me._storeId == 1 ? '' : new Element(tmp.tag, {'class': 'buyinprice hide-when-info' }).addClassName('col-xs-1').update(
 					tmp.isTitle === true ? 
 					new Element('div', {'class': 'row'})
-						.insert({'bottom': new Element('div', {'class': 'col-xs-12 text-right', 'title': 'Buyin price from Store1'}).update('Buyin') })
+						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Stock of Store1'}).update('SSH') })
+						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Buyin price from Store1'}).update('Buyin') })
 					:
 					new Element('div', {'class': 'row'})
-						.insert({'bottom': new Element('div', {'class': 'col-xs-12 text-right ', 'title': 'Buyin price from Store1'}).update(buyinPrice) })
+						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Stock of Store1'}).update(tmp.me._getOtherStocks(row)) })
+						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Buyin price from Store1'}).update(buyinPrice) })
 					)
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'product_active hide-when-info hidden-sm ', 'style' : 'width:4%'}).addClassName('col-xs-1')
