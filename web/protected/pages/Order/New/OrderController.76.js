@@ -802,14 +802,12 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.pageNo = (pageNo || 1);
 		tmp.me._signRandID(tmp.btn);
 		tmp.searchTxtBox = !$(tmp.btn).up('.product-autocomplete') || !$(tmp.btn).up('.product-autocomplete').down('.search-txt') ? $($(tmp.btn).retrieve('searchBoxId')) : $(tmp.btn).up('.product-autocomplete').down('.search-txt');
-
 		tmp.me._signRandID(tmp.searchTxtBox);
 		tmp.searchTxt = $F(tmp.searchTxtBox);
 
 		tmp.me.postAjax(tmp.me.getCallbackId('searchProduct'), {'searchTxt': tmp.searchTxt, 'pageNo': tmp.pageNo, 'customerId': tmp.me._customer ? tmp.me._customer.id : ''}, {
 			'onLoading': function() {
 				jQuery('#' + tmp.btn.id).button('loading');
-				jQuery('#' + tmp.searchTxtBox.id).button('loading');
 			}
 			,'onSuccess': function(sender, param) {
 				if(tmp.showMore === false)
@@ -848,7 +846,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			}
 			,'onComplete': function(sender, param) {
 				jQuery('#' + tmp.btn.id).button('reset');
-				jQuery('#' + tmp.searchTxtBox.id).button('reset');
 			}
 		});
 		return tmp.me;
