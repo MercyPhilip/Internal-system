@@ -128,6 +128,11 @@ class OrderDetailsController extends BPCPageAbstract
 	 */
 	public function updateOrder($sender, $params)
 	{
+		ob_start();
+		var_dump($params);
+		$content = ob_get_contents();
+		ob_end_clean();
+		file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ':' . $content . PHP_EOL, FILE_APPEND | LOCK_EX);
 		$results = $errors = array();
 		try
 		{
@@ -162,20 +167,32 @@ class OrderDetailsController extends BPCPageAbstract
 					else
 					{
 						$timeZone = trim(SystemSettings::getSettings(SystemSettings::TYPE_SYSTEM_TIMEZONE));
-						$now = new UDate('now', $timeZone);
-						if(!($eta = new UDate(trim($obj->eta), $timeZone)) instanceof UDate)
-							throw new Exception('ETA(=' . trim($obj->eta) . ') is invalid.');
-						if($eta->beforeOrEqualTo($now))
-							throw new Exception('ETA can NOT be before now(=' . trim($now) . ').');
-						$orderItem->setIsOrdered(trim($obj->hasStock) === '1');
-						$orderItem->setEta(trim($eta));
-						$orderItem->setIsOrdered(trim($obj->isOrdered) === '1');
-						if($comments !== '')
+						$hasStock = trim($obj->hasStock);
+						if ($hasStock == 2)
 						{
-							$commentString = 'Added ETA[' . $eta . '] for product(SKU=' . $sku .'): ' . $comments;
-							$emailBody['productUpdate'] .= '<tr>' . '<td>' . $sku . '</td>' . '<td>' . $orderItem->getProduct()->getName() . '</td>' . '<td>' . 'ETA: ' . $eta->format('d/M/Y') . '</td>';
+							// no eta
+							$orderItem->setIsOrdered(false);
+							$orderItem->setEta(trim(UDate::maxDate()));
+							$commentString = 'product(SKU=' . $sku .') marked as NO ETA';
+							$emailBody['productUpdate'] .= '<tr>' . '<td>' . $sku . '</td>' . '<td>' . $orderItem->getProduct()->getName() . '</td>' . '<td>' . 'NO ETA' . '</td>';
 						}
-						$hasETA = true;
+						else
+						{
+							$now = new UDate('now', $timeZone);
+							if(!($eta = new UDate(trim($obj->eta), $timeZone)) instanceof UDate)
+								throw new Exception('ETA(=' . trim($obj->eta) . ') is invalid.');
+							if($eta->beforeOrEqualTo($now))
+								throw new Exception('ETA can NOT be before now(=' . trim($now) . ').');
+							$orderItem->setIsOrdered(trim($obj->hasStock) === '1');
+							$orderItem->setEta(trim($eta));
+							$orderItem->setIsOrdered(trim($obj->isOrdered) === '1');
+							if($comments !== '')
+							{
+								$commentString = 'Added ETA[' . $eta . '] for product(SKU=' . $sku .'): ' . $comments;
+								$emailBody['productUpdate'] .= '<tr>' . '<td>' . $sku . '</td>' . '<td>' . $orderItem->getProduct()->getName() . '</td>' . '<td>' . 'ETA: ' . $eta->format('d/M/Y') . '</td>';
+							}
+							$hasETA = true;
+						}
 					}
 					$orderItem->setIsPicked(false);
 				}
@@ -210,6 +227,8 @@ class OrderDetailsController extends BPCPageAbstract
 			{
 				if($hasETA === true)
 					$order->setStatus(OrderStatus::get(OrderStatus::ID_ETA));
+				else if ($hasStock == 2)
+					$order->setStatus(OrderStatus::get(OrderStatus::ID_NOETA));
 				else
 					$order->setStatus(OrderStatus::get(OrderStatus::ID_STOCK_CHECKED_BY_PURCHASING));
 				$order->addComment('Changed from [' . $status . '] to [' . $order->getStatus() . ']', Comments::TYPE_SYSTEM);

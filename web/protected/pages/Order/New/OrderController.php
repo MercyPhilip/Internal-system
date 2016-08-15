@@ -324,22 +324,23 @@ class OrderController extends BPCPageAbstract
 				$paymentMethod = PaymentMethod::get(trim($param->CallbackParameter->paymentMethodId));
 				if(!$paymentMethod instanceof PaymentMethod)
 					throw new Exception('Invalid PaymentMethod passed in!');
-					$totalPaidAmount = trim($param->CallbackParameter->totalPaidAmount);
-					//check if the payment is offset credit
-					$paymentMethodId = $paymentMethod->getId();
-					if ($paymentMethodId == PaymentMethod::ID_STORE_CREDIT)
+				$totalPaidAmount = trim($param->CallbackParameter->totalPaidAmount);
+				//check if the payment is offset credit
+				$paymentMethodId = $paymentMethod->getId();
+				if ($paymentMethodId == PaymentMethod::ID_STORE_CREDIT)
+				{
+					$creditAvailable = $customer->getCreditPool() instanceof CreditPool ? doubleval($customer->getCreditPool()->getTotalCreditLeft()) : 0;
+					if ($creditAvailable == 0 || $creditAvailable < $totalPaidAmount)
 					{
-						$creditAvailable = $customer->getCreditPool() instanceof CreditPool ? doubleval($customer->getCreditPool()->getTotalCreditLeft()) : 0;
-						if ($creditAvailable == 0 || $creditAvailable < $totalPaidAmount)
-						{
-							throw new Exception('The customer has not enough credit for this payment. The amount of credit left is : ' .  StringUtilsAbstract::getCurrency($creditAvailable));
-						}
+						throw new Exception('The customer has not enough credit for this payment. The amount of credit left is : ' .  StringUtilsAbstract::getCurrency($creditAvailable));
 					}
-					$order->addPayment($paymentMethod, $totalPaidAmount);
-					$order = Order::get($order->getId());
-					$order->addInfo(OrderInfoType::ID_MAGE_ORDER_PAYMENT_METHOD, $paymentMethod->getName(), true);
-					if($shipped === true)
-						$order->setType(Order::TYPE_INVOICE);
+				}
+				$order->addPayment($paymentMethod, $totalPaidAmount);
+				$order = Order::get($order->getId());
+				$order->addInfo(OrderInfoType::ID_MAGE_ORDER_PAYMENT_METHOD, $paymentMethod->getName(), true);
+				$order->setPassPaymentCheck(1)->save();
+				if($shipped === true)
+					$order->setType(Order::TYPE_INVOICE);
 			}
 			else
 			{
