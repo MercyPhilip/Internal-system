@@ -74,6 +74,12 @@ html, body {
 	background-color: yellow !important;
 	color: black;
 }
+.order_item [order_status="NO ETA"],
+.order_item:hover [order_status="NO ETA"]
+{
+	background-color: #ef2929!important;
+	color: white;
+}
 .order_item [order_status="ETA"],
 .order_item:hover [order_status="ETA"]
 {

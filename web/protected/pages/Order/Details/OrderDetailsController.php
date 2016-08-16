@@ -128,11 +128,6 @@ class OrderDetailsController extends BPCPageAbstract
 	 */
 	public function updateOrder($sender, $params)
 	{
-		ob_start();
-		var_dump($params);
-		$content = ob_get_contents();
-		ob_end_clean();
-		file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ':' . $content . PHP_EOL, FILE_APPEND | LOCK_EX);
 		$results = $errors = array();
 		try
 		{
@@ -146,6 +141,7 @@ class OrderDetailsController extends BPCPageAbstract
 				throw new Exception('You do NOT edit this order as ' . Core::getRole() . '!');
 			$hasETA = false;
 			$allPicked = true;
+			$isNoETA = false;
 			$commentType = ($for === Comments::TYPE_PURCHASING ? Comments::TYPE_PURCHASING : Comments::TYPE_WAREHOUSE);
 			$emailBody['productUpdate'] = '<table border="1" style="width:100%">';
 			foreach($params->CallbackParameter->items as $orderItemId => $obj)
@@ -171,6 +167,7 @@ class OrderDetailsController extends BPCPageAbstract
 						if ($hasStock == 2)
 						{
 							// no eta
+							$isNoETA = true;
 							$orderItem->setIsOrdered(false);
 							$orderItem->setEta(trim(UDate::maxDate()));
 							$commentString = 'product(SKU=' . $sku .') marked as NO ETA';
@@ -225,10 +222,10 @@ class OrderDetailsController extends BPCPageAbstract
 			$status = trim($order->getStatus());
 			if($for === Comments::TYPE_PURCHASING)
 			{
-				if($hasETA === true)
-					$order->setStatus(OrderStatus::get(OrderStatus::ID_ETA));
-				else if ($hasStock == 2)
+				if ($isNoETA === true)
 					$order->setStatus(OrderStatus::get(OrderStatus::ID_NOETA));
+				else if($hasETA === true)
+					$order->setStatus(OrderStatus::get(OrderStatus::ID_ETA));
 				else
 					$order->setStatus(OrderStatus::get(OrderStatus::ID_STOCK_CHECKED_BY_PURCHASING));
 				$order->addComment('Changed from [' . $status . '] to [' . $order->getStatus() . ']', Comments::TYPE_SYSTEM);

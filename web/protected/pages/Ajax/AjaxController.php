@@ -157,6 +157,11 @@ class AjaxController extends TService
   		$results['pageStats'] = $stats;
   		return $results;
   	}
+  	/**
+  	 * get insufficient stock orders
+  	 * @param unknown $params
+  	 * @return NULL[][]
+  	 */
   	private function _getInsufficientStockOrders($params)
   	{
   		$pageNo = isset($params['pageNo']) ? trim($params['pageNo']) : 1;
@@ -184,13 +189,14 @@ class AjaxController extends TService
   		$sqlParams = array(Order::TYPE_ORDER, Order::TYPE_INVOICE, OrderStatus::ID_NEW, OrderStatus::ID_INSUFFICIENT_STOCK, $storeId);
   		$where = 'ord_item.active = 1 and ord_item.productId in (' . implode(', ', array_fill(0, count(array_keys($productMap)), '?')) . ')';
   		$sqlParams = array_merge($sqlParams, array_keys($productMap));
-  		$items = OrderItem::getAllByCriteria($where, $sqlParams, true, $pageNo, $pageSize, array('ord_item.id' => 'desc'));
+  		$stats = array();
+  		$items = OrderItem::getAllByCriteria($where, $sqlParams, true, $pageNo, $pageSize, array('ord_item.id' => 'desc'), $stats);
   		$return = array();
   		foreach($items as $item) {
   			$extra = array('totalOrderedQty' => isset($productMap[$item->getProduct()->getId()]) ? $productMap[$item->getProduct()->getId()]['orderedQty'] : 0);
 			$return[] = $item->getJson($extra);
   		}
-  		return array('items' => $return);
+  		return array('items' => $return, 'pageStats' => $stats);
   	}
   	/**
   	 * Getting all the delivery methods
@@ -284,6 +290,27 @@ class AjaxController extends TService
   		
   		return array('items' => $salesinfo);
   		
+  	}
+  	/**
+  	 * get NO ETA and Insufficient Stock orders
+  	 * @param unknown $params
+  	 * @return NULL[][]
+  	 */
+  	private function _getNoETAStockOrders($params)
+  	{
+  		$pageNo = isset($params['pageNo']) ? trim($params['pageNo']) : 1;
+  		$pageSize = isset($params['pageSize']) ? trim($params['pageSize']) : DaoQuery::DEFAUTL_PAGE_SIZE;
+  		$storeId = isset($params['storeId']) ? trim($params['storeId']) : 0;
+  		Order::getQuery()->eagerLoad('order.orderItems', 'inner join', 'ord_item', 'ord.id = ord_item.orderId and ord.storeId = ord_item.storeId');
+  		$where = 'ord.active = 1 and ord_item.active = 1 and ord.type = ? and ord.statusId in (?,?) and ord.storeId = ?';
+  		$sqlParams = array(Order::TYPE_INVOICE, OrderStatus::ID_NOETA, OrderStatus::ID_INSUFFICIENT_STOCK, $storeId);
+  		$stats = array();
+  		$items = Order::getAllByCriteria($where, $sqlParams, true, $pageNo, $pageSize, array('ord.id' => 'desc'), $stats);
+  		$return = array();
+  		foreach($items as $item) {
+  			$return[] = $item->getJson();
+  		}
+  		return array('items' => $return, 'pageStats' => $stats);
   	}
 }
 ?>
