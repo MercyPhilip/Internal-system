@@ -384,6 +384,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	,_getPurchasingEditCell: function(orderItem) {
 		var tmp = {};
 		tmp.me = this;
+		console.log('orderItem=', orderItem);
 		tmp.hasStock = (orderItem.eta === '' ? '' : (orderItem.eta === '0001-01-01 00:00:00' ? true : false));
 		tmp.isOrdered = (orderItem.isOrdered === false ? false : true);
 		if(tmp.me._editMode.purchasing === false) {
@@ -393,8 +394,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.editCellPanel.insert({'bottom': tmp.me._getfieldDiv('Has Stock?',
 			new Element('select', {'class': 'form-control input-sm', 'update_order_item_purchase': 'hasStock', 'required': true, 'order_item_id': orderItem.id})
 				.insert({'bottom': new Element('option', {'value': ' '}).update('Not Checked')})
+				.insert({'bottom': new Element('option', {'value': '2'}).update('NO ETA').writeAttribute('selected', (tmp.hasStock === false) && (orderItem.eta === '9999-12-31 23:59:59')) })
 				.insert({'bottom': new Element('option', {'value': '1'}).update('Yes').writeAttribute('selected', tmp.hasStock === true) })
-				.insert({'bottom': new Element('option', {'value': '0'}).update('No').writeAttribute('selected', tmp.hasStock === false)})
+				.insert({'bottom': new Element('option', {'value': '0'}).update('No').writeAttribute('selected', (tmp.hasStock === false) && (orderItem.eta !== '9999-12-31 23:59:59'))})
 				.observe('change', function() {
 					tmp.editPanel = $(this).up('.update_order_item_purchase_div');
 					tmp.editPanel.getElementsBySelector('.no-stock-div').each(function(item) { item.remove(); });
@@ -404,7 +406,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				})
 			).addClassName('dl-horizontal form-group')
 		})
-		if(tmp.hasStock === false)
+		if ((tmp.hasStock === false) && (orderItem.eta !== '9999-12-31 23:59:59'))
 			tmp.me._getPurchasingEditCelPanel(orderItem, tmp.editCellPanel);
 		return tmp.editCellPanel;
 	}
@@ -456,28 +458,40 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				})
 			});
 			if(tmp.hasStock === false) {
-				tmp.newDiv.insert({'bottom': new Element('span').update('&nbsp;&nbsp;') })
-				.insert({'bottom': new Element('span')
-					.insert({'bottom': new Element('strong').update('ETA: ') })
+				if (orderItem.eta === '9999-12-31 23:59:59')
+				{
+					// no eta
+					tmp.newDiv.insert({'bottom': new Element('span').update('&nbsp;&nbsp;') })
 					.insert({'bottom': new Element('span')
-						.insert({'bottom': new Element('small').update(orderItem.eta + ' ') })
-						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'text-danger', 'title': 'clear ETA'})
-							.update(new Element('span', {'class': 'glyphicon glyphicon-remove'}))
-							.observe('click', function() {
-								tmp.me._clearETA(this, orderItem);
+						.insert({'bottom': new Element('strong').update('NO ETA ') })
+					});
+				}
+				else
+				{
+					tmp.newDiv.insert({'bottom': new Element('span').update('&nbsp;&nbsp;') })
+					.insert({'bottom': new Element('span')
+						.insert({'bottom': new Element('strong').update('ETA: ') })
+						.insert({'bottom': new Element('span')
+							.insert({'bottom': new Element('small').update(orderItem.eta + ' ') })
+							.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'text-danger', 'title': 'clear ETA'})
+								.update(new Element('span', {'class': 'glyphicon glyphicon-remove'}))
+								.observe('click', function() {
+									tmp.me._clearETA(this, orderItem);
+								})
 							})
 						})
 					})
-				})
-				.insert({'bottom': new Element('span').update('&nbsp;&nbsp;') })
-				.insert({'bottom': new Element('span')
-					.insert({'bottom': new Element('strong').update('Is Ordered: ') })
-					.insert({'bottom': new Element('input', {'type': 'checkbox', 'checked': tmp.isOrdered})
-						.observe('change', function(event) {
-							return tmp.me._changeIsOrdered(this, orderItem);
+					.insert({'bottom': new Element('span').update('&nbsp;&nbsp;') })
+					.insert({'bottom': new Element('span')
+						.insert({'bottom': new Element('strong').update('Is Ordered: ') })
+						.insert({'bottom': new Element('input', {'type': 'checkbox', 'checked': tmp.isOrdered})
+							.observe('change', function(event) {
+								return tmp.me._changeIsOrdered(this, orderItem);
+							})
 						})
-					})
-				});
+					});
+				}
+
 			}
 			return tmp.newDiv;
 		}

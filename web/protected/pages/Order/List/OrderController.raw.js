@@ -371,7 +371,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			.insert({'bottom': new Element('td', {'class': 'invoiceNo col-xs-1'}).update(
 					tmp.isTitle === true ? 'Inv. No.' : new Element('small').update(row.invNo)
 			) })
-			.insert({'bottom': new Element('td', {'class': 'pONo col-xs-1 ide-when-info hidden-sm' }).setStyle('style:word-wrap: break-word; word-break: break-all;').update(
+			.insert({'bottom': new Element('td', {'class': 'pONo col-xs-1 hide-when-info hidden-sm' }).setStyle('style:word-wrap: break-word; word-break: break-all;').update(
 					tmp.isTitle ? 'PO No.' : new Element('div').update(row.pONo)
 			)})
 			.insert({'bottom': new Element('td', {'class': 'customer', 'title': tmp.isTitle === true? '' : row.customer.tier.name}).update(
@@ -509,6 +509,10 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			format: 'DD/MM/YYYY'
 		});
 		tmp.me._initDeliveryMethods()._initCustomerSelect2()._initTypeSwither();
+		$('noeta-panel')
+			.store('NoETAOrdersListPanelJs', tmp.noETAOrdersListPanelJs = new NoETAOrdersListPanelJs(tmp.me))
+			.update(tmp.noETAOrdersListPanelJs.getListPanel().addClassName('panel-default'));
+		tmp.noETAOrdersListPanelJs.load();
 		$('right-panel')
 			.store('InsufficientStockOrdersListPanelJs', tmp.insufficientStockOrdersListPanelJs = new InsufficientStockOrdersListPanelJs(tmp.me))
 			.update(tmp.insufficientStockOrdersListPanelJs.getListPanel().addClassName('panel-default'));
