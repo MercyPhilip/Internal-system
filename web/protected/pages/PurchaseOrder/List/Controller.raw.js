@@ -294,4 +294,37 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			});
 		return tmp.row;
 	}
+	/**
+	 * export csv report
+	 */
+	,genReport: function(btn) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.data = {};
+		$$('[search_field]').each(function(item){
+			tmp.data[item.readAttribute('search_field')] = $F(item);
+		});
+		tmp.me.postAjax(tmp.me.getCallbackId('genReportmBtn'), tmp.data, {
+			'onLoading': function() {
+				jQuery(btn).button('loading');
+			}
+			,'onSuccess': function (sender, param) {
+				try {
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result || !tmp.result.url)
+						return;
+					tmp.newWind = window.open(tmp.result.url);
+					if(!tmp.newWind) {
+						throw 'You browser is blocking the popup window, please click <a class="btn btn-xs btn-primary" href="' + tmp.result.url + '" target="__BLANK">here</a> to open it manually.';
+					}
+				} catch (e) {
+					tmp.me.showModalBox('<b>Error:</b>', '<b class="text-danger">' + e + '</b>');
+				}
+			}
+			,'onComplete': function() {
+				jQuery(btn).button('reset');
+			}
+		})
+		return tmp.me;
+	}
 });
