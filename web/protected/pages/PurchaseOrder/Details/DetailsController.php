@@ -47,9 +47,10 @@ class DetailsController extends DetailsPageAbstract
 		$statusOptions =  $purchaseOrder->getStatusOptions();
 		$purchaseOrderItems = array();
 		foreach (PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ?', array($purchaseOrder->getId()), true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('updated'=>'desc')) as $item) {
-			$product = Product::get($item->getProduct()->getId());
+			$product = $item->getProduct();
+			//$product = Product::get($item->getProduct()->getId());
 			if(!$product instanceof Product)
-				throw new Exception('Invalid Product passed in!');
+				continue;
 			$unitPrice = $item->getUnitPrice();
 			$qty = $item->getQty();
 			$totalPrice = $item->getTotalPrice();
