@@ -333,7 +333,8 @@ class ProductController extends CRUDPageAbstract
     			throw new Exception("Can't take off this product from online because SOH is not zero.");
     		}
     		$product->setSellOnWeb(intval($param->CallbackParameter->isSellOnWeb))
-    		->save();
+    		->save()
+    		->addLog('SellOnWeb changed by ' . Core::getUser()->getUserName() . '(' . intval(!$sellOnWeb) . ' => ' . intval($sellOnWeb) . ')', Log::TYPE_SYSTEM, 'SELLONWEB_CHG', __CLASS__ . '::' . __FUNCTION__);
     		$results['item'] = $product->getJson();
     		Dao::commitTransaction();
     	}
