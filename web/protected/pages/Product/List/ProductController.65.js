@@ -953,6 +953,23 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		{
 			tmp.tierStrings.push('N/A');
 		}
+		color = ";";
+		if (!row.costtrends)
+		{
+			color = ";";
+		}
+		else if (row.costtrends.order == 0)
+		{
+			color = "orange;";
+		}
+		else if (row.costtrends.order == 1)
+		{
+			color = "red;";
+		}
+		else if (row.costtrends.order == -1)
+		{
+			color = "green;";
+		}
 		buyinPrice = tmp.tierStrings.join('');
 		tmp.row = new Element('tr', {'class': 'visible-xs visible-md visible-lg visible-sm ' + (tmp.isTitle === true ? '' : 'product_item ' + (parseInt(row.stockOnHand,10) <= parseInt(row.stockMinLevel,10) ? 'danger': (parseInt(row.stockOnHand,10) <= parseInt(row.stockReorderLevel,10) ? 'warning' : '' ))), 'product_id' : row.id})
 			.store('data', row)
@@ -1089,15 +1106,12 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 								.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Stock on Hand'}).update('SH') })
 								.insert({'bottom': new Element('div', {'class': 'col-xs-4 hide-when-info', 'title': 'Stock On PO'}).update('SP') })
 								.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Average Cost'}).update('Cost') })
-								//.insert({'bottom': new Element('div', {'class': 'col-xs-5', 'title': 'Buyin price from Store1'}).update(tmp.me._storeId !=1 ? 'Buyin' : '') })
 							:
 							new Element('div', {'class': 'row'})
-								.update(new Element('a', {'href': '/productqtylog.html?productid=' + row.id, 'target': '_BLANK'})
-									.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Stock on Hand'}).update(row.stockOnHand) })
-									.insert({'bottom': new Element('div', {'class': 'col-xs-4 hide-when-info', 'title': 'Stock On PO'}).update(row.stockOnPO) })
-									.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Average Cost'}).update((row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : 'N/A') })
-									//.insert({'bottom': new Element('div', {'class': 'col-xs-5', 'title': 'Buyin price from Store1'}).update(tmp.me._storeId !=1 ? buyinPrice : '') })
-								)
+									.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Stock on Hand'}).update(new Element('a', {'href': '/productqtylog.html?productid=' + row.id, 'target': '_BLANK'}).update(row.stockOnHand)) })
+									.insert({'bottom': new Element('div', {'class': 'col-xs-4 hide-when-info', 'title': 'Stock On PO'}).update(new Element('a', {'href': '/productqtylog.html?productid=' + row.id, 'target': '_BLANK'}).update(row.stockOnPO)) })
+									.insert({'bottom': new Element('div', {'class': 'col-xs-4', 'title': 'Average Cost'}).update(tmp.avgCostEl = new Element('a', {'href': 'javascript:void(0);', 'style' : 'color: ' + color}).update((row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : 'N/A')) })
+								
 					)
 			})
 			.insert({'bottom': tmp.me._storeId == 1 ? '' : new Element(tmp.tag, {'class': 'buyinprice hide-when-info' }).addClassName('col-xs-1').update(
@@ -1131,7 +1145,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				) })
 
 			});
-		
+		if (tmp.avgCostEl)
+			tmp.me.observeClickNDbClick(tmp.avgCostEl, function(){ tmp.me.showHistoryBuyin(row);}, function(){tmp.me.showHistoryBuyin(row);})
 		if ( !tmp.isTitle )
 		{
 			// price match is valid
@@ -1176,6 +1191,40 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		}
 		return tmp.row;
 	}
+	/**
+	 * show buyin history
+	 */
+	,showHistoryBuyin: function(row)
+	{
+		var tmp = {};
+		tmp.me = this;
+		
+		if (!row.costtrends || !row.costtrends.trends || (row.costtrends.trends.length == 0))
+		{
+			tmp.me.showModalBox('Hisotry buyin cost for ' + row.sku, 'No purchase history!');
+		}
+		else
+		{
+			tmp.newDiv = new Element('table', {'class': 'table table-striped table-hover buyin-price-listing'})
+			.insert({'bottom': new Element('thead')
+				.insert({'bottom': new Element('tr')
+					.insert({'bottom': new Element('th').update('PurchaseOrderNo') })
+					.insert({'bottom': new Element('th').update('Buyin Price') })
+					.insert({'bottom': new Element('th').update('Purchase Date') })
+				})
+			})
+			.insert({'bottom': tmp.body = new Element('tbody') });
+			row.costtrends.trends.each(function(item) {
+				tmp.newRow = new Element('tr')
+					.insert({'bottom': new Element('td').update(item.purchaseOrderNo) })
+					.insert({'bottom': new Element('td').update(tmp.me.getCurrency(item.unitPrice)) })
+					.insert({'bottom': new Element('td').update(item.updated ) });
+				tmp.body.insert({'bottom': tmp.newRow});
+			});
+			tmp.me.showModalBox('Hisotry buyin cost for ' + row.sku, tmp.newDiv);
+		}
+	return tmp.newDiv;
+	}
 	,readOnlyMode: function(mode, storeId, roleId){
 		var tmp = {};
 		tmp.me = this;
@@ -1187,5 +1236,33 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			jQuery('#newProductBtn').hide();
 			jQuery('#newPriceMatchRuleBtn').hide();
 		}
+	}
+	,_getCostTrend: function(productId) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.productId = (productId || null);
+
+		var tmp = {};
+		tmp.me = this;
+		tmp.me.postAjax(tmp.me.getCallbackId('getCostTrend'), {'productId': productId}, {
+			'onLoading': function() {}
+		,'onSuccess': function(sender, param) {
+			try {
+				tmp.result = tmp.me.getResp(param, false, true);
+				if(!tmp.result || !tmp.result.item || !tmp.result.item.id)
+					return;
+				jQuery('.' + type + '-input[product-id=' + tmp.result.item.id + ']').attr('original-' + type, newValue);
+				tmp.row = $(tmp.me.resultDivId).down('.product_item[product_id=' + tmp.result.item.id + ']');
+				if(tmp.row) {
+					tmp.row.replace(tmp.me._getResultRow(tmp.result.item, false));
+					tmp.me._bindPriceInput();
+				}
+			} catch (e) {
+				tmp.me.showModalBox('<strong class="text-danger">Error When Update ' + type + ':</strong>', '<strong>' + e + '</strong>');
+				jQuery('.' + type + '-input[product-id=' + productId + ']').val(originalValue);
+			}
+		}
+		})
+		return tmp.me;
 	}
 });

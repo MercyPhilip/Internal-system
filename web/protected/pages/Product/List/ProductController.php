@@ -212,12 +212,14 @@ class ProductController extends CRUDPageAbstract
                 	$ret['unitCost'] = $unitCostOfStore1;
                 	$rets[] = $ret;
                 }
+                //get cost trend
+                $costTrends = $this->getCostTrend($obj->getId());
+                $tmpArray['costtrends'] = $costTrends;
                 $tmpArray['tierprices'] = $rets;
                 $results['items'][] = $tmpArray;
             }
             $results['totalStockOnHand'] = isset($sumArray['totalStockOnHand']) ? trim($sumArray['totalStockOnHand']) : 0;
             $results['totalOnHandValue'] = isset($sumArray['totalOnHandValue']) ? trim($sumArray['totalOnHandValue']) : 0;
-
         }
         catch(Exception $ex)
         {
@@ -523,6 +525,70 @@ class ProductController extends CRUDPageAbstract
     		$errors[] = $ex->getMessage() . $ex->getTraceAsString();
     	}
     	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+    }
+    /**
+     * 
+     * @param unknown $sender
+     * @param unknown $param
+     * @throws Exception
+     */
+    private function getCostTrend($productId)
+    {
+    	$results = $errors = array();
+    	try
+    	{
+    		$id = isset($productId) ? $productId : '';
+    		if(!($product = Product::get($id)) instanceof Product)
+    			throw new Exception('Invalid product!');
+    		$storeId = Core::getUser()->getStore()->getId();
+    		$sql = "select DISTINCT r.updated, r.purchaseOrderId, r.unitPrice, po.purchaseOrderNo  from receivingitem r, purchaseorder po 
+    				where po.id = r.purchaseOrderId and r.storeId = po.storeId and po.active = 1 and 
+    				r.productId = ? and r.storeId = ? order by r.updated desc limit 10";
+    		$rets = Dao::getResultsNative($sql, array($id, $storeId), PDO::FETCH_ASSOC);
+    		if (count($rets) > 0)
+    		{
+    			$date = array();
+    			foreach ($rets as $key => $row)
+    			{
+    				$date[$key] = $row['updated'];
+    			}
+    			array_multisort($date, SORT_ASC, $rets);
+    			$results['trends'] = $rets;
+    			$results['order'] = $this->getOrder(array_column($rets, 'unitPrice'));
+    		}
+    	}
+    	catch(Exception $ex)
+    	{
+    		$errors[] = $ex->getMessage() . $ex->getTraceAsString();
+    	}
+    	return $results;
+    }
+    /**
+     * get the order 
+     * 1: asc
+     * 0: mixed
+     * -1: desc
+     * @param unknown $rgData
+     * @return NULL|number
+     */
+    private function getOrder($rgData)
+    {
+    	if(!count($rgData) || count($rgData)==1)
+    	{
+    		return null;
+    	}
+    	$sCurrent = doubleval(array_shift($rgData));
+    	$iOrder   = doubleval(current($rgData)) > $sCurrent ? 1 : -1;
+    	foreach($rgData as $mValue)
+    	{
+    		if(($sCurrent>doubleval($mValue) && $iOrder == 1) ||
+    				($sCurrent < doubleval($mValue) && $iOrder == -1))
+    		{
+    			return 0;
+    		}
+    		$sCurrent = doubleval($mValue);
+    	}
+    	return $iOrder;
     }
 }
 ?>
