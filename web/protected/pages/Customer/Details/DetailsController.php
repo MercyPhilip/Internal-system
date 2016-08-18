@@ -64,7 +64,6 @@ class DetailsController extends DetailsPageAbstract
 		try
 		{
 			Dao::beginTransaction();
-
 			
 			$name = trim($param->CallbackParameter->name);
 			$id = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->id);
@@ -73,6 +72,12 @@ class DetailsController extends DetailsPageAbstract
 			$terms = intval(trim($param->CallbackParameter->terms));
 			$tierLevel = intval(trim($param->CallbackParameter->tier));
 			$isBlocked = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->isBlocked);
+			$creditLeft = !intval($param->CallbackParameter->credit) ? '' : trim($param->CallbackParameter->credit);
+			if(($creditLeft = StringUtilsAbstract::getValueFromCurrency(trim($param->CallbackParameter->credit))) === '' || !is_numeric($creditLeft))
+			{
+				$creditLeft = 0;
+			}
+					
 			$contactNo = trim($param->CallbackParameter->contactNo);
 			$billingCompanyName = trim($param->CallbackParameter->billingCompanyName);
 			$billingName = trim($param->CallbackParameter->billingName);
@@ -101,6 +106,36 @@ class DetailsController extends DetailsPageAbstract
 				if ((Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN && Core::getRole()->getId() != Role::ID_ACCOUNTING) && ($customer->getIsBlocked() != $isBlocked))
 				{
 					throw new Exception('You do not have privileges to change isBlocked attribute, please inquire Administrator for support!');
+				}
+				// only admin and accounting can update credit
+				if ((Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN && Core::getRole()->getId() != Role::ID_ACCOUNTING))
+				{
+					$creditPool = $customer->getCreditPool();
+					if (((!$creditPool instanceof CreditPool) && ($creditLeft != 0)) 
+							|| (($creditPool instanceof CreditPool) && ($creditLeft != $creditPool->getTotalCreditLeft())))
+					{
+						throw new Exception('You do not have privileges to change credit attribute, please inquire Administrator for support!');
+					}
+				}
+				else
+				{
+					$creditPool = $customer->getCreditPool();
+					if ((!$creditPool instanceof CreditPool) && $creditLeft != 0)
+					{
+						$creditPool = new CreditPool();
+						$creditPool->setCustomer($customer)
+							->setStore(Core::getUser()->getStore())
+							->updateTotalCreditLeft($creditLeft)
+							->save()
+							->addLog('credit created by ' . Core::getUser()->getUserName() . '($0.00' . ' => ' . StringUtilsAbstract::getCurrency($creditPool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
+					}
+					else if ($creditPool instanceof CreditPool && $creditLeft != $creditPool->getTotalCreditLeft())
+					{
+						$origCredt = $creditPool->getTotalCreditLeft();
+						$creditPool->updateTotalCreditLeft($creditLeft)
+							->save()
+							->addLog('credit changed by ' . Core::getUser()->getUserName() . '(' . StringUtilsAbstract::getCurrency($origCredt) . ' => ' . StringUtilsAbstract::getCurrency($creditPool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
+					}
 				}
 				$oldTierId = $customer->getTier()->getId();
 				$customer->setName($name)

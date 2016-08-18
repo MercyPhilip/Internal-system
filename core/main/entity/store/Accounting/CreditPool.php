@@ -373,4 +373,14 @@ class CreditPool extends BaseEntityAbstract
 		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_CREDIT, $order->getId(), $creditAmt);
 		return $creditpool;
 	}
+	/**
+	 * update total credit left directly
+	 * @param unknown $value
+	 * @return CreditPool
+	 */
+	public function updateTotalCreditLeft($value)
+	{
+		$this->totalCreditLeft = $value;
+		return $this;
+	}
 }
