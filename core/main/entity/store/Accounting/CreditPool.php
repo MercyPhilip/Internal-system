@@ -109,7 +109,8 @@ class CreditPool extends BaseEntityAbstract
 				$creditpool->setCustomer($customer)
 					->setTotalCreditLeft(0)
 					->setStore(Core::getUser()->getStore())
-					->save();
+					->save()
+					->addLog('credit created by ' . Core::getUser()->getUserName() . '($0.00' . ' => ' . StringUtilsAbstract::getCurrency($creditpool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
 				return $creditpool;
 			}
 		}
@@ -128,11 +129,13 @@ class CreditPool extends BaseEntityAbstract
 			$totalPaid = $totalCredit;
 		}
 		$creditAmount = doubleval($totalPaid);
+		$origCredt = $creditpool->getTotalCreditLeft();
 		$creditpool->setCustomer($customer)
 			->setTotalCreditLeft($creditAmount)
 			->setStore(Core::getUser()->getStore())
-			->save();
-		
+			->save()
+			->addLog('credit changed by ' . Core::getUser()->getUserName() . '(' . StringUtilsAbstract::getCurrency($origCredt) . ' => ' . StringUtilsAbstract::getCurrency($creditpool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
+				
 		//Create log for creditpool
 		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_CREDIT, $creditNote->getId(), $creditAmount);
 		
@@ -182,8 +185,11 @@ class CreditPool extends BaseEntityAbstract
 		$creditPaidAmount = doubleval($payment->getValue());
 		$creditPaidAmount = 0 - $creditPaidAmount;
 		// update credit left
-		$creditpool->setTotalCreditLeft($creditPaidAmount)->save();
-		
+		$origCredt = $creditpool->getTotalCreditLeft();
+		$creditpool->setTotalCreditLeft($creditPaidAmount)
+			->save()
+			->addLog('credit changed by ' . Core::getUser()->getUserName() . '(' . StringUtilsAbstract::getCurrency($origCredt) . ' => ' . StringUtilsAbstract::getCurrency($creditpool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
+				
 		//Create log for creditpool
 		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_ORDER, $order->getId(), $creditPaidAmount);
 	
@@ -216,7 +222,10 @@ class CreditPool extends BaseEntityAbstract
 		$creditAmount = doubleval($payment->getValue());
 		$creditPaidAmount = 0 - $creditAmount;
 		// update credit left
-		$creditpool->setTotalCreditLeft($creditPaidAmount)->save();
+		$origCredt = $creditpool->getTotalCreditLeft();
+		$creditpool->setTotalCreditLeft($creditPaidAmount)
+			->save()
+			->addLog('credit changed by ' . Core::getUser()->getUserName() . '(' . StringUtilsAbstract::getCurrency($origCredt) . ' => ' . StringUtilsAbstract::getCurrency($creditpool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
 		//Create log for creditpool
 		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_REFUND, $creditNote->getId(), $creditPaidAmount);
 
@@ -364,11 +373,12 @@ class CreditPool extends BaseEntityAbstract
 		$creditpool = ( count($objs) > 0 ? $objs[0] : new CreditPool() );
 
 		$creditAmt = doubleval($creditAmt);
+		$origCredt = $creditpool->getTotalCreditLeft();
 		$creditpool->setCustomer($customer)
-		->setTotalCreditLeft($creditAmt)
-		->setStore(Core::getUser()->getStore())
-		->save();
-	
+			->setTotalCreditLeft($creditAmt)
+			->setStore(Core::getUser()->getStore())
+			->save()
+			->addLog('credit changed by ' . Core::getUser()->getUserName() . '(' . StringUtilsAbstract::getCurrency($origCredt) . ' => ' . StringUtilsAbstract::getCurrency($creditpool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
 		//Create log for creditpool
 		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_CREDIT, $order->getId(), $creditAmt);
 		return $creditpool;
