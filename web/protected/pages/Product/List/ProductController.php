@@ -555,7 +555,9 @@ class ProductController extends CRUDPageAbstract
     			}
     			array_multisort($date, SORT_ASC, $rets);
     			$results['trends'] = $rets;
-    			$results['order'] = $this->getOrder(array_column($rets, 'unitPrice'));
+    			// array_column is only supported since php5.5
+    			// so need to use other function to replace it
+    			$results['order'] = $this->getOrder(self::arraycolumn($rets, 'unitPrice'));
     		}
     	}
     	catch(Exception $ex)
@@ -590,6 +592,30 @@ class ProductController extends CRUDPageAbstract
     		$sCurrent = doubleval($mValue);
     	}
     	return $iOrder;
+    }
+    private static function arraycolumn(array $input, $columnKey, $indexKey = null) {
+    	$array = array();
+    	foreach ($input as $value) {
+    		if ( ! isset($value[$columnKey])) {
+    			trigger_error("Key \"$columnKey\" does not exist in array");
+    			return false;
+    		}
+    		if (is_null($indexKey)) {
+    			$array[] = $value[$columnKey];
+    		}
+    		else {
+    			if ( ! isset($value[$indexKey])) {
+    				trigger_error("Key \"$indexKey\" does not exist in array");
+    				return false;
+    			}
+    			if ( ! is_scalar($value[$indexKey])) {
+    				trigger_error("Key \"$indexKey\" does not contain scalar value");
+    				return false;
+    			}
+    			$array[$value[$indexKey]] = $value[$columnKey];
+    		}
+    	}
+    	return $array;
     }
 }
 ?>
