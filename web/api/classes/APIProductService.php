@@ -111,6 +111,7 @@ class APIProductService extends APIServiceAbstract
 	       $rets = Dao::getResultsNative($sql, array($supplier->getId(), $manufacturerId));
 	       if (count($rets) > 0)
 	       {
+	           $json = array();
 	           $product = Product::getBySku($sku);
 	           if ($product instanceof Product)
 	           {
@@ -135,10 +136,13 @@ class APIProductService extends APIServiceAbstract
 	               if ($existingSupplierQty != $canSupplyQty)
 	               {
 	                   $this->log_product("UPDATE", "=== updating manualmanage === sku=$sku, existingSupplierQty=$existingSupplierQty, canSupplyQty=$canSupplyQty, ",  '', APIService::TAB);
-	                   $product->addSupplier($supplier, $supplierCode, $canSupplyQty)->save();
+	                   $product->addSupplier($supplier, $supplierCode, $canSupplyQty);
 	               }
+	               $json = $product->getJson();
+	               Dao::commitTransaction();
+	               
 	           }
-	           continue;
+	           return $json;
 	       }
 	       $canUpdate = false;
 	       $isUpdated = false;
