@@ -346,7 +346,25 @@ class APIProductService extends APIServiceAbstract
    private function getall($params)
    {
    	$stockOnHand = 0;
-   	$results = $this->get_all($params);
+  	$entityName = trim($this->entityName);
+
+  	$searchTxt = $this->_getPram($params, 'searchTxt', 'active = 1');
+  	$searchParams = $this->_getPram($params, 'searchParams', array());
+  	// in .5 some skus may have already been changed
+  	// so need to get original skus
+  	$fsku = ProductSkuMap::getMappingSku($searchParams[0]);
+  	if ($fsku instanceof ProductSkuMap) $searchParams = array($fsku->getfSku());
+  	$pageNo = $this->_getPram($params, 'pageNo', 1);
+  	$pageSize = $this->_getPram($params, 'pageSize', DaoQuery::DEFAUTL_PAGE_SIZE);
+  	$active = $this->_getPram($params, 'active', true);
+  	$orderBy = $this->_getPram($params, 'orderBy', array());
+  	
+  	$stats = array();
+  	$items = $entityName::getAllByCriteria($searchTxt, $searchParams, $active, $pageNo, $pageSize, $orderBy, $stats);
+  	$return = array();
+  	foreach($items as $item)
+  	    $return[] = $item->getJson();
+  	$results = array('items' => $return, 'pagination' => $stats);
    	if (count($results['items'] > 0))
    	{
    		$results=$results['items'][0];
