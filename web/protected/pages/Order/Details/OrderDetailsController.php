@@ -155,10 +155,21 @@ class OrderDetailsController extends BPCPageAbstract
 				{
 					if(($hasStock = (trim($obj->hasStock) === '1' ? true : false)) === true)
 					{
-						$orderItem->setIsOrdered(false);
-						$orderItem->setEta(trim(UDate::zeroDate()));
-						$commentString = 'product(SKU=' . $sku .') marked as in stock';
-						$emailBody['productUpdate'] .= '<tr>' . '<td>' . $sku . '</td>' . '<td>' . $orderItem->getProduct()->getName() . '</td>' . '<td>' . 'In Stock' . '</td>';
+						if ($orderItem->getProduct() instanceof Product)
+						{
+							if ($orderItem->getProduct()->getStockOnHand() >= $orderItem->getQtyOrdered())
+							{
+								$orderItem->setIsOrdered(false);
+								$orderItem->setEta(trim(UDate::zeroDate()));
+								$commentString = 'product(SKU=' . $sku .') marked as in stock';
+								$emailBody['productUpdate'] .= '<tr>' . '<td>' . $sku . '</td>' . '<td>' . $orderItem->getProduct()->getName() . '</td>' . '<td>' . 'In Stock' . '</td>';
+								
+							}
+							else
+							{
+								throw new Exception('Not enough stock on hand. Please confirm it again!');
+							}
+						}
 					}
 					else
 					{
