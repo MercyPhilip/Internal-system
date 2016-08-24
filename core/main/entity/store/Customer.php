@@ -340,8 +340,9 @@ class Customer extends BaseEntityAbstract
 		$terms = intval(trim($terms));
 		$isBlocked = ($isBlocked === true);
 		$class =__CLASS__;
+		
 		$objects = self::getAllByCriteria('email = ? and storeId = ?', array($email, Core::getUser()->getStore()->getId()), true, 1, 1);
-		if(count($objects) > 0 && $email !== '')
+		if((count($objects) > 0 && $email !== '') && $mageId != 0)
 		{
 			$obj = $objects[0];
 			$terms = $obj->getTerms();
