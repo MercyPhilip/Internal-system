@@ -103,6 +103,46 @@ class APIProductService extends APIServiceAbstract
 	       $showOnWeb = $this->_getPram($params, 'showonweb', true);
 	       $attributesetId = $this->_getPram($params, 'attributesetId', null);
 	       $this->log_product("UPDATE", "=== updating === sku=$sku, supplierCode= $supplierCode, canSupplyQty=$canSupplyQty",  '', APIService::TAB);
+	       // check whether the product belongs to categories that are manually managed
+	       // if yes then only update stock level
+	       $sql = "select id from manualmanage where supplierId = ? and manufactureId = ? and active = 1";
+	       $sql =  $sql . ' and categoryId in (' . implode(',', $categoryIds) . ')';
+	       $rets = Dao::getResultsNative($sql, array($supplier->getId(), $manufacturerId));
+	       if (count($rets) > 0)
+	       {
+	       	$json = array();
+	       	$product = Product::getBySku($sku);
+	       	if ($product instanceof Product)
+	       	{
+	       		$existingSupplierCodes = $product->getSupplierCodes();
+	       		$existingSupplierQty = 0;
+	       		foreach ($existingSupplierCodes as $existingSupplierCode)
+	       		{
+	       			if ($existingSupplierCode->getCode() == $supplierCode)
+	       			{
+	       				$existingSupplierQty = intval($existingSupplierCode->getCanSupplyQty());
+	       				break;
+	       			}
+	       		}
+	       		$existingStatus = $product->getStatus()->getName();
+	       		$newStatus = $status->getName();
+	       		if (trim($existingStatus) != trim($newStatus))
+	       		{
+	       			$this->log_product("UPDATE", "=== updating manualmanage === sku=$sku, existingStatus= $existingStatus, newStatus=$newStatus",  '', APIService::TAB);
+	       			$product->setStatus($status)->save();
+	       		}
+	       
+	       		if ($existingSupplierQty != $canSupplyQty)
+	       		{
+	       			$this->log_product("UPDATE", "=== updating manualmanage === sku=$sku, existingSupplierQty=$existingSupplierQty, canSupplyQty=$canSupplyQty, ",  '', APIService::TAB);
+	       			$product->addSupplier($supplier, $supplierCode, $canSupplyQty);
+	       		}
+	       		$json = $product->getJson();
+	       		Dao::commitTransaction();
+	       
+	       	}
+	       	return $json;
+	       }
 	       
 	       $canUpdate = false;
 	       $isUpdated = false;
@@ -346,7 +386,25 @@ class APIProductService extends APIServiceAbstract
    private function getall($params)
    {
    	$stockOnHand = 0;
-   	$results = $this->get_all($params);
+  	$entityName = trim($this->entityName);
+
+  	$searchTxt = $this->_getPram($params, 'searchTxt', 'active = 1');
+  	$searchParams = $this->_getPram($params, 'searchParams', array());
+  	// in .5 some skus may have already been changed
+  	// so need to get original skus
+  	$fsku = ProductSkuMap::getMappingSku($searchParams[0]);
+  	if ($fsku instanceof ProductSkuMap) $searchParams = array($fsku->getfSku());
+  	$pageNo = $this->_getPram($params, 'pageNo', 1);
+  	$pageSize = $this->_getPram($params, 'pageSize', DaoQuery::DEFAUTL_PAGE_SIZE);
+  	$active = $this->_getPram($params, 'active', true);
+  	$orderBy = $this->_getPram($params, 'orderBy', array());
+  	
+  	$stats = array();
+  	$items = $entityName::getAllByCriteria($searchTxt, $searchParams, $active, $pageNo, $pageSize, $orderBy, $stats);
+  	$return = array();
+  	foreach($items as $item)
+  	    $return[] = $item->getJson();
+  	$results = array('items' => $return, 'pagination' => $stats);
    	if (count($results['items'] > 0))
    	{
    		$results=$results['items'][0];
