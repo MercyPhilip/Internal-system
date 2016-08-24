@@ -104,6 +104,42 @@ class APIProductService extends APIServiceAbstract
 	       $attributesetId = $this->_getPram($params, 'attributesetId', null);
 	       $this->log_product("UPDATE", "=== updating === sku=$sku, supplierCode= $supplierCode, canSupplyQty=$canSupplyQty",  '', APIService::TAB);
 	       
+	       // check whether the product belongs to categories that are manually managed
+	       // if yes then only update stock level
+	       $sql = "select id from manualmanage where supplierId = ? and manufactureId = ? and active = 1";
+	       $sql =  $sql . ' and categoryId in (' . implode(',', $categoryIds) . ')';
+	       $rets = Dao::getResultsNative($sql, array($supplier->getId(), $manufacturerId));
+	       if (count($rets) > 0)
+	       {
+	           $product = Product::getBySku($sku);
+	           if ($product instanceof Product)
+	           {
+	               $existingSupplierCodes = $product->getSupplierCodes();
+	               $existingSupplierQty = 0;
+	               foreach ($existingSupplierCodes as $existingSupplierCode)
+	               {
+	                   if ($existingSupplierCode->getCode() == $supplierCode)
+	                   {
+	                       $existingSupplierQty = intval($existingSupplierCode->getCanSupplyQty());
+	                       break;
+	                   }
+	               }
+	               $existingStatus = $product->getStatus()->getName();
+	               $newStatus = $status->getName();
+	               if (trim($existingStatus) != trim($newStatus))
+	               {
+	                   $this->log_product("UPDATE", "=== updating manualmanage === sku=$sku, existingStatus= $existingStatus, newStatus=$newStatus",  '', APIService::TAB);
+	                   $product->setStatus($status)->save();
+	               }
+	               
+	               if ($existingSupplierQty != $canSupplyQty)
+	               {
+	                   $this->log_product("UPDATE", "=== updating manualmanage === sku=$sku, existingSupplierQty=$existingSupplierQty, canSupplyQty=$canSupplyQty, ",  '', APIService::TAB);
+	                   $product->addSupplier($supplier, $supplierCode, $canSupplyQty)->save();
+	               }
+	           }
+	           continue;
+	       }
 	       $canUpdate = false;
 	       $isUpdated = false;
 
