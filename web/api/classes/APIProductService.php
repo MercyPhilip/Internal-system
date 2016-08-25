@@ -140,9 +140,8 @@ class APIProductService extends APIServiceAbstract
 	               }
 	               $json = $product->getJson();
 	               Dao::commitTransaction();
-	               
+	               return $json;
 	           }
-	           return $json;
 	       }
 	       $canUpdate = false;
 	       $isUpdated = false;
@@ -152,6 +151,9 @@ class APIProductService extends APIServiceAbstract
 	           $this->_runner->log('new SKU(' . $sku . ') for import, creating ...', '', APIService::TAB);
 	           $product = Product::create($sku, $name, '', null, null, false, $shortDesc, $fullDesc, '', $manufacturer, $assetAccNo, $revenueAccNo, $costAccNo, null, null, true, $weight, $attributesetId);
 	           $this->log_product("NEW", "=== new === sku=$sku, name=$name, shortDesc=$shortDesc, fullDesc=$fullDesc, category=" . implode(', ', $categoryIds),  '', APIService::TAB);
+	           $product->setSellOnWeb(false);
+	           // put the new product to newproduct table
+	           $newProduct = NewProduct::create($product);
 	           $canUpdate = true;
 	       } else {
 	       		//$this->log_product("UPDATE", "=== update === sku=$sku, name=$name, shortDesc=$shortDesc, fullDesc=$fullDesc, category=" . implode(', ', $categoryIds),  '', APIService::TAB);
@@ -304,10 +306,8 @@ class APIProductService extends APIServiceAbstract
 	       		->setName($name)
 	       		->setManufacturer($manufacturer)
 	       		->setWeight($weight)
-	       		->setSellOnWeb($showOnWeb)
 				->removePrice(ProductPriceType::get(ProductPriceType::ID_RRP))
 	       		->addPrice(ProductPriceType::get(ProductPriceType::ID_RRP), $price);
-	       		//show on web
 		       if (is_array($categoryIds) && count($categoryIds) > 0) {
 		       		$this->_runner->log('Updating the categories: ' . implode(', ', $categoryIds), '', APIService::TAB . APIService::TAB);
 		       		foreach ($categoryIds as $categoryId) {
