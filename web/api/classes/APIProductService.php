@@ -154,9 +154,6 @@ class APIProductService extends APIServiceAbstract
 	           $product->setSellOnWeb(false);
 	           // put the new product to newproduct table
 	           $newProduct = NewProduct::create($product);
-	           $stores = Store::getAll();
-	           foreach($stores as $store)
-	               $stockinfo = ProductStockInfo::create($product, null, $store);
 	           $canUpdate = true;
 	       } else {
 	       		//$this->log_product("UPDATE", "=== update === sku=$sku, name=$name, shortDesc=$shortDesc, fullDesc=$fullDesc, category=" . implode(', ', $categoryIds),  '', APIService::TAB);
