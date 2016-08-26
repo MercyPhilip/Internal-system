@@ -139,8 +139,8 @@ class APIProductService extends APIServiceAbstract
 	       		}
 	       		$json = $product->getJson();
 	       		Dao::commitTransaction();
-	       		return $json;
 	       	}
+	       	return $json;
 	       }
 	       
 	       $canUpdate = false;

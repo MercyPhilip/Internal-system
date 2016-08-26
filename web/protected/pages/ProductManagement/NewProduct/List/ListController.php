@@ -106,6 +106,12 @@ class ListController extends CRUDPageAbstract
 					$where[] =  'pro_cate.categoryId in (' . implode(',', $keys) . ')';
 					$params = array_merge($params, $ps);
 				}
+				//manualDatafeed
+				if (isset($serachCriteria['pro.manualDatafeed']) && ($manualDatafeed = trim($serachCriteria['pro.manualDatafeed'])) != '')
+				{
+					$where[] = 'npro_pro.manualDatafeed = :manualDatafeed';
+					$params['manualDatafeed'] =  intval($manualDatafeed);
+				}
 				//product statuses
 				if(!isset($serachCriteria['pro.productStatusIds']) || is_null($serachCriteria['pro.productStatusIds']))
 					$productStatusIds = array();
