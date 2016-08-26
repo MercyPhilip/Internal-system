@@ -140,8 +140,9 @@ class APIProductService extends APIServiceAbstract
 	               }
 	               $json = $product->getJson();
 	               Dao::commitTransaction();
-	               return $json;
 	           }
+	           // no need to import new product belong to these categories
+	           return $json;
 	       }
 	       $canUpdate = false;
 	       $isUpdated = false;
