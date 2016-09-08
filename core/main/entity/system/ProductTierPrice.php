@@ -258,7 +258,7 @@ class ProductTierPrice extends BaseEntityAbstract
      * @param unknown $stats
      * @return Ambigous <Ambigous, multitype:, multitype:BaseEntityAbstract >
      */
-    public static function getTierPrices(Product $product, TierPriceType $type = null, $activeOnly = true, $pageNo = null, $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE, $orderBy = array(), &$stats = array())
+    public static function getTierPrices(Product $product, TierPriceType $type = null, $activeOnly = true, $pageNo = null, $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE, $orderBy = array('tierLevelId' => 'asc', 'quantity' => 'asc'), &$stats = array())
     {
     	$where = array('productId = ? ');
     	$params = array($product->getId());
@@ -291,6 +291,36 @@ class ProductTierPrice extends BaseEntityAbstract
     	else
     		$objs = null;
     	return $objs;
+    }
+    /**
+     * Getting the product tier price based on tier level
+     *
+     * @param Product $product
+     * @param TierLevel $tierLevel
+     * @return Ambigous <Ambigous, multitype:, multitype:BaseEntityAbstract >
+     */
+    public static function getTierPrice(Product $product, TierLevel $tierLevel, $activeOnly = true, $pageNo = null, $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE, $orderBy = array('tierLevelId' => 'asc', 'quantity' => 'asc'), &$stats = array())
+    {
+    	$where = array('productId = ? ', 'tierLevelId = ?');
+    	$params = array($product->getId(), $tierLevel->getId());
+    	$objs = ProductTierPrice::getAllByCriteria(implode(' AND ', $where), $params, $activeOnly, $pageNo , $pageSize, $orderBy, $stats);
+    	$rets = array();
+//     		$unitCost = $product->getUnitCost();
+//     		$item = $objs[0];
+//     		$obj = $item->getJson();
+//     		$tierQuantity = intval($item->getQuantity());
+//     		$tierPriceTypeId = $item->getTierPriceType()->getId();
+//     		$tierPriceValue = doubleval($item->getValue());
+//     		if ($tierPriceTypeId == 1)
+//     		{
+//     			$tierPriceValue = round(($unitCost * ($tierPriceValue / 100) + $unitCost) * 1.1, 2);
+//     		}
+//     		$obj['tierPrice'] = $tierPriceValue;
+		foreach($objs as $obj)
+		{
+			$rets[] = $obj->getJson();
+		}
+    	return $rets;
     }
     /**
      * Getting all the tier prices
