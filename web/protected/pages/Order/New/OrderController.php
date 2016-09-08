@@ -61,12 +61,30 @@ class OrderController extends BPCPageAbstract
 			$js .= ".setOrderTypes(" . json_encode(Order::getAllTypes()) . ")";
 		if($cloneOrder instanceof Order) {
 			$clonOrderArray = $cloneOrder->getJson();
-			$clonOrderArray['items'] = array_map(create_function('$a', 'return $a->getJson();'), OrderItem::getAllByCriteria('orderId = ?', array($cloneOrder->getId())));
+			$items = OrderItem::getAllByCriteria('orderId = ?', array($cloneOrder->getId()));
+			$clonOrderArray['items'] = array();
+			foreach($items as $item)
+			{
+				$itemArray = $item->getJson();
+				$productArray = $itemArray['product'];
+				$productArray['tierPrice'] = ProductTierPrice::getTierPrice($item->getProduct(), $cloneOrder->getCustomer()->getTier());
+				$itemArray['product'] = $productArray;
+				$clonOrderArray['items'][] = $itemArray;
+			}
 			$js .= ".setOriginalOrder(" . json_encode($clonOrderArray) . ")";
 		}
 		if($order instanceof Order && trim($order->getId()) !== '') {
 			$orderArray = $order->getJson();
-			$orderArray['items'] = array_map(create_function('$a', 'return $a->getJson();'), OrderItem::getAllByCriteria('orderId = ?', array($order->getId())));
+			$items = OrderItem::getAllByCriteria('orderId = ?', array($order->getId()));
+			$orderArray['items'] = array();
+			foreach($items as $item)
+			{
+				$itemArray = $item->getJson();
+				$productArray = $itemArray['product'];
+				$productArray['tierPrice'] = ProductTierPrice::getTierPrice($item->getProduct(), $order->getCustomer()->getTier());
+				$itemArray['product'] = $productArray;
+				$orderArray['items'][] = $itemArray;
+			}
 			$js .= ".setOrder(" . json_encode($orderArray) . ")";
 		}
 		$js .= ".init(" . json_encode($customer) . ")";
@@ -150,6 +168,8 @@ class OrderController extends BPCPageAbstract
 				$jsonArray = $product->getJson();
 				$jsonArray['lastOrderItemFromCustomer'] = array();
 				if($customer instanceof Customer) {
+					$jsonArray['customer'] = $customer->getJson();
+					$jsonArray['tierPrice'] = ProductTierPrice::getTierPrice($product, $customer->getTier());
 					$query = OrderItem::getQuery()->eagerLoad('OrderItem.order', 'inner join', 'ord', 'ord_item.orderId = ord.id and ord_item.active = 1 and ord.customerId = :custId and ord.type = :ordType');
 					$orderItems = OrderItem::getAllByCriteria('productId = :prodId', array('custId' => $customer->getId(), 'prodId' => $product->getId(), 'ordType' => Order::TYPE_INVOICE), true, 1, 1, array('ord_item.id' => 'desc'));
 					$jsonArray['lastOrderItemFromCustomer'] = count($orderItems) > 0 ? $orderItems[0]->getJson() : array();
