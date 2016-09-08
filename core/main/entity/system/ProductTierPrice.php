@@ -305,17 +305,6 @@ class ProductTierPrice extends BaseEntityAbstract
     	$params = array($product->getId(), $tierLevel->getId());
     	$objs = ProductTierPrice::getAllByCriteria(implode(' AND ', $where), $params, $activeOnly, $pageNo , $pageSize, $orderBy, $stats);
     	$rets = array();
-//     		$unitCost = $product->getUnitCost();
-//     		$item = $objs[0];
-//     		$obj = $item->getJson();
-//     		$tierQuantity = intval($item->getQuantity());
-//     		$tierPriceTypeId = $item->getTierPriceType()->getId();
-//     		$tierPriceValue = doubleval($item->getValue());
-//     		if ($tierPriceTypeId == 1)
-//     		{
-//     			$tierPriceValue = round(($unitCost * ($tierPriceValue / 100) + $unitCost) * 1.1, 2);
-//     		}
-//     		$obj['tierPrice'] = $tierPriceValue;
 		foreach($objs as $obj)
 		{
 			$rets[] = $obj->getJson();
