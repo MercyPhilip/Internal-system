@@ -544,11 +544,17 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			.store('data', orderItem)
 			.insert({'bottom': new Element('div', {'class': 'row'})
 				.store('data', orderItem)
-				.insert({'bottom': new Element(tmp.tag, {'class': 'productName col-xs-6'})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'productName col-xs-4'})
 					.insert({'bottom': orderItem.itemDescription ? orderItem.itemDescription : (orderItem.product.shortDescription && !orderItem.product.shortDescription.blank() ? orderItem.product.shortDescription : orderItem.product.name) })
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'uprice col-xs-1'})
 					.insert({'bottom': tmp.isTitle === true || typeof(orderItem.unitPrice) === 'object' ? orderItem.unitPrice : tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('order-item', tmp.me.getCurrency(tmp.me.getValueFromCurrency(orderItem.unitPrice)), {'order-item': 'unitPrice', 'required': true}) )  })
+				})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'tprice col-xs-1'})
+					.insert({'bottom': (tmp.isTitle === true || typeof(orderItem.tierPrice) === 'object') ? orderItem.tierPrice : tmp.me._getTierPrices(orderItem.product) })
+				})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'rprice col-xs-1'})
+					.insert({'bottom': (tmp.isTitle === true || typeof(orderItem.retailPrice) === 'object') ? orderItem.retailPrice : tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('order-item', tmp.me.getCurrency(tmp.me.getValueFromCurrency(orderItem.retailPrice)), {'order-item': 'retailPrice', disabled: true, 'required': true})  ) })
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-2'})
 					.insert({'bottom': new Element('div')
@@ -600,9 +606,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		}
 		if(orderItem.product.sku) {
 			tmp.row.down('.productName')
-				.removeClassName('col-xs-6')
-				.addClassName('col-xs-4')
-				.insert({'before': new Element(tmp.tag, {'class': 'productSku col-xs-2'})
+				.removeClassName('col-xs-4')
+				.addClassName('col-xs-3')
+				.insert({'before': new Element(tmp.tag, {'class': 'productSku col-xs-1'})
 					.insert({'bottom': !(orderItem.product && orderItem.product.isKit && orderItem.product.isKit === true) ? '' : new Element('abbr', {'class': 'text-danger initialism', 'title': 'This product a kit'}).setStyle('margin-right: 4px;').update( new Element('i', {'class': 'glyphicon glyphicon-wrench'}) ) })
 					.insert({'bottom': new Element(orderItem.product.id ? 'a' : 'span', {'href': 'javascript: void(0);'})
 						.update(orderItem.product.sku)
@@ -726,8 +732,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 									tmp.me._openProductDetailPage($productId);
 							})
 					)
-					.removeClassName('col-xs-8')
-					.addClassName('col-xs-2')
+					.removeClassName('col-xs-4')
+					.addClassName('col-xs-1')
 					.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'text-danger pull-right', 'title': 'click to change the product'})
 						.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-remove'})  })
 						.observe('click', function() {
@@ -736,46 +742,25 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							tmp.newRow.down('[new-order-item=product]').select();
 						})
 					})
-					.insert({'after': new Element('div', {'class': 'col-xs-4'})
+					.insert({'after': new Element('div', {'class': 'col-xs-3'})
 						.update(new Element('textarea', {'new-order-item': 'itemDescription'}).setStyle('width: 100%').update(!product.name.blank() ? product.name : product.shortDescription))
 					});
 				jQuery('#' + tmp.me.modalId).modal('hide');
-				tmp.price = 0;
-				tmp.specilaPrice = 0;
-				tmp.srp = 0;
-				if(product.prices) {
-					product.prices.each(function(price) {
-						if(price.type && parseInt(price.type.id) === 1) {
-							tmp.price = Number(price.price);
-							tmp.updatedDate = price.updated;
-						}
-						else if(price.type && (parseInt(price.type.id) === 2))
-						{
-							now = tmp.me._getLocalTime();
-							if ((now >= price.start) && (now <= price.end))
-								tmp.specilaPrice = Number(price.price);
-						}
-						else if(price.type && (parseInt(price.type.id) === 7))
-						{
-							tmp.srp = Number(price.price);
-						}
-					});
-				}
-				if (tmp.srp > 0) 
-					tmp.retailPrice = tmp.srp;
-				else if (tmp.specilaPrice > 0)
-					tmp.retailPrice = tmp.specilaPrice;
-				else
-					tmp.retailPrice = tmp.price;
+				qty = $F(tmp.inputRow.down('[new-order-item=qtyOrdered]')).strip();
 				//tmp.retailPrice = product.prices.size() === 0 ? 0 : product.prices[0].price;
-				tmp.inputRow.down('[new-order-item=unitPrice]').writeAttribute('value', tmp.me.getCurrency(tmp.retailPrice)).select();
+				tmp.retailPrice = tmp.me._getRetailPrice(product);
+				tmp.tierPrice = tmp.me._getTierPrice(product, qty);
+				if (tmp.tierPrice == 0 ) tmp.tierPrice = tmp.retailPrice;
+				tmp.inputRow.down('[new-order-item=unitPrice]').writeAttribute('value', tmp.me.getCurrency(tmp.tierPrice)).select();
+				tmp.inputRow.down('[new-order-item=retailPrice]').writeAttribute('value', tmp.me.getCurrency(tmp.retailPrice));
+				$(tmp.inputRow.down('.tprice')).update(tmp.me._getTierPrices(product));
 				tmp.me._calculateNewProductPrice(tmp.inputRow, 'new-order-item');
 			})
 			;
 		return tmp.newRow;
 	}
 	/**
-	 * 
+	 * get local time
 	 */
 	,_getLocalTime: function(){
 		
@@ -790,6 +775,157 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	    if(dd<10){dd='0'+dd} 
 	    if(MM<10){MM='0'+MM};
 	    return yyyy + "-" + MM + "-" + dd + " " + hh + ":" + mm + ":" + ss;
+	}
+	/**
+	 * get retail price
+	 */
+	,_getRetailPrice: function(product) {
+		var tmp = {};
+		tmp.me = this;
+		if (!product) return 0;
+		tmp.price = '';
+		tmp.specilaPrice = '';
+		tmp.srp = '';
+		if(product.prices) {
+			product.prices.each(function(price) {
+				if(price.type && parseInt(price.type.id) === 1) {
+					tmp.price = Number(price.price);
+				}
+				else if(price.type && (parseInt(price.type.id) === 2))
+				{
+					now = tmp.me._getLocalTime();
+					if ((now >= price.start) && (now <= price.end))
+						tmp.specilaPrice = Number(price.price);
+				}
+				else if(price.type && (parseInt(price.type.id) === 7))
+				{
+					tmp.srp = Number(price.price);
+				}
+			});
+		}
+		if (tmp.srp) {
+			return tmp.srp;
+		}
+		if (tmp.specilaPrice) {
+			return tmp.specilaPrice;
+		}
+		if (tmp.price) {
+			return tmp.price;
+		}
+		return 0;
+	}
+	/**
+	 * Getting the tierprices for a product
+	 */
+	,_getTierPrices: function (row) {
+		var tmp = {};
+		tmp.me = this;
+		tiers = row.tierPrice;
+		//unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : 'N/A';
+		unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? row.totalOnHandValue/row.stockOnHand : 0;
+		tmp.price = '';
+		tmp.specilaPrice = '';
+		tmp.srp = '';
+		warning = false;
+		if(row.prices) {
+			row.prices.each(function(price) {
+				if(price.type && parseInt(price.type.id) === 1) {
+					tmp.price = Number(price.price);
+				}
+				else if(price.type && (parseInt(price.type.id) === 2))
+				{
+					now = tmp.me._getLocalTime();
+					if ((now >= price.start) && (now <= price.end))
+						tmp.specilaPrice = Number(price.price);
+				}
+				else if(price.type && (parseInt(price.type.id) === 7))
+				{
+					tmp.srp = Number(price.price);
+				}
+			});
+		}
+		if ((!tiers) || !unitCost) return '';
+		tmp.tierStrings = [];
+		tiers.each(function(tier) {
+			warning = false;
+			if (tier.tierPriceType.id == 1)
+			{
+				tierPrice = Number((unitCost * (tier.value / 100) + unitCost) * 1.1).toFixed(2);
+			}
+			else
+			{
+				tierPrice = Number(tier.value).toFixed(2);
+			}
+			if (tmp.srp && tierPrice > tmp.srp)
+				warning = true;
+			if (tmp.specilaPrice && tierPrice > tmp.specilaPrice)
+				warning = true;
+			if (tmp.price && tierPrice > tmp.price)
+				warning = true;
+			tmp.tierStrings.push('<div ' + (warning? 'style="color : red;"' : '') + '><small><strong class="hidden-xs hide-when-info hidden-sm">' + tier.tierLevel.name + ': </strong>' + tmp.me.getCurrency(tierPrice) + ': <abbr title="Quantity" >' + (tier.quantity > 0 ? tier.quantity : '') + ' </abbr></small></div>');
+		})
+		return tmp.tierStrings.join('');
+	}
+	/**
+	 * get tier price based on qty
+	 */
+	,_getTierPrice: function(row, qty) {
+		if (!row) return 0;
+		var tmp = {};
+		tmp.me = this;
+		tiers = row.tierPrice;
+		unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? row.totalOnHandValue/row.stockOnHand : 0;
+		tmp.price = '';
+		tmp.specilaPrice = '';
+		tmp.srp = '';
+		if(row.prices) {
+			row.prices.each(function(price) {
+				if(price.type && parseInt(price.type.id) === 1) {
+					tmp.price = Number(price.price);
+				}
+				else if(price.type && (parseInt(price.type.id) === 2))
+				{
+					now = tmp.me._getLocalTime();
+					if ((now >= price.start) && (now <= price.end))
+						tmp.specilaPrice = Number(price.price);
+				}
+				else if(price.type && (parseInt(price.type.id) === 7))
+				{
+					tmp.srp = Number(price.price);
+				}
+			});
+		}
+		if ((!tiers) || !unitCost) return 0;
+		tierPriceSeleted = 0;
+		tiers.each(function(tier) {
+			if (tier.tierPriceType.id == 1)
+			{
+				tierPrice = Number((unitCost * (tier.value / 100) + unitCost) * 1.1).toFixed(2);
+			}
+			else
+			{
+				tierPrice = Number(tier.value).toFixed(2);
+			}
+			quantity = Number(tier.quantity);
+			if (quantity > qty)
+			{
+				if (tmp.srp)
+					tierPriceSeleted = tmp.srp;
+				else if (tmp.specilaPrice && tierPriceSeleted > tmp.specilaPrice)
+					tierPriceSeleted = tmp.specilaPrice;
+				else if (tmp.price && tierPriceSeleted > tmp.price)
+					tierPriceSeleted = tmp.price;
+				return tierPriceSeleted;
+			}
+			tierPriceSeleted = tierPrice;
+		})
+		if (tmp.srp)
+			tierPriceSeleted = tmp.srp;
+		else if (tmp.specilaPrice && tierPriceSeleted > tmp.specilaPrice)
+			tierPriceSeleted = tmp.specilaPrice;
+		else if (tmp.price && tierPriceSeleted > tmp.price)
+			tierPriceSeleted = tmp.price;
+		return tierPriceSeleted;
 	}
 	/**
 	 * Ajax: searching the product based on a string
@@ -962,6 +1098,12 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			tmp.me._markFormGroupError(tmp.unitPriceBox, 'Invalid value provided!');
 			return ;
 		}
+		tmp.retailPriceBox = tmp.currentRow.down('[new-order-item=retailPrice]');
+		tmp.retailPrice = tmp.me.getValueFromCurrency($F(tmp.retailPriceBox));
+		if(tmp.retailPrice.match(/^\d+(\.\d{1,2})?$/) === null) {
+			tmp.me._markFormGroupError(tmp.retailPriceBox, 'Invalid value provided!');
+			return ;
+		}
 		tmp.qtyOrderedBox = tmp.currentRow.down('[new-order-item=qtyOrdered]');
 		tmp.qtyOrdered = tmp.me.getValueFromCurrency($F(tmp.qtyOrderedBox));
 		if(tmp.qtyOrdered.match(/^\d+(\.\d{1,2})?$/) === null || tmp.qtyOrdered == 0) {
@@ -990,6 +1132,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			'product': tmp.product,
 			'itemDescription': tmp.itemDescription,
 			'unitPrice': tmp.me.getCurrency(tmp.unitPrice),
+			'tierPrice': tmp.me.getCurrency(tmp.unitPrice),
+			'retailPrice': tmp.me.getCurrency(tmp.retailPrice),
 			'qtyOrdered': tmp.qtyOrdered,
 			'discount' : tmp.discount,
 			'margin': tmp.me.getCurrency(parseFloat(tmp.totalPrice) - parseFloat(tmp.product.unitCost * 1.1 * tmp.qtyOrdered)),
@@ -1128,6 +1272,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.data = {
 			'product': {'name': tmp.skuAutoComplete	}
 			,'unitPrice': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', tmp.me.getCurrency(0), {'new-order-item': 'unitPrice', 'required': true}) )
+			,'tierPrice': ''
+			,'retailPrice': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', tmp.me.getCurrency(0), {'new-order-item': 'retailPrice', 'required': true, 'disabled': true}) )
 			,'qtyOrdered': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', 1, {'new-order-item': 'qtyOrdered', 'required': true}) )
 			,'discount': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', 0, {'new-order-item': 'discount'}, function(event) {
 					if($F($(this)).blank() || $F($(this)) > 100) {
@@ -1173,6 +1319,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.productListDiv = new Element('div', {'class': 'list-group order_item_list_table'})
 			.insert({'bottom': tmp.me._getProductRow({'product': {'sku': 'SKU', 'name': 'Description', 'shortDescription': 'Description'},
 				'unitPrice': 'Unit Price<div><small>(inc GST)</small><div>',
+				'tierPrice': 'Tier Price<div><small>(inc GST)</small><div>',
+				'retailPrice': 'Retail Price<div><small>(inc GST)</small><div>',
 				'qtyOrdered': 'Qty',
 				'margin': 'Margin',
 				'discount': 'Disc. %',
@@ -1379,7 +1527,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.searchPanel = $(btn).up('#' + tmp.me.getHTMLID('searchPanel'));
 		tmp.searchTxt = $F(tmp.searchPanel.down('.search-txt')).strip();
 		tmp.me.postAjax(tmp.me.getCallbackId('searchCustomer'), {'searchTxt': tmp.searchTxt, 'pageNo': tmp.pageNo}, {
-			'onLoading': function() {
+			'onCreate': function() {
 				tmp.me._signRandID(btn);
 				jQuery('#' + btn.id).button('loading');
 				if(tmp.pageNo === 1) {
@@ -1528,6 +1676,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					'product': item.product,
 					'itemDescription': item.itemDescription,
 					'unitPrice': tmp.me.getCurrency(tmp.unitPriceValue),
+					'tierPrice': tmp.me.getCurrency(tmp.unitPriceValue),
+					'retailPrice': tmp.me.getCurrency(tmp.me._getRetailPrice(item.product)),
 					'qtyOrdered': item.qtyOrdered,
 					'discount' : Math.ceil(tmp.shouldTotalPriceValue) === 0 ? 0 : Math.round(((tmp.shouldTotalPriceValue - tmp.totalPriceValue) * 100) / tmp.shouldTotalPriceValue),
 					'margin': tmp.me.getCurrency(tmp.me.getValueFromCurrency(item.margin)),

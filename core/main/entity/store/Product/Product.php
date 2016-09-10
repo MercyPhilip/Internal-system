@@ -1244,6 +1244,61 @@ class Product extends InfoEntityAbstract
 		}
 	}
 	/**
+	 *
+	 * {@inheritDoc}
+	 * @see BaseEntityAbstract::postSave()
+	 */
+	public function postSave()
+	{
+		$newCategories = $this->getCategories();
+		$newCategoryIds = array();
+		$newCategoryIds[] = 0;
+		foreach($newCategories as $newCategory)
+		{
+			$newCategoryIds[] = $newCategory->getId();
+		}
+		$id = $this->getId();
+		$productTierPrices = ProductTierPrice::getAllByCriteria('productId = ? and priorityId = 1', array($id));
+		if (count($productTierPrices) > 0)
+		{
+			// the highest priority exists, so skip
+		}
+		else
+		{
+			// delete all tier price relevant to this product
+			ProductTierPrice::updateByCriteria('active = 0', 'productId = ? and active = 1', array($id));
+			// create new tier price according to new info
+			$tierPriceRules = TierRule::getAllByCriteria('manufacturerId = ? and categoryId in (' . implode(',', $newCategoryIds) . ')', array($this->getManufacturer()->getId()));
+			if (count($tierPriceRules) > 0)
+			{
+				$tierRule = $tierPriceRules[0];
+				$tierPrices = array_map(create_function('$a', 'return $a->getJson();'), TierPrice::getTierPrices($tierRule));
+				ProductTierPrice::updateTierPrices($tierRule, $this, $tierPrices);
+			}
+			else
+			{
+				$tierPriceRules = TierRule::getAllByCriteria('manufacturerId = ? and categoryId is null', array($this->getManufacturer()->getId()));
+				if (count($tierPriceRules) > 0)
+				{
+					$tierRule = $tierPriceRules[0];
+					$tierPrices = array_map(create_function('$a', 'return $a->getJson();'), TierPrice::getTierPrices($tierRule));
+					ProductTierPrice::updateTierPrices($tierRule, $this, $tierPrices);
+				}
+				else
+				{
+					$tierPriceRules = TierRule::getAllByCriteria('manufacturerId is null and categoryId in (' . implode(',', $newCategoryIds) . ')');
+					if (count($tierPriceRules) > 0)
+					{
+						$tierRule = $tierPriceRules[0];
+						$tierPrices = array_map(create_function('$a', 'return $a->getJson();'), TierPrice::getTierPrices($tierRule));
+						ProductTierPrice::updateTierPrices($tierRule, $this, $tierPrices);
+					}
+				}
+			}
+		}
+	}
+	
+	/**
 	 * Getting the unit cost based on the total value and stock on Hand
 	 *
 	 * @return number
