@@ -1267,8 +1267,10 @@ class Product extends InfoEntityAbstract
 		{
 			// delete all tier price relevant to this product
 			ProductTierPrice::updateByCriteria('active = 0', 'productId = ? and active = 1', array($id));
+			$manufacturerId = 0;
+			if ($this->getManufacturer() instanceof Manufacturer) $manufacturerId = $this->getManufacturer()->getId();
 			// create new tier price according to new info
-			$tierPriceRules = TierRule::getAllByCriteria('manufacturerId = ? and categoryId in (' . implode(',', $newCategoryIds) . ')', array($this->getManufacturer()->getId()));
+			$tierPriceRules = TierRule::getAllByCriteria('manufacturerId = ? and categoryId in (' . implode(',', $newCategoryIds) . ')', array($manufacturerId));
 			if (count($tierPriceRules) > 0)
 			{
 				$tierRule = $tierPriceRules[0];
@@ -1277,7 +1279,7 @@ class Product extends InfoEntityAbstract
 			}
 			else
 			{
-				$tierPriceRules = TierRule::getAllByCriteria('manufacturerId = ? and categoryId is null', array($this->getManufacturer()->getId()));
+				$tierPriceRules = TierRule::getAllByCriteria('manufacturerId = ? and categoryId is null', array($manufacturerId));
 				if (count($tierPriceRules) > 0)
 				{
 					$tierRule = $tierPriceRules[0];
