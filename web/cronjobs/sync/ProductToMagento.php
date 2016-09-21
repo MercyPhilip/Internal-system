@@ -169,7 +169,7 @@ abstract class ProductToMagento
             $products[$productImage->getProduct()->getId()] = $productImage->getProduct();
         }
         //ProductTierPrice
-        $productTierPrices = ProductTierPrice::getAllByCriteria('updated >= ? and tierLevelId > 0', array(trim($lastUpdatedTime)), false);
+        $productTierPrices = ProductTierPrice::getAllByCriteria('updated >= ? and tierLevelId > 1', array(trim($lastUpdatedTime)), false);
         self::_log('GOT ' . count($productTierPrices) . ' ProductTierPrice(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
         foreach ($productTierPrices as $productTierPrice) {
         	if(!$productTierPrice->getProduct() instanceof Product || array_key_exists($productTierPrice->getProduct()->getId(), $products))
@@ -500,7 +500,7 @@ abstract class ProductToMagento
    	        	$statusId = $product->getStatus()->getName();
    	        }
    	        //ProductTierPrices
-   	        $productTierPrices = ProductTierPrice::getAllByCriteria('productId = ? and tierLevelId > 0', array($product->getId()));
+   	        $productTierPrices = ProductTierPrice::getAllByCriteria('productId = ? and tierLevelId > 1', array($product->getId()));
    	        $unitCost = $product->getUnitCost();
    	        // if there is no unit cost 
    	        // then skip this product
