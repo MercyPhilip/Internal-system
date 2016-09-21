@@ -44,7 +44,8 @@ class DetailsController extends DetailsPageAbstract
 		else if(!($customer = Customer::get($this->Request['id'])) instanceof Customer)
 			die('Invalid Customer!');
 		
-		foreach (TierLevel::getAllByCriteria('id > 0') as $tier)
+		//foreach (TierLevel::getAllByCriteria('id > 0') as $tier)
+		foreach (TierLevel::getAll() as $tier)
 			$tiers[] = $tier->getJson();
 		$js = parent::_getEndJs();
 		$js .= "pageJs.setPreData(" . json_encode($customer->getJson()) . ',' . json_encode($tiers) . ")";
@@ -98,6 +99,10 @@ class DetailsController extends DetailsPageAbstract
 				if(!$customer instanceof Customer)
 					throw new Exception('Invalid Customer passed in!');
 				// only admin and accounting can change the isBlocked attribute
+				if ((($tier->getId() == TierLevel::ID_TIER0 || $customer->getTier()->getId() == TierLevel::ID_TIER0)) && Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN)
+				{
+					throw new Exception('You do not have privileges to create or change tier 0 customer, please inquire Administrator for support!');
+				}
 				if ((Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN && Core::getRole()->getId() != Role::ID_ACCOUNTING) && ($customer->getIsBlocked() != $isBlocked))
 				{
 					throw new Exception('You do not have privileges to change isBlocked attribute, please inquire Administrator for support!');
@@ -158,6 +163,11 @@ class DetailsController extends DetailsPageAbstract
 					}
 				}
 			} else {
+				// only admin and accounting can change the isBlocked attribute
+				if (($tier->getId() == TierLevel::ID_TIER0) && (Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN))
+				{
+					throw new Exception('You do not have privileges to create or change tier 0 customer, please inquire Administrator for support!');
+				}
 				if(trim($billingStreet) === '' && trim($billingCity) === '' && trim($billingState) === '' && trim($billingCountry) === '' && trim($billingPostcode) === '' && trim($billingName) === '' && trim($billingContactNo) === '' && trim($billingCompanyName) === '')
 					$billingAdressFull = null;
 				else
