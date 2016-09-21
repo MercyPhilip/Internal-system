@@ -269,6 +269,7 @@ class ListController extends CRUDPageAbstract
     		{
     			// update
     			$this->setTierPrices($item, $tierprices);
+    			$item->save();
     			//delete all old tier prices of the rule
     			ProductTierPrice::updateByCriteria('active = 0', 'active = 1 and tierruleId = ?' , array($item->getId()));
     		}
