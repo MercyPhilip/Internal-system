@@ -98,6 +98,10 @@ class DetailsController extends DetailsPageAbstract
 				if(!$customer instanceof Customer)
 					throw new Exception('Invalid Customer passed in!');
 				// only admin and accounting can change the isBlocked attribute
+				if ((($tier->getId() == TierLevel::ID_TIER_0 || $customer->getTier()->getId() == TierLevel::ID_TIER_0)) && Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN)
+				{
+					throw new Exception('You do not have privileges to create or change tier 0 customer, please inquire Administrator for support!');
+				}
 				if ((Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN && Core::getRole()->getId() != Role::ID_ACCOUNTING) && ($customer->getIsBlocked() != $isBlocked))
 				{
 					throw new Exception('You do not have privileges to change isBlocked attribute, please inquire Administrator for support!');
@@ -148,7 +152,7 @@ class DetailsController extends DetailsPageAbstract
 							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_USER),
 							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_KEY));
 					$custInfo = array();
-					if ($customer->getMageId() > 0)
+					if (($customer->getMageId() > 0) && $tierLevel != 0)
 					{
 						// update
 						$custInfo = array('group_id' => $tierLevel);
@@ -158,6 +162,11 @@ class DetailsController extends DetailsPageAbstract
 					}
 				}
 			} else {
+				// only admin and accounting can change the isBlocked attribute
+				if (($tier->getId() == TierLevel::ID_TIER_0) && (Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN))
+				{
+					throw new Exception('You do not have privileges to create or change tier 0 customer, please inquire Administrator for support!');
+				}
 				if(trim($billingStreet) === '' && trim($billingCity) === '' && trim($billingState) === '' && trim($billingCountry) === '' && trim($billingPostcode) === '' && trim($billingName) === '' && trim($billingContactNo) === '' && trim($billingCompanyName) === '')
 					$billingAdressFull = null;
 				else

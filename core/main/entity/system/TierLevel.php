@@ -8,6 +8,7 @@
  */
 class TierLevel extends BaseEntityAbstract
 {
+	const ID_TIER_0 = 0;
 	const ID_GENERAL = 1;
     /**
      * The tier name

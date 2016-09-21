@@ -1167,7 +1167,11 @@ class Product extends InfoEntityAbstract
 		$newCategoryIds[] = 0;
 		foreach($newCategories as $newCategory)
 		{
-			$newCategoryIds[] = $newCategory->getId();
+			$cate = $newCategory->getCategory();
+			$newCategoryIds[] = $cate->getId();
+			$parentIds = explode(ProductCategory::POSITION_SEPARATOR, trim($cate->getPosition()));
+			foreach($parentIds as $parentId)
+				$newCategoryIds[] = $parentId;
 		}
 		$id = $this->getId();
 		$productTierPrices = ProductTierPrice::getAllByCriteria('productId = ? and priorityId = 1', array($id));
@@ -1179,8 +1183,10 @@ class Product extends InfoEntityAbstract
 		{
 			// delete all tier price relevant to this product
 			ProductTierPrice::updateByCriteria('active = 0', 'productId = ? and active = 1', array($id));
+			$manufacturerId = 0;
+			if ($this->getManufacturer() instanceof Manufacturer) $manufacturerId = $this->getManufacturer()->getId();
 			// create new tier price according to new info
-			$tierPriceRules = TierRule::getAllByCriteria('manufacturerId = ? and categoryId in (' . implode(',', $newCategoryIds) . ')', array($this->getManufacturer()->getId()));
+			$tierPriceRules = TierRule::getAllByCriteria('manufacturerId = ? and categoryId in (' . implode(',', $newCategoryIds) . ')', array($manufacturerId), true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('updated' => 'desc'));
 			if (count($tierPriceRules) > 0)
 			{
 				$tierRule = $tierPriceRules[0];
@@ -1189,7 +1195,7 @@ class Product extends InfoEntityAbstract
 			}
 			else
 			{
-				$tierPriceRules = TierRule::getAllByCriteria('manufacturerId = ? and categoryId is null', array($this->getManufacturer()->getId()));
+				$tierPriceRules = TierRule::getAllByCriteria('manufacturerId = ? and categoryId is null', array($manufacturerId));
 				if (count($tierPriceRules) > 0)
 				{
 					$tierRule = $tierPriceRules[0];
@@ -1198,7 +1204,7 @@ class Product extends InfoEntityAbstract
 				}
 				else
 				{
-					$tierPriceRules = TierRule::getAllByCriteria('manufacturerId is null and categoryId in (' . implode(',', $newCategoryIds) . ')');
+					$tierPriceRules = TierRule::getAllByCriteria('manufacturerId is null and categoryId in (' . implode(',', $newCategoryIds) . ')', array() , true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('updated' => 'desc'));
 					if (count($tierPriceRules) > 0)
 					{
 						$tierRule = $tierPriceRules[0];

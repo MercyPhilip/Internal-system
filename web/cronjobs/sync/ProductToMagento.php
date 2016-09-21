@@ -136,7 +136,7 @@ abstract class ProductToMagento
     {
         self::_log('== Trying to get all the updated price for products:', __CLASS__ . '::' . __FUNCTION__, $preFix);
         //product prices
-        $productPrices = ProductPrice::getAllByCriteria('updated > ?', array(trim($lastUpdatedTime)));
+        $productPrices = ProductPrice::getAllByCriteria('updated >= ?', array(trim($lastUpdatedTime)));
         self::_log('GOT ' . count($productPrices) . ' Price(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
         $products = array();
         foreach ($productPrices as $productPrice) {
@@ -145,7 +145,7 @@ abstract class ProductToMagento
             $products[$productPrice->getProduct()->getId()] = $productPrice->getProduct();
         }
         //products
-        $productArr = Product::getAllByCriteria('updated > ?', array(trim($lastUpdatedTime)), false);
+        $productArr = Product::getAllByCriteria('updated >= ?', array(trim($lastUpdatedTime)), false);
         self::_log('GOT ' . count($productArr) . ' Product(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
         foreach ($productArr as $product) {
             if(array_key_exists($product->getId(), $products))
@@ -153,7 +153,7 @@ abstract class ProductToMagento
             $products[$product->getId()] = $product;
         }
         //Product_Category
-        $productCates = Product_Category::getAllByCriteria('updated > ?', array(trim($lastUpdatedTime)));
+        $productCates = Product_Category::getAllByCriteria('updated >= ?', array(trim($lastUpdatedTime)));
         self::_log('GOT ' . count($productCates) . ' Product_Category(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
         foreach ($productCates as $productCate) {
             if(!$productCate->getProduct() instanceof Product || array_key_exists($productCate->getProduct()->getId(), $products))
@@ -161,7 +161,7 @@ abstract class ProductToMagento
             $products[$productCate->getProduct()->getId()] = $productCate->getProduct();
         }
         //ProductImage
-        $productImages = ProductImage::getAllByCriteria('updated > ? and active = 1', array(trim($lastUpdatedTime)));
+        $productImages = ProductImage::getAllByCriteria('updated >= ? and active = 1', array(trim($lastUpdatedTime)));
         self::_log('GOT ' . count($productImages) . ' ProductImage(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
         foreach ($productImages as $productImage) {
             if(!$productImage->getProduct() instanceof Product || array_key_exists($productImage->getProduct()->getId(), $products))
@@ -169,7 +169,7 @@ abstract class ProductToMagento
             $products[$productImage->getProduct()->getId()] = $productImage->getProduct();
         }
         //ProductTierPrice
-        $productTierPrices = ProductTierPrice::getAllByCriteria('updated > ?', array(trim($lastUpdatedTime)), false);
+        $productTierPrices = ProductTierPrice::getAllByCriteria('updated >= ? and tierLevelId > 1', array(trim($lastUpdatedTime)), false);
         self::_log('GOT ' . count($productTierPrices) . ' ProductTierPrice(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
         foreach ($productTierPrices as $productTierPrice) {
         	if(!$productTierPrice->getProduct() instanceof Product || array_key_exists($productTierPrice->getProduct()->getId(), $products))
@@ -378,7 +378,7 @@ abstract class ProductToMagento
    	    $categoryIds = array(2); //default category
    	    $groupPrices =  array();
    	    $tierPrices = array();
-   	    $tierLevels = TierLevel::getAllByCriteria('id <> 1');
+   	    $tierLevels = TierLevel::getAllByCriteria('id > 1');
    	    foreach ($tierLevels as $tierLevel)
    	    {
    	    	$keyGroup = 'group_price:' . $tierLevel->getName();
@@ -500,7 +500,7 @@ abstract class ProductToMagento
    	        	$statusId = $product->getStatus()->getName();
    	        }
    	        //ProductTierPrices
-   	        $productTierPrices = ProductTierPrice::getAllByCriteria('productId = ?', array($product->getId()));
+   	        $productTierPrices = ProductTierPrice::getAllByCriteria('productId = ? and tierLevelId > 1', array($product->getId()));
    	        $unitCost = $product->getUnitCost();
    	        // if there is no unit cost 
    	        // then skip this product
@@ -539,7 +539,7 @@ abstract class ProductToMagento
    	        }
    	    }
    	    $categoryIds = array_unique($categoryIds);
-   		$result = array("store" => 'default',
+   		$result = array("store" => 'admin, default',
    				"websites" => 'base',
    				"attribute_set" => $attributeSetName, //attribute_name
    				"type" => 'simple',
