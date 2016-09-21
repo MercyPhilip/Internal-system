@@ -564,7 +564,7 @@ abstract class ProductToMagento
    	        $totalStockOnHand = $stock2 . $stock1;
    	    }
    	    $categoryIds = array_unique($categoryIds);
-   		$result = array("store" => 'default',
+   		$result = array("store" => 'admin, default',
    				"websites" => 'base',
    				"attribute_set" => $attributeSetName, //attribute_name
    				"type" => 'simple',
