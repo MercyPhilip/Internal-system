@@ -2,6 +2,12 @@
  * The page Js file
  */
 var PageJs = new Class.create();
+/**
+ * tier level
+ */
+PageJs.TierLevel = {
+	GENERAL: 1 // default
+};
 PageJs.prototype = Object.extend(new DetailsPageJs(), {
 	_customer: {}
 	,_tierlevels: []
@@ -89,7 +95,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 	 */
 	,_getTierSelBox: function () {
 		var tmp = {};
-		var tierIdSelected = 1; // default is general
+		var tierIdSelected = PageJs.TierLevel.GENERAL; // default is general
 		tmp.me = this;
 		if(tmp.me._customer && tmp.me._customer.id) {
 			tierIdSelected = tmp.me._customer.tier.id;

@@ -98,7 +98,7 @@ class DetailsController extends DetailsPageAbstract
 				if(!$customer instanceof Customer)
 					throw new Exception('Invalid Customer passed in!');
 				// only admin and accounting can change the isBlocked attribute
-				if ((($tier->getId() == TierLevel::ID_TIER0 || $customer->getTier()->getId() == TierLevel::ID_TIER0)) && Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN)
+				if ((($tier->getId() == TierLevel::ID_TIER_0 || $customer->getTier()->getId() == TierLevel::ID_TIER_0)) && Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN)
 				{
 					throw new Exception('You do not have privileges to create or change tier 0 customer, please inquire Administrator for support!');
 				}
@@ -163,7 +163,7 @@ class DetailsController extends DetailsPageAbstract
 				}
 			} else {
 				// only admin and accounting can change the isBlocked attribute
-				if (($tier->getId() == TierLevel::ID_TIER0) && (Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN))
+				if (($tier->getId() == TierLevel::ID_TIER_0) && (Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN))
 				{
 					throw new Exception('You do not have privileges to create or change tier 0 customer, please inquire Administrator for support!');
 				}
