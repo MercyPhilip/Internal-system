@@ -44,7 +44,6 @@ class DetailsController extends DetailsPageAbstract
 		else if(!($customer = Customer::get($this->Request['id'])) instanceof Customer)
 			die('Invalid Customer!');
 		
-		//foreach (TierLevel::getAllByCriteria('id > 0') as $tier)
 		foreach (TierLevel::getAll() as $tier)
 			$tiers[] = $tier->getJson();
 		$js = parent::_getEndJs();
