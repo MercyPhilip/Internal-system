@@ -29,7 +29,7 @@ class ListController extends CRUDPageAbstract
 	 */
 	protected function _getEndJs()
 	{
-		foreach (TierLevel::getAll() as $tier)
+		foreach (TierLevel::getAllByCriteria('id > 0') as $tier)
 			$tiers[] = $tier->getJson();
 		$js = parent::_getEndJs();
 		$js .= "pageJs._bindSearchKey()";

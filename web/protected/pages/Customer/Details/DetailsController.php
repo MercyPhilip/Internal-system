@@ -44,7 +44,7 @@ class DetailsController extends DetailsPageAbstract
 		else if(!($customer = Customer::get($this->Request['id'])) instanceof Customer)
 			die('Invalid Customer!');
 		
-		foreach (TierLevel::getAll() as $tier)
+		foreach (TierLevel::getAllByCriteria('id > 0') as $tier)
 			$tiers[] = $tier->getJson();
 		$js = parent::_getEndJs();
 		$js .= "pageJs.setPreData(" . json_encode($customer->getJson()) . ',' . json_encode($tiers) . ")";
@@ -148,7 +148,7 @@ class DetailsController extends DetailsPageAbstract
 							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_USER),
 							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_KEY));
 					$custInfo = array();
-					if ($customer->getMageId() > 0)
+					if (($customer->getMageId() > 0) && $tierLevel != 0)
 					{
 						// update
 						$custInfo = array('group_id' => $tierLevel);
