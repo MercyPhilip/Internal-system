@@ -348,11 +348,11 @@ class ListController extends CRUDPageAbstract
 	 */
 	private function _updateCategories(Product &$product, $categoryIds)
 	{
-		// delete all associated categories
-		Product_Category::deleteByCriteria('productId = ?', array(trim($product->getId())));
 		// create new categories
 		if(isset($categoryIds) && count($categoryIds) > 0)
 		{
+			// delete all associated categories
+			Product_Category::deleteByCriteria('productId = ?', array(trim($product->getId())));
 			foreach($categoryIds as $categoryId)
 			{
 				if(!($category = ProductCategory::get($categoryId)))

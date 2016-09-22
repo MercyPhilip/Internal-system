@@ -117,6 +117,59 @@ insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, 
 insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)
   values(7, 284, 31, 1, NOW(), 10, NOW(), 10);
 
-  
+
+---
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,23, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,23, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,23, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,29, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,39, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,39, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,39, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,40, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,61, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,61, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,61, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,65, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,65, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(9,81, 111, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(9,81, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(9,81, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(9,81, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,103, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,103, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,103, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,108, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,108, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,108, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,117, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(1,133, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(74,133, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(8,148, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(8,148, 111, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(8,148, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,153, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,153, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,153, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(1,250, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(1,250, 111, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(1,250, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(1,250, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(8,262, 111, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(8,262, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(10,271, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,278, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,279, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,279, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,279, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,279, 114, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,281, 109, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,281, 112, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,281, 113, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,281, 114, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(7,285, 114, 1, NOW(), 10, NOW(), 10);
+insert into manualmanage(`supplierId`, `manufactureId`, `categoryId`, `active`, `created`, `createdById`, `updated`, `updatedById`)  values(1,296, 112, 1, NOW(), 10, NOW(), 10);
+
+
   
   
