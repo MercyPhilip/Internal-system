@@ -195,7 +195,7 @@ class TierPrice extends BaseEntityAbstract
      * @param unknown $stats
      * @return Ambigous <Ambigous, multitype:, multitype:BaseEntityAbstract >
      */
-    public static function getTierPrices(TierRule $tierRule, TierPriceType $type = null, $activeOnly = true, $pageNo = null, $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE, $orderBy = array(), &$stats = array())
+    public static function getTierPrices(TierRule $tierRule, TierPriceType $type = null, $activeOnly = true, $pageNo = null, $pageSize = DaoQuery::DEFAUTL_PAGE_SIZE, $orderBy = array('tierLevelId' => 'asc'), &$stats = array())
     {
     	$where = array('tierruleId = ? ');
     	$params = array($tierRule->getId());
