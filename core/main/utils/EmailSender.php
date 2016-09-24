@@ -36,6 +36,7 @@ abstract class EmailSender
 		$mail->Password = isset($settings['password']) ? $settings['password'] : "";
 		//Set who the message is to be sent from
 		$mail->setFrom($from);
+		$mail->addReplyTo($from);
 		//Set an alternative reply-to address
 		//$mail->addReplyTo('replyto@example.com', 'First Last');
 		//Set who the message is to be sent to
