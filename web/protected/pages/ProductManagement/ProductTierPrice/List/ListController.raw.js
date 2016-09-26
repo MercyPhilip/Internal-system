@@ -14,7 +14,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	,_selected: null // for new rule post, selected products
 	,newRuleResultContainerId: 'new_rule_result_container' // the element id for new rule post result container	
 	,_getTitleRowData: function() {
-		return {'sku': 'SKU', 'manufacturer' : {'name': 'Brand'}, 'category': {'name': 'Category'},  'tier': 'Tier Price'};
+		return {'sku': 'SKU', 'category': {'name': 'Category'}, 'manufacturer' : {'name': 'Brand'}, 'tier': 'Tier Price'};
 	}
 	/**
 	 * Set some pre defined data before javascript start
@@ -490,7 +490,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.update(row.sku)
 				})
 			})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'manufacturer hidden-xs hide-when-info hidden-sm', 'style' : 'width:5%'}).addClassName('col-xs-1').update(row.manufacturer ? row.manufacturer.name : '') })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'category'}).addClassName('col-xs-2').update(
 					tmp.isTitle === true ?
 							new Element('div', {'class': 'row'})
@@ -500,6 +499,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 								.insert({'bottom': new Element('div', {'class': 'col-xs-12'}).update(tmp.categories) })
 								)
 			})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'manufacturer hidden-xs hide-when-info hidden-sm', 'style' : 'width:5%'}).addClassName('col-xs-1').update(row.manufacturer ? row.manufacturer.name : '') })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'prices'}).addClassName('col-xs-3').update(
 					tmp.isTitle === true ?
 							new Element('div', {'class': 'row'})
@@ -592,14 +592,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.insert({'bottom': new Element('input', {'class': '', 'type': 'hidden','save-item-panel': 'id', 'value': row.id? row.id : ''})
 				})
 			})
-			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-1 hidden-xs hide-when-info hidden-sm '})
-				.insert({'bottom': new Element('span', {'class': 'brand'}).update(row.manufacturer ? row.manufacturer.name : '' )
-				})
-			})
 			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-2'})
 				.insert({'bottom': new Element('span', {'class': 'row category'}).update(tmp.categories)
 				})
-
+			})
+			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-1 hidden-xs hide-when-info hidden-sm '})
+				.insert({'bottom': new Element('span', {'class': 'brand'}).update(row.manufacturer ? row.manufacturer.name : '' )
+				})
 			})
 			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-3'})
 				.insert({'bottom': new Element('div', {'class': 'row prices'})
