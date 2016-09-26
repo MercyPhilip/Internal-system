@@ -83,7 +83,7 @@ class OrderConnector extends B2BConnector
 							isset($order->customer_id) ? trim($order->customer_id) : 0,
 							0,
 							false,
-							trim($order->customer_group_id)
+							trim($order->customer_group_id) ? trim($order->customer_group_id) : 1
 					);
 
 					$o->setOrderNo(trim($order->increment_id))
