@@ -154,6 +154,7 @@ class ListController extends CRUDPageAbstract
                	$tmpArray = $obj->getJson();
             	$tierPrices = ProductTierPrice::getTierPrices($obj);
             	$tmpArray['tierprices'] = $tierPrices;
+            	$tmpArray['buyinprice'] = ProductBuyinPrice::getBuyinPrice($obj->getId());
             	$results['items'][] = $tmpArray;
             }
         }

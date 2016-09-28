@@ -822,7 +822,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me = this;
 		tiers = row.tierPrice;
 		//unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : 'N/A';
-		unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? row.totalOnHandValue/row.stockOnHand : 0;
+		unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? row.totalOnHandValue/row.stockOnHand : Number(row.buyinprice);
 		tmp.price = '';
 		tmp.specilaPrice = '';
 		tmp.srp = '';
