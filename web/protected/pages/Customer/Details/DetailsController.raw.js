@@ -51,10 +51,9 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		tmp.data = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')), 'save-item');
-		tmp.data.id = tmp.me._customer.id ? tmp.me._customer.id : '';
 		if(tmp.data === null)
 			return tmp.me;
-
+		tmp.data.id = tmp.me._customer.id ? tmp.me._customer.id : '';
 		//submit all data
 		tmp.me.saveItem(btn, tmp.data, function(data){
 			tmp.me.showModalBox('<strong class="text-success">Saved Successfully!</strong>', 'Saved Successfully!', true);
@@ -220,7 +219,6 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		$(inputBox).value = tmp.me._getCurrency(tmp.inputValue);
 		return true;
 	}
-	
 	/**
 	 * copy field between two address fields
 	 */
@@ -343,3 +341,4 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		tmp.me = this;
 		return tmp.me;
 	}
+});
