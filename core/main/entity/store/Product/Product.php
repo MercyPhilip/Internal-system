@@ -1206,6 +1206,7 @@ class Product extends InfoEntityAbstract
 				$array['totalRMAValue'] = $this->getstock()->getTotalRMAValue();
 				$array['totalOnHandValue'] = $this->getstock()->getTotalOnHandValue();
 				$array['totalInPartsValue'] = $this->getstock()->getTotalInPartsValue();
+				$array['ssku'] = ($obj = ProductSsku::getObj($this->getId())) instanceof ProductSsku ? $obj->getSsku() : $this->getSku();
 			}
 	
 		}
