@@ -78,6 +78,25 @@ class ProductBuyinPrice extends BaseEntityAbstract
         DaoMap::commit();
     }
     /**
+     * Getting buyin price object
+     *
+     * @param  $productId
+     * @return ProductBuyinPrice
+     */
+    public static function getBuyinPriceObj($productId)
+    {
+    	$where = array('productId = ? ');
+    	$params = array($productId);
+    	$buyinPrices = self::getAllByCriteria(implode(' AND ', $where), $params);
+    	if (count($buyinPrices) > 0)
+    	{
+    		$buyinPrice = $buyinPrices[0];
+    		if ($buyinPrice instanceof ProductBuyinPrice)
+    			return $buyinPrice;
+    	}
+    	return null;
+    }
+    /**
      * Getting buyin price
      *
      * @param  $productId

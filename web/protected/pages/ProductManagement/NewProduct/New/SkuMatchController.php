@@ -35,6 +35,7 @@ class SkuMatchController extends BPCPageAbstract
 	const IMAGE4 = 'image4';
 	const IMAGE5 = 'image5';
 	const SRP = 'srp';
+	const BUYINPRICE = 'buyinprice';
 	/**
 	 * (non-PHPdoc)
 	 * @see BPCPageAbstract::onLoad()
@@ -52,7 +53,8 @@ class SkuMatchController extends BPCPageAbstract
 	 */
 	protected function _getEndJs()
 	{
-		$importDataTypes = array('new_product'=> 'NEW PRODUCT', 'update_product'=>'UPDATE PRODUCT', 'update_srp' => 'UPDATE SRP(PRICE)');
+		$importDataTypes = array('new_product'=> 'NEW PRODUCT', 'update_product'=>'UPDATE PRODUCT', 'update_srp' => 'UPDATE SRP(PRICE)', 
+				'update_buyinprice' => 'UPDATE PRICE BOOK', 'update_supplier_sku' => 'UPDATE SUPLLIER SKU');
 
 		$js = parent::_getEndJs();
 		$js .= 'pageJs';
@@ -91,6 +93,11 @@ class SkuMatchController extends BPCPageAbstract
 					break;
 				case 'update_srp':
 					$item = $this->importSRP($data);
+					$result['path'] = $item instanceof Product ? '/product/' . $item->getId() . '.html' : '';
+					$result['item'] = $item instanceof Product ? $item->getJson() : array();
+					break;
+				case 'update_buyinprice':
+					$item = $this->importPriceBook($data);
 					$result['path'] = $item instanceof Product ? '/product/' . $item->getId() . '.html' : '';
 					$result['item'] = $item instanceof Product ? $item->getJson() : array();
 					break;
@@ -534,6 +541,51 @@ class SkuMatchController extends BPCPageAbstract
 		{
 			// new srp
 			$product->addPrice(ProductPriceType::get(ProductPriceType::ID_SRP), $price);
+		}
+		return $product;
+	}
+	/**
+	 * import buyin price for products
+	 * @param array $rows
+	 * @throws Exception
+	 * @return ListController
+	 */
+	private function importPriceBook($row)
+	{
+		$row = new ArrayObject($row);
+		$index = $row['index'];
+		$sku = isset($row[self::SKU]) ? trim($row[self::SKU]) : '';
+		if ($sku == '')
+		{
+			throw new Exception('Invalid sku passed in! (line ' . $index .')');
+		}
+		$buyinPrice = isset($row[self::BUYINPRICE]) ? trim($row[self::BUYINPRICE]) : '';
+		$search = array('$', ',');
+		$replace = array();
+		$price = doubleval(str_replace($search, $replace, $buyinPrice));
+		if ($price <= doubleval(0))
+		{
+			throw new Exception('Invalid BUYINPRICE passed in! (line ' . $index .')');
+		}
+		$product = Product::getBySku($sku);
+		if (!$product instanceof Product)
+		{
+			// no such a product
+			throw new Exception('No such a product (line ' . $index .')');
+		}
+		// get ProductBuyinPrice
+		$buyinPriceObj = ProductBuyinPrice::getBuyinPriceObj($product->getId());
+		if ($buyinPriceObj instanceof ProductBuyinPrice)
+		{
+			// update
+			$buyinPriceObj->setPrice($price)->save();
+		}
+		else
+		{
+			// new
+			$buyinPriceObj = new ProductBuyinPrice();
+			$buyinPriceObj->setProduct($product)
+				->setPrice($price)->save();
 		}
 		return $product;
 	}

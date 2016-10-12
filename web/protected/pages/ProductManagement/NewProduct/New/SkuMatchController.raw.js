@@ -137,6 +137,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			case 'update_srp':
 				tmp.me.csvFileLineFormat = ['sku', 'srp'];
 				break;
+			case 'update_buyinprice':
+				tmp.me.csvFileLineFormat = ['sku', 'buyinprice'];
+				break;
 			default:
 				tmp.me.csvFileLineFormat = [];
 		}
