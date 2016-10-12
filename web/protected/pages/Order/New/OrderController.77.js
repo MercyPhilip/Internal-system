@@ -1275,14 +1275,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			,'tierPrice': ''
 			,'retailPrice': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', tmp.me.getCurrency(0), {'new-order-item': 'retailPrice', 'required': true, 'disabled': true}) )
 			,'qtyOrdered': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', 1, {'new-order-item': 'qtyOrdered', 'required': true}) )
-			,'discount': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', 0, {'new-order-item': 'discount'}, function(event) {
-					if($F($(this)).blank() || $F($(this)) > 100) {
-						$(this).value = 0;
-						$(this).select();
-					}
-					tmp.me._calculateNewProductPrice($(this).up('.item_row'), 'new-order-item');
-				})
-			)
+			,'discount': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', 0, {'new-order-item': 'discount'}) )
 			,'totalPrice': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', tmp.me.getCurrency(0), {'new-order-item': 'totalPrice', 'required': true, 'disabled': true}) )
 			,'margin': tmp.me.getCurrency(0)
 			, 'btns': new Element('span', {'class': 'btn-group btn-group-sm pull-right'})
