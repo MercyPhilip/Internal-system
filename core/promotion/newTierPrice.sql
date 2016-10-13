@@ -134,22 +134,6 @@ CREATE TABLE `productbuyinprice` (
   KEY `updatedById` (`updatedById`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `productbuyinprice`;
-CREATE TABLE `productbuyinprice` (
-  `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
-  `productId` int(10) DEFAULT NULL,
-  `price` double(10,4) DEFAULT NULL,
-  `active` tinyint(1) NOT NULL DEFAULT '1',
-  `created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
-  `createdById` int(10) unsigned NOT NULL DEFAULT '0',
-  `updated` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `updatedById` int(10) unsigned NOT NULL DEFAULT '0',
-  PRIMARY KEY (`id`),
-  KEY `productId` (`productId`),
-  KEY `createdById` (`createdById`),
-  KEY `updatedById` (`updatedById`)
-) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;
-
 DROP TABLE IF EXISTS `productssku`;
 CREATE TABLE `productssku` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
