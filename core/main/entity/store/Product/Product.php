@@ -1775,9 +1775,9 @@ class Product extends InfoEntityAbstract
 				$keys[] = ':' . $key;
 				$ps[$key] = trim($value);
 			}
-			self::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
+			self::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.active = 1 and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
 			if (is_array($sumValues)) {
-				$innerJoins[] = 'inner join suppliercode pro_sup_code on (pro.id = pro_sup_code.productId and pro_sup_code.supplierId in (' . implode(',', $keys) . '))';
+				$innerJoins[] = 'inner join suppliercode pro_sup_code on (pro.id = pro_sup_code.productId and pro_sup_code.active = 1 and pro_sup_code.supplierId in (' . implode(',', $keys) . '))';
 			}
 			$params = array_merge($params, $ps);
 		}
