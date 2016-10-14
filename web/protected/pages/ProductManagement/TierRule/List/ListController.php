@@ -168,7 +168,7 @@ class ListController extends CRUDPageAbstract
     		$where[] = 'tr_rl.categoryId in (' . implode(',', $keys) . ')';
     		$params = array_merge($params, $ps);
     	}
-    	$objs = TierRule::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, $orderBy, $stats);
+    	$objs = TierRule::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, $orderBy, $stats);
     	return $objs;
     }
 	/**
