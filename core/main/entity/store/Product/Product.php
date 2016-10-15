@@ -1206,9 +1206,7 @@ class Product extends InfoEntityAbstract
 				$array['totalRMAValue'] = $this->getstock()->getTotalRMAValue();
 				$array['totalOnHandValue'] = $this->getstock()->getTotalOnHandValue();
 				$array['totalInPartsValue'] = $this->getstock()->getTotalInPartsValue();
-				$array['ssku'] = ($obj = ProductSsku::getObj($this->getId())) instanceof ProductSsku ? $obj->getSsku() : $this->getSku();
 			}
-	
 		}
 		catch (Exception $ex)
 		{
@@ -1900,7 +1898,6 @@ class Product extends InfoEntityAbstract
 					}
 				}
 			}
-			//var_dump($ps);
 			self::getQuery()->eagerLoad('Product.categories', 'inner join', 'pro_cate', 'pro.id = pro_cate.productId and pro_cate.categoryId in (' . implode(',', $keys) . ')');
 			if (is_array($sumValues)) {
 				$innerJoins[] = 'inner join product_category pro_cate on (pro.id = pro_cate.productId and pro_cate.categoryId in (' . implode(',', $keys) . '))';
