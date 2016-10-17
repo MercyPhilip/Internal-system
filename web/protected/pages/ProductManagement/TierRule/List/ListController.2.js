@@ -217,6 +217,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.update(row.product? row.product.sku : '')
 				})
 			})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'manufacturer hidden-xs hide-when-info hidden-sm', 'style' : 'width:5%'}).addClassName('col-xs-1').update(row.manufacturer ? row.manufacturer.name : '') })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'category'}).addClassName('col-xs-2').update(
 					tmp.isTitle === true ?
 							new Element('div', {'class': 'row'})
@@ -226,7 +227,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 								.insert({'bottom': new Element('div', {'class': 'col-xs-12'}).update(row.category? row.category.name : '') })
 								)
 			})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'manufacturer hidden-xs hide-when-info hidden-sm', 'style' : 'width:5%'}).addClassName('col-xs-1').update(row.manufacturer ? row.manufacturer.name : '') })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'stock'}).addClassName('col-xs-6').update(
 					tmp.isTitle === true ?
 							new Element('div', {'class': 'row'})
@@ -298,14 +298,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.insert({'bottom': new Element('input', {'class': '', 'type': 'hidden','save-item-panel': 'id', 'value': row.id? row.id : ''})
 				})
 			})
-			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-2'})
-				.insert({'bottom': new Element('span', {'class': 'category'})
-					.insert({'bottom': new Element('input', {'disabled': row.id ? true: false,'class': 'chosen form-control input-sm', 'entityName' : 'ProductCategory', 'placeholder': 'The Category','save-item-panel': 'category', 'rowid': row.id ? row.id : '', 'value': row.category ? row.category.name : ''}) })
-				})
-			})
 			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-1 hidden-xs hide-when-info hidden-sm '})
 				.insert({'bottom': new Element('span', {'class': 'brand'})
 					.insert({'bottom': new Element('input', {'disabled': row.id ? true: false,'class': 'chosen form-control input-sm', 'entityName' : 'Manufacturer', 'placeholder': 'The Brand','save-item-panel': 'brand', 'rowid': row.id ? row.id : '', 'value': row.manufacturer ? row.manufacturer.name : ''}) })
+				})
+			})			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-2'})
+				.insert({'bottom': new Element('span', {'class': 'category'})
+					.insert({'bottom': new Element('input', {'disabled': row.id ? true: false,'class': 'chosen form-control input-sm', 'entityName' : 'ProductCategory', 'placeholder': 'The Category','save-item-panel': 'category', 'rowid': row.id ? row.id : '', 'value': row.category ? row.category.name : ''}) })
 				})
 			})
 			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-6'})
