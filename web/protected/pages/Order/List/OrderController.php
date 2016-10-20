@@ -168,7 +168,22 @@ class OrderController extends BPCPageAbstract
 					}
 					case 'extraSearchCriteria':
 					{
-						$where[] = $value;
+						if ($value == 'attention')
+						{
+							$ordAtns = OrderAttention::getAllByCriteria('storeId = ?', array(Core::getUser()->getStore()->getId()));
+							$ordAtnIds = array(0);
+							foreach($ordAtns as $ordAtn)
+							{
+								$ordAtnIds[] = $ordAtn->getOrder()->getId();
+							}
+							if(count($ordAtnIds) > 0) {
+								$where[] = 'ord.id in (' . implode(', ', array_fill(0, count($ordAtnIds), '?')) . ')';
+								$params = array_merge($params, $ordAtnIds);
+							}
+							$innerJoinStrings[] = 'inner join orderattention atn on (atn.orderId = ord.id and atn.active = 1 and atn.storeId = ord.storeId)';
+						}
+						else 
+							$where[] = $value;
 						break;
 					}
 					case 'productId':

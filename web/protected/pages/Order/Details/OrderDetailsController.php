@@ -50,6 +50,7 @@ class OrderDetailsController extends BPCPageAbstract
 		if(in_array(intval(Core::getRole()->getId()), array(Role::ID_SYSTEM_ADMIN, Role::ID_STORE_MANAGER, Role::ID_PRODUCT_MANAGER, Role::ID_ACCOUNTING, Role::ID_SALES)))
 			$accounEdit = 'true';
 		$orderArray = $order->getJson();
+		$orderArray['attentionStatus'] = ($ordAtn = OrderAttention::getOrderAttentionObj($order->getId())) instanceof OrderAttention ? $ordAtn->getStatus() : '';
 		$orderArray['childrenOrders'] = array_map(create_function('$a', 'return $a->getOrder()->getJson();'), OrderInfo::getAllByCriteria('typeId = ? and value = ?', array(OrderInfoType::ID_CLONED_FROM_ORDER_NO, trim($order->getOrderNo()))));
 		$orderArray['creditNotes'] = array_map(create_function('$a', 'return $a->getJson();'), CreditNote::getAllByCriteria('orderId = ?', array(trim($order->getId()))));
 		$orderStatuses = array_map(create_function('$a', 'return $a->getJson();'), OrderStatus::findAll());
@@ -62,6 +63,7 @@ class OrderDetailsController extends BPCPageAbstract
 			$js .= '.setCallbackId("clearETA", "' . $this->clearETABtn->getUniqueID() . '")';
 			$js .= '.setCallbackId("changeIsOrdered", "' . $this->changeIsOrderedBtn->getUniqueID() . '")';
 			$js .= '.setCallbackId("updateAddress", "' . $this->updateAddressBtn->getUniqueID() . '")';
+			$js .= '.setCallbackId("updateAttentionStatus", "' . $this->updateAttentionStatusBtn->getUniqueID() . '")';
 			$js .= '.setCallbackId("updatePONo", "' . $this->updatePONoBtn->getUniqueID() . '")';
 			$js .= '.setCallbackId("changeShippingMethod", "' . $this->changeShippingMethodBtn->getUniqueID() . '")';
 			$js .= '.setCallbackId("updateSerials", "' . $this->updateSerialsBtn->getUniqueID() . '")';
@@ -617,6 +619,52 @@ class OrderDetailsController extends BPCPageAbstract
 				->addComment(($msg = 'Changed Shipping Method to "' . $shippingMethod . '"'), Comments::TYPE_NORMAL)
 				->addLog($msg, Log::TYPE_SYSTEM, '', __CLASS__ . '::' . __FUNCTION__);
 			$results['item'] = $order->getJson();
+			Dao::commitTransaction();
+		}
+		catch(Exception $ex)
+		{
+			Dao::rollbackTransaction();
+			$errors[] = $ex->getMessage();
+		}
+		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	}
+	/**
+	 * Update the order attention status
+	 *
+	 * @param unknown $sender
+	 * @param unknown $param
+	 *
+	 * @throws Exception
+	 */
+	public function updateAttentionStatus($sender, $param)
+	{
+		$results = $errors = array();
+		try
+		{
+			Dao::beginTransaction();
+			if(!isset($param->CallbackParameter->orderId) || !($order = Order::get($param->CallbackParameter->orderId)) instanceof Order)
+				throw new Exception('System Error: invalid order provided!');
+			if(!isset($param->CallbackParameter->status))
+				throw new Exception('System Error: invalid attention status provided!');
+			$status = trim($param->CallbackParameter->status) == 0 ? OrderAttention::STS_ID_CANCELLED : OrderAttention::STS_ID_NEW;
+			$ordAtns = OrderAttention::getOrderAttentionObj($order->getId());
+			if ($ordAtns instanceof OrderAttention)
+			{
+				
+				$ordAtns->setStatus($status);
+				if ($status == OrderAttention::STS_ID_CANCELLED) $ordAtns->setActive(false);
+			}
+			else
+			{
+				if ($status == OrderAttention::STS_ID_NEW)
+				{
+					$ordAtns =  new OrderAttention();
+					$ordAtns->setOrder($order)->setStatus($status)->setStore(Core::getUser()->getStore());
+				}
+			}
+			$ordAtns->save()
+				->addLog('Changed order attentio status to ' . $status, Log::TYPE_SYSTEM, '', __CLASS__ . '::' . __FUNCTION__);
+			$results['attentionStatus'] =  $ordAtns->getStatus() == OrderAttention::STS_ID_NEW ? OrderAttention::STS_ID_NEW : '';
 			Dao::commitTransaction();
 		}
 		catch(Exception $ex)

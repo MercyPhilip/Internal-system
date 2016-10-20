@@ -14,6 +14,13 @@ PageJs.ROLE = {
 	SALES: 6,
 	WORKSHOP: 7
 };
+/**
+ * order attetion status
+ */
+PageJs.ORDERATTENTION = {
+		NEW: 1,
+		CANCEL: 0
+};
 PageJs.prototype = Object.extend(new BPCPageJs(), {
 	_order: null //the order object
 	,_orderStatuses: [] //the order statuses object
@@ -51,6 +58,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	}
 
 	,setOrder: function(order, orderItems, orderStatuses, _orderStatusID_Shipped) {
+		console.log('order=', order);
 		this._order = order;
 		this._orderItems = orderItems;
 		this._orderStatuses = orderStatuses;
@@ -1025,9 +1033,11 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			,'onSuccess': function(sende, param) {
 				try {
 					tmp.result = tmp.me.getResp(param, false, true);
-					if(!tmp.result || !tmp.me.item)
+					console.log('_updatePONo tmp.result=', tmp.result);
+					console.log('_updatePONo tmp.result.item=', tmp.result.item);
+					if(!tmp.result || !tmp.result.item)
 						return;
-					tmp.me._order.pONo = tmp.me.item;
+					tmp.me._order.pONo = tmp.result.item;
 				} catch (e) {
 					tmp.me.showModalBox('<strong class="text-danger">Error</strong>', e);
 				}
@@ -1061,6 +1071,17 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					.observe('change', function() {
 						tmp.me._updatePONo(this);
 					})
+				})
+				.insert({'bottom': new Element('span').update('&nbsp;') })
+				.insert({'bottom': tmp.me._order.attentionStatus == '' ? new Element('span', {'class': 'btn btn-danger btn-xs'}).update('Need Attention')
+					.observe('click', function(){
+						tmp.me._updateAttentionStatus(tmp.me._order.id, PageJs.ORDERATTENTION.NEW);
+					})
+					:
+					new Element('span', {'class': 'btn btn-info btn-xs'}).update('Cancel Attention')
+						.observe('click', function(){
+							tmp.me._updateAttentionStatus(tmp.me._order.id, PageJs.ORDERATTENTION.CANCEL);
+						})
 				})
 				.insert({'bottom': new Element('span', {'class': 'pull-right'})
 					.update('Status: ')
@@ -1434,6 +1455,43 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			jQuery('.panel').removeClass('panel-default').addClass('panel-warning');
 		if(tmp.me._order.type === 'ORDER')
 			jQuery('.panel').removeClass('panel-default').addClass('panel-success');
+		return tmp.me;
+	}
+	,_updateAttentionStatus: function(orderId, status) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.data = {};
+		tmp.data.status = status;
+		tmp.data.orderId = orderId;
+		tmp.me.postAjax(tmp.me.getCallbackId('updateAttentionStatus'), tmp.data, {
+			'onLoading': function() {
+			}
+			,'onSuccess': function(sender, param) {
+				try {
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result)
+						return;
+					else
+					{
+						if (status == PageJs.ORDERATTENTION.NEW)
+							tmp.me.showModalBox('<strong class="text-danger">Information</strong>','This order has been escalated to attention list!');
+						else
+							tmp.me.showModalBox('<strong class="text-danger">Information</strong>','This order has been deleted from attention list!');
+						tmp.resultDiv = $(tmp.me._resultDivId);
+						tmp.resultListDiv = tmp.resultDiv.down('.panel-default');
+						tmp.me._order.attentionStatus = tmp.result.attentionStatus;
+						if(tmp.resultListDiv && tmp.resultListDiv.getElementsBySelector('.row').size() > 0) {
+							tmp.resultDiv.down('.panel-default').replace(tmp.me._getAddressPanel())
+						} 
+					}
+						
+				} catch (e) {
+					tmp.me.showModalBox('<strong class="text-danger">Error</strong>', e);
+				}
+			}
+			,'onComplete': function() {
+			}
+		})
 		return tmp.me;
 	}
 });

@@ -12,7 +12,7 @@ NoETAOrdersListPanelJs.prototype = {
 		var tmp = {};
 		tmp.me = this;
 		tmp.newDiv = new Element('div', {'class': 'panel', 'id': tmp.me._panelHTMLID})
-			.insert({'bottom': new Element('div', {'class': 'panel-heading'}).update('NO ETA Orders:') });
+			.insert({'bottom': new Element('div', {'class': 'panel-heading'}).update('NO ETA and Insufficient Stock Orders:') });
 		return tmp.newDiv;
 	}
 	,_getListItem: function(item) {
@@ -21,31 +21,20 @@ NoETAOrdersListPanelJs.prototype = {
 		tmp.newDiv = new Element('a', {'class': 'list-group-item', 'href': 'javascript: void(0);'})
 			.store('data', item)
 			.insert({'bottom': new Element('div', {'class': 'row'})
-				.insert({'bottom': new Element('div', {'class': 'col-sm-4'})
-					.insert({'bottom': new Element('a', {'href': '/orderdetails/' + item.order.id + '.html', 'target': '_BLANK'})
-						.update(item.order.orderNo + ':')
+				.insert({'bottom': new Element('div', {'class': 'col-sm-3'})
+					.insert({'bottom': new Element('a', {'href': '/orderdetails/' + item.id + '.html', 'target': '_BLANK'})
+						.update(item.orderNo)
 					})
 				})
-				.insert({'bottom': new Element('div', {'class': 'col-sm-4'})
-					.insert({'bottom': new Element('small').update(item.order.status.name) })
+				.insert({'bottom': new Element('div', {'class': 'col-sm-3 text-right'})
+					.insert({'bottom': new Element('em').update(moment(item.orderDate).format('DD/MMM/YY')) })
 				})
-				.insert({'bottom': new Element('div', {'class': 'col-sm-4 text-right'})
-					.insert({'bottom': new Element('em').update(moment(item.order.orderDate).format('DD/MMM/YY')) })
+				.insert({'bottom': new Element('div', {'class': 'col-sm-3 '})
+					.insert({'bottom': new Element('small').update(item.status.name) })
 				})
-			})
-			.insert({'bottom': new Element('div', {'class': 'row'})
-				.insert({'bottom': new Element('strong', {'class': 'col-sm-12'})
-					.insert({'bottom': new Element('a', {'href': '/product/' + item.product.id + '.html', 'target': '_BLANK', 'title': item.product.sku})
-						.setStyle('overflow: hidden; text-align: right; text-overflow: ellipsis; white-space: nowrap;')
-						.update(item.product.sku)
-					})
+				.insert({'bottom': new Element('div', {'class': 'col-sm-3'})
+					.insert({'bottom': new Element('small').update(item.customer.name) })
 				})
-			})
-			.insert({'bottom': new Element('div', {'class': 'row'})
-				.insert({'bottom': new Element('div', {'class': 'col-sm-3'}).update('SOH: <strong>' + item.product.stockOnHand + '</strong>') })
-				.insert({'bottom': new Element('div', {'class': 'col-sm-3'}).update('SPO: <strong>' + item.product.stockOnPO + '</strong>') })
-				.insert({'bottom': new Element('div', {'class': 'col-sm-3', 'title': 'Total quantity ordered for this product'}).update('Total Ord: <strong>' + item.totalOrderedQty + '</strong>') })
-				.insert({'bottom': new Element('div', {'class': 'col-sm-3', 'title': 'Quantity ordered for this order and this product'}).update('This Ord: <strong>' + item.qtyOrdered + '</strong>') })
 			});
 		return tmp.newDiv;
 	}
@@ -58,9 +47,9 @@ NoETAOrdersListPanelJs.prototype = {
 		if(!$(tmp.me._panelHTMLID))
 			return tmp.me;
 		tmp.loadingDiv = new Element('div', {'class': 'panel-body'}).update(tmp.me._pageJs.getLoadingImg());
-		tmp.ajax = new Ajax.Request('/ajax/getNoETAOrders', {
+		tmp.ajax = new Ajax.Request('/ajax/getNoETAStockOrders', {
 			method: 'get'
-			,parameters: {'pageNo': 1, 'pageSize': 30, 'storeId' : jQuery('#storeId').attr('value'), 'userId' : jQuery('#userId').attr('value')}
+			,parameters: {'pageNo': 1, 'pageSize': 5, 'storeId' : jQuery('#storeId').attr('value'), 'userId' : jQuery('#userId').attr('value')}
 			,onCreate: function() {
 				$(tmp.me._panelHTMLID).insert({'bottom': tmp.loadingDiv});
 			}

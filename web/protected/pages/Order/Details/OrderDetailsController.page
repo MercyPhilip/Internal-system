@@ -13,6 +13,7 @@
 	<com:TCallback ID="clearETABtn" OnCallback="clearETA" />
 	<com:TCallback ID="changeIsOrderedBtn" OnCallback="changeIsOrdered" />
 	<com:TCallback ID="updateAddressBtn" OnCallback="updateAddress" />
+	<com:TCallback ID="updateAttentionStatusBtn" OnCallback="updateAttentionStatus" />
 	<com:TCallback ID="updatePONoBtn" OnCallback="updatePONo" />
 	<com:TCallback ID="changeShippingMethodBtn" OnCallback="changeShippingMethod" />
 	<com:TCallback ID="updateSerialsBtn" OnCallback="updateSerials" />
