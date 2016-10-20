@@ -58,7 +58,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	}
 
 	,setOrder: function(order, orderItems, orderStatuses, _orderStatusID_Shipped) {
-		console.log('order=', order);
 		this._order = order;
 		this._orderItems = orderItems;
 		this._orderStatuses = orderStatuses;
@@ -392,7 +391,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	,_getPurchasingEditCell: function(orderItem) {
 		var tmp = {};
 		tmp.me = this;
-		console.log('orderItem=', orderItem);
 		tmp.hasStock = (orderItem.eta === '' ? '' : (orderItem.eta === '0001-01-01 00:00:00' ? true : false));
 		tmp.isOrdered = (orderItem.isOrdered === false ? false : true);
 		if(tmp.me._editMode.purchasing === false) {
@@ -1033,8 +1031,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			,'onSuccess': function(sende, param) {
 				try {
 					tmp.result = tmp.me.getResp(param, false, true);
-					console.log('_updatePONo tmp.result=', tmp.result);
-					console.log('_updatePONo tmp.result.item=', tmp.result.item);
 					if(!tmp.result || !tmp.result.item)
 						return;
 					tmp.me._order.pONo = tmp.result.item;
