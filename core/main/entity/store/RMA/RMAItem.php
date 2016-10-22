@@ -1,6 +1,15 @@
 <?php
 class RMAItem extends BaseEntityAbstract
 {
+	const BSTATUS_RECEIVING = 'RECEIVING';
+	const BSTATUS_RECEIVED = 'RECEIVED';
+	const BSTATUS_SHIPPED = 'SHIPPED';
+	const BSTATUS_CLOSED = 'CLOSED';
+	
+	const SSTATUS_WAITINGRA = 'WAITINGRA';
+	const SSTATUS_RECEIVEDRA = 'RECEIVEDRA';
+	const SSTATUS_REPAIRING = 'REPAIRING';
+	const SSTATUS_CLOSED = 'CLOSED';
 	/**
 	 * The RMA
 	 *
@@ -18,6 +27,11 @@ class RMAItem extends BaseEntityAbstract
 	 * @var Product
 	 */
 	protected $product;
+	/**
+	 * serial no of this item
+	 * @var ReceivingItem
+	 */
+	protected $receivingItem;
 	/**
 	 * The Qty that we are crediting
 	 *
@@ -84,6 +98,28 @@ class RMAItem extends BaseEntityAbstract
 	public function setOrderItem(OrderItem $value = null)
 	{
 		$this->orderItem = $value;
+		return $this;
+	}
+	/**
+	 * Getter for receivingItem
+	 *
+	 * @return ReceivingItem
+	 */
+	public function getReceivingItem()
+	{
+		$this->loadManyToOne('receivingItem');
+		return $this->receivingItem;
+	}
+	/**
+	 * Setter for receivingItem
+	 *
+	 * @param unkown $value The receivingItem
+	 *
+	 * @return RMAItem
+	 */
+	public function setReceivingItem(ReceivingItem $value = null)
+	{
+		$this->receivingItem = $value;
 		return $this;
 	}
 	/**
@@ -231,6 +267,7 @@ class RMAItem extends BaseEntityAbstract
 		DaoMap::setManyToOne('RMA', 'RMA', 'ra_item_ra');
 		DaoMap::setManyToOne('orderItem', 'OrderItem', 'ra_item_ord_item', true);
 		DaoMap::setManyToOne('product', 'Product', 'ra_pro');
+		DaoMap::setManyToOne('receivingItem', 'ReceivingItem', 'ra_item_rev');
 		DaoMap::setIntType('qty');
 		DaoMap::setIntType('unitCost', 'double', '10,4');
 		DaoMap::setStringType('itemDescription', 'varchar', '255');
@@ -256,11 +293,12 @@ class RMAItem extends BaseEntityAbstract
 	 *
 	 * @return RMAItem
 	 */
-	public static function create(RMA $rma, Product $product, $qty, $itemDescription = '', $unitCost = null)
+	public static function create(RMA $rma, Product $product, $qty, $itemDescription = '', $unitCost = null, $receivingItem = null)
 	{
 		$item = new RMAItem();
 		$item->setRMA($rma)
 			->setProduct($product)
+			->setReceivingItem($receivingItem)
 			->setQty($qty)
 			->setStore(Core::getUser()->getStore())
 			->setItemDescription(trim($itemDescription))
@@ -309,5 +347,23 @@ class RMAItem extends BaseEntityAbstract
 		$rma = $rma instanceof RMA ? $rma : RMA::get(trim($rma));
 		$rma = $rma instanceof RMA ? $rma : (count($rmas = RMA::getAllByCriteria('RMAId = ? and storeId = ?', array(trim($rma), Core::getUser()->getStore()->getId()), true, 1, 1)) > 0 ? $rmas[0] : null);
 		return $rma instanceof RMA ? (count($items = self::getAllByCriteria('RMAId = ? and storeId = ?', array($rma->getId(), Core::getUser()->getStore()->getId()), true)) > 0 ? $items : null) : null;
+	}
+	/**
+	 * Getting all the BPC statuses for the RMA
+	 *
+	 * @return multitype:string
+	 */
+	public static function getAllBStatuses()
+	{
+		return array(self::BSTATUS_RECEIVING, self::BSTATUS_RECEIVED, self::BSTATUS_SHIPPED, self::BSTATUS_CLOSED);
+	}
+	/**
+	 * Getting all the supplier statuses for the RMA
+	 *
+	 * @return multitype:string
+	 */
+	public static function getAllSStatuses()
+	{
+		return array(self::SSTATUS_WAITINGRA, self::SSTATUS_RECEIVEDRA, self::SSTATUS_REPAIRING, self::SSTATUS_CLOSED);
 	}
 }

@@ -41,6 +41,8 @@ class DetailsController extends BPCPageAbstract
 		if(isset($_REQUEST['orderid']) && ($order = Order::get(trim($_REQUEST['orderid']))) instanceof Order && $rma instanceof RMA)
 			die('You can ONLY create NEW Credit Note from an existing ORDER');
 		$statusOptions = RMA::getAllStatuses();
+		$bstatusOptions = RMAItem::getAllBStatuses();
+		$sstatusOptions = RMAItem::getAllSStatuses();
 
 		if(isset($_REQUEST['orderid']) && ($order = Order::get(trim($_REQUEST['orderid']))) instanceof Order)
 			$js .= "pageJs._order=" . json_encode($order->getJson(array('customer'=> $order->getCustomer()->getJson(), 'items'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson()));'), $order->getOrderItems())))) . ";";
@@ -48,11 +50,14 @@ class DetailsController extends BPCPageAbstract
 		if($rma instanceof RMA)
 			$js .= "pageJs._RMA=" . json_encode($rma->getJson(array('customer'=> $rma->getCustomer()->getJson(), 'raItems'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson()));'), $rma->getRMAItems())))) . ";";
 		$js .= "pageJs._statusOptions=" . json_encode($statusOptions) . ";";
+		$js .= "pageJs._bstatusOptions=" . json_encode($bstatusOptions) . ";";
+		$js .= "pageJs._sstatusOptions=" . json_encode($sstatusOptions) . ";";
 		$js .= "pageJs";
 			$js .= ".setHTMLID('itemDiv', 'detailswrapper')";
 			$js .= ".setHTMLID('searchPanel', 'search_panel')";
 			$js .= ".setCallbackId('searchCustomer', '" . $this->searchCustomerBtn->getUniqueID() . "')";
 			$js .= ".setCallbackId('searchProduct', '" . $this->searchProductBtn->getUniqueID() . "')";
+			$js .= ".setCallbackId('searchSerialNo', '" . $this->searchSerialNoBtn->getUniqueID() . "')";
 			$js .= ".setCallbackId('saveOrder', '" . $this->saveOrderBtn->getUniqueID() . "')";
 			$js .= '.setCallbackId("addComments", "' . $this->addCommentsBtn->getUniqueID() . '")';
 			$js .= ".init();";
@@ -79,6 +84,41 @@ class DetailsController extends BPCPageAbstract
 				$items[] = $customer->getJson();
 			}
 			$results['items'] = $items;
+		}
+		catch(Exception $ex)
+		{
+			$errors[] = $ex->getMessage();
+		}
+		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	}
+	/**
+	 * Searching serial no
+	 * 
+	 * @param unknown $sender
+	 * @param unknown $param
+	 */
+	public function searchSerialNo($sender, $param)
+	{
+		$results = $errors = array();
+		try
+		{
+			$where = $params = $stats = array();
+			$serialno = isset($param->CallbackParameter->searchTxt) ? trim($param->CallbackParameter->searchTxt) : '';
+			$pageNo = isset($param->CallbackParameter->pageNo) ? trim($param->CallbackParameter->pageNo) : '1';
+			$pageSize = DaoQuery::DEFAUTL_PAGE_SIZE;
+			
+			$where[] = 'serialNo like ?';
+			$params[] = '%' . trim($serialno) . '%';
+			
+			$where[] = 'storeId = ?';
+			$params[] = Core::getUser()->getStore()->getId();
+			$objects = array();
+			$objects = ReceivingItem::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('rec_item.productId' => 'desc'), $stats);
+			//$results['pageStats'] = $stats;
+			$results['items'] = array();
+			foreach($objects as $obj)
+				$results['items'][] = $obj->getJson();
+			$results['pagination'] = $stats;
 		}
 		catch(Exception $ex)
 		{
@@ -176,6 +216,12 @@ public function saveOrder($sender, $param)
 		$results = $errors = array();
 		try
 		{
+			ob_start();
+			var_dump($param);
+			$content = ob_get_contents();
+			ob_end_clean();
+			file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ':' . $content . PHP_EOL, FILE_APPEND | LOCK_EX);
+			
 			Dao::beginTransaction();
 			$customer = Customer::get(trim($param->CallbackParameter->customer->id));
 			if(!$customer instanceof Customer)

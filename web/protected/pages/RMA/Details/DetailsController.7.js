@@ -7,6 +7,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	,_item: null
 	,_searchTxtBox: null
 	,_statusOptions: null
+	,_bstsOptions: null
+	,_sstsOptions: null
 	,_commentsDiv: {'pagination': {'pageSize': 5, 'pageNo': 1}, 'resultDivId': 'comments_result_div', 'types': {'purchasing': '', 'warehouse': ''}} //the pagination for the comments
 	/**
 	 * Getting the comments row
@@ -212,6 +214,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 
 		tmp.printIt = (printit === true ? true : false);
 		tmp.data = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')),'save-order');
+		console.log('_preConfirmSubmit tmp.data=', tmp.data);
 		if(tmp.data === null)
 			return null;
 		if(tmp.data.status.blank()) {
@@ -240,6 +243,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			tmp.itemData = item.retrieve('data');
 			tmp.data.items.push({'orderItemId': item.readAttribute('orderItemId'), 'RMAItemId': item.readAttribute('RMAItemId'), 'valid': item.visible(), 'product': {'id': tmp.itemData.product.id}, 'itemDescription': tmp.itemData.itemDescription,'unitPrice': tmp.itemData.unitPrice, 'qtyOrdered': tmp.itemData.qtyOrdered, 'totalPrice': tmp.itemData.totalPrice, 'serials': item.retrieve('serials') });
 		});
+		console.log('_preConfirmSubmit tmp.data.items =', tmp.data.items);
 		tmp.noValidItem = true;
 		tmp.data.items.each(function(item){
 			if(tmp.noValidItem === true && item.valid === true)
@@ -343,7 +347,11 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		tmp.currentRow = $(btn).up('.new-order-item-input');
+		console.log('tmp.currentRow=', tmp.currentRow);
+		tmp.serialNo = tmp.currentRow.retrieve('serialNo');
+		console.log('tmp.serialNo=', tmp.serialNo);
 		tmp.product = tmp.currentRow.retrieve('product');
+		console.log('tmp.product=', tmp.product);
 		if(!tmp.product) {
 			tmp.productBox =tmp.currentRow.down('[new-order-item=product]');
 			if(tmp.currentRow.down('[new-order-item=product]')) {
@@ -353,44 +361,53 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			}
 			return ;
 		}
-		tmp.unitPriceBox = tmp.currentRow.down('[new-order-item=unitPrice]');
-		tmp.unitPrice = tmp.me.getValueFromCurrency($F(tmp.unitPriceBox));
-		if(tmp.unitPrice.match(/^\d+(\.\d{1,2})?$/) === null) {
-			tmp.me._markFormGroupError(tmp.unitPriceBox, 'Invalid value provided!');
-			return ;
-		}
+		//tmp.unitPriceBox = tmp.currentRow.down('[new-order-item=unitPrice]');
+		//tmp.unitPrice = tmp.me.getValueFromCurrency($F(tmp.unitPriceBox));
+//		if(tmp.unitPrice.match(/^\d+(\.\d{1,2})?$/) === null) {
+//			tmp.me._markFormGroupError(tmp.unitPriceBox, 'Invalid value provided!');
+//			return ;
+//		}
 		tmp.qtyOrderedBox = tmp.currentRow.down('[new-order-item=qtyOrdered]');
 		tmp.qtyOrdered = tmp.me.getValueFromCurrency($F(tmp.qtyOrderedBox));
 		if(tmp.qtyOrdered.match(/^\d+(\.\d{1,2})?$/) === null) {
 			tmp.me._markFormGroupError(tmp.qtyOrderedBox, 'Invalid value provided!');
 			return ;
 		}
-		tmp.discountBox = tmp.currentRow.down('[new-order-item=discount]');
-		tmp.discount = tmp.me.getValueFromCurrency($F(tmp.discountBox));
-		if(tmp.discount.match(/^\d+(\.\d{1,2})?$/) === null) {
-			tmp.me._markFormGroupError(tmp.discountBox, 'Invalid value provided!');
-			return ;
-		}
-		tmp.totalPriceBox = tmp.currentRow.down('[new-order-item=totalPrice]');
-		tmp.totalPrice = tmp.me.getValueFromCurrency($F(tmp.totalPriceBox));
-		if(tmp.totalPrice.match(/^\d+(\.\d{1,2})?$/) === null) {
-			tmp.me._markFormGroupError(tmp.totalPriceBox, 'Invalid value provided!');
-			return ;
-		}
+//		tmp.discountBox = tmp.currentRow.down('[new-order-item=discount]');
+//		tmp.discount = tmp.me.getValueFromCurrency($F(tmp.discountBox));
+//		if(tmp.discount.match(/^\d+(\.\d{1,2})?$/) === null) {
+//			tmp.me._markFormGroupError(tmp.discountBox, 'Invalid value provided!');
+//			return ;
+//		}
+//		tmp.totalPriceBox = tmp.currentRow.down('[new-order-item=totalPrice]');
+//		tmp.totalPrice = tmp.me.getValueFromCurrency($F(tmp.totalPriceBox));
+//		if(tmp.totalPrice.match(/^\d+(\.\d{1,2})?$/) === null) {
+//			tmp.me._markFormGroupError(tmp.totalPriceBox, 'Invalid value provided!');
+//			return ;
+//		}
 		//clear all error msg
 		tmp.currentRow.getElementsBySelector('.form-group.has-error .form-control').each(function(control){
 			$(control).retrieve('clearErrFunc')();
 		});
 		tmp.itemDescription = $F(tmp.currentRow.down('[new-order-item=itemDescription]')).replace(/\n/g, "<br />");
 		//get all data
+		tmp.bstatus = new Element('select', {'class': 'select2 form-control input-sm', 'save-order': 'bstatus', 'data-placeholder': 'Select an option'}).insert({'bottom': new Element('option', {'value': ''}).update('') });
+		tmp.me._bstatusOptions.each(function(option){
+			tmp.bstatus.insert({'bottom': tmp.option = new Element('option', {'value': option}).update(option) });
+		});
+		tmp.sstatus = new Element('select', {'class': 'select2 form-control input-sm', 'save-order': 'sstatus', 'data-placeholder': 'Select an option'}).insert({'bottom': new Element('option', {'value': ''}).update('') });
+		tmp.me._sstatusOptions.each(function(option){
+			tmp.sstatus.insert({'bottom': tmp.option = new Element('option', {'value': option}).update(option) });
+		});
 		tmp.data = {
 			'product': tmp.product,
 			'itemDescription': tmp.itemDescription,
-			'unitPrice': tmp.me.getCurrency(tmp.unitPrice),
 			'qtyOrdered': tmp.qtyOrdered,
-			'discount' : tmp.discount,
-			'margin': tmp.me.getCurrency(parseFloat(tmp.totalPrice) - parseFloat(tmp.product.unitCost * 1.1 * tmp.qtyOrdered)),
-			'totalPrice': tmp.me.getCurrency(tmp.totalPrice)
+			'serialNo': tmp.serialNo ? tmp.serialNo.serialNo : ''
+			,'purchaseOrderNo' : tmp.serialNo && tmp.serialNo.purchaseOrder ? tmp.serialNo.purchaseOrder.purchaseOrderNo : ''
+			,'supplier': tmp.serialNo && tmp.serialNo.purchaseOrder && tmp.serialNo.purchaseOrder.supplier ? tmp.serialNo.purchaseOrder.supplier.name : ''
+			,'bsts': tmp.bstatus
+			,'ssts': tmp.sstatus
 		};
 
 //		tmp.data.scanTable = tmp.me._getScanTable(tmp.data);
@@ -401,8 +418,206 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.currentRow.replace(tmp.newRow).addClassName();
 		tmp.newRow.down('[new-order-item=product]').focus();
 
-		tmp.me._recalculateSummary();
 		return tmp.me;
+	}
+	/**
+	 * search serial no
+	 */
+	,_searchSerialNo: function(btn, pageNo, afterFunc) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.btn = btn;
+		tmp.showMore = $(btn).retrieve('showMore') === true ? true : false;
+		tmp.pageNo = (pageNo || 1);
+		tmp.me._signRandID(tmp.btn);
+		tmp.searchTxtBox = !$(tmp.btn).up('.serialNo-autocomplete') || !$(tmp.btn).up('.serialNo-autocomplete').down('.search-txt') ? $($(tmp.btn).retrieve('searchBoxId')) : $(tmp.btn).up('.serialNo-autocomplete').down('.search-txt');
+
+		tmp.me._signRandID(tmp.searchTxtBox);
+		tmp.searchTxt = $F(tmp.searchTxtBox);
+
+		tmp.me.postAjax(tmp.me.getCallbackId('searchSerialNo'), {'searchTxt': tmp.searchTxt, 'pageNo': tmp.pageNo}, {
+			'onLoading': function() {
+				jQuery('#' + tmp.btn.id).button('loading');
+				jQuery('#' + tmp.searchTxtBox.id).button('loading');
+			}
+			,'onSuccess': function(sender, param) {
+				if(tmp.showMore === false)
+					tmp.resultList = new Element('div', {'class': 'search-serialNo-list'});
+				else
+					tmp.resultList = $(btn).up('.search-serialNo-list');
+				try {
+					tmp.result = tmp.me.getResp(param, false, true);
+					console.log('tmp.result=', tmp.result);
+					if(!tmp.result || !tmp.result.items || tmp.result.items.size() === 0)
+						throw 'Nothing Found for: ' + tmp.searchTxt;
+					tmp.me._signRandID(tmp.searchTxtBox);
+					tmp.resultList.insert({'bottom': tmp.me._getSearchSerialNoResultRow(true) });
+					tmp.result.items.each(function(serialNo) {
+						tmp.resultList.insert({'bottom': tmp.me._getSearchSerialNoResultRow(false, serialNo, tmp.searchTxtBox) });
+					});
+					tmp.resultList.addClassName('list-group');
+				} catch(e) {
+					tmp.resultList.update(tmp.me.getAlertBox('Error: ', e).addClassName('alert-danger'));
+				}
+				if(typeof(afterFunc) === 'function')
+					afterFunc();
+				if(tmp.result.pagination.pageNumber < tmp.result.pagination.totalPages) {
+					tmp.resultList.insert({'bottom': new Element('a', {'class': 'item-group-item'})
+						.insert({'bottom': new Element('span', {'class': 'btn btn-primary', 'data-loading-text': 'Getting more ...'}).update('Show Me More') })
+						.observe('click', function(){
+							tmp.newBtn = $(this);
+							$(tmp.newBtn).store('searchBoxId', tmp.searchTxtBox.id);
+							$(tmp.newBtn).store('showMore', true);
+							tmp.me._searchSerialNo(this, tmp.pageNo * 1 + 1, function() {
+								$(tmp.newBtn).remove();
+							});
+						})
+					});
+				}
+				if(tmp.showMore === false)
+					tmp.me.showModalBox('SerialNo that has: ' + tmp.searchTxt, tmp.resultList, false);
+			}
+			,'onComplete': function(sender, param) {
+				jQuery('#' + tmp.btn.id).button('reset');
+				jQuery('#' + tmp.searchTxtBox.id).button('reset');
+			}
+		});
+		return tmp.me;
+	}
+	/**
+	 * get list of serial no
+	 */
+	,_getSearchSerialNoResultRow: function(title, serialNo, searchTxtBox) {
+		console.log('serialNo=', serialNo);
+		var tmp = {};
+		tmp.me = this;
+		if (title)
+		{
+			tmp.newRow = new Element('a', {'class': 'list-group-item search-serialNo-result-row-title'})
+			.insert({'bottom': new Element('div', {'class': 'row'})
+				.insert({'bottom': new Element('div', {'class': 'col-xs-3'})
+					.insert({'bottom': new Element('strong', {'class': 'title-serialNo'}).update('SerialNo')
+					})
+				})
+				.insert({'bottom': new Element('div', {'class': 'col-xs-3'})
+					.insert({'bottom': new Element('strong', {'class': 'title-purchaseOrderNo'}).update('PurchaseOrderNo')
+					})
+				})
+				.insert({'bottom': new Element('div', {'class': 'col-xs-3'})
+					.insert({'bottom': new Element('strong', {'class': 'title-sku'}).update('SKU')
+					})
+				})
+				.insert({'bottom': new Element('div', {'class': 'col-xs-3'})
+					.insert({'bottom': new Element('strong', {'class': 'title-supplier'}).update('Supplier')
+					})
+				})
+			})
+			;
+		}
+		else
+		{
+			tmp.newRow = new Element('a', {'class': 'list-group-item search-serialNo-result-row', 'href': 'javascript: void(0);'})
+			.store('data',serialNo)
+			.insert({'bottom': new Element('div', {'class': 'row'})
+				.insert({'bottom': new Element('div', {'class': 'col-xs-3'})
+					.insert({'bottom': new Element('div', {'class': 'serialNo'}).update(serialNo.serialNo)
+					})
+				})
+				.insert({'bottom': new Element('div', {'class': 'col-xs-3'})
+					.insert({'bottom': new Element('div', {'class': 'purchaseOrderNo'}).update(serialNo.purchaseOrder.purchaseOrderNo)
+					})
+				})
+				.insert({'bottom': new Element('div', {'class': 'col-xs-3'})
+					.insert({'bottom': new Element('div', {'class': 'sku'}).update(serialNo.product.sku)
+					})
+				})
+				.insert({'bottom': new Element('div', {'class': 'col-xs-3'})
+					.insert({'bottom': new Element('div', {'class': 'supplier'}).update(serialNo.purchaseOrder.supplier.name)
+					})
+				})
+			})
+			.observe('click', function(){
+				tmp.product = $(searchTxtBox).up('.new-order-item-input').retrieve('product');
+				console.log('tmp.product=', tmp.product)
+				if (tmp.product)
+				{
+					tmp.tmpnewRow = tmp.me._getNewProductRow();
+					$(searchTxtBox).up('.new-order-item-input').replace(tmp.tmpnewRow);
+					
+					tmp.inputRow = tmp.tmpnewRow.store('serialNo', serialNo);
+					console.log('tmp.inputRow=', tmp.inputRow);
+					$(tmp.inputRow.down('[new-order-item=serialNo]')).value = serialNo.serialNo;
+					tmp.inputRow.down('.poNo').update(serialNo.purchaseOrder.purchaseOrderNo);
+					tmp.inputRow.down('.supplier').update(serialNo.purchaseOrder.supplier.name);
+
+					tmp.inputRow = tmp.tmpnewRow.store('product', serialNo.product);
+					tmp.inputRow.down('.productName')
+						.writeAttribute('colspan', false)
+						.update(serialNo.product.sku)
+						.removeClassName('col-xs-4')
+						.addClassName('col-xs-2')
+						.insert({'bottom': new Element('small', {'class': 'btn btn-xs btn-info'}).setStyle('margin-left: 10px;')
+							.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
+							.observe('click', function(event){
+								Event.stop(event);
+								$productId = serialNo.product.id;
+								if($productId)
+									tmp.me._openProductDetailPage($productId);
+							})
+						})
+						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'text-danger pull-right', 'title': 'click to change the product'})
+							.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-remove'})  })
+							.observe('click', function() {
+								tmp.newRow = tmp.me._getNewProductRow();
+								$(this).up('.new-order-item-input').replace(tmp.newRow);
+								tmp.newRow.down('[new-order-item=product]').select();
+							})
+						})
+						.insert({'after': new Element('div', {'class': 'col-xs-2'}) // productName
+							.update(new Element('textarea', {'new-order-item': 'itemDescription'}).setStyle('width: 100%').update(serialNo.product.name))
+						});
+				}
+				else
+				{
+					tmp.inputRow = $(searchTxtBox).up('.new-order-item-input').store('serialNo', serialNo);
+					console.log('tmp.inputRow=', tmp.inputRow);
+					$(tmp.inputRow.down('[new-order-item=serialNo]')).value = serialNo.serialNo;
+					tmp.inputRow.down('.poNo').update(serialNo.purchaseOrder.purchaseOrderNo);
+					tmp.inputRow.down('.supplier').update(serialNo.purchaseOrder.supplier.name);
+
+					tmp.inputRow = $(searchTxtBox).up('.new-order-item-input').store('product', serialNo.product);
+					tmp.inputRow.down('.productName')
+						.writeAttribute('colspan', false)
+						.update(serialNo.product.sku)
+						.removeClassName('col-xs-4')
+						.addClassName('col-xs-2')
+						.insert({'bottom': new Element('small', {'class': 'btn btn-xs btn-info'}).setStyle('margin-left: 10px;')
+							.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
+							.observe('click', function(event){
+								Event.stop(event);
+								$productId = serialNo.product.id;
+								if($productId)
+									tmp.me._openProductDetailPage($productId);
+							})
+						})
+						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'text-danger pull-right', 'title': 'click to change the product'})
+							.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-remove'})  })
+							.observe('click', function() {
+								tmp.newRow = tmp.me._getNewProductRow();
+								$(this).up('.new-order-item-input').replace(tmp.newRow);
+								tmp.newRow.down('[new-order-item=product]').select();
+							})
+						})
+						.insert({'after': new Element('div', {'class': 'col-xs-2'}) // productName
+							.update(new Element('textarea', {'new-order-item': 'itemDescription'}).setStyle('width: 100%').update(serialNo.product.name))
+						});
+				}
+				jQuery('#' + tmp.me.modalId).modal('hide');
+				tmp.inputRow.down('[new-order-item=qtyOrdered]').select();
+			})
+			;
+		}
+		return tmp.newRow;
 	}
 	/**
 	 * Ajax: searching the product based on a string
@@ -524,8 +739,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				searchTxtBox.up('.productName')
 					.writeAttribute('colspan', false)
 					.update(product.sku)
-					.removeClassName('col-xs-8')
-					.addClassName('col-xs-3')
+					.removeClassName('col-xs-4')
+					.addClassName('col-xs-2')
 					.insert({'bottom': new Element('small', {'class': 'btn btn-xs btn-info'}).setStyle('margin-left: 10px;')
 						.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
 						.observe('click', function(event){
@@ -543,33 +758,28 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							tmp.newRow.down('[new-order-item=product]').select();
 						})
 					})
-					.insert({'after': new Element('div', {'class': 'col-xs-7'}) // productName
+					.insert({'after': new Element('div', {'class': 'col-xs-2'}) // productName
 						.update(new Element('textarea', {'new-order-item': 'itemDescription'}).setStyle('width: 100%').update(product.name))
 					});
 				jQuery('#' + tmp.me.modalId).modal('hide');
-				tmp.retailPrice = product.prices.size() === 0 ? 0 : product.prices[0].price;
+				//tmp.retailPrice = product.prices.size() === 0 ? 0 : product.prices[0].price;
 				tmp.inputRow.down('[new-order-item=qtyOrdered]').select();
-				tmp.me._calculateNewProductPrice(tmp.inputRow);
+				//tmp.me._calculateNewProductPrice(tmp.inputRow);
 			})
 			;
 		return tmp.newRow;
 	}
 	,_selectProduct: function(RMAItem) {
+		console.log('_selectProduct RMAItem=', RMAItem);
 		var tmp = {};
 		tmp.me = this;
 		//get all data
 		tmp.data = {
 			'product': RMAItem.product,
 			'itemDescription': RMAItem.itemDescription,
-			'unitPrice': tmp.me.getCurrency(RMAItem.unitPrice),
 			'qtyOrdered': RMAItem.qty ? RMAItem.qty : RMAItem.qtyOrdered,
-			'discount' : 100,
-			'margin': 0,
-			'totalPrice': tmp.me.getCurrency(RMAItem.unitPrice * (RMAItem.qty ? RMAItem.qty : RMAItem.qtyOrdered))
 		};
 		$$('.order_change_details_table').first().insert({'bottom': tmp.newDiv = tmp.me._getProductRow(tmp.data) });
-
-		tmp.me._recalculateSummary();
 		return tmp.newDiv;
 	}
 	/**
@@ -591,22 +801,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 						.insert({'bottom': tmp.me._RMA ? '' : tmp.me._getFormGroup( 'Comments:', new Element('textarea', {'save-order': 'comments', 'rows': '1'}) ) })
 					})
 				.insert({'bottom': new Element('div', {'class': 'col-sm-4'})
-					.insert({'bottom': new Element('div', {'class': 'row'}).setStyle('display:none;')
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6 text-right'}).update( new Element('strong').update('Total Excl. GST: ') ) })
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6', 'order-price-summary': 'totalPriceExcludeGST'}).update( tmp.me.getCurrency(0) ) })
-					})
-					.insert({'bottom': new Element('div', {'class': 'row'}).setStyle('display:none;')
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6 text-right'}).update( new Element('strong').update('Total GST: ') ) })
-						.insert({'bottom': new Element('div', {'order-price-summary': 'totalPriceGST', 'class': 'col-xs-6'}).update( tmp.me.getCurrency(0) ) })
-					})
-					.insert({'bottom': new Element('div', {'class': 'row', 'style': 'border-bottom: 1px solid brown'}).setStyle('display: none;')
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6 text-right'}).update( new Element('strong').update('Total Discount:') ) })
-						.insert({'bottom': new Element('div', {'order-price-summary': 'totalDiscount', 'class': 'col-xs-6'}).update( tmp.me.getCurrency(0) ) })
-					})
-					.insert({'bottom': new Element('div', {'class': 'row'}).setStyle('display:none;')
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6 text-right'}).update( new Element('strong').update('Sub Total Incl. GST: ') ) })
-						.insert({'bottom': new Element('div', {'order-price-summary': 'totalPriceIncludeGST', 'class': 'col-xs-6'}).update( tmp.me.getCurrency(0) ) })
-					})
 					.insert({'bottom': new Element('div', {'class': 'row', 'style': 'border-bottom: 1px solid brown'})
 						.insert({'bottom': new Element('div', {'class': 'col-xs-6 text-right'}).update( new Element('strong').update('Status: ') ) })
 						.insert({'bottom': new Element('div', {'class': 'col-xs-6'}).update( new Element('strong').update(tmp.status)) })
@@ -614,18 +808,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					.insert({'bottom': new Element('div', {'class': 'row'})
 						.insert({'bottom': new Element('div', {'class': 'col-xs-6 text-right'}).update( new Element('strong').update('Total Qty:') ) })
 						.insert({'bottom': new Element('strong', {'order-price-summary': 'totalQty', 'class': 'col-xs-6'}).update(0) })
-					})
-					.insert({'bottom': new Element('div', {'class': 'row'}).setStyle('display:none;')
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6 text-right'}).update( new Element('strong').update('Total Incl. GST:') ) })
-						.insert({'bottom': new Element('strong', {'order-price-summary': 'subTotal', 'class': 'col-xs-6'}).update( tmp.me.getCurrency(0) ) })
-					})
-					.insert({'bottom': new Element('div', {'class': 'row'}).setStyle('display: none;')
-						.insert({'bottom': new Element('h4', {'class': 'col-xs-6 text-right'}).setStyle('color: #d30014 !important').update(new Element('strong').update('DUE:')) })
-						.insert({'bottom': new Element('h4', {'class': 'col-xs-6', 'order-price-summary': 'total-payment-due'}).setStyle('color: #d30014 !important').update(tmp.me.getCurrency(0)) })
-					})
-					.insert({'bottom': new Element('div', {'class': 'row margin'}).setStyle('display: none;')
-						.insert({'bottom': new Element('strong', {'class': 'col-xs-6 text-right'}).update(new Element('strong').update('Margin Total Incl. GST:')) })
-						.insert({'bottom': new Element('strong', {'class': 'col-xs-6', 'order-price-summary': 'total-margin'}).update(tmp.me.getCurrency(0)) })
 					})
 				})
 			});
@@ -668,53 +850,57 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		return tmp.skuAutoComplete;
 	}
 	/**
+	 * get purchase order, supplier info based on serial no
+	 */
+	,_getSerialNoAutoComplete: function() {
+		var tmp = {};
+		tmp.me = this;
+		tmp.serialNoAutoComplete = tmp.me._getFormGroup( null, new Element('div', {'class': 'input-group input-group-sm serialNo-autocomplete'})
+			.insert({'bottom': new Element('input', {'class': 'form-control search-txt visible-xs visible-sm visible-md visible-lg init-focus', 'new-order-item': 'serialNo', 'placeholder': 'search serial no'})
+				.observe('keyup', function(event){
+					tmp.txtBox = this;
+					tmp.me.keydown(event, function() {
+						$(tmp.txtBox).up('.serialNo-autocomplete').down('.search-btn').click();
+					});
+				})
+				.observe('keydown', function(event){
+					tmp.txtBox = this;
+					tmp.me.keydown(event, function() {
+						$(tmp.txtBox).up('.serialNo-autocomplete').down('.search-btn').click();
+					}, function(){}, Event.KEY_TAB);
+				})
+			})
+			.insert({'bottom': new Element('span', {'class': 'input-group-btn'})
+				.insert({'bottom': new Element('span', {'class': ' btn btn-primary search-btn' , 'data-loading-text': 'searching...'})
+					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-search'}) })
+					.observe('click', function(){
+						if(!$F($(this).up('.serialNo-autocomplete').down('.search-txt')).blank())
+							tmp.me._searchSerialNo(this);
+						else
+							$(this).up('.serialNo-autocomplete').down('.search-txt').focus();
+					})
+				})
+			})
+		);
+		tmp.serialNoAutoComplete.down('.input-group').removeClassName('form-control');
+		return tmp.serialNoAutoComplete;
+	}
+	/**
 	 * Getting the new product row
 	 */
 	,_getNewProductRow: function() {
 		var tmp = {};
 		tmp.me = this;
 		tmp.skuAutoComplete = tmp.me._getNewProductProductAutoComplete();
+		tmp.serialAutoComplete = tmp.me._getSerialNoAutoComplete();
 		tmp.data = {
 			'product': {'name': tmp.skuAutoComplete	}
-			,'unitPrice': tmp.me._getFormGroup( null, new Element('input', {'class': 'input-sm', 'new-order-item': 'unitPrice', 'required': true, 'value': tmp.me.getCurrency(0)})
-				.observe('click', function() {
-					$(this).select();
-				})
-				.observe('keydown', function(event){
-					tmp.me._bindSubmitNewProductRow(event, this);
-				})
-				.observe('keyup', function(){
-					tmp.me._calculateNewProductPrice($(this).up('.item_row'));
-				})
-			)
-			,'qtyOrdered': tmp.me._getFormGroup( null, new Element('input', {'class': 'input-sm', 'new-order-item': 'qtyOrdered', 'required': true, 'value': '1'})
-				.observe('keyup', function(){
-					tmp.me._calculateNewProductPrice($(this).up('.item_row'));
-				})
-				.observe('keydown', function(event){
-					tmp.me._bindSubmitNewProductRow(event, this);
-				})
-				.observe('click', function() {
-					$(this).select();
-				})
-			)
-			,'discount': tmp.me._getFormGroup( null, new Element('input', {'class': 'input-sm', 'new-order-item': 'discount', 'value': '0'}).setStyle('display: none;')
-				.observe('keyup', function(){
-					if($F($(this)).blank() || $F($(this)) > 100) {
-						$(this).value = 0;
-						$(this).select();
-					}
-					tmp.me._calculateNewProductPrice($(this).up('.item_row'));
-				})
-				.observe('keydown', function(event){
-					tmp.me._bindSubmitNewProductRow(event, this);
-				})
-				.observe('click', function() {
-					$(this).select();
-				})
-			)
-			,'totalPrice': tmp.me._getFormGroup( null, new Element('input', {'class': 'input-sm', 'disabled': true, 'new-order-item': 'totalPrice', 'required': true, 'value': tmp.me.getCurrency(0)}) )
-			,'margin': tmp.me.getCurrency(0)
+			,'qtyOrdered': tmp.me._getFormGroup( null, new Element('input', {'class': 'input-sm', 'new-order-item': 'qtyOrdered', 'required': true, 'value': '1'}))
+			,'serialNo' : tmp.serialAutoComplete
+			,'purchaseOrderNo' : ''
+			,'supplier' : ''
+			,'bsts' : ''
+			,'ssts' : ''
 			, 'btns': new Element('span', {'class': 'btn-group btn-group-sm pull-right'})
 					.insert({'bottom': new Element('span', {'class': 'btn btn-primary'})
 					.insert({'bottom': new Element('span', {'class': ' glyphicon glyphicon-floppy-saved save-new-product-btn'}) })
@@ -743,6 +929,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	 * Getting each product row
 	 */
 	,_getProductRow: function(orderItem, isTitleRow) {
+		console.log('_getProductRow orderItem=', orderItem);
 		var tmp = {};
 		tmp.me = this;
 		tmp.isTitle = (isTitleRow || false);
@@ -759,36 +946,52 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							tmp.row.hide();
 						else tmp.row.remove();
 					}
-					tmp.me._recalculateSummary();
 				})
 			});
 		tmp.row = new Element('div', {'class': ' list-group-item ' + (tmp.isTitle === true ? '' : 'item_row order-item-row')})
 			.store('data',orderItem)
 			.insert({'bottom': new Element('div', {'class': 'row'})
 				.store('data', orderItem)
-				.insert({'bottom': new Element(tmp.tag, {'class': 'productName col-xs-10'})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'productName col-xs-4'})
 					.insert({'bottom': orderItem.itemDescription ? orderItem.itemDescription : orderItem.product.name })
-				})
-				.insert({'bottom': new Element(tmp.tag, {'class': 'uprice col-xs-1'}).setStyle('display:none;')
-					.insert({'bottom': (orderItem.unitPrice) })
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'})
 					.insert({'bottom': new Element('div')
 						.insert({'bottom': new Element('div', {'class': 'qty col-xs-12'}).update(orderItem.qtyOrdered) })
-						.insert({'bottom': new Element('div', {'class': 'discount col-xs-6'}).update(orderItem.discount).setStyle('display: none;') })
 					})
 				})
-				.insert({'bottom': new Element(tmp.tag, {'class': 'tprice col-xs-1'}).setStyle('display: none;')
-					.insert({'bottom': (orderItem.totalPrice) })
+				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-2'})
+					.insert({'bottom': new Element('div')
+						.insert({'bottom': new Element('div', {'class': 'serialNo col-xs-12'}).update(orderItem.serialNo) })
+					})
 				})
-				.insert({'bottom': new Element(tmp.tag, {'class': 'margin col-xs-1 text-right'}).update(orderItem.margin).setStyle('display: none;')})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'})
+					.insert({'bottom': new Element('div')
+						.insert({'bottom': new Element('div', {'class': 'poNo col-xs-12'}).update(orderItem.purchaseOrderNo) })
+					})
+				})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'})
+					.insert({'bottom': new Element('div')
+						.insert({'bottom': new Element('div', {'class': 'supplier col-xs-12'}).update(orderItem.supplier) })
+					})
+				})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'})
+					.insert({'bottom': new Element('div')
+						.insert({'bottom': new Element('div', {'class': 'bsts'}).update(orderItem.bsts) })
+					})
+				})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'})
+					.insert({'bottom': new Element('div')
+						.insert({'bottom': new Element('div', {'class': 'ssts'}).update(orderItem.ssts) })
+					})
+				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'btns col-xs-1 text-right'}).update(tmp.btns) })
 			});
 		if(orderItem.product.sku) {
 			tmp.row.down('.productName')
-				.removeClassName('col-xs-10')
-				.addClassName('col-xs-7')
-				.insert({'before': new Element(tmp.tag, {'class': 'productSku col-xs-3'}).update(orderItem.product.sku)
+				.removeClassName('col-xs-4')
+				.addClassName('col-xs-2')
+				.insert({'before': new Element(tmp.tag, {'class': 'productSku col-xs-2'}).update(orderItem.product.sku)
 					.insert({'bottom': new Element('small', {'class': orderItem.product.id ? 'btn btn-xs btn-info' : 'hidden'}).setStyle('margin-left: 10px;')
 						.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
 						.observe('click', function(event){
@@ -799,29 +1002,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 						})
 					})
 				});
-		}
-		if(orderItem.scanTable) {
-			tmp.row.insert({'bottom': new Element('div', {'class': 'row product-content-row'})
-				.insert({'bottom': new Element('span', {'class': 'col-sm-2 show-tools'})
-					.insert({'bottom': new Element('input', {'type': 'checkbox', 'checked': true, 'class': 'show-panel-check'})
-						.observe('click', function(){
-							tmp.btn = this;
-							tmp.panel = $(tmp.btn).up('.product-content-row').down('.serial-no-scan-pane');
-							if(tmp.btn.checked) {
-								tmp.panel.show();
-							} else {
-								tmp.panel.hide();
-							}
-						})
-					})
-					.insert({'bottom': new Element('a', {'href': 'javascript: void(0);'}).update(' show serial scan panel?')
-						.observe('click', function(){
-							$(this).up('.show-tools').down('.show-panel-check').click();
-						})
-					})
-				})
-				.insert({'bottom': new Element('span', {'class': 'col-sm-10 serial-no-scan-pane', 'style': 'padding-top: 5px'}).update(orderItem.scanTable) })
-			});
 		}
 		return tmp.row;
 	}
@@ -834,18 +1014,13 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		//header row
 		tmp.productListDiv = new Element('div', {'class': 'list-group order_change_details_table'})
 			.insert({'bottom': tmp.me._getProductRow({'product': {'sku': 'SKU', 'name': 'Description'},
-				'unitPrice': 'Unit Price<div><small>(inc GST)</small><div>',
-				'qtyOrdered': 'Quantity',
-				'margin': 'Margin',
-				'discount': 'Disc. %',
-				'totalPrice': 'Total Price<div><small>(inc GST)</small><div>'
+				'qtyOrdered': 'Quantity'
+				,'serialNo': 'SerialNo'
+				,'purchaseOrderNo' : 'PurchaseOrderNo'
+				,'supplier': 'Supplier'
+				,'bsts': 'BPCStatus'
+				,'ssts': 'SupplierStatus'
 				,'btns': new Element('div').setStyle('display:none;')
-					.insert({'bottom': new Element('label', {'for': 'hide-margin-checkbox'}).update('Show Margin ') })
-					.insert({'bottom': new Element('input', {'id': 'hide-margin-checkbox', 'type': 'checkbox', 'checked': true})
-						.observe('click', function(){
-							jQuery('.margin').toggle();
-						})
-					})
 				}, true)
 			});
 		// tbody
@@ -1201,91 +1376,91 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.newWindow.focus();
 		return tmp.me;
 	}
-	/**
-	 * calculateNewProductPrice
-	 */
-	,_calculateNewProductPrice: function(row) {
-		var tmp = {};
-		tmp.me = this;
-		tmp.row = row;
-		tmp.unitPrice = tmp.me.getValueFromCurrency( $F(tmp.row.down('[new-order-item=unitPrice]')) );
-		tmp.discount = $F(tmp.row.down('[new-order-item=discount]')).strip().replace('%', '');
-		tmp.qty = $F(tmp.row.down('[new-order-item=qtyOrdered]')).strip();
-		tmp.totalPrice = tmp.unitPrice * (1 - tmp.discount/100) * tmp.qty;
-		$(tmp.row.down('[new-order-item=totalPrice]')).value = tmp.me.getCurrency( tmp.totalPrice );
-		if(row.retrieve('product')) {
-			tmp.unitCost = row.retrieve('product').unitCost;
-			if(tmp.row.down('.margin'))
-				$(tmp.row.down('.margin')).update( tmp.me.getCurrency( tmp.totalPrice * 1 - tmp.unitCost * 1.1 * tmp.qty ) + (parseInt(tmp.unitCost) === 0 ? '<div><small class="label label-danger">No Cost Yet</small</div>' : '') );
-		}
-		return tmp.me;
-	}
-	/**
-	 * bindSubmit product row event
-	 */
-	,_bindSubmitNewProductRow: function(event, box) {
-		var tmp = {};
-		tmp.me = this;
-		tmp.txtBox = box;
-		tmp.me.keydown(event, function() {
-			 $(tmp.txtBox).up('.item_row').down('.save-new-product-btn').click();
-		});
-		return tmp.me;
-	}
-	,_recalculateSummary: function() {
-		var tmp = {};
-		tmp.me = this;
-		//getting all the item row's total
-		tmp.totalPriceIncGSTNoDicount = 0;
-		tmp.totalPriceIncGSTWithDiscount = 0;
-		tmp.totalMargin = 0;
-		tmp.totalQty = 0;
-		$$('.item_row.order-item-row').each(function(row) {
-			tmp.rowData = row.retrieve('data');
-			tmp.totalPriceIncGSTWithDiscount = tmp.totalPriceIncGSTWithDiscount * 1 + (tmp.me.getValueFromCurrency(tmp.rowData.totalPrice) * 1);
-			tmp.totalPriceIncGSTNoDicount = tmp.totalPriceIncGSTNoDicount * 1 + (tmp.me.getValueFromCurrency(tmp.rowData.unitPrice) * tmp.rowData.qtyOrdered);
-			tmp.totalQty = tmp.totalQty + parseInt(tmp.rowData.qtyOrdered);
-			if(tmp.rowData.margin)
-				tmp.totalMargin = tmp.totalMargin * 1 + tmp.me.getValueFromCurrency(tmp.rowData.margin) * 1;
-		});
-		//calculate total price without GST
-		tmp.totalPriceExcGST = ((tmp.totalPriceIncGSTWithDiscount * 1) / 1.1);
-		jQuery('[order-price-summary="totalPriceExcludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceExcGST)).html(tmp.me.getCurrency(tmp.totalPriceExcGST));
-
-		//calculate total GST
-		tmp.totalGST = (tmp.totalPriceIncGSTWithDiscount * 1 - tmp.totalPriceExcGST * 1);
-		jQuery('[order-price-summary="totalPriceGST"]').val(tmp.me.getCurrency(tmp.totalGST)).html(tmp.me.getCurrency(tmp.totalGST));
-
-		//calculate the total price with GST
-		tmp.totalDiscount = (tmp.totalPriceIncGSTNoDicount * 1 - tmp.totalPriceIncGSTWithDiscount * 1);
-		jQuery('[order-price-summary="totalDiscount"]').val(tmp.me.getCurrency(tmp.totalDiscount)).html(tmp.me.getCurrency(tmp.totalDiscount));
-
-		//calculate the total price with GST
-		jQuery('[order-price-summary="totalPriceIncludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount)).html(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount));
-
-		//calculate the total Qty
-		jQuery('[order-price-summary="totalQty"]').val(tmp.totalQty).html(tmp.totalQty);
-
-		//calculate the sub total
-		tmp.totalShipping = (jQuery('[order-price-summary="totalShippingCost"]').length > 0 ? jQuery('[order-price-summary="totalShippingCost"]').val() : 0);
-		tmp.subTotal = (tmp.totalShipping * 1 + tmp.totalPriceIncGSTWithDiscount * 1);
-		jQuery('[order-price-summary="subTotal"]').val(tmp.me.getCurrency(tmp.subTotal)).html(tmp.me.getCurrency(tmp.subTotal));
-
-		//calculate the total due
-		tmp.totalPaid = (jQuery('[order-price-summary="totalPaidAmount"]').length > 0 ? jQuery('[order-price-summary="totalPaidAmount"]').val() : 0);
-		tmp.totalDue = (tmp.subTotal * 1 - tmp.totalPaid * 1);
-		if(tmp.totalDue < 0) {
-			tmp.me.showModalBox(
-				'<h4 class="text-danger">Attention!</h4>',
-				'<div><strong>The customer has paid more than the due amount?</strong></div><div><span class="btn btn-primary" onclick="pageJs.hideModalBox();">OK</span>',
-				true
-			);
-		}
-		jQuery('[order-price-summary="total-payment-due"]').val(tmp.me.getCurrency(tmp.totalDue)).html(tmp.me.getCurrency(tmp.totalDue));
-
-		//display margin:
-		jQuery('[order-price-summary="total-margin"]').val(tmp.me.getCurrency(tmp.totalMargin)).html(tmp.me.getCurrency(tmp.totalMargin));
-
-		return tmp.me;
-	}
+//	/**
+//	 * calculateNewProductPrice
+//	 */
+//	,_calculateNewProductPrice: function(row) {
+//		var tmp = {};
+//		tmp.me = this;
+//		tmp.row = row;
+//		tmp.unitPrice = tmp.me.getValueFromCurrency( $F(tmp.row.down('[new-order-item=unitPrice]')) );
+//		tmp.discount = $F(tmp.row.down('[new-order-item=discount]')).strip().replace('%', '');
+//		tmp.qty = $F(tmp.row.down('[new-order-item=qtyOrdered]')).strip();
+//		tmp.totalPrice = tmp.unitPrice * (1 - tmp.discount/100) * tmp.qty;
+//		$(tmp.row.down('[new-order-item=totalPrice]')).value = tmp.me.getCurrency( tmp.totalPrice );
+//		if(row.retrieve('product')) {
+//			tmp.unitCost = row.retrieve('product').unitCost;
+//			if(tmp.row.down('.margin'))
+//				$(tmp.row.down('.margin')).update( tmp.me.getCurrency( tmp.totalPrice * 1 - tmp.unitCost * 1.1 * tmp.qty ) + (parseInt(tmp.unitCost) === 0 ? '<div><small class="label label-danger">No Cost Yet</small</div>' : '') );
+//		}
+//		return tmp.me;
+//	}
+//	/**
+//	 * bindSubmit product row event
+//	 */
+//	,_bindSubmitNewProductRow: function(event, box) {
+//		var tmp = {};
+//		tmp.me = this;
+//		tmp.txtBox = box;
+//		tmp.me.keydown(event, function() {
+//			 $(tmp.txtBox).up('.item_row').down('.save-new-product-btn').click();
+//		});
+//		return tmp.me;
+//	}
+//	,_recalculateSummary: function() {
+//		var tmp = {};
+//		tmp.me = this;
+//		//getting all the item row's total
+//		tmp.totalPriceIncGSTNoDicount = 0;
+//		tmp.totalPriceIncGSTWithDiscount = 0;
+//		tmp.totalMargin = 0;
+//		tmp.totalQty = 0;
+//		$$('.item_row.order-item-row').each(function(row) {
+//			tmp.rowData = row.retrieve('data');
+//			tmp.totalPriceIncGSTWithDiscount = tmp.totalPriceIncGSTWithDiscount * 1 + (tmp.me.getValueFromCurrency(tmp.rowData.totalPrice) * 1);
+//			tmp.totalPriceIncGSTNoDicount = tmp.totalPriceIncGSTNoDicount * 1 + (tmp.me.getValueFromCurrency(tmp.rowData.unitPrice) * tmp.rowData.qtyOrdered);
+//			tmp.totalQty = tmp.totalQty + parseInt(tmp.rowData.qtyOrdered);
+//			if(tmp.rowData.margin)
+//				tmp.totalMargin = tmp.totalMargin * 1 + tmp.me.getValueFromCurrency(tmp.rowData.margin) * 1;
+//		});
+//		//calculate total price without GST
+//		tmp.totalPriceExcGST = ((tmp.totalPriceIncGSTWithDiscount * 1) / 1.1);
+//		jQuery('[order-price-summary="totalPriceExcludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceExcGST)).html(tmp.me.getCurrency(tmp.totalPriceExcGST));
+//
+//		//calculate total GST
+//		tmp.totalGST = (tmp.totalPriceIncGSTWithDiscount * 1 - tmp.totalPriceExcGST * 1);
+//		jQuery('[order-price-summary="totalPriceGST"]').val(tmp.me.getCurrency(tmp.totalGST)).html(tmp.me.getCurrency(tmp.totalGST));
+//
+//		//calculate the total price with GST
+//		tmp.totalDiscount = (tmp.totalPriceIncGSTNoDicount * 1 - tmp.totalPriceIncGSTWithDiscount * 1);
+//		jQuery('[order-price-summary="totalDiscount"]').val(tmp.me.getCurrency(tmp.totalDiscount)).html(tmp.me.getCurrency(tmp.totalDiscount));
+//
+//		//calculate the total price with GST
+//		jQuery('[order-price-summary="totalPriceIncludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount)).html(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount));
+//
+//		//calculate the total Qty
+//		jQuery('[order-price-summary="totalQty"]').val(tmp.totalQty).html(tmp.totalQty);
+//
+//		//calculate the sub total
+//		tmp.totalShipping = (jQuery('[order-price-summary="totalShippingCost"]').length > 0 ? jQuery('[order-price-summary="totalShippingCost"]').val() : 0);
+//		tmp.subTotal = (tmp.totalShipping * 1 + tmp.totalPriceIncGSTWithDiscount * 1);
+//		jQuery('[order-price-summary="subTotal"]').val(tmp.me.getCurrency(tmp.subTotal)).html(tmp.me.getCurrency(tmp.subTotal));
+//
+//		//calculate the total due
+//		tmp.totalPaid = (jQuery('[order-price-summary="totalPaidAmount"]').length > 0 ? jQuery('[order-price-summary="totalPaidAmount"]').val() : 0);
+//		tmp.totalDue = (tmp.subTotal * 1 - tmp.totalPaid * 1);
+//		if(tmp.totalDue < 0) {
+//			tmp.me.showModalBox(
+//				'<h4 class="text-danger">Attention!</h4>',
+//				'<div><strong>The customer has paid more than the due amount?</strong></div><div><span class="btn btn-primary" onclick="pageJs.hideModalBox();">OK</span>',
+//				true
+//			);
+//		}
+//		jQuery('[order-price-summary="total-payment-due"]').val(tmp.me.getCurrency(tmp.totalDue)).html(tmp.me.getCurrency(tmp.totalDue));
+//
+//		//display margin:
+//		jQuery('[order-price-summary="total-margin"]').val(tmp.me.getCurrency(tmp.totalMargin)).html(tmp.me.getCurrency(tmp.totalMargin));
+//
+//		return tmp.me;
+//	}
 });

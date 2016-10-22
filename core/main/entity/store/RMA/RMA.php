@@ -4,6 +4,7 @@ class RMA extends BaseEntityAbstract
 	const STATUS_NEW = 'NEW';
 	const STATUS_RECEIVING = 'RECEIVING';
 	const STATUS_RECEIVED = 'RECEIVED';
+	const STATUS_PROCESSING = 'PROCESSING';
 	const STATUS_CLOSED = 'CLOSED';
 	/**
 	 * The RA no
@@ -338,7 +339,7 @@ class RMA extends BaseEntityAbstract
 	 */
 	public static function getAllStatuses()
 	{
-		return array(self::STATUS_NEW, self::STATUS_RECEIVING, self::STATUS_RECEIVED, self::STATUS_CLOSED);
+		return array(self::STATUS_PROCESSING, self::STATUS_CLOSED);
 	}
 	public function getRMAItems()
 	{
