@@ -22,6 +22,8 @@ class ListController extends CRUDPageAbstract
 		parent::__construct();
 		if(!AccessControl::canAccessCreateProductPage(Core::getRole()))
 			die('You do NOT have access to this page');
+		if(Core::getUser()->getStore()->getId() != 1)
+			die('You do NOT have access to this page');
 	}
 	/**
 	 * (non-PHPdoc)
@@ -141,14 +143,14 @@ class ListController extends CRUDPageAbstract
 			}
 			$stats = array();
 			NewProduct::getQuery()->eagerLoad('NewProduct.product', 'inner join', 'npro_pro', 'npro.productId = npro_pro.id and npro.active = 1  ');
-			$orderby = array();
+			$orderby = array('id' => 'desc');
 			if (count($where) > 0)
 			{
-				$newProducts = NewProduct::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array(), $stats);
+				$newProducts = NewProduct::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, $orderby, $stats);
 			}
 			else
 			{
-				$newProducts = NewProduct::getAll(true, $pageNo, $pageSize, array(), $stats);
+				$newProducts = NewProduct::getAll(true, $pageNo, $pageSize, $orderby, $stats);
 			}
 			$results['pageStats'] = $stats;
 			$results['items'] = array();
