@@ -20,8 +20,10 @@ class TierLevelsController extends CRUDPageAbstract
 	public function __construct()
 	{
 		parent::__construct();
-		if(!AccessControl::canAccessUsersPage(Core::getRole()) && (Core::getUser()->getStore()->getId() != 1))
+		if(!AccessControl::canAccessUsersPage(Core::getRole()))
 			die('You do NOT have access to this page');
+		if(Core::getUser()->getStore()->getId() != 1)
+			die(BPCPageAbstract::show404Page('Access Denied', 'You do NOT have the access to this page!'));
 	}
 	/**
 	 * (non-PHPdoc)

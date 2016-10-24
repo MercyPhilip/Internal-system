@@ -45,6 +45,8 @@ class SkuMatchController extends BPCPageAbstract
 		parent::onLoad($param);
 		if(!AccessControl::canAccessCreateProductPage(Core::getRole()))
 			die(BPCPageAbstract::show404Page('Access Denied', 'You do NOT have the access to this page!'));
+		if(Core::getUser()->getStore()->getId() != 1)
+			die(BPCPageAbstract::show404Page('Access Denied', 'You do NOT have the access to this page!'));
 	}
 	/**
 	 * Getting The end javascript

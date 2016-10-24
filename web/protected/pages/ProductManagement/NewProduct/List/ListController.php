@@ -23,7 +23,7 @@ class ListController extends CRUDPageAbstract
 		if(!AccessControl::canAccessCreateProductPage(Core::getRole()))
 			die('You do NOT have access to this page');
 		if(Core::getUser()->getStore()->getId() != 1)
-			die('You do NOT have access to this page');
+			die(BPCPageAbstract::show404Page('Access Denied', 'You do NOT have the access to this page!'));
 	}
 	/**
 	 * (non-PHPdoc)
