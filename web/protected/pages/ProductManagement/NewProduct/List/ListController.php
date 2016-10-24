@@ -467,14 +467,14 @@ class ListController extends CRUDPageAbstract
 
 			$stats = array();
 			NewProduct::getQuery()->eagerLoad('NewProduct.product', 'inner join', 'npro_pro', 'npro.productId = npro_pro.id and npro.active = 1  ');
-			$orderby = array();
+			$orderby = array('id' => 'desc');
 			if (count($wheres) > 0)
 			{
-				$newProducts = NewProduct::getAllByCriteria(implode(' AND ', $wheres), $params, true, $pageNo, $pageSize, array(), $stats);
+				$newProducts = NewProduct::getAllByCriteria(implode(' AND ', $wheres), $params, true, $pageNo, $pageSize, $orderby, $stats);
 			}
 			else
 			{
-				$newProducts = NewProduct::getAll(true, $pageNo, $pageSize, array(), $stats);
+				$newProducts = NewProduct::getAll(true, $pageNo, $pageSize, $orderby, $stats);
 			}
 			if(count($newProducts) === 0)
 				throw new Exception('No result found!');
