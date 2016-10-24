@@ -68,7 +68,7 @@ class OrderController extends BPCPageAbstract
 			{
 				$itemArray = $item->getJson();
 				$productArray = $itemArray['product'];
-				$productArray['tierPrice'] = ProductTierPrice::getTierPrice($item->getProduct(), $cloneOrder->getCustomer()->getTier());
+				$productArray['tierPrice'] = Core::getUser()->getStore()->getId() == 1 ? ProductTierPrice::getTierPrice($item->getProduct(), $cloneOrder->getCustomer()->getTier()) : array();
 				$productArray['buyinprice'] = ProductBuyinPrice::getBuyinPrice($item->getId());
 				$itemArray['product'] = $productArray;
 				$clonOrderArray['items'][] = $itemArray;
@@ -85,7 +85,7 @@ class OrderController extends BPCPageAbstract
 			{
 				$itemArray = $item->getJson();
 				$productArray = $itemArray['product'];
-				$productArray['tierPrice'] = ProductTierPrice::getTierPrice($item->getProduct(), $order->getCustomer()->getTier());
+				$productArray['tierPrice'] = Core::getUser()->getStore()->getId() == 1 ? ProductTierPrice::getTierPrice($item->getProduct(), $order->getCustomer()->getTier()) : array();
 				$productArray['buyinprice'] = ProductBuyinPrice::getBuyinPrice($item->getId());
 				$itemArray['product'] = $productArray;
 				$orderArray['items'][] = $itemArray;
@@ -175,7 +175,7 @@ class OrderController extends BPCPageAbstract
 				$jsonArray['lastOrderItemFromCustomer'] = array();
 				if($customer instanceof Customer) {
 					$jsonArray['customer'] = $customer->getJson();
-					$jsonArray['tierPrice'] = ProductTierPrice::getTierPrice($product, $customer->getTier());
+					$jsonArray['tierPrice'] = Core::getUser()->getStore()->getId() == 1 ? ProductTierPrice::getTierPrice($product, $customer->getTier()) : array();
 					$jsonArray['buyinprice'] = ProductBuyinPrice::getBuyinPrice($product->getId());
 					$query = OrderItem::getQuery()->eagerLoad('OrderItem.order', 'inner join', 'ord', 'ord_item.orderId = ord.id and ord_item.active = 1 and ord.customerId = :custId and ord.type = :ordType and ord.storeId = ord_item.storeId and ord.storeId = :storeId');
 					$orderItems = OrderItem::getAllByCriteria('productId = :prodId', array('custId' => $customer->getId(), 'prodId' => $product->getId(), 'ordType' => Order::TYPE_INVOICE, 'storeId' => Core::getUser()->getStore()->getId()), true, 1, 1, array('ord_item.id' => 'desc'));

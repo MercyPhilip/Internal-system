@@ -1249,6 +1249,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function postSave()
 	{
+		$storeId = Core::getUser()->getStore()->getId();
+		if ($storeId != 1) return;
 		$newCategories = $this->getCategories();
 		$newCategoryIds = array();
 		$newCategoryIds[] = 0;

@@ -397,7 +397,7 @@ class DetailsController extends DetailsPageAbstract
 			$product = !isset($param->CallbackParameter->id) ? new Product() : Product::get(trim($param->CallbackParameter->id));
 			if(!$product instanceof Product)
 				throw new Exception('Invalid Product passed in!');
-			if ($storeId <> 1)
+			if ($storeId != 1)
 			{
 				// except store 1,
 				// other stores cannot update product info except its own stock info
