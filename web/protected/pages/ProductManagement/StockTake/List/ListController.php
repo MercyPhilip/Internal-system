@@ -214,7 +214,7 @@ class ListController extends CRUDPageAbstract
     			$keys[] = ':' . $key;
     			$ps[$key] = trim($value);
     		}
-    		Product::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
+    		Product::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.active = 1 and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
     		$params = array_merge($params, $ps);
     	}
     	if (count($categoryIds) > 0) {

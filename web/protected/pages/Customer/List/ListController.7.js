@@ -179,7 +179,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		});
 		
 		$('total-selected-count').update(tmp.customers.length);
-		console.log('tmp.customers=', tmp.customers);
 		return tmp.customers;
 	}
 	/**

@@ -20,11 +20,6 @@ insert into store (`name`,  `created`, `createdById`, `updated`, `updatedById` )
 insert into store (`name`,  `created`, `createdById`, `updated`, `updatedById` ) values
     ('Moorabbin', NOW(), 10, NOW(), 10);
 
-INSERT INTO `useraccount` VALUES ('11', '1', 'b81b7c0ca8a16a5b31bdacfc0e08e6fdc8d1d1ce', 'disabled', '11', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:36:02', '10');
-INSERT INTO `useraccount` VALUES ('12', '2', 'b9e94e700a72f60b2cf0fea69e6b46142166863a', 'disabled', '12', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:38:14', '10');
-
-INSERT INTO `person` VALUES ('11', '1', 'System', 'MountWaverley', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:37:11', '10');
-INSERT INTO `person` VALUES ('12', '2', 'System', 'Moorabbin', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:38:24', '10');
 
 -- ----------------------------
 -- Table structure for productstockinfo
@@ -98,6 +93,11 @@ ALTER TABLE bpcinternal.task ADD COLUMN `storeId` INT(10) NOT NULL DEFAULT 1 AFT
 ALTER TABLE bpcinternal.useraccount ADD COLUMN `storeId` INT(10) NOT NULL DEFAULT 1 AFTER `id`, ADD INDEX(`storeId`);
 ALTER TABLE bpcinternal.message ADD COLUMN `storeId` INT(10) NOT NULL DEFAULT 1 AFTER `id`, ADD INDEX(`storeId`);
 
+INSERT INTO `useraccount` VALUES ('11', '1', 'b81b7c0ca8a16a5b31bdacfc0e08e6fdc8d1d1ce', 'disabled', '11', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:36:02', '10');
+INSERT INTO `useraccount` VALUES ('12', '2', 'b9e94e700a72f60b2cf0fea69e6b46142166863a', 'disabled', '12', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:38:14', '10');
+
+INSERT INTO `person` VALUES ('11', '1', 'System', 'MountWaverley', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:37:11', '10');
+INSERT INTO `person` VALUES ('12', '2', 'System', 'Moorabbin', '1', '0001-01-01 00:00:00', '10', '2016-05-28 13:38:24', '10');
 
 
 insert into productstockinfo(storeId, productId, totalOnHandValue, totalInPartsValue, stockOnHand, stockOnOrder, stockOnPO, stockInParts, stockInRMA, stockMinLevel, stockReorderLevel, totalRMAValue, statusId, createdById, updatedById)
@@ -190,3 +190,142 @@ BEGIN
   end if;
 END;//
 
+
+CREATE OR REPLACE VIEW totalsales AS
+SELECT
+	`o`.storeId,
+	date_format(
+		convert_tz(
+			`o`.`invDate`,
+			'UTC',
+			'Australia/Victoria'
+		),
+		'%Y-%m-%d'
+	) AS `YYYYMMDD`,
+	sum(`o`.`totalAmount`) AS `totalAmount`,
+	sum(`o`.`totalPaid`) AS `totalPaid`,
+	sum(`o`.`totalCreditNoteValue`) AS `totalCreditNoteValue`
+FROM
+	`order` `o`
+WHERE
+	(
+		(`o`.`type` = 'INVOICE')
+		AND (`o`.`active` = 1)
+		AND (`o`.`statusId` <> 2)
+	)
+GROUP BY
+	`o`.storeId,
+	date_format(
+		convert_tz(
+			`o`.`invDate`,
+			'UTC',
+			'Australia/Victoria'
+		),
+		'%Y-%m-%d'
+	);
+CREATE OR REPLACE VIEW totalmargin AS
+SELECT
+`o`.storeId,
+	date_format(
+		convert_tz(
+			`o`.`invDate`,
+			'UTC',
+			'Australia/Victoria'
+		),
+		'%Y-%m-%d'
+	) AS `YYYYMMDD`,
+	sum(
+		(
+			CASE
+			WHEN (
+				(
+					`o`.`totalAmount` = `o`.`totalPaid`
+				)
+				AND (
+					`o`.`totalCreditNoteValue` = 0
+				)
+			) THEN
+				`oi`.`margin`
+			ELSE
+				0
+			END
+		)
+	) AS `totalActualMargin`,
+	sum(`oi`.`margin`) AS `totalMargin`
+FROM
+	(
+		`order` `o`
+		JOIN `orderitem` `oi`
+	)
+WHERE
+	(
+		(`o`.`id` = `oi`.`orderId`)
+		AND (`o`.`type` = 'INVOICE')
+		AND (`o`.`active` = 1)
+		AND (`oi`.`active` = 1)
+		AND (`o`.`statusId` <> 2)
+		AND (`o`.storeId = `oi`.storeId)
+	)
+GROUP BY
+`o`.storeId,
+	date_format(
+		convert_tz(
+			`o`.`invDate`,
+			'UTC',
+			'Australia/Victoria'
+		),
+		'%Y-%m-%d'
+	);
+
+CREATE OR REPLACE VIEW salesdailylog AS
+SELECT
+	`totalsales`.storeId,
+	`totalsales`.`YYYYMMDD` AS `YYYYMMDD`,
+	`totalsales`.`totalAmount` AS `totalAmount`,
+	`totalsales`.`totalPaid` AS `totalPaid`,
+	`totalsales`.`totalCreditNoteValue` AS `totalCreditNoteValue`,
+	`totalmargin`.`totalMargin` AS `totalMargin`,
+	`totalmargin`.`totalActualMargin` AS `totalActualMargin`
+FROM
+	(
+		`totalsales`
+		LEFT JOIN `totalmargin` ON (
+			(
+				`totalsales`.`YYYYMMDD` = `totalmargin`.`YYYYMMDD`
+				AND `totalsales`.storeId = `totalmargin`.storeId
+			)
+		)
+	);
+	
+CREATE OR REPLACE VIEW monthlysales AS
+SELECT
+	`salesdailylog`.storeId,
+	date_format(
+		`salesdailylog`.`YYYYMMDD`,
+		'%Y-%m'
+	) AS `YYYYMM`,
+	sum(
+		`salesdailylog`.`totalAmount`
+	) AS `totalAmount`,
+	sum(
+		`salesdailylog`.`totalPaid`
+	) AS `totalPaid`,
+	sum(
+		`salesdailylog`.`totalCreditNoteValue`
+	) AS `totalCreditNoteValue`,
+	sum(
+		`salesdailylog`.`totalMargin`
+	) AS `totalMargin`,
+	sum(
+		`salesdailylog`.`totalActualMargin`
+	) AS `totalActualMargin`
+FROM
+	`salesdailylog`
+GROUP BY
+	`salesdailylog`.storeId,
+	date_format(
+		`salesdailylog`.`YYYYMMDD`,
+		'%Y-%m'
+	);
+
+	

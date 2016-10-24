@@ -440,7 +440,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	 * Getting each row for displaying the result list
 	 */
 	,_getResultRow: function(row, isTitle) {
-		console.log('row=', row);
 		var tmp = {};
 		tmp.me = this;
 		tmp.tag = (tmp.isTitle === true ? 'th' : 'td');
