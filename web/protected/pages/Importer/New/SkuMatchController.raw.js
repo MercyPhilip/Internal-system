@@ -143,7 +143,34 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		}
 		return tmp.me._importDataTypes;
 	}
+	/**
+	 * analyse the csv file
+	 */
+	,_parseCSV: function (str) {
+		var arr = [];
+		var quote = false;  // true means we're inside a quoted field
 
+		// iterate over each character, keep track of current row and column (of the returned array)
+		for (var row = col = c = 0; c < str.length; c++) {
+			var cc = str[c], nc = str[c+1];        // current character, next character
+			arr[row] = arr[row] || [];             // create a new row if necessary
+			arr[row][col] = arr[row][col] || '';   // create a new column (start with empty string) if necessary
+			// If the current character is a quotation mark, and we're inside a
+			// quoted field, and the next character is also a quotation mark,
+			// add a quotation mark to the current column and skip the next character
+			if (cc == '"' && quote && nc == '"') { arr[row][col] += cc; ++c; continue; }  
+			// If it's just one quotation mark, begin/end quoted field
+			if (cc == '"') { quote = !quote; continue; }
+			// If it's a comma and we're not in a quoted field, move on to the next column
+			if (cc == ',' && !quote) { ++col; continue; }
+			// If it's a newline and we're not in a quoted field, move on to the next
+			// row and move to column 0 of that new row
+			if (cc == '\n' && !quote) { ++row; col = 0; continue; }
+			// Otherwise, append the current character to the current column
+			arr[row][col] += cc;
+		}
+		return arr;
+	}
 	,_readFiles: function(files) {
 		var tmp = {};
 		tmp.me = this;
@@ -154,17 +181,19 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			if((tmp.extension = tmp.file.name.split('.').pop()) !== '' && tmp.me._acceptableTypes.indexOf(tmp.extension.toLowerCase()) > -1) {
 				tmp.me._fileReader = new FileReader();
 				tmp.me._fileReader.onload = function(event) {
+					var arr = tmp.me._parseCSV(event.target.result);
 					tmp.me._rowNo = 1; // reset rowNo for each file
-					event.target.result.split(/\r\n|\n|\r/).each(function(line) {
-						if(line !== null && !line.blank()) {
+					arr.each(function(line) {
+						if(line !== null && line.length > 0) {
 							tmp.cols = [];
-							line.split(',').each(function(col) {
+							line.each(function(col) {
+								col = col.trim();
 								if(col !== null) {
-									tmp.cols.push(col.strip());
+									tmp.cols.push(col);
 								}
 							})
 							tmp.key = tmp.cols.join(',');
-							if(tmp.key !== tmp.me.csvFileLineFormat.join(',')) { //this is not the header line
+							if((tmp.key.trim() != '') && (tmp.key !== tmp.me.csvFileLineFormat.join(','))) { //this is not the header line
 								tmp.colArray = {};
 								for(tmp.j = 0; tmp.j < tmp.me.csvFileLineFormat.size(); tmp.j++) {
 									tmp.colArray[tmp.me.csvFileLineFormat[tmp.j]] = tmp.cols[tmp.j];
@@ -223,7 +252,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 
 		tmp.headerRow = '';
 		$H(tmp.originalDataRows[0].retrieve('data')).each(function(item){
-			tmp.headerRow = tmp.headerRow + item.key + ', ';
+			tmp.headerRow = tmp.headerRow + item.key + ',';
 		});
 		tmp.data.push(tmp.headerRow + '\n');
 

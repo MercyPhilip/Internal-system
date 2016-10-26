@@ -550,7 +550,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				.insert({'bottom': new Element(tmp.tag, {'class': 'uprice col-xs-1'})
 					.insert({'bottom': tmp.isTitle === true || typeof(orderItem.unitPrice) === 'object' ? orderItem.unitPrice : tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('order-item', tmp.me.getCurrency(tmp.me.getValueFromCurrency(orderItem.unitPrice)), {'order-item': 'unitPrice', 'required': true}) )  })
 				})
-				.insert({'bottom': new Element(tmp.tag, {'class': 'tprice col-xs-1'})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'trprice col-xs-1'})
 					.insert({'bottom': (tmp.isTitle === true || typeof(orderItem.tierPrice) === 'object') ? orderItem.tierPrice : tmp.me._getTierPrices(orderItem.product) })
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'rprice col-xs-1'})
@@ -753,7 +753,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				if (tmp.tierPrice == 0 ) tmp.tierPrice = tmp.retailPrice;
 				tmp.inputRow.down('[new-order-item=unitPrice]').writeAttribute('value', tmp.me.getCurrency(tmp.tierPrice)).select();
 				tmp.inputRow.down('[new-order-item=retailPrice]').writeAttribute('value', tmp.me.getCurrency(tmp.retailPrice));
-				$(tmp.inputRow.down('.tprice')).update(tmp.me._getTierPrices(product));
+				$(tmp.inputRow.down('.trprice')).update(tmp.me._getTierPrices(product));
 				tmp.me._calculateNewProductPrice(tmp.inputRow, 'new-order-item');
 			})
 			;
@@ -844,7 +844,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				}
 			});
 		}
-		if ((!tiers) || !unitCost) return '';
+		if ((!tiers) || !unitCost) return '&nbsp;';
 		tmp.tierStrings = [];
 		tiers.each(function(tier) {
 			warning = false;
@@ -909,7 +909,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			quantity = Number(tier.quantity);
 			if (quantity > qty)
 			{
-				if (tmp.srp)
+				if (tmp.srp && tierPriceSeleted > tmp.srp)
 					tierPriceSeleted = tmp.srp;
 				else if (tmp.specilaPrice && tierPriceSeleted > tmp.specilaPrice)
 					tierPriceSeleted = tmp.specilaPrice;
@@ -919,7 +919,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			}
 			tierPriceSeleted = tierPrice;
 		})
-		if (tmp.srp)
+		if (tmp.srp && tierPriceSeleted > tmp.srp)
 			tierPriceSeleted = tmp.srp;
 		else if (tmp.specilaPrice && tierPriceSeleted > tmp.specilaPrice)
 			tierPriceSeleted = tmp.specilaPrice;
