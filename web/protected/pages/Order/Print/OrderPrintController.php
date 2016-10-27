@@ -57,9 +57,13 @@ class OrderPrintController extends BPCPageAbstract
 	{
 		return $this->order->getType() === Order::TYPE_INVOICE ? 'TAX ' . Order::TYPE_INVOICE : $this->order->getType();
 	}
+	public function getOrdDate()
+	{
+		return $this->order->getOrderDate() == UDate::zeroDate() ? '' : $this->order->getOrderDate()->setTimeZone(UDate::TIME_ZONE_MELB)->format('d/M/Y');
+	}
 	public function getInvDate()
 	{
-		return $this->order->getInvDate() == UDate::zeroDate() ? '' : $this->order->getInvDate()->format('d/M/Y');
+		return $this->order->getInvDate() == UDate::zeroDate() ? '' : $this->order->getInvDate()->setTimeZone(UDate::TIME_ZONE_MELB)->format('d/M/Y');
 	}
 	/**
 	 * Getting the tr for each row
