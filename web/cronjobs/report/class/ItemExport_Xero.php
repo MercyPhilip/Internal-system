@@ -14,7 +14,12 @@ class ItemExport_Xero extends ExportAbstract
 		
 		$return = array();
 		$myobCodeType = ProductCodeType::get(ProductCodeType::ID_MYOB);
-		foreach(Product::getAll(true) as $product)
+		//foreach(Product::getAll(true) as $product)
+		Product::getQuery()->eagerLoad('Product.stocks', 'inner join', 'pro_stock_info', 'pro.id = pro_stock_info.productId and pro_stock_info.stockOnHand <> 0 and pro_stock_info.storeId = :storeId');
+		$params = $where = array();
+		$params['storeId'] = Core::getUser()->getStore()->getId();
+		$products =Product::getAllByCriteria(implode(' AND ', $where), $params);
+		foreach($products as $product)
 		{
 			$logs = ProductQtyLog::getAllByCriteria('productId = ? and created <= ? and storeId = ?', array($product->getId(), trim($toDate), Core::getUser()->getStore()->getId()), true, 1, 1, array('id' => 'desc'));
 			$log = count($logs) > 0 ? $logs[0] : null;
