@@ -509,10 +509,10 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			format: 'DD/MM/YYYY'
 		});
 		tmp.me._initDeliveryMethods()._initCustomerSelect2()._initTypeSwither();
-		$('noeta-panel')
-			.store('NoETAOrdersListPanelJs', tmp.noETAOrdersListPanelJs = new NoETAOrdersListPanelJs(tmp.me))
-			.update(tmp.noETAOrdersListPanelJs.getListPanel().addClassName('panel-default'));
-		tmp.noETAOrdersListPanelJs.load();
+//		$('noeta-panel')
+//			.store('NoETAOrdersListPanelJs', tmp.noETAOrdersListPanelJs = new NoETAOrdersListPanelJs(tmp.me))
+//			.update(tmp.noETAOrdersListPanelJs.getListPanel().addClassName('panel-default'));
+//		tmp.noETAOrdersListPanelJs.load();
 		$('right-panel')
 			.store('InsufficientStockOrdersListPanelJs', tmp.insufficientStockOrdersListPanelJs = new InsufficientStockOrdersListPanelJs(tmp.me))
 			.update(tmp.insufficientStockOrdersListPanelJs.getListPanel().addClassName('panel-default'));

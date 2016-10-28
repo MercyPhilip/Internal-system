@@ -362,7 +362,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.me = this;
 		tiers = row.tierprices;
 		//unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : 'N/A';
-		unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? row.totalOnHandValue/row.stockOnHand : 0;
+		unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? row.totalOnHandValue/row.stockOnHand : Number(row.buyinprice);
 		tmp.price = '';
 		tmp.specilaPrice = '';
 		tmp.srp = '';
@@ -511,7 +511,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 							new Element('div', {'class': 'row'})
 								.insert({'bottom': new Element('div', {'class': 'col-xs-2'}).update(row.stockOnHand) })
 								.insert({'bottom': new Element('div', {'class': 'col-xs-3'}).update(tmp.srp? tmp.me.getCurrency(tmp.srp): tmp.me.getCurrency(tmp.price)) })
-								.insert({'bottom': new Element('div', {'class': 'col-xs-3'}).update((row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : 'N/A') })
+								.insert({'bottom': new Element('div', {'class': 'col-xs-3'}).update((row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : row.buyinprice ? tmp.me.getCurrency(row.buyinprice) : 'N/A') })
 								.insert({'bottom': new Element('div', {'class': 'col-xs-4'}).update(tmp.me._getTierPrices(row)) })
 				)
 			})

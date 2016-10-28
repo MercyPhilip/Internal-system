@@ -55,7 +55,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.loadingImage = tmp.me.getLoadingImg();
 		tmp.data = {'pagination': {'pageNo': tmp.pageNo, 'pageSize': 30}, 'searchCriteria': tmp.me._collectFormData(tmp.searchPanel, 'search-order')};
 		tmp.me.postAjax(tmp.me.getCallbackId('searchOrders'), tmp.data, {
-			'onCreate': function() {
+			'onLoading': function() {
 				jQuery('#' + btn.id).button('loading');
 				if(tmp.pageNo === 1) {
 					tmp.resultPanel.update(tmp.loadingImage);

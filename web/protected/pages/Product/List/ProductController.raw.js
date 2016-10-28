@@ -1017,7 +1017,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'product_name hidden-xs hide-when-info hidden-sm'})
-				.addClassName('col-xs-3')
+				.addClassName('col-xs-2')
 				.setStyle(tmp.me._showRightPanel ? 'display: none' : '')
 				.update(tmp.isTitle === true ? new Element('div', {'class': 'row'})
 				.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update('')})
@@ -1117,12 +1117,12 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': tmp.me._storeId == 1 ? '' : new Element(tmp.tag, {'class': 'buyinprice hide-when-info' }).addClassName('col-xs-1').update(
 					tmp.isTitle === true ? 
 					new Element('div', {'class': 'row'})
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Stock of Store1'}).update('SSH') })
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Buyin price from Store1'}).update('Buyin') })
+						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Stock of Mount Waverley'}).update('SSH') })
+						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Buyin price from Mount Waverley'}).update('Buyin') })
 					:
 					new Element('div', {'class': 'row'})
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Stock of Store1'}).update(tmp.me._getOtherStocks(row)) })
-						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Buyin price from Store1'}).update(buyinPrice) })
+						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Stock of Mount Waverley'}).update(tmp.me._getOtherStocks(row)) })
+						.insert({'bottom': new Element('div', {'class': 'col-xs-6  text-right', 'title': 'Buyin price from Mount Waverley'}).update(buyinPrice) })
 					)
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'product_active hide-when-info hidden-sm ', 'style' : 'width:4%'}).addClassName('col-xs-1')

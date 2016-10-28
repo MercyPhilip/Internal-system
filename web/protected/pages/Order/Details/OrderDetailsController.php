@@ -663,7 +663,7 @@ class OrderDetailsController extends BPCPageAbstract
 				}
 			}
 			$ordAtns->save()
-				->addLog('Changed order attentio status to ' . $status, Log::TYPE_SYSTEM, '', __CLASS__ . '::' . __FUNCTION__);
+				->addLog('Changed order attention status to ' . $status . ' by '. Core::getUser()->getUserName(), Log::TYPE_SYSTEM, '', __CLASS__ . '::' . __FUNCTION__);
 			$results['attentionStatus'] =  $ordAtns->getStatus() == OrderAttention::STS_ID_NEW ? OrderAttention::STS_ID_NEW : '';
 			Dao::commitTransaction();
 		}

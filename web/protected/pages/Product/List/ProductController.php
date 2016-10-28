@@ -581,13 +581,31 @@ class ProductController extends CRUDPageAbstract
     		return null;
     	}
     	$sCurrent = doubleval(array_shift($rgData));
-    	$iOrder   = doubleval(current($rgData)) > $sCurrent ? 1 : -1;
+    	//$iOrder   = doubleval(current($rgData)) >= $sCurrent ? 1 : -1;
+    	if (doubleval(current($rgData)) > $sCurrent)
+    	{
+    		$iOrder = 1;
+    	}
+    	else if (doubleval(current($rgData)) < $sCurrent)
+    	{
+    		$iOrder = -1;
+    	}
+    	else
+    		$iOrder = 2;
     	foreach($rgData as $mValue)
     	{
     		if(($sCurrent>doubleval($mValue) && $iOrder == 1) ||
     				($sCurrent < doubleval($mValue) && $iOrder == -1))
     		{
     			return 0;
+    		}
+    		else if ($sCurrent>doubleval($mValue) && $iOrder == 2)
+    		{
+    			$iOrder = -1;
+    		}
+    		else if ($sCurrent<doubleval($mValue) && $iOrder == 2)
+    		{
+    			$iOrder = 1;
     		}
     		$sCurrent = doubleval($mValue);
     	}

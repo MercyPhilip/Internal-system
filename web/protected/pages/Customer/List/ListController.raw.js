@@ -145,7 +145,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 									try{
 										// refresh all
 										tmp.me.getSearchCriteria().getResults(true, tmp.me._pagination.pageSize);
-										tmp.result = tmp.me.getResp(param, false, true);
 									} catch (e) {
 										tmp.me.showModalBox('<span class="text-danger">ERROR:</span>', e, true);
 									}
@@ -180,7 +179,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		});
 		
 		$('total-selected-count').update(tmp.customers.length);
-		
 		return tmp.customers;
 	}
 	/**

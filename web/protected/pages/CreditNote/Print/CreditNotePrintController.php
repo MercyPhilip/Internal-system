@@ -76,6 +76,18 @@ class CreditNotePrintController extends BPCPageAbstract
 			return '';
 		}
 	}
+	public function getOrdDate()
+	{
+		if ($this->creditNote->getOrder() instanceof Order)
+		{
+			return $this->creditNote->getOrder()->getOrderDate() == UDate::zeroDate() ? '' : $this->creditNote->getOrder()->getOrderDate()->setTimeZone(UDate::TIME_ZONE_MELB)->format('d/M/Y');
+		}
+		else
+		{
+			return '';
+		}
+	}
+	
 	/**
 	 * Getting the tr for each row
 	 * @param unknown $qty
