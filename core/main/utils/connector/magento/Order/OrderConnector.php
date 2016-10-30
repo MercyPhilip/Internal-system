@@ -1,7 +1,7 @@
 <?php
 class OrderConnector extends B2BConnector
 {
-	const PICKUP_STORE1 = 'In-Store Pickup (Mount Waverley, VIC) - Store Pickup';
+	const PICKUP_STORE1 = 'In-Store Pickup (Mount Waverley, VIC) - Pickup - Mount Waverley, VIC';
 	const PICKUP_STORE2 = 'In-Store Pickup (Moorabbin, VIC) - Pickup - Moorabbin, VIC';
 	/**
 	 * Import Orders
