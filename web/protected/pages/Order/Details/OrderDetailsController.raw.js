@@ -400,9 +400,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.editCellPanel.insert({'bottom': tmp.me._getfieldDiv('Has Stock?',
 			new Element('select', {'class': 'form-control input-sm', 'update_order_item_purchase': 'hasStock', 'required': true, 'order_item_id': orderItem.id})
 				.insert({'bottom': new Element('option', {'value': ' '}).update('Not Checked')})
-				.insert({'bottom': new Element('option', {'value': '2'}).update('NO ETA').writeAttribute('selected', (tmp.hasStock === false) && (orderItem.eta === '9999-12-31 23:59:59')) })
 				.insert({'bottom': new Element('option', {'value': '1'}).update('Yes').writeAttribute('selected', tmp.hasStock === true) })
 				.insert({'bottom': new Element('option', {'value': '0'}).update('No').writeAttribute('selected', (tmp.hasStock === false) && (orderItem.eta !== '9999-12-31 23:59:59'))})
+				.insert({'bottom': new Element('option', {'value': '2'}).update('NO ETA').writeAttribute('selected', (tmp.hasStock === false) && (orderItem.eta === '9999-12-31 23:59:59')) })
 				.observe('change', function() {
 					tmp.editPanel = $(this).up('.update_order_item_purchase_div');
 					tmp.editPanel.getElementsBySelector('.no-stock-div').each(function(item) { item.remove(); });
