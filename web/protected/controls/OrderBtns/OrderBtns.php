@@ -46,7 +46,7 @@ class OrderBtns extends TTemplateControl
 	{
 		$results = $errors = array();
 		try
-		{				
+		{
 			Dao::beginTransaction();
 
 			if(!isset($param->CallbackParameter->orderId) || !($order = Order::get($param->CallbackParameter->orderId)) instanceof Order)
@@ -62,7 +62,14 @@ class OrderBtns extends TTemplateControl
 			$pdfFile = EntityToPDF::getPDF($order);
 			$asset = Asset::registerAsset($order->getOrderNo() . '.pdf', file_get_contents($pdfFile), Asset::TYPE_TMP);
 			$type = $order->getType();
-			EmailSender::addEmail($replyEmailAddress, $emailAddress, 'BudgetPC ' . $type. ':' . $order->getOrderNo() , (trim($emailBody) === '' ? '' : $emailBody . "<br /><br />") .'Please find attached ' . $type. ' (' . $order->getOrderNo() . '.pdf) from Budget PC Pty Ltd.', array($asset));
+			$emailList = str_replace(',', ';', $emailAddress);
+			$emailLists = explode(';', $emailList);
+			foreach($emailLists as $emailAddress)
+			{
+				$emailAddress = trim($emailAddress);
+				if ($emailAddress == '') continue;
+				EmailSender::addEmail($replyEmailAddress, $emailAddress, 'BudgetPC ' . $type. ':' . $order->getOrderNo() , (trim($emailBody) === '' ? '' : $emailBody . "<br /><br />") .'Please find attached ' . $type. ' (' . $order->getOrderNo() . '.pdf) from Budget PC Pty Ltd.', array($asset));
+			}
 			$order->addComment('An email sent to "' . $emailAddress . '" with the attachment: ' . $asset->getAssetId(), Comments::TYPE_SYSTEM);
 			$results['item'] = $order->getJson();
 
