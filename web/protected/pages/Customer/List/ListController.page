@@ -8,13 +8,13 @@
 		<div class="panel panel-default" id="searchPanel">
 			<div class="panel-heading">
 				<label for="showSearch">Show Search Criteria?</label>
-				<input id="showSearch" type="checkbox" onclick="$(this).up('#searchPanel').down('.panel-body').toggle();">
+				<input id="showSearch" type="checkbox" checked onclick="$(this).up('#searchPanel').down('.panel-body').toggle();">
 				<span class="pull-right btn-group">
 					<span id="mergeBtn" class="btn btn-info btn-sm" data-loading-text="merging ..." >Merge Customers</span>
 					<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span>
 				</span>
 			</div>
-			<div class="panel-body search-panel" id="searchDiv" style="display: none;">
+			<div class="panel-body search-panel" id="searchDiv">
 				<div class="row">
 					<div class="col-sm-3">
 						<div class="form-group form-group-sm input-group">

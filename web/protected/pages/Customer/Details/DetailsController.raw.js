@@ -137,7 +137,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Email', new Element('input', {'save-item': 'email', 'type': 'email', 'value': tmp.item.email ? tmp.item.email : ''}) ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Contact No?', new Element('input', {'save-item': 'contactNo', 'type': 'value', 'value': tmp.item.contactNo ? tmp.item.contactNo : ''}) ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Terms', new Element('input', {'save-item': 'terms', 'type': 'value', 'value': tmp.item.terms ? tmp.item.terms : ''}) ) ) })
-					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Credit Left', new Element('input', {'class': 'form-control', 'save-item': 'credit', 'validate_currency': true, 'value': tmp.item.creditpool ? tmp.me.getCurrency(tmp.item.creditpool.totalCreditLeft) : ''}) ) ) })
+					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Credit Left', new Element('input', {'class': 'form-control', 'save-item': 'credit', 'validate_currency': true, 'value': tmp.item.creditpool ? tmp.me.getCurrency(tmp.item.creditpool.totalCreditLeft) : 0}) ) ) })
 						.observe('change', function(){
 							tmp.me._currencyInputChanged(tmp.newDiv.down('[save-item=credit]'));
 						})

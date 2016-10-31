@@ -134,7 +134,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					tmp.totalQty = $('total-found-count').innerHTML;
 					
 					if(tmp.selected !== null && tmp.selected.length > 1) {
-						if(confirm('You are about to merge multiple customers.\n' + (tmp.selected.length - 1) + ' customer(s) will be deleted. Continue?'))
+						if(confirm('You are about to merge multiple customers to the first selected customer.\n' + (tmp.selected.length - 1) + ' customer(s) will be deleted. Continue?'))
 						{
 							// continue;
 							tmp.me.postAjax(tmp.me.getCallbackId('mergeCustomers'), {'item': tmp.selected}, {
