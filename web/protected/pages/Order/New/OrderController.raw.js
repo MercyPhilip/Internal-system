@@ -864,7 +864,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				warning = true;
 			tmp.tierStrings.push('<div ' + (warning? 'style="color : red;"' : '') + '><small><strong class="hidden-xs hide-when-info hidden-sm">' + tier.tierLevel.name + ': </strong>' + tmp.me.getCurrency(tierPrice) + ': <abbr title="Quantity" >' + (tier.quantity > 0 ? tier.quantity : '') + ' </abbr></small></div>');
 		})
-		return tmp.tierStrings.join('');
+		tierResult = tmp.tierStrings.join('');
+		if (tierResult == '') tierResult = '&nbsp;';
+		return tierResult;
 	}
 	/**
 	 * get tier price based on qty
