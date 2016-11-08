@@ -18,8 +18,8 @@
                                 </span>
                                 
                                 <span class="inlineblock info">
-                                    <div class="cname">BUDGET PC PTY LTD</div>
-                                    <div class="abn">ABN 29 133 654 761</div>
+                                    <div class="cname"><%= Core::getUser()->getStore()->getId() == 1 ? 'BUDGET PC PTY LTD' : 'Gu Group PTY LTD'%></div>
+                                    <div class="abn"><%= Core::getUser()->getStore()->getId() == 1 ? 'ABN 29 133 654 761' : 'ABN 38 593 286 893'%></div>
                                     <span class="inlineblock dates">
                                         <div class="dateRow"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock"><%= $this->getOrdDate() %></span></div>
                                         <div class="dateRow"><span class="rowTitle inlineblock">Invoice No.: </span><span class="rowContent inlineblock"><%= $this->order->getInvNo()%></span></div>

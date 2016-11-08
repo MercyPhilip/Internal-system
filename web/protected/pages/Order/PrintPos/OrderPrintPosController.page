@@ -10,12 +10,12 @@
                         </div>
                         <div align="center">
                         	<span class="inlineblock info">
-                        	<div class="cname">BUDGET PC PTY LTD</div>
+                        	<div class="cname"><%= Core::getUser()->getStore()->getId() == 1 ? 'BUDGET PC PTY LTD' : 'Gu Group PTY LTD'%></div>
                         	</span>
 							</div>
 							<div align="center">
                         	<span class="inlineblock info">
-                        	<div class="abn">ABN 29 133 654 761</div>
+                        	<div class="abn"><%= Core::getUser()->getStore()->getId() == 1 ? 'ABN 29 133 654 761' : 'ABN 38 593 286 893'%></div>
                         	</span>
 							</div>
 							<div align="center">
@@ -97,12 +97,12 @@
                             <span class="payment_details inlineblock">                                
                                 <div class="bank_details box">
                                 <p class="sep-line"></p>
-                                    <span class="bank_title">Budget PC Bank Details: </span>
-                                    <span class="bank_details_name"><span class="details_title">Account Name: </span>Budget PC Pty Ltd</span>
+                                    <span class="bank_title"><%= Core::getUser()->getStore()->getId() == 1 ? 'Budget PC Bank Details:' : 'Gu Group Bank Details:' %> </span>
+                                    <span class="bank_details_name"><span class="details_title">Account Name: </span><%= Core::getUser()->getStore()->getId() == 1 ? 'Budget PC Pty Ltd' : 'Gu Group Pty Ltd'%></span>
                                 </div>
                                 <div class="bank_details box">
-                                    <span class="bank_details_acc_bsb"><span class="details_title">BSB:</span>013 366</span>
-                                    <span class="bank_details_acc_no"><span class="details_title">ACC:</span>4796 74364</span>
+                                    <span class="bank_details_acc_bsb"><span class="details_title">BSB:</span><%= Core::getUser()->getStore()->getId() == 1 ? '013 366' : '013 268'%></span>
+                                    <span class="bank_details_acc_no"><span class="details_title">ACC:</span><%= Core::getUser()->getStore()->getId() == 1 ? '4796 74364' : '4617 37021'%></span>
                                 </div>
                             </span>
                         </div>

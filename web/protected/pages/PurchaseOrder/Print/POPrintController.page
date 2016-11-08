@@ -14,8 +14,8 @@
                                     </span>
                                 </span>
                                 <span class="inlineblock info">
-                                    <div class="cname">BUDGET PC PTY LTD</div>
-                                    <div class="abn">ABN 29 133 654 761</div>
+                                    <div class="cname"><%= Core::getUser()->getStore()->getId() == 1 ? 'BUDGET PC PTY LTD' : 'Gu Group PTY LTD'%></div>
+                                    <div class="abn"><%= Core::getUser()->getStore()->getId() == 1 ? 'ABN 29 133 654 761' : 'ABN 38 593 286 893'%></div>
                                     <span class="inlineblock dates">
                                         <div class="dateRow"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock"><%= $this->order->getOrderDate()->setTimeZone(UDate::TIME_ZONE_MELB)->format('d/M/Y') %></span></div>
                                         <div class="dateRow"><span class="rowTitle inlineblock">Supplier: </span><span class="rowContent inlineblock"><%= $this->order->getSupplier()->getName() %></span></div>
@@ -67,11 +67,7 @@
                             </div>
                             <div class="order_company_details">
                                 <div class="addr">
-                                    <span class="addr"><span class="details_title">Mount Waverley</span>Unit 111, 45 Gilby Rd, Mt Waverley</span>
-                                    <span class="phone"><span class="details_title">PH</span>+61 3 9541 9000</span>
-                                </div>
-                                <div class="addr">
-                                    <span class="addr"><span class="details_title">Moorabbin</span>Unit 29, 1 Kingston Rd, Heatherton</span>
+                                    <span class="addr"><span class="details_title"><%= Core::getUser()->getStore()->getId() == 1 ? "Mount Waverley" : "Moorabbin" %></span><%= Core::getUser()->getStore()->getId() == 1 ? "Unit 111, 45 Gilby Rd, Mt Waverley" : "Unit 29, 1 Kingston Rd, Heatherton" %></span>
                                     <span class="phone"><span class="details_title">PH</span>+61 3 9541 9000</span>
                                 </div>
                                 <div class="url details_title">
