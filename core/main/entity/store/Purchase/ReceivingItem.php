@@ -198,7 +198,7 @@ class ReceivingItem extends BaseEntityAbstract
 				$nofullReceivedItems[0]
 					->setReceivedQty($nofullReceivedItems[0]->getReceivedQty() + $qty)
 					->save()
-					->addLog(Log::TYPE_SYSTEM, $msg, $log_Comments, __CLASS__ . '::' . __FUNCTION__)
+					->addLog($msg, Log::TYPE_SYSTEM, $log_Comments, __CLASS__ . '::' . __FUNCTION__)
 					->addComment($msg, Comments::TYPE_WAREHOUSE);
 			}
 			$totalCount = PurchaseOrderItem::countByCriteria('active = 1 and purchaseOrderId = ? and receivedQty < qty and storeId = ?', array($this->getPurchaseOrder()->getId(), Core::getUser()->getStore()->getId()));
