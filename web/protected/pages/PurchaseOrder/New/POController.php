@@ -232,13 +232,27 @@ class POController extends BPCPageAbstract
 				//EmailSender::addEmail('purchasing@budgetpc.com.au', $confirmEmail, 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
 				$emailList = str_replace(',', ';', $confirmEmail);
 				$emailLists = explode(';', $emailList);
+				
+				$storeId = Core::getUser()->getStore()->getId();
+				if ($storeId == 2)
+				{
+					$emailFrom = 'purchasing.moorabbin@budgetpc.com.au';
+					$subject = 'BudgetPC(' . Core::getUser()->getStore()->getName() . ') Purchase Order:';
+					$fromStore = 'from BudgetPC(' . Core::getUser()->getStore()->getName() . ').';
+				}
+				else 
+				{
+					$emailFrom = 'purchasing@budgetpc.com.au';
+					$subject = 'BudgetPC Purchase Order:';
+					$fromStore = 'from BudgetPC.';
+				}
 				foreach($emailLists as $emailAddress)
 				{
 					$emailAddress = trim($emailAddress);
 					if ($emailAddress == '') continue;
-					EmailSender::addEmail('purchasing@budgetpc.com.au', $emailAddress, 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
+					EmailSender::addEmail($emailFrom, $emailAddress, $subject . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') ' . $fromStore, array($asset));
 				}
-				EmailSender::addEmail('purchasing@budgetpc.com.au', 'purchasing@budgetpc.com.au', 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
+				EmailSender::addEmail($emailFrom, $emailFrom, $subject . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') ' . $fromStore, array($asset));
 				$purchaseOrder->addComment('An email sent to "' . $confirmEmail . '" with the attachment: ' . $asset->getAssetId(), Comments::TYPE_SYSTEM);
 			}
 		}
