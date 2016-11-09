@@ -74,6 +74,7 @@ class DetailsController extends DetailsPageAbstract
 			$country = trim($param->CallbackParameter->address->country);
 			$address = $supplier->getAddress();
 			$supplier->setName(trim($param->CallbackParameter->name))
+				->setContactName(trim($param->CallbackParameter->contactName))
 				->setDescription(trim($param->CallbackParameter->description))
 				->setContactNo(trim($param->CallbackParameter->contactNo))
 				->setEmail(trim($param->CallbackParameter->email))
