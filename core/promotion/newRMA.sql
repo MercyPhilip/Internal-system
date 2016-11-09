@@ -6,9 +6,11 @@ CREATE TABLE `rmaitem` (
   `orderItemId` int(10) unsigned DEFAULT NULL,
   `productId` int(10) unsigned NOT NULL DEFAULT '0',
   `qty` int(10) unsigned NOT NULL DEFAULT '0',
-  `receivingItemId` varchar(100) NOT NULL DEFAULT '',
+  `receivingItemId` int(10) unsigned DEFAULT NULL,
   `unitCost` double(10,4) unsigned NOT NULL DEFAULT '0.0000',
   `itemDescription` varchar(255) NOT NULL DEFAULT '',
+  `bstatus` varchar(30) NOT NULL DEFAULT '',
+  `sstatus` varchar(30) NOT NULL DEFAULT '',
   `receivedDate` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
   `active` tinyint(1) NOT NULL DEFAULT '1',
   `created` datetime NOT NULL DEFAULT '0001-01-01 00:00:00',
@@ -20,10 +22,12 @@ CREATE TABLE `rmaitem` (
   KEY `receivingItemId` (`receivingItemId`),
   KEY `receivedDate` (`receivedDate`),
   KEY `orderItemId` (`orderItemId`),
+  KEY `bstatus` (`bstatus`),
+  KEY `sstatus` (`sstatus`),
   KEY `productId` (`productId`),
   KEY `createdById` (`createdById`),
   KEY `updatedById` (`updatedById`),
   KEY `qty` (`qty`),
   KEY `unitCost` (`unitCost`),
   KEY `storeId` (`storeId`)
-) ENGINE=InnoDB AUTO_INCREMENT=12 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

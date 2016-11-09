@@ -48,7 +48,9 @@ class DetailsController extends BPCPageAbstract
 			$js .= "pageJs._order=" . json_encode($order->getJson(array('customer'=> $order->getCustomer()->getJson(), 'items'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson()));'), $order->getOrderItems())))) . ";";
 		else $js .= "pageJs._customer=" . json_encode($customer) . ";";
 		if($rma instanceof RMA)
-			$js .= "pageJs._RMA=" . json_encode($rma->getJson(array('customer'=> $rma->getCustomer()->getJson(), 'raItems'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson()));'), $rma->getRMAItems())))) . ";";
+			$js .= "pageJs._RMA=" . json_encode($rma->getJson(array('customer'=> $rma->getCustomer()->getJson(), 'raItems'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson(), 
+												"receivingItem"=>$a->getReceivingItem() instanceof ReceivingItem ? $a->getReceivingItem()->getJson() : array(),
+												"orderItem"=>$a->getOrderItem() instanceof OrderItem ? $a->getOrderItem()->getJson() : array()));'), $rma->getRMAItems())))) . ";";
 		$js .= "pageJs._statusOptions=" . json_encode($statusOptions) . ";";
 		$js .= "pageJs._bstatusOptions=" . json_encode($bstatusOptions) . ";";
 		$js .= "pageJs._sstatusOptions=" . json_encode($sstatusOptions) . ";";
@@ -216,12 +218,6 @@ public function saveOrder($sender, $param)
 		$results = $errors = array();
 		try
 		{
-			ob_start();
-			var_dump($param);
-			$content = ob_get_contents();
-			ob_end_clean();
-			file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ':' . $content . PHP_EOL, FILE_APPEND | LOCK_EX);
-			
 			Dao::beginTransaction();
 			$customer = Customer::get(trim($param->CallbackParameter->customer->id));
 			if(!$customer instanceof Customer)
@@ -260,6 +256,7 @@ public function saveOrder($sender, $param)
 			}
 
 			$totalPaymentDue = 0;
+			$totalQty = 0;
 			foreach ($param->CallbackParameter->items as $item)
 			{
 				$product = Product::get(trim($item->product->id));
@@ -272,28 +269,33 @@ public function saveOrder($sender, $param)
 				$active = trim($item->valid);
 
 				$totalPaymentDue += $totalPrice;
+				$totalQty += $qtyOrdered;
+				$bstatus = trim($item->bstatus);
+				$sstatus = trim($item->sstatus);
+				$receivingItemId = isset($item->receivingItemId) ? trim($item->receivingItemId) : '';
+				$receivingItem = ReceivingItem::get($receivingItemId);
+				if (!$receivingItem instanceof ReceivingItem) $receivingItem = null;
 				if(is_numeric($item->RMAItemId) && !RMAItem::get(trim($item->RMAItemId)) instanceof RMAItem)
 					throw new Exception('Invalid RMA Item passed in');
-				$RMAItem = is_numeric($item->RMAItemId) ?
-					RMAItem::get(trim($item->RMAItemId))->setActive($active)->setProduct($product)->setQty($qtyOrdered)->setItemDescription($itemDescription)
-					:
-					RMAItem::create($RMA, $product, $qtyOrdered, $itemDescription);
+				if (is_numeric($item->RMAItemId))
+				{
+					$rmitem= RMAItem::get(trim($item->RMAItemId));
+					$rmitem->setActive($active)->setProduct($product)
+					->setQty($qtyOrdered)->setItemDescription($itemDescription)
+					->setBStatus($bstatus)->setSStatus($sstatus)->setReceivingItem($receivingItem);
+				}
+				else
+				{
+					$rmitem = RMAItem::create($RMA, $product, $qtyOrdered, $itemDescription, null, $receivingItem, $bstatus, $sstatus);
+				}
 				if(isset($item->orderItemId) && ($orderItem = OrderItem::get(trim($item->orderItemId))) instanceof OrderItem)
-					$RMAItem->setOrderItem($orderItem)->setUnitCost($orderItem->getUnitCost());
-				if(isset($item->RMAItemId) && ($RMAItem = RMAItem::get(trim($item->RMAItemId))) instanceof RMAItem && $product->getUnitCost() != 0)
-					$RMAItem->setUnitCost($RMAItem->getUnitCost())->save();
-				else $RMAItem->setUnitCost($product->getUnitCost())->save();
-				$RMAItem->save();
+					$rmitem->setOrderItem($orderItem)->setUnitCost($orderItem->getUnitCost());
+				if(isset($item->RMAItemId) && $rmitem instanceof RMAItem && $product->getUnitCost() != 0)
+					$rmitem->setUnitCost($rmitem->getUnitCost())->save();
+				else $rmitem->setUnitCost($product->getUnitCost())->save();
 			}
 			$RMA->setTotalValue($totalPaymentDue)->setStatus($status)->save();
 			$results['item'] = $RMA->getJson();
-// 			$order = $RMA->getOrder();
-// 			$customer = $RMA->getCustomer();
-// 			$raItems = $RMA->getRMAItems();
-// 			$results['item'] = $RMA->getJson(array('order'=> empty($order) ? '' : $order->getJson(), 'customer'=> $customer->getJson(), 'raItems'=> $raItems ? array_map(create_function('$a', 'return $a->getJson();'), $raItems) : ''));
-				
-// 			if($printItAfterSave === true)
-// 				$results['printURL'] = '/print/rma/' . $RMA->getId() . '.html?pdf=1';
 			Dao::commitTransaction();
 		}
 		catch(Exception $ex)

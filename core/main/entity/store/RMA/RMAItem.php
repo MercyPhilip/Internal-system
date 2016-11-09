@@ -31,7 +31,7 @@ class RMAItem extends BaseEntityAbstract
 	 * serial no of this item
 	 * @var ReceivingItem
 	 */
-	protected $receivingItem;
+	protected $receivingItem = null;
 	/**
 	 * The Qty that we are crediting
 	 *
@@ -56,6 +56,58 @@ class RMAItem extends BaseEntityAbstract
 	 * @var UDate
 	 */
 	private $receivedDate;
+	/**
+	 * BPC status
+	 * @var string
+	 */
+	private $bstatus;
+	/**
+	 * Supplier Status
+	 * @var string
+	 */
+	private $sstatus;
+	/**
+	 *  Getter for bstatus
+	 *  
+	 *  @return string
+	 */
+	public function getBStatus()
+	{
+		return $this->bstatus;
+	}
+	/**
+	 * Setter for BStatus
+	 *
+	 * @param string $value The bstatus
+	 *
+	 * @return RMAItem
+	 */
+	public function setBStatus($value)
+	{
+		$this->bstatus = $value;
+		return $this;
+	}
+	/**
+	 *  Getter for sstatus
+	 *
+	 *  @return string
+	 */
+	public function getSStatus()
+	{
+		return $this->sstatus;
+	}
+	/**
+	 * Setter for sstatus
+	 *
+	 * @param string $value The sstatus
+	 *
+	 * @return RMAItem
+	 */
+	public function setSStatus($value)
+	{
+		$this->sstatus = $value;
+		return $this;
+	}
 	/**
 	 * Getter for RMA
 	 *
@@ -243,18 +295,19 @@ class RMAItem extends BaseEntityAbstract
 	 */
 	public function postSave()
 	{
-		if(trim($this->getReceivedDate()) !== trim(UDate::zeroDate())) {
-			if(self::countByCriteria('RMAId = ? and receivedDate = ? and storeId = ?', array($this->getRMA()->getId(), trim(UDate::zeroDate()), Core::getUser()->getStore()->getId())) > 0)
-				$this->getRMA()
-					->setStatus(RMA::STATUS_RECEIVING)
-					->save()
-					->addComment('Setting Status to "' . RMA::STATUS_RECEIVING . '", as received one of items');
-			else
-				$this->getRMA()
-					->setStatus(RMA::STATUS_RECEIVED)
-					->save()
-					->addComment('Setting Status to "' . RMA::STATUS_RECEIVED . '", as no more item to receive');
-		}
+// 		if(trim($this->getReceivedDate()) !== trim(UDate::zeroDate())) {
+// 			if(self::countByCriteria('RMAId = ? and receivedDate = ? and storeId = ?', array($this->getRMA()->getId(), trim(UDate::zeroDate()), Core::getUser()->getStore()->getId())) > 0)
+// 				$this->getRMA()
+// 					->setStatus(RMA::STATUS_RECEIVING)
+// 					->save()
+// 					->addComment('Setting Status to "' . RMA::STATUS_RECEIVING . '", as received one of items');
+// 			else
+// 				$this->getRMA()
+// 					->setStatus(RMA::STATUS_RECEIVED)
+// 					->save()
+// 					->addComment('Setting Status to "' . RMA::STATUS_RECEIVED . '", as no more item to receive');
+// 		}
+//		$this->getRMA()->addComment('Setting BPC Status to "' . $this->getBStatus() . '", Supplier Status to' . $this->getSStatus() . '"');
 	}
 	/**
 	 * (non-PHPdoc)
@@ -267,10 +320,12 @@ class RMAItem extends BaseEntityAbstract
 		DaoMap::setManyToOne('RMA', 'RMA', 'ra_item_ra');
 		DaoMap::setManyToOne('orderItem', 'OrderItem', 'ra_item_ord_item', true);
 		DaoMap::setManyToOne('product', 'Product', 'ra_pro');
-		DaoMap::setManyToOne('receivingItem', 'ReceivingItem', 'ra_item_rev');
+		DaoMap::setManyToOne('receivingItem', 'ReceivingItem', 'ra_item_rev', true);
 		DaoMap::setIntType('qty');
 		DaoMap::setIntType('unitCost', 'double', '10,4');
 		DaoMap::setStringType('itemDescription', 'varchar', '255');
+		DaoMap::setStringType('bstatus', 'varchar', '30');
+		DaoMap::setStringType('sstatus', 'varchar', '30');
 		DaoMap::setDateType('receivedDate');
 		DaoMap::setManyToOne('store', 'Store', 'si');
 
@@ -293,14 +348,16 @@ class RMAItem extends BaseEntityAbstract
 	 *
 	 * @return RMAItem
 	 */
-	public static function create(RMA $rma, Product $product, $qty, $itemDescription = '', $unitCost = null, $receivingItem = null)
+	public static function create(RMA $rma, Product $product, $qty, $itemDescription = '', $unitCost = null, $receivingItem = null, $bstatus = '', $sstatus = '')
 	{
 		$item = new RMAItem();
+		if ($receivingItem) $item->setReceivingItem($receivingItem);
 		$item->setRMA($rma)
 			->setProduct($product)
-			->setReceivingItem($receivingItem)
 			->setQty($qty)
 			->setStore(Core::getUser()->getStore())
+			->setBStatus($bstatus)
+			->setSStatus($sstatus)
 			->setItemDescription(trim($itemDescription))
 			->setUnitCost($unitCost !== null ? $unitCost : $product->getUnitCost())
 			->save();
@@ -320,13 +377,16 @@ class RMAItem extends BaseEntityAbstract
 	 *
 	 * @return RMAItem
 	 */
-	public static function createFromOrderItem(RMA $rma, OrderItem $orderItem, $qty, $itemDescription = '', $unitCost = null)
+	public static function createFromOrderItem(RMA $rma, OrderItem $orderItem, $qty, $itemDescription = '', $unitCost = null, $receivingItem = null, $bstatus = '', $sstatus = '')
 	{
 		$item = new RMAItem();
+		if ($receivingItem) $item->setReceivingItem($receivingItem);
 		$item->setRMA($rma)
 			->setOrderItem($orderItem)
 			->setProduct($orderItem->getProduct())
 			->setQty($qty)
+			->setBStatus($bstatus)
+			->setSStatus($sstatus)
 			->setStore(Core::getUser()->getStore())
 			->setItemDescription(trim($itemDescription))
 			->setUnitCost($unitCost !== null ? $unitCost : $orderItem->getUnitCost())
