@@ -441,7 +441,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me.postAjax(tmp.me.getCallbackId('searchSerialNo'), {'searchTxt': tmp.searchTxt, 'pageNo': tmp.pageNo}, {
 			'onLoading': function() {
 				jQuery('#' + tmp.btn.id).button('loading');
-				jQuery('#' + tmp.searchTxtBox.id).button('loading');
+				//jQuery('#' + tmp.searchTxtBox.id).button('loading');
 			}
 			,'onSuccess': function(sender, param) {
 				if(tmp.showMore === false)
@@ -481,7 +481,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			}
 			,'onComplete': function(sender, param) {
 				jQuery('#' + tmp.btn.id).button('reset');
-				jQuery('#' + tmp.searchTxtBox.id).button('reset');
+				//jQuery('#' + tmp.searchTxtBox.id).button('reset');
 			}
 		});
 		return tmp.me;
@@ -633,7 +633,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me.postAjax(tmp.me.getCallbackId('searchProduct'), {'searchTxt': tmp.searchTxt, 'pageNo': tmp.pageNo}, {
 			'onLoading': function() {
 				jQuery('#' + tmp.btn.id).button('loading');
-				jQuery('#' + tmp.searchTxtBox.id).button('loading');
+				//jQuery('#' + tmp.searchTxtBox.id).button('loading');
 			}
 			,'onSuccess': function(sender, param) {
 				if(tmp.showMore === false)
@@ -672,7 +672,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			}
 			,'onComplete': function(sender, param) {
 				jQuery('#' + tmp.btn.id).button('reset');
-				jQuery('#' + tmp.searchTxtBox.id).button('reset');
+				//jQuery('#' + tmp.searchTxtBox.id).button('reset');
 			}
 		});
 		return tmp.me;

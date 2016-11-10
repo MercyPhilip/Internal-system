@@ -107,6 +107,41 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		jQuery('.select2[search_field="ra.status"]').select2({
 			allowClear: true,
 		});
+		tmp.selectEl = new Element('input', {'class': 'select2 form-control', 'data-placeholder': 'search for Suplliers', 'search_field': 'po.supplierId'}).insert({'bottom': new Element('option').update('')});
+		$('searchDiv').down('[search_field="po.supplierId"]').replace(tmp.selectEl);
+		jQuery('.select2[search_field="po.supplierId"]').select2({
+			allowClear: true,
+			hidden: true,
+			multiple: true,
+			 ajax: { url: "/ajax/getSuppliers",
+					 dataType: 'json',
+					 delay: 10,
+					 data: function (params) {
+						 return {
+							 searchTxt: params, // search term
+							 storeId: jQuery('#storeId').attr('value'),
+							 'userId' : jQuery('#userId').attr('value')
+						 };
+					 },
+					 results: function (data) {
+						 tmp.result = [];
+						 data.resultData.items.each(function(item){
+							 tmp.result.push({"id": item.id, 'text': item.name, 'data': item});
+						 })
+		                return {
+		                    results:  tmp.result 
+		                };
+		             },
+					 cache: true
+				 },
+				 formatResult : function(result) {
+					 if(!result)
+						 return '';
+					 return '<div value=' + result.data.id + '>' + result.data.name + '</div >';
+				 },
+				 escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+				 minimumInputLength: 1,
+		});
 		return this;
 	}
 	/**

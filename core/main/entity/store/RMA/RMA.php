@@ -13,7 +13,7 @@ class RMA extends BaseEntityAbstract
 	 */
 	private $raNo = '';
 	/**
-	 * The creditNote items
+	 * The RMAItem items
 	 *
 	 * @var array
 	 */

@@ -70,12 +70,13 @@ class ListController extends CRUDPageAbstract
             		continue;
             	
             	$query = $class::getQuery();
+            	$query->eagerLoad("RMA.items", 'inner join', 'ra_item', 'ra_item.RMAId = ra.id and ra_item.active = 1 and ra.storeid = ra_item.storeId');
             	switch ($field)
             	{
             		case 'ra.raNo': 
 					{
-						$where[] = 'ra.raNo = ?';
-            			$params[] = $value;
+						$where[] = 'ra.raNo like ?';
+            			$params[] = "%" . $value . "%";
 						break;
 					}
 					case 'ra.status': 
@@ -93,8 +94,8 @@ class ListController extends CRUDPageAbstract
 					case 'ord.orderNo':
 					{
 						$query->eagerLoad("RMA.order", 'inner join', 'ord', 'ra.orderId = ord.id and ra.storeId = ord.storeId');
-						$where[] = 'ord.orderNo = ?';
-						$params[] = trim($value);
+						$where[] = 'ord.orderNo like ?';
+						$params[] = "%" . trim($value) . "%";
 						break;
 					}
 					case 'cust.id':
@@ -107,11 +108,38 @@ class ListController extends CRUDPageAbstract
             		case 'pro.ids':
 					{
 						$value = explode(',', $value);
-						$query->eagerLoad("RMA.items", 'inner join', 'ra_item', 'ra_item.RMAId = ra.id and ra_item.active = 1 and ra.storeid = ra_item.storeId');
+						//$query->eagerLoad("RMA.items", 'inner join', 'ra_item', 'ra_item.RMAId = ra.id and ra_item.active = 1 and ra.storeid = ra_item.storeId');
 						$where[] = 'ra_item.productId in ('.implode(", ", array_fill(0, count($value), "?")).')';
 						$params = array_merge($params, $value);
 						break;
 					}
+            		case 'recv.serialNo':
+            		{
+            			//$query->eagerLoad("RMA.items", 'inner join', 'ra_items', 'ra_items.RMAId = ra.id and ra_items.active = 1 and ra.storeid = ra_items.storeId');
+            			$query->eagerLoad("RMAItem.receivingItem", 'inner join', 'rmai_recv', 'ra_item.receivingItemId = rmai_recv.id and rmai_recv.active = 1 and ra_item.storeid = rmai_recv.storeId');
+            			$where[] = 'rmai_recv.serialNo like ?';
+            			$params[] = "%" . trim($value) . "%";
+            			break;
+            		}
+            		case 'po.purchaseorderNo':
+            		{
+            			//$query->eagerLoad("RMA.items", 'inner join', 'ra_items', 'ra_items.RMAId = ra.id and ra_items.active = 1 and ra.storeid = ra_items.storeId');
+            			$query->eagerLoad("RMAItem.receivingItem", 'inner join', 'rmai_recvpo', 'ra_item.receivingItemId = rmai_recvpo.id and rmai_recvpo.active = 1 and ra_item.storeid = rmai_recvpo.storeId');
+            			$query->eagerLoad("ReceivingItem.purchaseOrder", 'inner join', 'rmai_recvpo_po', 'rmai_recvpo.purchaseOrderId = rmai_recvpo_po.id and rmai_recvpo_po.active = 1 and rmai_recvpo_po.storeid = rmai_recvpo.storeId');
+            			$where[] = 'rmai_recvpo_po.purchaseOrderNo like ?';
+            			$params[] = "%" . trim($value) . "%";
+            			break;
+            		}
+            		case 'po.supplierId':
+            		{
+            			$value = explode(',', $value);
+            			//$query->eagerLoad("RMA.items", 'inner join', 'ra_items', 'ra_items.RMAId = ra.id and ra_items.active = 1 and ra.storeid = ra_items.storeId');
+            			$query->eagerLoad("RMAItem.receivingItem", 'inner join', 'rmai_recvs', 'ra_item.receivingItemId = rmai_recvs.id and rmai_recvs.active = 1 and ra_item.storeid = rmai_recvs.storeId');
+            			$query->eagerLoad("ReceivingItem.purchaseOrder", 'inner join', 'rmai_recvpo_sp', 'rmai_recvs.purchaseOrderId = rmai_recvpo_sp.id and rmai_recvpo_sp.active = 1 and rmai_recvpo_sp.storeid = rmai_recvs.storeId');
+            			$where[] = 'rmai_recvpo_sp.supplierId in ('.implode(", ", array_fill(0, count($value), "?")).')';
+            			$params = array_merge($params, $value);
+            			break;
+            		}
             	}
             }
 
