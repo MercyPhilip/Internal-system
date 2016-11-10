@@ -4,6 +4,7 @@
 var PageJs = new Class.create();
 PageJs.prototype = Object.extend(new BPCPageJs(), {
 	_customer: null
+	,_warningShowed : false
 	,_order: null
 	,setOrder: function(_order) {
 		this._order = _order;
@@ -1063,7 +1064,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		//calculate the total due
 		tmp.totalPaid = (jQuery('[order-price-summary="totalPaidAmount"]').length > 0 ? jQuery('[order-price-summary="totalPaidAmount"]').val() : 0);
 		tmp.totalDue = (tmp.subTotal * 1 - tmp.totalPaid * 1);
-		if(tmp.totalDue < 0) {
+		if(tmp.totalDue < 0 && !tmp.me._warningShowed) {
+			tmp.me._warningShowed = true;
 			tmp.me.showModalBox(
 				'<h4 class="text-danger">Attention!</h4>',
 				'<div><strong>The customer has paid more than the due amount?</strong></div><div><span class="btn btn-primary" onclick="pageJs.hideModalBox();">OK</span>',
