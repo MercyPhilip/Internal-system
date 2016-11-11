@@ -532,7 +532,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							tmp.row.remove();
 						}
 					}
-
 					tmp.me._recalculateSummary();
 				})
 			});
@@ -552,7 +551,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					.insert({'bottom': tmp.isTitle === true || typeof(orderItem.unitPrice) === 'object' ? orderItem.unitPrice : tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('order-item', tmp.me.getCurrency(tmp.me.getValueFromCurrency(orderItem.unitPrice)), {'order-item': 'unitPrice', 'required': true}) )  })
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'trprice col-xs-1'})
-					.insert({'bottom': (tmp.isTitle === true || typeof(orderItem.tierPrice) === 'object') ? orderItem.tierPrice : tmp.me._getTierPrices(orderItem.product) })
+					.insert({'bottom': (tmp.isTitle === true || typeof(orderItem.tierPrice) === 'object') ? orderItem.tierPrice : orderItem.product && orderItem.product.id == 47511? tmp.me._getSurchargeBtns(orderItem.product): tmp.me._getTierPrices(orderItem.product) })
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'rprice col-xs-1'})
 					.insert({'bottom': (tmp.isTitle === true || typeof(orderItem.retailPrice) === 'object') ? orderItem.retailPrice : tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('order-item', tmp.me.getCurrency(tmp.me.getValueFromCurrency(orderItem.retailPrice)), {'order-item': 'retailPrice', disabled: true, 'required': true})  ) })
@@ -814,6 +813,53 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			return tmp.price;
 		}
 		return 0;
+	}
+	/**
+	 * Getting the surcharge buttons
+	 */
+	,_getSurchargeBtns: function(row)
+	{
+		var tmp = {};
+		tmp.me = this;
+		tmp.newDiv = new Element('div', {'class': 'surcharge-btns-div'})
+		.insert({'bottom': new Element('div', {'class': 'btn-group btn-group-xs visible-xs visible-md visible-sm visible-lg'})
+			.setStyle('margin-left: 3px;')
+			.insert({'bottom': new Element('span', {'class': 'btn btn-success'})
+				.insert({'bottom': new Element('span', {'class': 'hidden-xs hidden-sm'}).update('2%') })
+				.observe('click', function() {
+					tmp.subTotal = tmp.me.getValueFromCurrency(jQuery('[order-price-summary="subTotal"]').val());
+					tmp.unitInputBox = this.up('.order-item-row').down('input[order-item="unitPrice"]');
+					tmp.unitQtyInputBox = this.up('.order-item-row').down('input[order-item="qtyOrdered"]');
+					tmp.surcharge = tmp.me.getValueFromCurrency(jQuery(tmp.unitInputBox).val());
+					tmp.surchargeQty = jQuery(tmp.unitQtyInputBox).val();
+					tmp.subTotal = tmp.subTotal - tmp.surcharge * tmp.surchargeQty;
+					tmp.surcharge = tmp.subTotal * 0.02;
+					jQuery(tmp.unitInputBox).val(tmp.me.getCurrency(tmp.surcharge)).html(tmp.me.getCurrency(tmp.surcharge));
+					tmp.me._calculateNewProductPrice($(this).up('.item_row'), 'order-item');
+					tmp.me._recalculateSummary();
+				})
+			})
+		})
+		.insert({'bottom': new Element('div', {'class': 'btn-group btn-group-xs visible-xs visible-md visible-sm visible-lg'})
+			.setStyle('margin-left: 3px;')
+			.insert({'bottom': new Element('span', {'class': 'btn btn-primary'})
+				.insert({'bottom': new Element('span', {'class': 'hidden-xs hidden-sm'}).update('3%') })
+				.observe('click', function() {
+					tmp.subTotal = tmp.me.getValueFromCurrency(jQuery('[order-price-summary="subTotal"]').val());
+					tmp.unitInputBox = this.up('.order-item-row').down('input[order-item="unitPrice"]');
+					tmp.unitQtyInputBox = this.up('.order-item-row').down('input[order-item="qtyOrdered"]');
+					tmp.surcharge = tmp.me.getValueFromCurrency(jQuery(tmp.unitInputBox).val());
+					tmp.surchargeQty = jQuery(tmp.unitQtyInputBox).val();
+					tmp.subTotal = tmp.subTotal - tmp.surcharge * tmp.surchargeQty;
+					tmp.surcharge = tmp.subTotal * 0.03;
+					jQuery(tmp.unitInputBox).val(tmp.me.getCurrency(tmp.surcharge)).html(tmp.me.getCurrency(tmp.surcharge));
+					tmp.me._calculateNewProductPrice($(this).up('.item_row'), 'order-item');
+					tmp.me._recalculateSummary();
+					
+				})
+			})
+		});
+		return tmp.newDiv;
 	}
 	/**
 	 * Getting the tierprices for a product

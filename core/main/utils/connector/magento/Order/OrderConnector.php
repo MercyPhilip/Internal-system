@@ -55,8 +55,9 @@ class OrderConnector extends B2BConnector
 					}
 
 					//saving the order
-					$orderDate = new UDate(trim($order->created_at), SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_TIMEZONE));
-					$orderDate->setTimeZone('UTC');
+					//$orderDate = new UDate(trim($order->created_at), SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_TIMEZONE));
+					//$orderDate->setTimeZone('UTC');
+					$orderDate = new UDate(trim($order->created_at));
 	// 				$totalPaid = (!isset($order->total_paid) ? 0 : trim($order->total_paid));
 
 					$shippingAddr = $billingAddr = null;

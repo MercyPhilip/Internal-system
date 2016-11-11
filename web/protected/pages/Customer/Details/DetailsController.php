@@ -180,14 +180,14 @@ class DetailsController extends DetailsPageAbstract
 				$customer->save();
 				if ($oldTierId != $tierLevel)
 				{
-					//need to update magento customer info
-					$connector = CustomerConnector::getConnector(B2BConnector::CONNECTOR_TYPE_CUSTOMER,
-							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_WSDL),
-							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_USER),
-							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_KEY));
 					$custInfo = array();
 					if (($customer->getMageId() > 0) && $tierLevel != 0)
 					{
+						//need to update magento customer info
+						$connector = CustomerConnector::getConnector(B2BConnector::CONNECTOR_TYPE_CUSTOMER,
+								SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_WSDL),
+								SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_USER),
+								SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_KEY));
 						// update
 						$custInfo = array('group_id' => $tierLevel);
 						$result = $connector->updateCustomer($customer->getMageId(), $custInfo);
