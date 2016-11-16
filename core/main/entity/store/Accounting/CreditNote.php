@@ -402,7 +402,7 @@ class CreditNote extends BaseEntityAbstract
 			$this->addItemFromOrderItem($orderItem, $orderItem->getQtyOrdered(), $orderItem->getUnitPrice(), $orderItem->getItemDescription(), $orderItem->getUnitCost(), $orderItem->getTotalPrice());
 		}
 		$shippingCosts = $this->getOrder()->getInfo(OrderInfoType::ID_MAGE_ORDER_SHIPPING_COST);
-		$this->setShippingValue(count($shippingCosts) > 0 ? $shippingCosts[0] : 0)
+		$this->setShippingValue(count($shippingCosts) > 0 ? StringUtilsAbstract::getValueFromCurrency($shippingCosts[0]) : 0)
 			->setTotalValue($this->getOrder()->getTotalAmount())
 			->save();
 		return $this;

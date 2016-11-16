@@ -1349,7 +1349,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			.observe('keyup', function() {
 				tmp.me._recalculateSummary();
 			});
-		return tmp.shippingCostBox.wrap(new Element('div', {'class': 'form-group'}));
+		return tmp.shippingCostBox.wrap(new Element('div', {'class': 'form-group col-xs-6'}));
 	}
 	,_recalculateSummary: function() {
 		var tmp = {};
