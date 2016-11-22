@@ -272,6 +272,11 @@ public function saveOrder($sender, $param)
 				$totalQty += $qtyOrdered;
 				$bstatus = trim($item->bstatus);
 				$sstatus = trim($item->sstatus);
+				$serialNo = trim($item->serialNo);
+				$purchaseOrderNo = trim($item->purchaseOrderNo);
+				$supplierName = trim($item->supplier);
+				$supplierRMANo = trim($item->supplierRMANo);
+				$newSerialNo = trim($item->newSerialNo);
 				$receivingItemId = isset($item->receivingItemId) ? trim($item->receivingItemId) : '';
 				$receivingItem = ReceivingItem::get($receivingItemId);
 				if (!$receivingItem instanceof ReceivingItem) $receivingItem = null;
@@ -282,11 +287,16 @@ public function saveOrder($sender, $param)
 					$rmitem= RMAItem::get(trim($item->RMAItemId));
 					$rmitem->setActive($active)->setProduct($product)
 					->setQty($qtyOrdered)->setItemDescription($itemDescription)
-					->setBStatus($bstatus)->setSStatus($sstatus)->setReceivingItem($receivingItem);
+					->setBStatus($bstatus)->setSStatus($sstatus)->setReceivingItem($receivingItem)
+					->setSerialNo($serialNo)
+					->setPurchaseOrderNo($purchaseOrderNo)
+					->setSupplier($supplierName)
+					->setSupplierRMANo($supplierRMANo)
+					->setNewSerialNo($newSerialNo);
 				}
 				else
 				{
-					$rmitem = RMAItem::create($RMA, $product, $qtyOrdered, $itemDescription, null, $receivingItem, $bstatus, $sstatus);
+					$rmitem = RMAItem::create($RMA, $product, $qtyOrdered, $itemDescription, null, $receivingItem, $bstatus, $sstatus, $serialNo, $supplierName, $supplierRMANo, $purchaseOrderNo, $newSerialNo);
 				}
 				if(isset($item->orderItemId) && ($orderItem = OrderItem::get(trim($item->orderItemId))) instanceof OrderItem)
 					$rmitem->setOrderItem($orderItem)->setUnitCost($orderItem->getUnitCost());

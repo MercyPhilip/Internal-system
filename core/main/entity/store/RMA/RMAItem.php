@@ -9,6 +9,8 @@ class RMAItem extends BaseEntityAbstract
 	const SSTATUS_WAITINGRA = 'WAITINGRA';
 	const SSTATUS_RECEIVEDRA = 'RECEIVEDRA';
 	const SSTATUS_REPAIRING = 'REPAIRING';
+	const SSTATUS_FIXED = 'FIXED';
+	const SSTATUS_REPLACED = 'REPLACED';
 	const SSTATUS_CLOSED = 'CLOSED';
 	/**
 	 * The RMA
@@ -66,6 +68,136 @@ class RMAItem extends BaseEntityAbstract
 	 * @var string
 	 */
 	private $sstatus;
+	/**
+	 * serial No
+	 * @var string
+	 */
+	private $serialNo;
+	/**
+	 * purchase order No
+	 * @var string
+	 */
+	private $purchaseOrderNo;
+	/**
+	 * supplier name
+	 * @var string
+	 */
+	private $supplier;
+	/**
+	 * supplier RMA No
+	 * @var string
+	 */
+	private $supplierRMANo;
+	/**
+	 * new serial no
+	 * @var string
+	 */
+	private $newSerialNo;
+	/**
+	 *  Getter for serial no
+	 *
+	 *  @return string
+	 */
+	public function getSerialNo()
+	{
+		return $this->serialNo;
+	}
+	/**
+	 * Setter for serialNo
+	 *
+	 * @param string $value The serialNo
+	 *
+	 * @return RMAItem
+	 */
+	public function setSerialNo($value)
+	{
+		$this->serialNo = $value;
+		return $this;
+	}
+	/**
+	 *  Getter for new serial no
+	 *
+	 *  @return string
+	 */
+	public function getNewSerialNo()
+	{
+		return $this->newSerialNo;
+	}
+	/**
+	 * Setter for new serialNo
+	 *
+	 * @param string $value The serialNo
+	 *
+	 * @return RMAItem
+	 */
+	public function setNewSerialNo($value)
+	{
+		$this->newSerialNo = $value;
+		return $this;
+	}
+	/**
+	 *  Getter for purchase order no
+	 *
+	 *  @return string
+	 */
+	public function getPurchaseOrderNo()
+	{
+		return $this->purchaseOrderNo;
+	}
+	/**
+	 * Setter for purchase order no
+	 *
+	 * @param string $value The purchaseOrderNo
+	 *
+	 * @return RMAItem
+	 */
+	public function setPurchaseOrderNo($value)
+	{
+		$this->purchaseOrderNo = $value;
+		return $this;
+	}
+	/**
+	 *  Getter for supplier name
+	 *
+	 *  @return string
+	 */
+	public function getSupplier()
+	{
+		return $this->supplier;
+	}
+	/**
+	 * Setter for supplier name
+	 *
+	 * @param string $value The supplier
+	 *
+	 * @return RMAItem
+	 */
+	public function setSupplier($value)
+	{
+		$this->supplier = $value;
+		return $this;
+	}
+	/**
+	 *  Getter for supplier RMA No
+	 *
+	 *  @return string
+	 */
+	public function getSupplierRMANo()
+	{
+		return $this->supplierRMANo;
+	}
+	/**
+	 * Setter for supplierRMANo
+	 *
+	 * @param string $value The supplierRMANo
+	 *
+	 * @return RMAItem
+	 */
+	public function setSupplierRMANo($value)
+	{
+		$this->supplierRMANo = $value;
+		return $this;
+	}
 	/**
 	 *  Getter for bstatus
 	 *  
@@ -326,6 +458,11 @@ class RMAItem extends BaseEntityAbstract
 		DaoMap::setStringType('itemDescription', 'varchar', '255');
 		DaoMap::setStringType('bstatus', 'varchar', '30');
 		DaoMap::setStringType('sstatus', 'varchar', '30');
+		DaoMap::setStringType('serialNo', 'varchar', '100');
+		DaoMap::setStringType('purchaseOrderNo', 'varchar', '50');
+		DaoMap::setStringType('supplier', 'varchar', '50');
+		DaoMap::setStringType('supplierRMANo', 'varchar', '50');
+		DaoMap::setStringType('newSerialNo', 'varchar', '100');
 		DaoMap::setDateType('receivedDate');
 		DaoMap::setManyToOne('store', 'Store', 'si');
 
@@ -334,6 +471,13 @@ class RMAItem extends BaseEntityAbstract
 		DaoMap::createIndex('qty');
 		DaoMap::createIndex('unitCost');
 		DaoMap::createIndex('receivedDate');
+		DaoMap::createIndex('bstatus');
+		DaoMap::createIndex('sstatus');
+		DaoMap::createIndex('serialNo');
+		DaoMap::createIndex('purchaseOrderNo');
+		DaoMap::createIndex('supplier');
+		DaoMap::createIndex('supplierRMANo');
+		DaoMap::createIndex('newSerialNo');
 
 		DaoMap::commit();
 	}
@@ -348,7 +492,7 @@ class RMAItem extends BaseEntityAbstract
 	 *
 	 * @return RMAItem
 	 */
-	public static function create(RMA $rma, Product $product, $qty, $itemDescription = '', $unitCost = null, $receivingItem = null, $bstatus = '', $sstatus = '')
+	public static function create(RMA $rma, Product $product, $qty, $itemDescription = '', $unitCost = null, $receivingItem = null, $bstatus = '', $sstatus = '', $serialNo = null, $supplier = null, $supplierRMANo = null, $purchaseOrderNo = null, $newSerialNo = null)
 	{
 		$item = new RMAItem();
 		if ($receivingItem) $item->setReceivingItem($receivingItem);
@@ -360,6 +504,11 @@ class RMAItem extends BaseEntityAbstract
 			->setSStatus($sstatus)
 			->setItemDescription(trim($itemDescription))
 			->setUnitCost($unitCost !== null ? $unitCost : $product->getUnitCost())
+			->setSerialNo($serialNo)
+			->setPurchaseOrderNo($purchaseOrderNo)
+			->setSupplier($supplier)
+			->setSupplierRMANo($supplierRMANo)
+			->setNewSerialNo($newSerialNo)
 			->save();
 		$msg = 'A RMAItem has been created with ' . $qty . 'Product(s) (SKU=' . $product->getSku() . ', ID=' . $product->getId() . '), unitCost=' . ($item->getUnitCost() !== null ? StringUtilsAbstract::getCurrency($item->getUnitCost()) : NULL);
 		$rma->addComment($msg, Comments::TYPE_SYSTEM)
@@ -424,6 +573,6 @@ class RMAItem extends BaseEntityAbstract
 	 */
 	public static function getAllSStatuses()
 	{
-		return array(self::SSTATUS_WAITINGRA, self::SSTATUS_RECEIVEDRA, self::SSTATUS_REPAIRING, self::SSTATUS_CLOSED);
+		return array(self::SSTATUS_WAITINGRA, self::SSTATUS_RECEIVEDRA, self::SSTATUS_REPAIRING, self::SSTATUS_FIXED, self::SSTATUS_REPLACED, self::SSTATUS_CLOSED);
 	}
 }

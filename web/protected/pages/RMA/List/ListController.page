@@ -15,13 +15,19 @@
 			</div>
 			<div class="panel-body search-panel" id="searchDiv" style="display: unset;">
 				<div class="row">
-					<div class="col-sm-3">
+					<div class="col-sm-2">
 						<div class="form-group form-group-sm input-group">
-                           <label class="input-group-addon">RMA No:</label>
-                           <input type="text" search_field="ra.raNo" placeholder="RMA Number" class="form-control input-sm">
+                           <label class="input-group-addon">BPC RMA No:</label>
+                           <input type="text" search_field="ra.raNo" placeholder="BPC RMA Number" class="form-control input-sm">
                        </div>
 					</div>
-					<div class="col-sm-3">
+					<div class="col-sm-2">
+						<div class="form-group form-group-sm input-group">
+                           <label class="input-group-addon">Supplier RMA No:</label>
+                           <input type="text" search_field="ra.supplierRaNo" placeholder="Supplier RMA Number" class="form-control input-sm">
+                       </div>
+					</div>
+					<div class="col-sm-2">
 						<div class="form-group form-group-sm input-group">
                            <label class="input-group-addon">Status:</label>
                            <input type="text" search_field="ra.status" placeholder="Status" class="form-control input-sm">

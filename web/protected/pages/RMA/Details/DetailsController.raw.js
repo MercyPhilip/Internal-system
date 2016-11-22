@@ -240,11 +240,17 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.data.items = [];
 		$$('.order-item-row').each(function(item){
 			tmp.stss = tmp.me._collectFormData(item,'save-status');
+			tmp.rmaItems = tmp.me._collectFormData(item,'rma-item');
 			tmp.itemData = item.retrieve('data');
 			tmp.data.items.push({'orderItemId': item.readAttribute('orderItemId'), 'RMAItemId': item.readAttribute('RMAItemId'), 'valid': item.visible(), 
 				'product': {'id': tmp.itemData.product.id}, 'itemDescription': tmp.itemData.itemDescription,'unitPrice': tmp.itemData.unitPrice, 
 				'qtyOrdered': tmp.itemData.qtyOrdered, 'totalPrice': tmp.itemData.totalPrice, 
 				'receivingItemId': tmp.itemData.receivingItem ? tmp.itemData.receivingItem.id : '', 
+				'serialNo' : tmp.rmaItems && tmp.rmaItems.serialNo ? tmp.rmaItems.serialNo : '', 
+				'purchaseOrderNo' : tmp.rmaItems && tmp.rmaItems.purchaseOrderNo ? tmp.rmaItems.purchaseOrderNo : '', 
+				'supplier' : tmp.rmaItems && tmp.rmaItems.supplier ? tmp.rmaItems.supplier : '', 
+				'supplierRMANo' : tmp.rmaItems && tmp.rmaItems.supplierRMANo ? tmp.rmaItems.supplierRMANo : '', 
+				'newSerialNo' : tmp.rmaItems && tmp.rmaItems.newSerialNo ? tmp.rmaItems.newSerialNo : '', 
 				'bstatus' : tmp.stss.bstatus ? tmp.stss.bstatus : '', 
 				'sstatus' : tmp.stss.sstatus ? tmp.stss.sstatus : ''
 				});
@@ -409,6 +415,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			'serialNo': tmp.serialNo ? tmp.serialNo.serialNo : ''
 			,'purchaseOrderNo' : tmp.serialNo && tmp.serialNo.purchaseOrder ? tmp.serialNo.purchaseOrder.purchaseOrderNo : ''
 			,'supplier': tmp.serialNo && tmp.serialNo.purchaseOrder && tmp.serialNo.purchaseOrder.supplier ? tmp.serialNo.purchaseOrder.supplier.name : ''
+			,'supplierRMANo' : ''
+			,'newSerialNo' : ''
 			,'bsts': tmp.bstatus
 			,'ssts': tmp.sstatus
 		};
@@ -546,23 +554,23 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					
 					tmp.inputRow = tmp.tmpnewRow.store('serialNo', serialNo);
 					$(tmp.inputRow.down('[new-order-item=serialNo]')).value = serialNo.serialNo;
-					tmp.inputRow.down('.poNo').update(serialNo.purchaseOrder.purchaseOrderNo);
+					tmp.inputRow.down('.purchaseOrderNo').update(serialNo.purchaseOrder.purchaseOrderNo);
 					tmp.inputRow.down('.supplier').update(serialNo.purchaseOrder.supplier.name);
 					tmp.inputRow = tmp.tmpnewRow.store('product', serialNo.product);
 					tmp.inputRow.down('.productName')
 						.writeAttribute('colspan', false)
 						.update(serialNo.product.sku)
-						.removeClassName('col-xs-4')
-						.addClassName('col-xs-2')
-						.insert({'bottom': new Element('small', {'class': 'btn btn-xs btn-info'}).setStyle('margin-left: 10px;')
-							.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
-							.observe('click', function(event){
-								Event.stop(event);
-								$productId = serialNo.product.id;
-								if($productId)
-									tmp.me._openProductDetailPage($productId);
-							})
-						})
+						.removeClassName('col-xs-2')
+						.addClassName('col-xs-1')
+//						.insert({'bottom': new Element('small', {'class': 'btn btn-xs btn-info'}).setStyle('margin-left: 10px;')
+//							.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
+//							.observe('click', function(event){
+//								Event.stop(event);
+//								$productId = serialNo.product.id;
+//								if($productId)
+//									tmp.me._openProductDetailPage($productId);
+//							})
+//						})
 						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'text-danger pull-right', 'title': 'click to change the product'})
 							.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-remove'})  })
 							.observe('click', function() {
@@ -571,7 +579,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 								tmp.newRow.down('[new-order-item=product]').select();
 							})
 						})
-						.insert({'after': new Element('div', {'class': 'col-xs-2'}) // productName
+						.insert({'after': new Element('div', {'class': 'col-xs-1'}) // productName
 							.update(new Element('textarea', {'new-order-item': 'itemDescription'}).setStyle('width: 100%').update(serialNo.product.name))
 						});
 				}
@@ -579,23 +587,23 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				{
 					tmp.inputRow = $(searchTxtBox).up('.new-order-item-input').store('serialNo', serialNo);
 					$(tmp.inputRow.down('[new-order-item=serialNo]')).value = serialNo.serialNo;
-					tmp.inputRow.down('.poNo').update(serialNo.purchaseOrder.purchaseOrderNo);
+					tmp.inputRow.down('.purchaseOrderNo').update(serialNo.purchaseOrder.purchaseOrderNo);
 					tmp.inputRow.down('.supplier').update(serialNo.purchaseOrder.supplier.name);
 					tmp.inputRow = $(searchTxtBox).up('.new-order-item-input').store('product', serialNo.product);
 					tmp.inputRow.down('.productName')
 						.writeAttribute('colspan', false)
 						.update(serialNo.product.sku)
-						.removeClassName('col-xs-4')
-						.addClassName('col-xs-2')
-						.insert({'bottom': new Element('small', {'class': 'btn btn-xs btn-info'}).setStyle('margin-left: 10px;')
-							.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
-							.observe('click', function(event){
-								Event.stop(event);
-								$productId = serialNo.product.id;
-								if($productId)
-									tmp.me._openProductDetailPage($productId);
-							})
-						})
+						.removeClassName('col-xs-2')
+						.addClassName('col-xs-1')
+//						.insert({'bottom': new Element('small', {'class': 'btn btn-xs btn-info'}).setStyle('margin-left: 10px;')
+//							.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
+//							.observe('click', function(event){
+//								Event.stop(event);
+//								$productId = serialNo.product.id;
+//								if($productId)
+//									tmp.me._openProductDetailPage($productId);
+//							})
+//						})
 						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'text-danger pull-right', 'title': 'click to change the product'})
 							.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-remove'})  })
 							.observe('click', function() {
@@ -604,7 +612,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 								tmp.newRow.down('[new-order-item=product]').select();
 							})
 						})
-						.insert({'after': new Element('div', {'class': 'col-xs-2'}) // productName
+						.insert({'after': new Element('div', {'class': 'col-xs-1'}) // productName
 							.update(new Element('textarea', {'new-order-item': 'itemDescription'}).setStyle('width: 100%').update(serialNo.product.name))
 						});
 				}
@@ -735,17 +743,17 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				searchTxtBox.up('.productName')
 					.writeAttribute('colspan', false)
 					.update(product.sku)
-					.removeClassName('col-xs-4')
-					.addClassName('col-xs-2')
-					.insert({'bottom': new Element('small', {'class': 'btn btn-xs btn-info'}).setStyle('margin-left: 10px;')
-						.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
-						.observe('click', function(event){
-							Event.stop(event);
-							$productId = product.id;
-							if($productId)
-								tmp.me._openProductDetailPage($productId);
-						})
-					})
+					.removeClassName('col-xs-2')
+					.addClassName('col-xs-1')
+//					.insert({'bottom': new Element('small', {'class': 'btn btn-xs btn-info'}).setStyle('margin-left: 10px;')
+//						.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
+//						.observe('click', function(event){
+//							Event.stop(event);
+//							$productId = product.id;
+//							if($productId)
+//								tmp.me._openProductDetailPage($productId);
+//						})
+//					})
 					.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'text-danger pull-right', 'title': 'click to change the product'})
 						.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-remove'})  })
 						.observe('click', function() {
@@ -754,7 +762,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							tmp.newRow.down('[new-order-item=product]').select();
 						})
 					})
-					.insert({'after': new Element('div', {'class': 'col-xs-2'}) // productName
+					.insert({'after': new Element('div', {'class': 'col-xs-1'}) // productName
 						.update(new Element('textarea', {'new-order-item': 'itemDescription'}).setStyle('width: 100%').update(product.name))
 					});
 				jQuery('#' + tmp.me.modalId).modal('hide');
@@ -773,13 +781,15 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			'product': RMAItem.product,
 			'itemDescription': RMAItem.itemDescription,
 			'qtyOrdered': RMAItem.qty ? RMAItem.qty : RMAItem.qtyOrdered,
-			'receivingItem' : RMAItem.receivingItem,
-			'orderItem' : RMAItem.orderItem,
-			'serialNo' : RMAItem.receivingItem ? RMAItem.receivingItem.serialNo : '',
-			'purchaseOrderNo' : RMAItem.receivingItem && RMAItem.receivingItem.purchaseOrder ? RMAItem.receivingItem.purchaseOrder.purchaseOrderNo : '',
-			'supplier' : RMAItem.receivingItem && RMAItem.receivingItem.purchaseOrder && RMAItem.receivingItem.purchaseOrder.supplier ? RMAItem.receivingItem.purchaseOrder.supplier.name : '',
-			'bsts' : RMAItem.bstatus,
-			'ssts' : RMAItem.sstatus
+			'receivingItem' : RMAItem.receivingItem ? RMAItem.receivingItem : null,
+			'orderItem' : RMAItem.orderItem ? RMAItem.orderItem : null,
+			'serialNo' : RMAItem.serialNo ? RMAItem.serialNo : RMAItem.receivingItem && RMAItem.receivingItem.serialNo ? RMAItem.receivingItem.serialNo : '', //RMAItem.receivingItem && RMAItem.receivingItem.serialNo ? RMAItem.receivingItem.serialNo : '',
+			'purchaseOrderNo' : RMAItem.purchaseOrderNo ? RMAItem.purchaseOrderNo : RMAItem.receivingItem && RMAItem.receivingItem.purchaseOrder ? RMAItem.receivingItem.purchaseOrder.purchaseOrderNo : '', //RMAItem.receivingItem && RMAItem.receivingItem.purchaseOrder ? RMAItem.receivingItem.purchaseOrder.purchaseOrderNo : '',
+			'supplier' : RMAItem.supplier ? RMAItem.supplier : RMAItem.receivingItem && RMAItem.receivingItem.purchaseOrder && RMAItem.receivingItem.purchaseOrder.supplier ? RMAItem.receivingItem.purchaseOrder.supplier.name : '', //RMAItem.receivingItem && RMAItem.receivingItem.purchaseOrder && RMAItem.receivingItem.purchaseOrder.supplier ? RMAItem.receivingItem.purchaseOrder.supplier.name : '',
+			'supplierRMANo' : RMAItem.supplierRMANo ? RMAItem.supplierRMANo : '',
+			'newSerialNo' : RMAItem.newSerialNo ? RMAItem.newSerialNo : '',
+			'bsts' : RMAItem.bstatus ? RMAItem.bstatus : '',
+			'ssts' : RMAItem.sstatus ? RMAItem.sstatus : ''
 		};
 		$$('.order_change_details_table').first().insert({'bottom': tmp.newDiv = tmp.me._getProductRow(tmp.data) });
 		return tmp.newDiv;
@@ -909,6 +919,15 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.serialNoAutoComplete.down('.input-group').removeClassName('form-control');
 		return tmp.serialNoAutoComplete;
 	}
+	,_getOrderItemInputBox: function(attrName, value, attrs, clickFunc, keydownFunc, keyupFunc) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.newInput =  Element('input', {'class': 'input-sm', 'value': value});
+		$H(attrs).each(function(attr){
+			tmp.newInput.writeAttribute(attr.key, attr.value);
+		});
+		return tmp.newInput;
+	}
 	/**
 	 * Getting the new product row
 	 */
@@ -923,6 +942,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			,'serialNo' : tmp.serialAutoComplete
 			,'purchaseOrderNo' : ''
 			,'supplier' : ''
+			,'supplierRMANo' : ''
+			,'newSerialNo' : ''
 			,'bsts' : ''
 			,'ssts' : ''
 			, 'btns': new Element('span', {'class': 'btn-group btn-group-sm pull-right'})
@@ -976,7 +997,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			.store('data',orderItem)
 			.insert({'bottom': new Element('div', {'class': 'row'})
 				.store('data', orderItem)
-				.insert({'bottom': new Element(tmp.tag, {'class': 'productName col-xs-4'})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'productName ' + (tmp.isTitle === true ? 'col-xs-2' :' col-xs-1')})
 					.insert({'bottom': orderItem.itemDescription ? orderItem.itemDescription : orderItem.product.name })
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'})
@@ -986,17 +1007,17 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-2'})
 					.insert({'bottom': new Element('div')
-						.insert({'bottom': new Element('div', {'class': 'serialNo col-xs-12'}).update(orderItem.serialNo) })
+						.insert({'bottom': tmp.isTitle === true ? new Element('div', {'class': 'serialNo col-xs-12'}).update(orderItem.serialNo) : tmp.me._getRMAItemFormGroup( null, tmp.me._getOrderItemInputBox('rma-item', orderItem.serialNo, {'rma-item': 'serialNo'})) })
 					})
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'})
 					.insert({'bottom': new Element('div')
-						.insert({'bottom': new Element('div', {'class': 'poNo col-xs-12'}).update(orderItem.purchaseOrderNo) })
+						.insert({'bottom': tmp.isTitle === true ? new Element('div', {'class': 'purchaseOrderNo col-xs-12'}).update(orderItem.purchaseOrderNo)  : tmp.me._getRMAItemFormGroup( null, tmp.me._getOrderItemInputBox('rma-item', orderItem.purchaseOrderNo, {'rma-item': 'purchaseOrderNo'}))})
 					})
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'})
 					.insert({'bottom': new Element('div')
-						.insert({'bottom': new Element('div', {'class': 'supplier col-xs-12'}).update(orderItem.supplier) })
+						.insert({'bottom': tmp.isTitle === true ? new Element('div', {'class': 'supplier col-xs-12'}).update(orderItem.supplier) : tmp.me._getRMAItemFormGroup( null, tmp.me._getOrderItemInputBox('rma-item', orderItem.supplier, {'rma-item': 'supplier'})) })
 					})
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'})
@@ -1009,22 +1030,32 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 						.insert({'bottom': tmp.isTitle ? new Element('div', {'class': 'ssts'}).update(orderItem.ssts) : tmp.me._getSStatus(orderItem.ssts) })
 					})
 				})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'})
+					.insert({'bottom': new Element('div')
+						.insert({'bottom': tmp.isTitle === true ? new Element('div', {'class': 'supplierRMANo col-xs-12'}).update(orderItem.supplierRMANo) : tmp.me._getRMAItemFormGroup( null, tmp.me._getOrderItemInputBox('rma-item', orderItem.supplierRMANo, {'rma-item': 'supplierRMANo'})) })
+					})
+				})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'})
+					.insert({'bottom': new Element('div')
+						.insert({'bottom': tmp.isTitle === true ? new Element('div', {'class': 'newSerialNo col-xs-12'}).update(orderItem.newSerialNo)  : tmp.me._getRMAItemFormGroup( null, tmp.me._getOrderItemInputBox('rma-item', orderItem.newSerialNo, {'rma-item': 'newSerialNo'}))})
+					})
+				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'btns col-xs-1 text-right'}).update(tmp.btns) })
 			});
 		if(orderItem.product.sku) {
 			tmp.row.down('.productName')
-				.removeClassName('col-xs-4')
-				.addClassName('col-xs-2')
-				.insert({'before': new Element(tmp.tag, {'class': 'productSku col-xs-2'}).update(orderItem.product.sku)
-					.insert({'bottom': new Element('small', {'class': orderItem.product.id ? 'btn btn-xs btn-info' : 'hidden'}).setStyle('margin-left: 10px;')
-						.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
-						.observe('click', function(event){
-							Event.stop(event);
-							$productId = orderItem.product.id;
-							if($productId)
-								tmp.me._openProductDetailPage($productId);
-						})
-					})
+				.removeClassName('col-xs-2')
+				.addClassName('col-xs-1')
+				.insert({'before': new Element(tmp.tag, {'class': 'productSku col-xs-1'}).update(orderItem.product.sku)
+//					.insert({'bottom': new Element('small', {'class': orderItem.product.id ? 'btn btn-xs btn-info' : 'hidden'}).setStyle('margin-left: 10px;')
+//						.insert({'bottom': new Element('small', {'class': 'glyphicon glyphicon-new-window'}) })
+//						.observe('click', function(event){
+//							Event.stop(event);
+//							$productId = orderItem.product.id;
+//							if($productId)
+//								tmp.me._openProductDetailPage($productId);
+//						})
+//					})
 				});
 		}
 		return tmp.row;
@@ -1044,6 +1075,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				,'supplier': 'Supplier'
 				,'bsts': 'BPCStatus'
 				,'ssts': 'SupplierStatus'
+				,'supplierRMANo': 'supplierRMANo'
+				,'newSerialNo': 'newSerialNo'
 				,'btns': new Element('div').setStyle('display:none;')
 				}, true)
 			});
@@ -1387,6 +1420,14 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	 */
 	,_getFormGroup: function(title, content) {
 		return new Element('div', {'class': 'form-group'})
+			.insert({'bottom': title ? new Element('label', {'class': 'control-label'}).update(title) : '' })
+			.insert({'bottom': content.addClassName('form-control') });
+	}
+	/**
+	 * Getting the form group
+	 */
+	,_getRMAItemFormGroup: function(title, content) {
+		return new Element('div', {'class': 'form-group col-xs-12'})
 			.insert({'bottom': title ? new Element('label', {'class': 'control-label'}).update(title) : '' })
 			.insert({'bottom': content.addClassName('form-control') });
 	}
