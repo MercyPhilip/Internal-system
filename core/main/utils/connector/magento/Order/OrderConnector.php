@@ -34,6 +34,7 @@ class OrderConnector extends B2BConnector
 				foreach($orders as $index => $order)
 				{	
 					var_dump($order);
+					Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT_STORE1));
 					$this->_log(0, get_class($this), 'Found order from Magento with orderNo = ' . trim($order->increment_id) . '.', self::LOG_TYPE, '', __FUNCTION__);
 					if (trim($order->shipping_description) == OrderConnector::PICKUP_STORE1)
 					{						
@@ -215,7 +216,8 @@ class OrderConnector extends B2BConnector
 				$updateOptions = '';
 			}
 		}
-		$row_total = trim($itemObj->row_total) * 1.1 - $itemObj->discount_amount;
+		$discount = $itemObj->discount_amount >= 0? $itemObj->discount_amount : 0;
+		$row_total = trim($itemObj->row_total) * 1.1 - $discount;
 		return OrderItem::create($order,
 			$product,
 			trim($itemObj->price) * 1.1,
