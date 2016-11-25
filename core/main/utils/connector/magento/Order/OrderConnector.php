@@ -32,7 +32,8 @@ class OrderConnector extends B2BConnector
 				try {Dao::beginTransaction();} catch(Exception $e) {$transStarted = true;}
 
 				foreach($orders as $index => $order)
-				{
+				{	
+					var_dump($order);
 					$this->_log(0, get_class($this), 'Found order from Magento with orderNo = ' . trim($order->increment_id) . '.', self::LOG_TYPE, '', __FUNCTION__);
 					if (trim($order->shipping_description) == OrderConnector::PICKUP_STORE1)
 					{						
@@ -115,6 +116,7 @@ class OrderConnector extends B2BConnector
 
 					//saving the order item
 					$totalItemCost = 0;
+					var_dump($order->items);
 					foreach($order->items as $item)	{
 						$this->_createItem($o, $item);
 						$totalItemCost = $totalItemCost * 1 + StringUtilsAbstract::getValueFromCurrency($item->row_total) * 1.1;
@@ -213,11 +215,12 @@ class OrderConnector extends B2BConnector
 				$updateOptions = '';
 			}
 		}
+		$row_total = trim($itemObj->row_total) * 1.1 - $itemObj->discount_amount;
 		return OrderItem::create($order,
 			$product,
 			trim($itemObj->price) * 1.1,
 			trim($itemObj->qty_ordered),
-			trim($itemObj->row_total) * 1.1,
+			$row_total,
 			trim($itemObj->item_id),
 			null,
 			$product->getName() . $updateOptions
