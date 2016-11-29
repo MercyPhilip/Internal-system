@@ -2,7 +2,7 @@
 class OrderConnector extends B2BConnector
 {
 	const PICKUP_STORE1 = 'In-Store Pickup (Mount Waverley, VIC) - Pickup - Mount Waverley, VIC';
-	const PICKUP_STORE2 = 'In-Store Pickup (Moorabbin, VIC) - Pickup - Moorabbin, VIC';
+	const PICKUP_STORE2 = 'In-Store Pickup (Heatherton, VIC) - Pickup - Heatherton, VIC';
 	/**
 	 * Import Orders
 	 *
@@ -33,7 +33,7 @@ class OrderConnector extends B2BConnector
 
 				foreach($orders as $index => $order)
 				{	
-					var_dump($order);
+					//var_dump($order);
 					Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT_STORE1));
 					$this->_log(0, get_class($this), 'Found order from Magento with orderNo = ' . trim($order->increment_id) . '.', self::LOG_TYPE, '', __FUNCTION__);
 					if (trim($order->shipping_description) == OrderConnector::PICKUP_STORE1)

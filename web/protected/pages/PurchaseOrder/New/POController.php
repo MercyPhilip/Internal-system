@@ -236,7 +236,7 @@ class POController extends BPCPageAbstract
 				$storeId = Core::getUser()->getStore()->getId();
 				if ($storeId == 2)
 				{
-					$emailFrom = 'purchasing.moorabbin@budgetpc.com.au';
+					$emailFrom = 'purchasing.heatherton@budgetpc.com.au';
 					$subject = 'BudgetPC(' . Core::getUser()->getStore()->getName() . ') Purchase Order:';
 					$fromStore = 'from BudgetPC(' . Core::getUser()->getStore()->getName() . ').';
 				}

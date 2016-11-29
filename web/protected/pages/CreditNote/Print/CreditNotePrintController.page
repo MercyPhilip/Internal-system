@@ -90,7 +90,7 @@
                         </div>
                         <div class="order_company_details">
                             <div class="addr">
-                                <span class="addr"><span class="details_title"><%= Core::getUser()->getStore()->getId() == 1 ? "Mount Waverley" : "Moorabbin" %></span><%= Core::getUser()->getStore()->getId() == 1 ? "Unit 111, 45 Gilby Rd, Mt Waverley" : "Unit 29, 1 Kingston Rd, Heatherton" %></span>
+                                <span class="addr"><span class="details_title"><%= Core::getUser()->getStore()->getId() == 1 ? "Mount Waverley" : "Heatherton" %></span><%= Core::getUser()->getStore()->getId() == 1 ? "Unit 111, 45 Gilby Rd, Mt Waverley" : "Unit 29, 1 Kingston Rd, Heatherton" %></span>
                                 <span class="phone"><span class="details_title">PH</span><%=Core::getUser()->getStore()->getId() == 1 ? "+61 3 9541 9000" : "+61 3 9541 9000"%> </span>
                                 <span class="url details_title">
                                     www.budgetpc.com.au

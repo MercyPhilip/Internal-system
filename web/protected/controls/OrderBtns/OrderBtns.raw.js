@@ -110,8 +110,8 @@ OrderBtnsJs.prototype = {
 				})
 			})
 			.insert({'bottom': new Element('div')
-				.insert({'bottom': tmp.me._getFormGroup(jQuery('#storeId').attr('value') == 1 ? 'Reply to address (default is sales@budgetpc.com.au):' : 'Reply to address (default is sales.moorabbin@budgetpc.com.au):',
-						new Element('input', {'value': jQuery('#storeId').attr('value') == 1 ? 'sales@budgetpc.com.au' : 'sales.moorabbin@budgetpc.com.au', 'confirm-email': 'replyEmailAddress', 'required': true, 'placeholder': 'The email address that you want the customer to reply to.'})
+				.insert({'bottom': tmp.me._getFormGroup(jQuery('#storeId').attr('value') == 1 ? 'Reply to address (default is sales@budgetpc.com.au):' : 'Reply to address (default is sales.heatherton@budgetpc.com.au):',
+						new Element('input', {'value': jQuery('#storeId').attr('value') == 1 ? 'sales@budgetpc.com.au' : 'sales.heatherton@budgetpc.com.au', 'confirm-email': 'replyEmailAddress', 'required': true, 'placeholder': 'The email address that you want the customer to reply to.'})
 					)
 				})
 			})
