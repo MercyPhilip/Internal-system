@@ -71,6 +71,8 @@ class OpenInvoiceExport extends ExportAbstract
 			//common fields
 			$customer = $order->getCustomer();
 			$creditNotes = CreditNote::getAllByCriteria('orderId = ? and storeId = ?', array($order->getId(), Core::getUser()->getStore()->getId()));
+			$totalDue = $order->getTotalAmount() - $order->getTotalPaid() - $order->getTotalCreditNoteValue();
+			if ($totalDue <= 0) continue;
 			$row = array(
 				'Invoice No.' => $order->getInvNo()
 				,'Invoice Date' => $order->getInvDate()->setTimeZone('Australia/Melbourne')->__toString()
