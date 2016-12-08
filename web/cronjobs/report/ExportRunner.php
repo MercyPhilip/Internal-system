@@ -25,6 +25,9 @@ ItemExport_Magento::run(true);
 //run payment export for xero
 PaymentExport_Xero::run(true);
 
+//run open invoice export
+OpenInvoiceExport::run(true);
+
 // for store2
 Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT_STORE2));
 //run sales export for xero
@@ -41,3 +44,6 @@ ItemExport_Magento::run(true);
 
 //run payment export for xero
 PaymentExport_Xero::run(true);
+
+//run open invoice export
+OpenInvoiceExport::run(true);

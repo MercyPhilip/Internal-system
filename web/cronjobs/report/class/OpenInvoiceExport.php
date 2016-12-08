@@ -53,7 +53,9 @@ class OpenInvoiceExport extends ExportAbstract
 		if(count(self::$_dateRange) === 0) {
 			$yesterdayLocal = new UDate('now', 'Australia/Melbourne');
 			$yesterdayLocal->modify('-1 day');
-			$fromDate = new UDate($yesterdayLocal->format('Y-m-d') . ' 00:00:00', 'Australia/Melbourne');
+			//requested from Aiden
+			//$fromDate = new UDate($yesterdayLocal->format('Y-m-d') . ' 00:00:00', 'Australia/Melbourne');
+			$fromDate = new UDate("2015-07-01" . ' 00:00:00', 'Australia/Melbourne');
 			$fromDate->setTimeZone('UTC');
 			$toDate = new UDate($yesterdayLocal->format('Y-m-d') . ' 23:59:59', 'Australia/Melbourne');
 			$toDate->setTimeZone('UTC');
