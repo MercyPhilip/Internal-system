@@ -1196,7 +1196,7 @@ class Product extends InfoEntityAbstract
 				foreach($stocks as $stock)
 					$array['stocks'][] = $stock->getJson();
 				$array['stock'] = ($this->getStock()) instanceof ProductStockInfo ? $this->getStock()->getJson() : null;
-				$array['StockOnOrder'] = $this->getstock()->getStockOnOrder();
+				$array['stockOnOrder'] = $this->getstock()->getStockOnOrder();
 				$array['stockOnHand'] = $this->getstock()->getStockOnHand();
 				$array['stockOnPO'] = $this->getstock()->getStockOnPO();
 				$array['stockInParts'] = $this->getstock()->getStockInParts();
