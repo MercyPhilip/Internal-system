@@ -116,7 +116,7 @@ class DetailsController extends DetailsPageAbstract
 				{
 					$creditPool = $customer->getCreditPool();
 					if (((!$creditPool instanceof CreditPool) && ($creditLeft != 0)) 
-							|| (($creditPool instanceof CreditPool) && ($creditLeft != $creditPool->getTotalCreditLeft())))
+							|| (($creditPool instanceof CreditPool) && (doubleval($creditLeft) != doubleval($creditPool->getTotalCreditLeft()))))
 					{
 						throw new Exception('You do not have privileges to change credit attribute, please inquire Administrator for support!');
 					}
