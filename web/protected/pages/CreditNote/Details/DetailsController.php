@@ -380,7 +380,7 @@ class DetailsController extends BPCPageAbstract
 							$newOrder->addItem($orderItems[0]->getProduct(),
 									$orderItems[0]->getUnitPrice(),
 									$qty,
-									$orderItems[0]->getTotalPrice(),
+									$orderItems[0]->getUnitPrice() * $qty,
 									$orderItems[0]->getMageOrderId(),
 									$orderItems[0]->getEta(),
 									$orderItems[0]->getItemDescription()
