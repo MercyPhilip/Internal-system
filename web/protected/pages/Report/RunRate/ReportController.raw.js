@@ -52,7 +52,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					return tmp.newDiv;
 				},
 				escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-				minimumInputLength: 3
+				minimumInputLength: 2
 			});
 		});
 		return tmp.me;
