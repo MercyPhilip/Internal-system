@@ -15,14 +15,14 @@ if ps ax | grep -v grep | grep "ProductToMagento.php" > /dev/null; then
 else
 	echo -n '== Generating the file ... ::'
 	date
-	/usr/bin/php /var/www/magentob2b/web/cronjobs/sync/ProductToMagento.php $FILE_DIR
+	/usr/bin/php /var/www/backup/web/cronjobs/sync/ProductToMagento.php $FILE_DIR
 	FILE_PATH=${FILE_DIR}/${FILE_NAME}
 	if [ -e "$FILE_PATH" ]
 	then
 		SERVER_FILE=${SERVER}:${SERVER_PATH}productUpdate_`date "+%Y_%m_%d_%H_%M_%S"`.tar.gz
 		echo -n "== coping ${FILE_PATH} TO ${SERVER_FILE} :: "
 		date
-		scp $FILE_PATH ec2-user@${SERVER_FILE}
+		scp -i /home/ubuntu/.ssh/BPC_EC2_keyPair01.pem $FILE_PATH ec2-user@${SERVER_FILE}
 		ret=$?
 		if [ "${ret}" -ne "0" ] 
 		then

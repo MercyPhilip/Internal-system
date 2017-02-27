@@ -288,7 +288,8 @@ abstract class ProductToMagento
    		// Add some data
    		$objPHPExcel->setActiveSheetIndex(0);
    		self::_log("Populating " . count($products) . ' product(s) onto the first sheet.', '', $preFix . self::TAB);
-   		$imageFiles = self::_genSheet($lastUpdatedInDB, $objPHPExcel->getActiveSheet(), $products, $preFix, $debug);
+		$activeSheet = $objPHPExcel->getActiveSheet();
+   		$imageFiles = self::_genSheet($lastUpdatedInDB, $activeSheet, $products, $preFix, $debug);
    		self::_log("Got " . count($imageFiles) . ' imageFile(s)', '', $preFix . self::TAB);
 
    		$filePath = self::$_outputFileDir ;
