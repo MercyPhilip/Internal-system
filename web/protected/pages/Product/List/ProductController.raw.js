@@ -357,20 +357,25 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		tmp.newDiv = new Element('div', {'id': 'info_panel_' + product.id})
-			.insert({'bottom': new Element('div', {'class': 'col-md-4'})
+			.insert({'bottom': new Element('div', {'class': 'col-md-6'})
 				.insert({'bottom': new Element('div', {'class': 'panel panel-default price-match-div'})
 					.insert({'bottom': new Element('div', {'class': 'panel-heading'}).update('<strong>Price Match</strong>') })
 					.insert({'bottom': new Element('div', {'class': 'panel-body price-match-listing'}).update(tmp.me.getLoadingImg()) })
 				})
 			})
-			.insert({'bottom': new Element('div', {'class': 'col-md-4'})
+			.insert({'bottom': new Element('div', {'class': 'col-md-6'})
 				.insert({'bottom': new Element('div', {'class': 'panel panel-default price-trend-div'})
 					.insert({'bottom': new Element('div', {'class': 'panel-body'})
 						.insert({'bottom': new Element('iframe', {'frameborder': '0', 'scrolling': 'auto', 'width': '100%', 'height': '400px'}) })
 					})
 				})
 			})
-			.insert({'bottom': tmp.me._readOnlyMode ? '' : new Element('div', {'class': 'col-md-4'})
+			.insert({'bottom': new Element('div', {'class': 'col-md-6'})
+				.insert({'bottom': new Element('div', {'class': 'panel panel-default'})
+					.insert({'bottom': new Element('div', {'class': 'panel-body'}).update('<h4>Reserved for Next Phase of Developing</h4>')})
+				})
+			})
+			.insert({'bottom': tmp.me._readOnlyMode ? '' : new Element('div', {'class': 'col-md-6'})
 				.insert({'bottom': new Element('div', {'class': 'panel panel-default'})
 					.insert({'bottom': new Element('div', {'class': 'panel-heading'}).update('<strong>Price Match Rule</strong>')})
 					.insert({'bottom': new Element('div', {'class': 'panel-body'}).update(tmp.ProductRuleEl = tmp.me._getPriceMatchRuleEl(product))})
@@ -474,9 +479,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		jQuery('.product_item.success', jQuery('#' + tmp.me.resultDivId)).removeClass('success').popover('hide');
-//		$(tmp.me.resultDivId).up('.list-panel').removeClassName('col-xs-4').addClassName('col-xs-12');
-//		jQuery('.hide-when-info', jQuery('#' + tmp.me.resultDivId)).show();
-		jQuery('#spacetr').remove();
+		$(tmp.me.resultDivId).up('.list-panel').removeClassName('col-xs-4').addClassName('col-xs-12');
+		jQuery('.hide-when-info', jQuery('#' + tmp.me.resultDivId)).show();
 		tmp.me._showRightPanel = false;
 		return tmp.me;
 	}
@@ -579,9 +583,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	,_displaySelectedProduct: function(item) {
 		var tmp = {};
 		tmp.me = this;
-//		$(tmp.me.resultDivId).up('.list-panel').removeClassName('col-xs-12').addClassName('col-xs-4');
-		jQuery('#spacetr').remove();
-//		jQuery('.hide-when-info', jQuery('#' + tmp.me.resultDivId)).hide();
+		$(tmp.me.resultDivId).up('.list-panel').removeClassName('col-xs-12').addClassName('col-xs-4');
+		jQuery('.hide-when-info', jQuery('#' + tmp.me.resultDivId)).hide();
 		tmp.me._showRightPanel = true;
 
 		//remove all active class
@@ -589,7 +592,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		//mark this one as active
 		tmp.selectedRow = jQuery('[product_id="' + item.id + '"]', jQuery('#' + tmp.me.resultDivId))
 			.addClass('success');
-
 		if(!tmp.selectedRow.hasClass('popover-loaded')) {
 			tmp.selectedRow
 			.on('shown.bs.popover', function (e) {
@@ -626,21 +628,16 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.popover({
 				'title'    : '<div class="row"><div class="col-xs-10">Details for: ' + item.sku + '</div><div class="col-xs-2"><div class="btn-group pull-right"><a class="btn btn-primary btn-sm" href="/product/' + item.id + '.html" target="_BLANK"><span class="glyphicon glyphicon-pencil"></span></a><span class="btn btn-danger btn-sm" onclick="pageJs.deSelectProduct();"><span class="glyphicon glyphicon-remove"></span></span></div></div></div>',
 				'html'     : true,
-				'placement': 'bottom',
+				'placement': 'right',
 				'container': 'body',
 				'trigger'  : 'manual',
 				'viewport' : {"selector": ".list-panel", "padding": 0 },
 				'content'  : function() { return tmp.rightPanel = tmp.me._showProductInfoOnRightPanel(item).wrap(new Element('div')).innerHTML; },
-				'template' : '<div class="popover" role="tooltip" style="max-width: none; z-index: 1;"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+				'template' : '<div class="popover" role="tooltip" style="max-width: none; z-index: 0;"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
 			})
 			.addClass('popover-loaded');
 		}
 		tmp.selectedRow.popover('show');
-		var popoverHeight = jQuery('.popover').height() + 30;
-		tmp.selectedRow.after('"<tr id="spacetr" style="height:' + popoverHeight + 'px"></tr>');
-
-		//scroll to a decent position
-		jQuery("html,body").animate({ scrollTop: tmp.selectedRow.offset().top - jQuery('.panel-default').offset().top + jQuery('tbody').scrollTop()});
 		return tmp.me;
 	}
 	
@@ -1012,9 +1009,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.insert({'bottom':tmp.isTitle === true ? row.sku : new Element('a', {'href': 'javascript: void(0);', 'class': 'sku-link truncate'})
 					.observe('click', function(e){
 						Event.stop(e);
-						tmp.selectedRow = jQuery('[product_id="' + row.id + '"]', jQuery('#' + tmp.me.resultDivId));
-						if (!tmp.selectedRow.hasClass('success')){
-						tmp.me._displaySelectedProduct(row);}
+						tmp.me._displaySelectedProduct(row);
 					})
 					.update(row.sku)
 					.setStyle(row.sellOnWeb === false ? 'color: red;' : 'color: blue;')
