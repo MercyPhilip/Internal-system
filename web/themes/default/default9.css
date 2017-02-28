@@ -246,3 +246,15 @@ table.table thead td {
 	border: 1px #ccc solid;
 	background: white;
 }
+.competator-price {
+	background-color: #fff;
+	box-sizing: border-box;
+	display: inline-block;
+	padding: 8px;
+	line-height: 1.42857143;
+	vertical-align: top;
+	border: 1px solid #ddd
+}
+.spacetr {
+	display: none;
+}
