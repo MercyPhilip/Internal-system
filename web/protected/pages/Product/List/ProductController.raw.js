@@ -326,7 +326,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.newDiv = new Element('table', {'class': 'table table-striped table-hover price-match-listing'})
 			.insert({'bottom': new Element('thead')
 				.insert({'bottom': new Element('tr')
-					.insert({'bottom': new Element('th').update('SKU') })
+//					.insert({'bottom': new Element('th').update('SKU') })
 					.insert({'bottom': new Element('th').update('My Price') })
 					.insert({'bottom': new Element('th', {'class': 'price_diff'}).update('Price Diff.') })
 					.insert({'bottom': new Element('th').update('Min Price') })
@@ -334,7 +334,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			})
 			.insert({'bottom': new Element('tbody')
 				.insert({'bottom': new Element('tr')
-					.insert({'bottom': new Element('td').update(prices.sku) })
+//					.insert({'bottom': new Element('td').update(prices.sku) })
 					.insert({'bottom': new Element('td').update(tmp.priceInput = new Element('input', {'class': "click-to-edit price-input", 'value': tmp.me.getCurrency(prices.myPrice), 'product-id': product.id}).setStyle('width: 80%') ) })
 					.insert({'bottom': new Element('td', {'class': 'price_diff'}).update(new Element('span', {'class': '' + tmp.priceDiffClass}).update(tmp.me.getCurrency(tmp.priceDiff)) ) })
 					.insert({'bottom': new Element('td', {'class': 'price_min'}).update(tmp.me.getCurrency(tmp.minPrice) ) })
@@ -347,19 +347,11 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		var tmp = {};
 		tmp.me = this;	
 		tmp.newDiv = new Element('div');
-		tmp.newDiv.insert({'bottom': new Element('div', {'class': 'col-md-6 competator-price'})
-		.insert({'bottom': new Element('span',{'class': 'col-md-8'}).update('Company') })
-		.insert({'bottom': new Element('span',{'class': 'col-md-4'}).update('Price') })
-		});
-		tmp.newDiv.insert({'bottom': new Element('div', {'class': 'col-md-6 competator-price'})
-		.insert({'bottom': new Element('span',{'class': 'col-md-8'}).update('Company') })
-		.insert({'bottom': new Element('span',{'class': 'col-md-4'}).update('Price') })
-		});
 		$H(prices["companyPrices"]).each(function(price){
 			
-			tmp.newDiv.insert({'bottom': new Element('div', {'class': 'col-md-6 competator-price'})
-				.insert({'bottom': new Element('span',{'class': 'col-md-8'}).update(price.key).addClassName((product.priceMatchRule && price.key===product.priceMatchRule.priceMatchCompany.companyName) ? 'success' : '') })
-				.insert({'bottom': new Element('span',{'class': 'col-md-4'}).update(price.value.priceURL && !price.value.priceURL.blank() ? new Element('a', {'href': price.value.priceURL, 'target': '__blank'}).update(tmp.me.getCurrency(price.value.price)) : tmp.me.getCurrency(price.value.price)) })
+			tmp.newDiv.insert({'bottom': new Element('div', {'class': 'col-md-4 competator-price'})
+				.insert({'bottom': new Element('span',{'class': 'col-md-7'}).update(price.key).addClassName((product.priceMatchRule && price.key===product.priceMatchRule.priceMatchCompany.companyName) ? 'success' : '') })
+				.insert({'bottom': new Element('span',{'class': 'col-md-5'}).update(price.value.priceURL && !price.value.priceURL.blank() ? new Element('a', {'href': price.value.priceURL, 'target': '__blank'}).update(tmp.me.getCurrency(price.value.price)) : tmp.me.getCurrency(price.value.price)) })
 			});
 		});
 		return tmp.newDiv;
@@ -375,20 +367,20 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					.insert({'bottom': new Element('div', {'class': 'panel-competator-price'}).update() })
 				})
 			})
-			.insert({'bottom': new Element('div', {'class': 'col-md-4'})
+			.insert({'bottom': new Element('div', {'class': 'col-md-5'})
 				.insert({'bottom': new Element('div', {'class': 'panel panel-default price-trend-div'})
 					.insert({'bottom': new Element('div', {'class': 'panel-body'})
-						.insert({'bottom': new Element('iframe', {'frameborder': '0', 'scrolling': 'auto', 'width': '100%', 'height': '400px'}) })
+						.insert({'bottom': new Element('iframe', {'frameborder': '0', 'scrolling': 'auto', 'width': '100%', 'height': '300px'}) })
 					})
 				})
 			})
-			.insert({'bottom': tmp.me._readOnlyMode ? '' : new Element('div', {'class': 'col-md-4'})
+			.insert({'bottom': tmp.me._readOnlyMode ? '' : new Element('div', {'class': 'col-md-3'})
 				.insert({'bottom': new Element('div', {'class': 'panel panel-default'})
 					.insert({'bottom': new Element('div', {'class': 'panel-heading'}).update('<strong>Price Match Rule</strong>')})
 					.insert({'bottom': new Element('div', {'class': 'panel-body'}).update(tmp.ProductRuleEl = tmp.me._getPriceMatchRuleEl(product))})
 				})
-			})
-			;
+			});
+		
 		return tmp.newDiv;
 	}
 	,_getPriceMatchRuleEl: function(product, selected) {
@@ -400,13 +392,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.newDiv = new Element('div', {'class': ''})
 			.insert({'bottom': new Element('div', {'class': 'col-xs-12'})
 				.insert({'bottom': new Element('div', {'class': 'form-group form-group-sm input-group'})
-					.insert({'bottom': new Element('label', {'class': 'contorl-label input-group-addon'}).update('Target Competitor') })
+					.insert({'bottom': new Element('label', {'class': 'contorl-label input-group-addon priceMatchRule'}).update('Target Competitor') })
 					.insert({'bottom': new Element('input', {'type': 'text', 'class': 'form-control input-sm rightPanel', 'match_rule': 'company_id'}) })
 				})
 			})
-			.insert({'bottom': new Element('div', {'class': 'col-xs-6'})
+			.insert({'bottom': new Element('div', {'class': 'col-xs-12'})
 				.insert({'bottom': new Element('div', {'class': 'form-group form-group-sm input-group'})
-					.insert({'bottom': new Element('label', {'class': 'contorl-label input-group-addon'}).update('Lower Safty Boundary') })
+					.insert({'bottom': new Element('label', {'class': 'contorl-label input-group-addon priceMatchRule'}).update('Lower Safty Boundary') })
 					.insert({'bottom': new Element('input', {'type': 'text', 'class': 'form-control input-sm', 'match_rule': 'price_from', 'value': (tmp.product && tmp.product.priceMatchRule) ? tmp.product.priceMatchRule.price_from : ''})
 						.observe('keyup', function(e){
 							$(this).up('.modal-body').down('[match_rule="price_to"]').value = $F($(this));
@@ -422,9 +414,9 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					})
 				})
 			})
-			.insert({'bottom': new Element('div', {'class': 'col-xs-6'})
+			.insert({'bottom': new Element('div', {'class': 'col-xs-12'})
 				.insert({'bottom': new Element('div', {'class': 'form-group form-group-sm input-group'})
-					.insert({'bottom': new Element('label', {'class': 'contorl-label input-group-addon'}).update('Upper Safty Boundary') })
+					.insert({'bottom': new Element('label', {'class': 'contorl-label input-group-addon priceMatchRule'}).update('Upper Safty Boundary') })
 					.insert({'bottom': new Element('input', {'type': 'text', 'class': 'form-control input-sm', 'match_rule': 'price_to', 'value': (tmp.product && tmp.product.priceMatchRule) ? tmp.product.priceMatchRule.price_to : ''})
 						.observe('keyup', function(e){
 							$(this).up('.modal-body').down('[match_rule="price_from"]').value = $F($(this));
@@ -432,13 +424,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					})
 				})
 			})
-			.insert({'bottom': new Element('div', {'class': 'col-xs-9'})
+			.insert({'bottom': new Element('div', {'class': 'col-xs-12'})
 				.insert({'bottom': new Element('div', {'class': 'form-group form-group-sm input-group'})
-					.insert({'bottom': new Element('label', {'class': 'contorl-label input-group-addon'}).update('Extra Margin After Price Match') })
+					.insert({'bottom': new Element('label', {'class': 'contorl-label input-group-addon priceMatchRule'}).update('Extra Margin After Price Match') })
 					.insert({'bottom': new Element('input', {'type': 'text', 'class': 'form-control input-sm', 'match_rule': 'offset', 'value': (tmp.product && tmp.product.priceMatchRule) ? tmp.product.priceMatchRule.offset : ''}) })
 				})
 			})
-			.insert({'bottom': new Element('div', {'class': 'col-xs-3 text-right'})
+			.insert({'bottom': new Element('div', {'class': 'col-xs-12 text-right'})
 				.insert({'bottom': new Element('i', {'class': 'btn btn-sm btn-success btn-new-rule right-panel'}).update('Confirm') 
 					.observe('click', function(e){
 						tmp.me._priceMatchRule = tmp.me._collectFormData($(this).up('.modal-body'), 'match_rule');
@@ -462,7 +454,9 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		tmp.infoPanel = tmp.me._getInfoPanel(product);
+		tmp.me._signRandID(tmp.infoPanel);
 		tmp.infoPanel.down('.price-trend-div iframe').writeAttribute('src', '/statics/product/pricetrend.html?productid=' + product.id);
+		
 		tmp.me.postAjax(tmp.me.getCallbackId('priceMatching'), {'id': product.id}, {
 			'onLoading': function() {
 				tmp.infoPanel.down('.price-match-div .price-match-listing').replace(new Element('div', {'class': 'panel-body price-match-listing'}).update(tmp.me.getLoadingImg()));
@@ -610,7 +604,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.addClass('success');
 
 		if(!tmp.selectedRow.hasClass('popover-loaded')) {
-			tmp.selectedRow.after('"<tr id="spacetr" space_id="' + item.id + '"></tr>');
+			tmp.selectedRow.after('"<tr id="spacetr" space_id="' + item.id + '"><td><div id="spacediv" class="row"></div></td></tr>');
 			tmp.selectedRow
 			.on('shown.bs.popover', function (e) {
 				tmp.me._getPriceMatchCompanySelect2(jQuery('.rightPanel[match_rule="company_id"]'), null, item);
@@ -647,7 +641,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				'title'    : '<div class="row"><div class="col-xs-2"><div class="btn-group pull-right"><a class="btn btn-primary btn-sm" href="/product/' + item.id + '.html" target="_BLANK"><span class="glyphicon glyphicon-pencil"></span></a><span class="btn btn-danger btn-sm" onclick="pageJs.deSelectProduct();"><span class="glyphicon glyphicon-remove"></span></span></div></div></div>',
 				'html'     : true,
 				'placement': 'bottom',
-				'container': '#spacetr',
+				'container': '#spacediv',
 				'trigger'  : 'manual',
 				'viewport' : {"selector": ".list-panel", "padding": 0 },
 				'content'  : function() { return tmp.rightPanel = tmp.me._showProductInfoOnRightPanel(item).wrap(new Element('div')).innerHTML; },
@@ -657,11 +651,11 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		}
 		tmp.selectedRow.popover('show');
 
-		jQuery('#spacetr').height(493);
+		jQuery('#spacetr').height(393);
 		jQuery('.popover-title').hide();
 
 		//scroll to a decent position
-		jQuery("html,body").animate({ scrollTop: tmp.selectedRow.offset().top - jQuery('.panel-default').offset().top + jQuery('tbody').scrollTop()});
+		jQuery("html,body").animate({ scrollTop: tmp.selectedRow.offset().top - jQuery('.panel-default').offset().top + 40});
 		return tmp.me;
 	}
 	

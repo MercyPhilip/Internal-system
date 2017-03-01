@@ -6,7 +6,10 @@ return array(
 			'DB' => 'bpcinternal_multistore',
 			'Username' => 'root',
 			'Password' => 'root'
-		)
+		),
+	'PriceMatch' => array(
+			'enable' => 1
+	)
 );
 
 ?>

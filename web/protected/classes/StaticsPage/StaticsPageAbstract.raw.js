@@ -14,7 +14,10 @@ StaticsPageJs.prototype = Object.extend(new BPCPageJs(), {
 	,_drawChart: function(result) {
 		var tmp = {};
 		tmp.me = this;
-		jQuery('#' + tmp.me.getHTMLID('resultDivId')).highcharts(result);
+		tmp.divId = '#' + tmp.me.getHTMLID('resultDivId');
+		jQuery(tmp.divId).highcharts(result);
+		jQuery(tmp.divId).highcharts().setSize(608,300);
+		
 		return tmp.me;
 	}
 
