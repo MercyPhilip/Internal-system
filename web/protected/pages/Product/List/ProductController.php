@@ -14,7 +14,12 @@ class ProductController extends CRUDPageAbstract
 	 */
 	public $menuItem = 'products';
 	protected $_focusEntity = 'Product';
-	
+	/**
+	 * The switch for priceMatch functions
+	 *
+	 * @var string
+	 */
+	private  $enable;	
 	/**
 	 * constructor
 	 */
@@ -23,6 +28,17 @@ class ProductController extends CRUDPageAbstract
 		parent::__construct();
 		if(!AccessControl::canAccessProductsPage(Core::getRole()))
 			die('You do NOT have access to this page');
+		
+		$this->enable = Config::get('PriceMatch','Enable');
+	}
+	
+	/**
+	 * Getting the enable
+	 *
+	 * @return string
+	 */
+	public function getEnable() {
+		return trim($this->enable);
 	}
 	/**
 	 * (non-PHPdoc)
@@ -54,6 +70,7 @@ class ProductController extends CRUDPageAbstract
 		$js .= "._loadChosen()";
 		$js .= "._bindSearchKey()";
 		$js .= "._bindNewRuleBtn()";
+		$js .= ".setCallbackId('checkPriceMatchEnable', '" . $this->checkPriceMatchEnable->getUniqueID() . "')";
 		$js .= ".setCallbackId('priceMatching', '" . $this->priceMatchingBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('toggleActive', '" . $this->toggleActiveBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('toggleSellOnWeb', '" . $this->toggleSellOnWebBtn->getUniqueID() . "')";
@@ -635,5 +652,30 @@ class ProductController extends CRUDPageAbstract
     	}
     	return $array;
     }
+    
+    /**
+     * Check PriceMatch function enable or not
+     *
+     * @param unknown $sender
+     * @param unknown $param
+     * @throws Exception
+     *
+     */
+    public function checkPriceMatchEnable($sender, $param) {
+    	$results = $errors = array();
+    	try {
+    		$results['enable'] = $this->getEnable();
+    	}
+    	catch(Exception $ex)
+    	{
+    		$errors[] = $ex->getMessage();
+    	}
+    	ob_start();
+    	var_dump($results);
+    	$content = ob_get_contents();
+    	ob_end_clean();
+    	file_put_contents('/tmp/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ':' . $content . PHP_EOL, FILE_APPEND | LOCK_EX);
+    	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+    }    
 }
 ?>

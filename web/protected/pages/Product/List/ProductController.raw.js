@@ -359,28 +359,42 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	,_getInfoPanel: function(product) {
 		var tmp = {};
 		tmp.me = this;
+
 		tmp.newDiv = new Element('div', {'id': 'info_panel_' + product.id})
-			.insert({'bottom': new Element('div', {'class': 'col-md-4'})
-				.insert({'bottom': new Element('div', {'class': 'panel panel-default price-match-div'})
-					.insert({'bottom': new Element('div', {'class': 'panel-heading'}).update('<strong>Price Match</strong>') })
-					.insert({'bottom': new Element('div', {'class': 'panel-body price-match-listing'}).update(tmp.me.getLoadingImg()) })
-					.insert({'bottom': new Element('div', {'class': 'panel-competator-price'}).update() })
+		.insert({'bottom': new Element('div', {'class': 'col-md-4'})})
+		.insert({'bottom': new Element('div', {'class': 'col-md-5'})
+			.insert({'bottom': new Element('div', {'class': 'panel panel-default price-trend-div'})
+				.insert({'bottom': new Element('div', {'class': 'panel-body'})
+					.insert({'bottom': new Element('iframe', {'frameborder': '0', 'scrolling': 'auto', 'width': '100%', 'height': '300px'}) })
 				})
 			})
-			.insert({'bottom': new Element('div', {'class': 'col-md-5'})
-				.insert({'bottom': new Element('div', {'class': 'panel panel-default price-trend-div'})
-					.insert({'bottom': new Element('div', {'class': 'panel-body'})
-						.insert({'bottom': new Element('iframe', {'frameborder': '0', 'scrolling': 'auto', 'width': '100%', 'height': '300px'}) })
-					})
-				})
-			})
-			.insert({'bottom': tmp.me._readOnlyMode ? '' : new Element('div', {'class': 'col-md-3'})
-				.insert({'bottom': new Element('div', {'class': 'panel panel-default'})
-					.insert({'bottom': new Element('div', {'class': 'panel-heading'}).update('<strong>Price Match Rule</strong>')})
-					.insert({'bottom': new Element('div', {'class': 'panel-body'}).update(tmp.ProductRuleEl = tmp.me._getPriceMatchRuleEl(product))})
-				})
-			});
+		})
+		.insert({'bottom': tmp.me._readOnlyMode ? '' : new Element('div', {'class': 'col-md-3'})});
 		
+		tmp.me.postAjax(tmp.me.getCallbackId('checkPriceMatchEnable'),{},{
+			'onLoading':function(){}
+			,'onSuccess': function (sender, param) {
+				tmp.result = tmp.me.getResp(param, false, true);
+				
+				if(!tmp.result)
+					return;
+
+				if(tmp.result.enable == 1){
+					$('info_panel_' + product.id).down('.col-md-4').insert(new Element('div', {'class': 'panel panel-default price-match-div'})
+						.insert({'bottom': new Element('div', {'class': 'panel-heading'}).update('<strong>Price Match</strong>') })
+						.insert({'bottom': new Element('div', {'class': 'panel-body price-match-listing'}).update(tmp.me.getLoadingImg()) })
+						.insert({'bottom': new Element('div', {'class': 'panel-competator-price'}).update() })
+					);
+				
+					$('info_panel_' + product.id).down('.col-md-3').insert(new Element('div', {'class': 'panel panel-default'})
+						.insert({'bottom': new Element('div', {'class': 'panel-heading'}).update('<strong>Price Match Rule</strong>')})
+						.insert({'bottom': new Element('div', {'class': 'panel-body'}).update(tmp.ProductRuleEl = tmp.me._getPriceMatchRuleEl(product))})
+					);
+				}
+			}
+			,'onComplete': function(){}
+		})
+
 		return tmp.newDiv;
 	}
 	,_getPriceMatchRuleEl: function(product, selected) {
@@ -454,7 +468,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		tmp.infoPanel = tmp.me._getInfoPanel(product);
-		tmp.me._signRandID(tmp.infoPanel);
+//		tmp.me._signRandID(tmp.infoPanel);
 		tmp.infoPanel.down('.price-trend-div iframe').writeAttribute('src', '/statics/product/pricetrend.html?productid=' + product.id);
 		
 		tmp.me.postAjax(tmp.me.getCallbackId('priceMatching'), {'id': product.id}, {
@@ -466,10 +480,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					tmp.result = tmp.me.getResp(param, false, true);
 					if(!tmp.result)
 						return;
-					if($('info_panel_' + product.id))
-						$('info_panel_' + product.id).down('.price-match-div .price-match-listing').replace(tmp.me._displayPriceMatchResult(tmp.result, product));
-						$('info_panel_' + product.id).down('.price-match-div .panel-competator-price').replace(tmp.me._displayCompetatorPrice(tmp.result, product));
-					tmp.me._bindPriceInput();
+					if(jQuery('.popover .col-md-4').find('.panel').length !== 0 && jQuery('.popover .col-md-3').find('.panel').length !== 0){
+						if($('info_panel_' + product.id))
+							$('info_panel_' + product.id).down('.price-match-div .price-match-listing').replace(tmp.me._displayPriceMatchResult(tmp.result, product));
+							$('info_panel_' + product.id).down('.price-match-div .panel-competator-price').replace(tmp.me._displayCompetatorPrice(tmp.result, product));
+						
+						tmp.me._bindPriceInput();
+					}
 				} catch (e) {
 					tmp.me.showModalBox('Error', e, true);
 				}
@@ -607,35 +624,39 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			tmp.selectedRow.after('"<tr id="spacetr" space_id="' + item.id + '"><td><div id="spacediv" class="row"></div></td></tr>');
 			tmp.selectedRow
 			.on('shown.bs.popover', function (e) {
-				tmp.me._getPriceMatchCompanySelect2(jQuery('.rightPanel[match_rule="company_id"]'), null, item);
-				// somehow the key binding is lost by popover, redo the bindings
-				tmp.container = $$('.btn-new-rule.right-panel').first().up('.panel-body');
-				$$('.btn-new-rule.right-panel').first().observe('click', function(e){
-					tmp.me._priceMatchRule = tmp.me._collectFormData($(this).up('.panel-body'), 'match_rule');
-					tmp.me._selected = [item];
-					tmp.me._postIndex = 0;
-					tmp.me.postNewRule($(this));
-				});
-				$$('.btn-del-rule.right-panel').first().observe('click', function(e){
-					tmp.me._priceMatchRule = tmp.me._collectFormData($(this).up('.panel-body'), 'match_rule');
-					tmp.me._selected = [item];
-					tmp.me._postIndex = 0;
-					tmp.me.postNewRule($(this),true);
-				});
-				if(!(item.priceMatchRule && item.priceMatchRule.id && jQuery.isNumeric(item.priceMatchRule.id)))
-					$$('.btn-del-rule.right-panel').first().hide();
-				tmp.container.down('[match_rule="price_from"]')
-					.observe('keyup', function(e){
-								$(this).up('.panel-body').down('[match_rule="price_to"]').value = $F($(this));
-							})
-					.observe('keydown', function(event){
-						tmp.txtBox = this;
-						tmp.me.keydown(event, function() {
-							Event.stop(event);
-							$(tmp.txtBox).up('.panel-body').down('[match_rule="offset"]').focus();
-							$(tmp.txtBox).up('.panel-body').down('[match_rule="offset"]').select();
-						}, function(){}, Event.KEY_TAB);
+
+				if(jQuery('.popover .col-md-4').find('.panel').length !== 0 && jQuery('.popover .col-md-3').find('.panel').length !== 0){
+					
+					tmp.me._getPriceMatchCompanySelect2(jQuery('.rightPanel[match_rule="company_id"]'), null, item);
+					// somehow the key binding is lost by popover, redo the bindings
+					tmp.container = $$('.btn-new-rule.right-panel').first().up('.panel-body');
+					$$('.btn-new-rule.right-panel').first().observe('click', function(e){
+						tmp.me._priceMatchRule = tmp.me._collectFormData($(this).up('.panel-body'), 'match_rule');
+						tmp.me._selected = [item];
+						tmp.me._postIndex = 0;
+						tmp.me.postNewRule($(this));
 					});
+					$$('.btn-del-rule.right-panel').first().observe('click', function(e){
+						tmp.me._priceMatchRule = tmp.me._collectFormData($(this).up('.panel-body'), 'match_rule');
+						tmp.me._selected = [item];
+						tmp.me._postIndex = 0;
+						tmp.me.postNewRule($(this),true);
+					});
+					if(!(item.priceMatchRule && item.priceMatchRule.id && jQuery.isNumeric(item.priceMatchRule.id)))
+						$$('.btn-del-rule.right-panel').first().hide();
+					tmp.container.down('[match_rule="price_from"]')
+						.observe('keyup', function(e){
+									$(this).up('.panel-body').down('[match_rule="price_to"]').value = $F($(this));
+								})
+						.observe('keydown', function(event){
+							tmp.txtBox = this;
+							tmp.me.keydown(event, function() {
+								Event.stop(event);
+								$(tmp.txtBox).up('.panel-body').down('[match_rule="offset"]').focus();
+								$(tmp.txtBox).up('.panel-body').down('[match_rule="offset"]').select();
+							}, function(){}, Event.KEY_TAB);
+						});
+				}
 			})
 			.popover({
 				'title'    : '<div class="row"><div class="col-xs-2"><div class="btn-group pull-right"><a class="btn btn-primary btn-sm" href="/product/' + item.id + '.html" target="_BLANK"><span class="glyphicon glyphicon-pencil"></span></a><span class="btn btn-danger btn-sm" onclick="pageJs.deSelectProduct();"><span class="glyphicon glyphicon-remove"></span></span></div></div></div>',
@@ -645,12 +666,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				'trigger'  : 'manual',
 				'viewport' : {"selector": ".list-panel", "padding": 0 },
 				'content'  : function() { return tmp.rightPanel = tmp.me._showProductInfoOnRightPanel(item).wrap(new Element('div')).innerHTML; },
-				'template' : '<div class="popover" role="tooltip" style="max-width: none; z-index: 1;"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+				'template' : '<div class="popover" role="tooltip" style="max-width: none; z-index: 1; width: 100%;"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
 			})
 			.addClass('popover-loaded');
 		}
+		
 		tmp.selectedRow.popover('show');
-
+		jQuery('.popover').css('left','0px');
 		jQuery('#spacetr').height(393);
 		jQuery('.popover-title').hide();
 

@@ -10,6 +10,7 @@
 <com:TCallback ID="toggleIsKitBtn" OnCallback = 'Page.toggleIsKit' />
 <com:TCallback ID="toggleManualFeedBtn" OnCallback = 'Page.toggleManualFeed' />
 <com:TCallback ID="newRuleBtn" OnCallback = 'Page.newRule' />
+<com:TCallback ID="checkPriceMatchEnable" OnCallback = 'Page.checkPriceMatchEnable' />
 	<div class="pagewrapper productlistwraper">
 		<div class="col-xs-12">
 			<div class="panel panel-default" id="searchPanel">
