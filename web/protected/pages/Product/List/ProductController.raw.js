@@ -666,13 +666,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				'trigger'  : 'manual',
 				'viewport' : {"selector": ".list-panel", "padding": 0 },
 				'content'  : function() { return tmp.rightPanel = tmp.me._showProductInfoOnRightPanel(item).wrap(new Element('div')).innerHTML; },
-				'template' : '<div class="popover" role="tooltip" style="max-width: none; z-index: 1; width: 100%;"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
+				'template' : '<div class="popover" role="tooltip" style="max-width: none; z-index: 1; width: 100%;left: 0px !important"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
 			})
 			.addClass('popover-loaded');
 		}
 		
 		tmp.selectedRow.popover('show');
-		jQuery('.popover').css('left','0px');
+//		jQuery('.popover').css('left','0px');
 		jQuery('#spacetr').height(393);
 		jQuery('.popover-title').hide();
 
