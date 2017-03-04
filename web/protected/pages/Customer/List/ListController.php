@@ -163,40 +163,10 @@ class ListController extends CRUDPageAbstract
             $actONEnable = $acton->getEnable();
             
             if($actONEnable == 1){
-            	$results['items'] = $this->_getMessageInfo($results['items'],$flag);
-/*             	$msgLists = MessageList::getAll();
+            	$msgLists = MessageList::getAll();
             	if(count($msgLists) !== 0){
-
- 	            	foreach ($msgLists as $msgList){
-	            		$msgInfos[] = ['id' => $msgList->getId(), 'title' => $msgList->getTitle()];
-	            	}
-	            	
-	            	foreach ($results['items'] as $keyCust => &$valueCust){
-	            		$n = 0;
-	            		$resFlag = 0;
-	            		foreach ($msgInfos as $msgInfo){
- 	            			
-	            			$cust_msgs = CustomerMsg::getAllByCriteria('customerId = ? and msgListId = ?', array($valueCust['id'], $msgInfo['id']));
-	            			
-	            			if(count($cust_msgs) !== 0){
-
-	            				$valueCust['message'][] = ['title' => $msgInfo['title'], 'opened' => $cust_msgs[0]->getOpened(), 'clicked' => $cust_msgs[0]->getClicked(),'nameOpen' => 'OPENED', 'nameClick' => 'CLICKED'];
-								$resFlag = 1;
-	            			} else {
-
-								$valueCust['message'][] = ['title' => $msgInfo['title'], 'opened' => 0, 'clicked' => 0, 'nameOpen' => 'OPENED', 'nameClick' => 'CLICKED'];
-	            			}
-	            			$n++;
-	            		}
-	            		$valueCust['messageNum'] = $n;
- 	            		if($flag == 0 && $resFlag == 1){
-	            			unset($results['items'][$keyCust]);
-	            		} elseif ($flag == 1 && $resFlag == 0){
- 	            			unset($results['items'][$keyCust]);
-	            		}
-	            	}
-	            	$results['items'] = array_values($results['items']);
-	            } */
+            		$results['items'] = $this->_getMessageInfo($results['items'],$flag, $msgLists);
+            	}
             }
         }
         catch(Exception $ex)
@@ -418,8 +388,11 @@ class ListController extends CRUDPageAbstract
 			if(count($objects) === 0)
 				throw new Exception('No result found!');
 			
-			if($flag !== 2){				
-				$arr['items'] = $this->_getMessageInfo($arr['items'], $flag);				
+			if($flag !== 2){		
+				$msgLists = MessageList::getAll();
+				if(count($msgLists) !== 0){
+					$arr['items'] = $this->_getMessageInfo($arr['items'], $flag, $msgLists);		
+				}
 			}
 
 			if(count($arr['items']) > 5000)
@@ -467,44 +440,41 @@ class ListController extends CRUDPageAbstract
 		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
 	}
 	/**
-	 * @return PHPExcel
+	 * @return message info
 	 */
-	private function _getMessageInfo($arr, $flag)
+	private function _getMessageInfo($arr, $flag, $msgLists)
 	{
-		$msgLists = MessageList::getAll();
-		if(count($msgLists) !== 0){
-		
-			foreach ($msgLists as $msgList){
-				$msgInfos[] = ['id' => $msgList->getId(), 'title' => $msgList->getTitle()];
-			}
-			Config::dd($arr);
-			foreach ($arr as $keyCust => &$valueCust){
-				$n = 0;
-				$resFlag = 0;
-				foreach ($msgInfos as $msgInfo){
-					 
-					$cust_msgs = CustomerMsg::getAllByCriteria('customerId = ? and msgListId = ?', array($valueCust['id'], $msgInfo['id']));
-		
-					if(count($cust_msgs) !== 0){
-		
-						$valueCust['message'][] = ['title' => $msgInfo['title'], 'opened' => $cust_msgs[0]->getOpened(), 'clicked' => $cust_msgs[0]->getClicked(),'nameOpen' => 'OPENED', 'nameClick' => 'CLICKED'];
-						$resFlag = 1;
-					} else {
-		
-						$valueCust['message'][] = ['title' => $msgInfo['title'], 'opened' => 0, 'clicked' => 0, 'nameOpen' => 'OPENED', 'nameClick' => 'CLICKED'];
-					}
-					$n++;
-				}
-				$valueCust['messageNum'] = $n;
-				if($flag == 0 && $resFlag == 1){
-					unset($arr[$keyCust]);
-				} elseif ($flag == 1 && $resFlag == 0){
-					unset($arr[$keyCust]);
-				}
-			}
-			
-			$arrResult = array_values($arr);
+		foreach ($msgLists as $msgList){
+			$msgInfos[] = ['id' => $msgList->getId(), 'title' => $msgList->getTitle()];
 		}
+		
+		foreach ($arr as $keyCust => &$valueCust){
+			$n = 0;
+			$resFlag = 0;
+			foreach ($msgInfos as $msgInfo){
+				 
+				$cust_msgs = CustomerMsg::getAllByCriteria('customerId = ? and msgListId = ?', array($valueCust['id'], $msgInfo['id']));
+	
+				if(count($cust_msgs) !== 0){
+	
+					$valueCust['message'][] = ['title' => $msgInfo['title'], 'opened' => $cust_msgs[0]->getOpened(), 'clicked' => $cust_msgs[0]->getClicked(),'nameOpen' => 'OPENED', 'nameClick' => 'CLICKED'];
+					$resFlag = 1;
+				} else {
+	
+					$valueCust['message'][] = ['title' => $msgInfo['title'], 'opened' => 0, 'clicked' => 0, 'nameOpen' => 'OPENED', 'nameClick' => 'CLICKED'];
+				}
+				$n++;
+			}
+			$valueCust['messageNum'] = $n;
+			if($flag == 0 && $resFlag == 1){
+				unset($arr[$keyCust]);
+			} elseif ($flag == 1 && $resFlag == 0){
+				unset($arr[$keyCust]);
+			}
+		}
+		
+		$arrResult = array_values($arr);
+
 		return $arrResult;
 	}
 	
