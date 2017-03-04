@@ -74,6 +74,32 @@ class Customer extends BaseEntityAbstract
 	 * @var bool
 	 */
 	private $isBlocked = false;
+	// Add for grouping customers by philip	
+	/**
+	 * The commercail custom group
+	 *
+	 * @var bool
+	 */
+	private $groupCom = false;
+	/**
+	 * The educational custom group
+	 *
+	 * @var bool
+	 */
+	private $groupEdu = false;
+	/**
+	 * The gaming custom group
+	 *
+	 * @var bool
+	 */
+	private $groupGame = false;
+	/**
+	 * The general custom group
+	 *
+	 * @var bool
+	 */
+	private $groupGen = false;	
+	// end add
 	/**
 	 *  The tier level of the customer
 	 * @var unknown
@@ -270,6 +296,92 @@ class Customer extends BaseEntityAbstract
 		$this->isBlocked = $value;
 		return $this;
 	}
+	// Add for grouping customers by philip
+	/**
+	 * Getter for groupGen
+	 *
+	 * @return bool
+	 */
+	public function getGroupGen()
+	{
+		return (trim($this->groupGen) === '1');
+	}
+	/**
+	 * Setter for groupGen
+	 *
+	 * @param unkown $value The groupGen
+	 *
+	 * @return Customer
+	 */
+	public function setGroupGen($value)
+	{
+		$this->groupGen = $value;
+		return $this;
+	}	
+	/**
+	 * Getter for groupCom
+	 *
+	 * @return bool
+	 */
+	public function getGroupCom()
+	{
+		return (trim($this->groupCom) === '1');
+	}
+	/**
+	 * Setter for groupCom
+	 *
+	 * @param unkown $value The groupCom
+	 *
+	 * @return Customer
+	 */
+	public function setGroupCom($value)
+	{
+		$this->groupCom = $value;
+		return $this;
+	}
+	/**
+	 * Getter for groupEdu
+	 *
+	 * @return bool
+	 */
+	public function getGroupEdu()
+	{
+		return (trim($this->groupEdu) === '1');
+	}
+	/**
+	 * Setter for groupEdu
+	 *
+	 * @param unkown $value The groupEdu
+	 *
+	 * @return Customer
+	 */
+	public function setGroupEdu($value)
+	{
+		$this->groupEdu = $value;
+		return $this;
+	}
+	/**
+	 * Getter for groupGame
+	 *
+	 * @return bool
+	 */
+	public function getGroupGame()
+	{
+		return (trim($this->groupGame) === '1');
+	}
+	/**
+	 * Setter for groupGame
+	 *
+	 * @param unkown $value The groupGame
+	 *
+	 * @return Customer
+	 */
+	public function setGroupGame($value)
+	{
+		$this->groupGame = $value;
+		return $this;
+	}	
+	// end add
 	/**
 	 * Getter for mageId
 	 *
@@ -331,7 +443,7 @@ class Customer extends BaseEntityAbstract
 	 *
 	 * @return Ambigous <GenericDAO, BaseEntityAbstract>
 	 */
-	public static function create($name, $contactNo, $email, Address $billingAddr = null, $isFromB2B = false, $description = '', Address $shippingAddr = null, $mageId = 0, $terms = 0, $isBlocked = false, $tierId = TierLevel::ID_GENERAL)
+	public static function create($name, $contactNo, $email, Address $billingAddr = null, $isFromB2B = false, $description = '', Address $shippingAddr = null, $mageId = 0, $terms = 0, $isBlocked = false, $tierId = TierLevel::ID_GENERAL, $groupCom = false, $groupEdu = false, $groupGame = false, $groupGen = true)
 	{
 		$name = trim($name);
 		$contactNo = trim($contactNo);
@@ -339,6 +451,9 @@ class Customer extends BaseEntityAbstract
 		$isFromB2B = ($isFromB2B === true);
 		$terms = intval(trim($terms));
 		$isBlocked = ($isBlocked === true);
+		$groupCom = ($groupCom === true);
+		$groupEdu = ($groupEdu === true);
+		$groupGame = ($groupGame === true);
 		$class =__CLASS__;
 		
 		$objects = self::getAllByCriteria('email = ? and storeId = ?', array($email, Core::getUser()->getStore()->getId()), true, 1, 1);
@@ -366,9 +481,15 @@ class Customer extends BaseEntityAbstract
 			->setTerms($terms)
 			->setTier($tier)
 			->setIsBlocked($isBlocked)
+			// Add for grouping customers by philip
+			->setGroupCom($groupCom)
+			->setGroupEdu($groupEdu)
+			->setGroupGame($groupGame)
+			->setGroupGen($groupGen)
+			// end add
 			->setStore(Core::getUser()->getStore())
 			->save();
-		$comments = 'Customer(ID=' . $obj->getId() . ')' . (count($objects) > 0 ? 'updated' : 'created') . ' via B2B with (name=' . $name . ', contactNo=' . $contactNo . ', email=' . $email . ', terms=' . $terms . ', tierLevel=' . $tier->getId().  ', isBlocked=' . $isBlocked .')';
+		$comments = 'Customer(ID=' . $obj->getId() . ')' . (count($objects) > 0 ? 'updated' : 'created') . ' via B2B with (name=' . $name . ', contactNo=' . $contactNo . ', email=' . $email . ', terms=' . $terms . ', groupCom'. $groupCom. ', groupEdu'. $groupEdu. ', groupGame'. $groupGame. ', groupGen'. $groupGen. ', tierLevel=' . $tier->getId().  ', isBlocked=' . $isBlocked .')';
 		if($isFromB2B === true)
 			Comments::addComments($obj, $comments, Comments::TYPE_SYSTEM);
 		Log::LogEntity($obj, $comments, Log::TYPE_SYSTEM, '', $class . '::' . __FUNCTION__);
@@ -423,6 +544,12 @@ class Customer extends BaseEntityAbstract
 		DaoMap::setIntType('mageId');
 		DaoMap::setBoolType('isFromB2B');
 		DaoMap::setBoolType('isBlocked');
+		// Add for grouping customers by philip
+		DaoMap::setBoolType('groupGen');
+		DaoMap::setBoolType('groupCom');
+		DaoMap::setBoolType('groupEdu');
+		DaoMap::setBoolType('groupGame');
+		// end add
 		DaoMap::setManyToOne('tier', 'TierLevel', 'cust_tier', true);
 		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
@@ -435,6 +562,12 @@ class Customer extends BaseEntityAbstract
 		DaoMap::createIndex('isBlocked');
 		DaoMap::createIndex('mageId');
 		DaoMap::createIndex('tier');
+		// Add for grouping customers by philip
+		DaoMap::createIndex('groupCom');
+		DaoMap::createIndex('groupEdu');
+		DaoMap::createIndex('groupGame');
+		DaoMap::createIndex('groupGen');
+		// end add
 
 		DaoMap::commit();
 	}

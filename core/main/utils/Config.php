@@ -69,6 +69,14 @@ abstract class Config
 	{
 		return dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'conf' . DIRECTORY_SEPARATOR;
 	}
+	
+	public static function dd($param) {
+		ob_start();
+		var_dump($param);
+		$content = ob_get_contents();
+		ob_end_clean();
+		file_put_contents('/tmp/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ':' . $content . PHP_EOL, FILE_APPEND | LOCK_EX);
+	}
 }
 
 ?>

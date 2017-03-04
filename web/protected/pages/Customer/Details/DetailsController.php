@@ -72,6 +72,16 @@ class DetailsController extends DetailsPageAbstract
 			$terms = intval(trim($param->CallbackParameter->terms));
 			$tierLevel = intval(trim($param->CallbackParameter->tier));
 			$isBlocked = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->isBlocked);
+			// Add for grouping customers by philip
+			$groupCom = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->groupCom);
+			$groupEdu = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->groupEdu);
+			$groupGame = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->groupGame);
+			if ($groupCom == 1 || $groupEdu == 1 || $groupGame == 1) {
+				$groupGen = !is_numeric($param->CallbackParameter->id) ? '' : '0';
+			} else {
+				$groupGen = !is_numeric($param->CallbackParameter->id) ? '' : 0;
+			}
+			// end add
 			$creditLeft = !intval($param->CallbackParameter->credit) ? '' : trim($param->CallbackParameter->credit);
 			if(($creditLeft = StringUtilsAbstract::getValueFromCurrency(trim($param->CallbackParameter->credit))) === '' || !is_numeric($creditLeft))
 			{
@@ -148,7 +158,13 @@ class DetailsController extends DetailsPageAbstract
 					->setTier($tier)
 					->setIsBlocked($isBlocked)
 					->setContactNo($contactNo)
-					->setActive($active);
+					->setActive($active)
+					// Add for grouping customers by philip
+					->setGroupGen($groupGen)
+					->setGroupCom($groupCom)
+					->setGroupEdu($groupEdu)
+					->setGroupGame($groupGame);
+					// end add
 				$billingAddress = $customer->getBillingAddress();
 				if($billingAddress instanceof Address) {
 					$billingAddress->setStreet($billingStreet)
@@ -209,7 +225,7 @@ class DetailsController extends DetailsPageAbstract
 					$shippingAdressFull = null;
 				else
 					$shippingAdressFull = Address::create($shippingStreet, $shippingCity, $shippingState, $shippingCountry, $shippingPosecode, $shippingName, $shippingContactNo, $shippingCompanyName);
-				$customer = Customer::create($name, $contactNo, $email, $billingAdressFull, false, '', $shippingAdressFull, 0, $terms, $isBlocked, $tierLevel);
+				$customer = Customer::create($name, $contactNo, $email, $billingAdressFull, false, '', $shippingAdressFull, 0, $terms, $isBlocked, $tierLevel, $groupCom, $groupEdu, $groupGame. $groupGen);
 				if(!$customer instanceof Customer)
 					throw new Exception('Error creating customer!');
 			}

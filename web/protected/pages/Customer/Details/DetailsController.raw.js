@@ -145,6 +145,13 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('IsBlocked?', new Element('input', {'save-item': 'isBlocked', 'type': 'checkbox', 'checked': tmp.item.isBlocked ? tmp.item.isBlocked : false}) ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Active?', new Element('input', {'save-item': 'active', 'type': 'checkbox', 'checked': tmp.item.active ? tmp.item.active : false}) ) ) })
 				})
+				// Add for grouping customers by philip
+				.insert({'bottom': new Element('div', {'class': 'row'})
+					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Commercial Group', new Element('input', {'save-item': 'groupCom', 'type': 'checkbox', 'checked': tmp.item.groupCom ? tmp.item.groupCom : false}) ) ) })
+					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Educational Group', new Element('input', {'save-item': 'groupEdu', 'type': 'checkbox', 'checked': tmp.item.groupEdu ? tmp.item.groupEdu : false}) ) ) })
+					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Gaming Group', new Element('input', {'save-item': 'groupGame', 'type': 'checkbox', 'checked': tmp.item.groupGame ? tmp.item.groupGame : false}) ) ) })
+				})
+				//end add
 			})
 		;
 		return tmp.newDiv;

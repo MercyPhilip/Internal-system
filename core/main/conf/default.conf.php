@@ -9,7 +9,13 @@ return array(
 		),
 	'PriceMatch' => array(
 			'Enable' => 1
-	)
+	),
+	'DebugMode' => array(
+			'Enable' => 1
+	),
+	'Acton' => array(
+			'Enable' => 1
+	),
 );
 
 ?>

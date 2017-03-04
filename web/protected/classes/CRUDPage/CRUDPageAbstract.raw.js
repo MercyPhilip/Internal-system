@@ -59,7 +59,11 @@ CRUDPageJs.prototype = Object.extend(new BPCPageJs(), {
 
 					//reset div
 					if(tmp.reset === true) {
-						tmp.resultDiv.update(tmp.me._getResultRow(tmp.me._getTitleRowData(), true).wrap(new Element('thead')));
+						if(tmp.result.items.length > 0 && tmp.result.items[0].hasOwnProperty('message')){
+							tmp.resultDiv.update(tmp.me._getResultRow(tmp.me._getTitleRowData(tmp.result.items[0].message), true).wrap(new Element('thead')));
+						} else {
+							tmp.resultDiv.update(tmp.me._getResultRow(tmp.me._getTitleRowData(), true).wrap(new Element('thead')));
+						}
 						if(!tmp.result.items || tmp.result.items.size() === 0) {
 							tmp.resultDiv.insert({'bottom': tmp.me.getAlertBox('Nothing found.', '').addClassName('alert-warning') });
 						}
