@@ -8,7 +8,7 @@ return array(
 			'Password' => 'root'
 		),
 	'PriceMatch' => array(
-			'Enable' => 0
+			'Enable' => 1
 	)
 );
 
