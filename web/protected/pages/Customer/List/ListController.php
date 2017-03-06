@@ -197,15 +197,15 @@ class ListController extends CRUDPageAbstract
 				throw new Exception();
 			$customer->setActive(false)
 				->save();
-// 			$results['item'] = $customer->getJson();
-			$data['items'][] = $customer->getJson();
-			
+			$results['item'] = $customer->getJson();
+						
 			$acton = new ActOnConnector();
 			$actONEnable = $acton->getEnable();
 			
 			if($actONEnable == 1){
 				$msgLists = MessageList::getAll();
 				if(count($msgLists) !== 0){
+					$data['items'][] = $customer->getJson();
 					$data['items'] = $this->getMessageInfo($data['items'], 2, $msgLists);
 					$results['item'] = $data['items'][0];
 				}
