@@ -231,7 +231,20 @@ class DetailsController extends DetailsPageAbstract
 			}
 
 			$results['url'] = '/customer/' . $customer->getId() . '.html';
-			$results['item'] = $customer->getJson();
+// 			$results['item'] = $customer->getJson();
+			$data['items'][] = $customer->getJson();
+			
+			$acton = new ActOnConnector();
+			$actONEnable = $acton->getEnable();
+			
+			if($actONEnable == 1){
+				$msgLists = MessageList::getAll();
+				if(count($msgLists) !== 0){
+					$data['items'] = $this->getMessageInfo($data['items'], 2, $msgLists);
+					$results['item'] = $data['items'][0];
+				}
+			}			
+			
 			Dao::commitTransaction();
 		}
 		catch(Exception $ex)

@@ -183,5 +183,44 @@ abstract class BPCPageAbstract extends TPage
 		$html .= $content;
 		return $html;
 	}
+	
+	/**
+	 * @return message info
+	 */
+	public static function getMessageInfo($arr, $flag, $msgLists)
+	{
+		foreach ($msgLists as $msgList){
+			$msgInfos[] = ['id' => $msgList->getId(), 'title' => $msgList->getTitle()];
+		}
+	
+		foreach ($arr as $keyCust => &$valueCust){
+			$n = 0;
+			$resFlag = 0;
+			foreach ($msgInfos as $msgInfo){
+					
+				$cust_msgs = CustomerMsg::getAllByCriteria('customerId = ? and msgListId = ?', array($valueCust['id'], $msgInfo['id']));
+	
+				if(count($cust_msgs) !== 0){
+	
+					$valueCust['message'][] = ['title' => $msgInfo['title'], 'opened' => $cust_msgs[0]->getOpened(), 'clicked' => $cust_msgs[0]->getClicked(),'nameOpen' => 'OPENED', 'nameClick' => 'CLICKED'];
+					$resFlag = 1;
+				} else {
+	
+					$valueCust['message'][] = ['title' => $msgInfo['title'], 'opened' => 0, 'clicked' => 0, 'nameOpen' => 'OPENED', 'nameClick' => 'CLICKED'];
+				}
+				$n++;
+			}
+			$valueCust['messageNum'] = $n;
+			if($flag == 0 && $resFlag == 1){
+				unset($arr[$keyCust]);
+			} elseif ($flag == 1 && $resFlag == 0){
+				unset($arr[$keyCust]);
+			}
+		}
+	
+		$arrResult = array_values($arr);
+	
+		return $arrResult;
+	}
 }
 ?>

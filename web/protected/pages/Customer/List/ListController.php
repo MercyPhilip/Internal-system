@@ -165,7 +165,7 @@ class ListController extends CRUDPageAbstract
             if($actONEnable == 1){
             	$msgLists = MessageList::getAll();
             	if(count($msgLists) !== 0){
-            		$results['items'] = $this->_getMessageInfo($results['items'],$flag, $msgLists);
+            		$results['items'] = $this->getMessageInfo($results['items'],$flag, $msgLists);
             	}
             }
         }
@@ -197,7 +197,19 @@ class ListController extends CRUDPageAbstract
 				throw new Exception();
 			$customer->setActive(false)
 				->save();
-			$results['item'] = $customer->getJson();
+// 			$results['item'] = $customer->getJson();
+			$data['items'][] = $customer->getJson();
+			
+			$acton = new ActOnConnector();
+			$actONEnable = $acton->getEnable();
+			
+			if($actONEnable == 1){
+				$msgLists = MessageList::getAll();
+				if(count($msgLists) !== 0){
+					$data['items'] = $this->getMessageInfo($data['items'], 2, $msgLists);
+					$results['item'] = $data['items'][0];
+				}
+			}
 		}
         catch(Exception $ex)
         {
@@ -391,7 +403,7 @@ class ListController extends CRUDPageAbstract
 			if($flag !== 2){		
 				$msgLists = MessageList::getAll();
 				if(count($msgLists) !== 0){
-					$arr['items'] = $this->_getMessageInfo($arr['items'], $flag, $msgLists);		
+					$arr['items'] = $this->getMessageInfo($arr['items'], $flag, $msgLists);		
 				}
 			}
 
@@ -442,12 +454,12 @@ class ListController extends CRUDPageAbstract
 	/**
 	 * @return message info
 	 */
-	private function _getMessageInfo($arr, $flag, $msgLists)
+/* 	public static function getMessageInfo($arr, $flag, $msgLists)
 	{
 		foreach ($msgLists as $msgList){
 			$msgInfos[] = ['id' => $msgList->getId(), 'title' => $msgList->getTitle()];
 		}
-		
+
 		foreach ($arr as $keyCust => &$valueCust){
 			$n = 0;
 			$resFlag = 0;
@@ -476,7 +488,7 @@ class ListController extends CRUDPageAbstract
 		$arrResult = array_values($arr);
 
 		return $arrResult;
-	}
+	} */
 	
 	/**
 	 * @return PHPExcel

@@ -201,6 +201,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	 * get result row for data given
 	 */
 	,_getResultRow: function(row, isTitle) {
+
 		var tmp = {};
 		tmp.me = this;
 		tmp.tag = (isTitle === true ? 'th' : 'td');
@@ -253,7 +254,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'contact col-xs-1 truncate'}).update(row.contactNo)})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'description col-xs-1'}).update(row.description) });
-		
+
 		if(row.hasOwnProperty('message')){	
 //			console.log(row.message);
 			for(var n = row.message.length; n--;) {
@@ -341,6 +342,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					});
 				})	
 			});
+		
 		return tmp.row;
 	}
 	,_getNextPageBtn: function() {
