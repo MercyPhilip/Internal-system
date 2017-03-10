@@ -1,34 +1,34 @@
 <?php
 /**
  * Entity for PurchaseOrderItem
- *
- * @package    Core
- * @subpackage Entity
- * @author     lhe<helin16@gmail.com>
- */
+*
+* @package    Core
+* @subpackage Entity
+* @author     lhe<helin16@gmail.com>
+*/
 class PurchaseOrderItem extends BaseEntityAbstract
 {
 	/**
 	 * The product
-	 * 
+	 *
 	 * @var Product
 	 */
 	protected $product;
 	/**
 	 * The purchaseorder
-	 * 
+	 *
 	 * @var PurchaseOrder
 	 */
 	protected $purchaseOrder;
 	/**
 	 * The unitprice of each item
-	 * 
+	 *
 	 * @var double
 	 */
 	private $unitPrice;
 	/**
 	 * The quantity of the item
-	 * 
+	 *
 	 * @var int
 	 */
 	private $qty;
@@ -40,13 +40,13 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	private $receivedQty = 0;
 	/**
 	 * The total price of the whole lot
-	 * 
+	 *
 	 * @var double
 	 */
 	private $totalPrice;
 	/**
 	 * Whether we have calculated all the stock for this item
-	 * 
+	 *
 	 * @var bool
 	 */
 	private $stockCalculated = false;
@@ -55,10 +55,10 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	 *
 	 * @return Product
 	 */
-	public function getProduct() 
+	public function getProduct()
 	{
 		$this->loadManyToOne('product');
-	    return $this->product;
+		return $this->product;
 	}
 	/**
 	 * Setter for product
@@ -67,20 +67,20 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	 *
 	 * @return PurchaseOrderItem
 	 */
-	public function setProduct(Product $value) 
+	public function setProduct(Product $value)
 	{
-	    $this->product = $value;
-	    return $this;
+		$this->product = $value;
+		return $this;
 	}
 	/**
 	 * Getter for purchaseOrder
 	 *
 	 * @return PurchaseOrder
 	 */
-	public function getPurchaseOrder() 
+	public function getPurchaseOrder()
 	{
 		$this->loadManyToOne('purchaseOrder');
-	    return $this->purchaseOrder;
+		return $this->purchaseOrder;
 	}
 	/**
 	 * Setter for purchaseOrder
@@ -89,19 +89,19 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	 *
 	 * @return PurchaseOrderItem
 	 */
-	public function setPurchaseOrder(PurchaseOrder $value) 
+	public function setPurchaseOrder(PurchaseOrder $value)
 	{
-	    $this->purchaseOrder = $value;
-	    return $this;
+		$this->purchaseOrder = $value;
+		return $this;
 	}
 	/**
 	 * Getter for qty
 	 *
 	 * @return int
 	 */
-	public function getQty() 
+	public function getQty()
 	{
-	    return $this->qty;
+		return $this->qty;
 	}
 	/**
 	 * Setter for qty
@@ -110,19 +110,19 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	 *
 	 * @return PurchaseOrderItem
 	 */
-	public function setQty($value) 
+	public function setQty($value)
 	{
-	    $this->qty = $value;
-	    return $this;
+		$this->qty = $value;
+		return $this;
 	}
 	/**
 	 * Getter for stockCalculated
 	 *
 	 * @return bool
 	 */
-	public function getStockCalculated() 
+	public function getStockCalculated()
 	{
-	    return $this->stockCalculated;
+		return $this->stockCalculated;
 	}
 	/**
 	 * Setter for stockCalculated
@@ -131,19 +131,19 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	 *
 	 * @return PurchaseOrderItem
 	 */
-	public function setStockCalculated($value) 
+	public function setStockCalculated($value)
 	{
-	    $this->stockCalculated = $value;
-	    return $this;
+		$this->stockCalculated = $value;
+		return $this;
 	}
 	/**
 	 * Getter for receivedQty
 	 *
 	 * @return int
 	 */
-	public function getReceivedQty() 
+	public function getReceivedQty()
 	{
-	    return $this->receivedQty;
+		return $this->receivedQty;
 	}
 	/**
 	 * Setter for receivedQty
@@ -152,19 +152,19 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	 *
 	 * @return PurchaseOrderItem
 	 */
-	public function setReceivedQty($value) 
+	public function setReceivedQty($value)
 	{
-	    $this->receivedQty = $value;
-	    return $this;
+		$this->receivedQty = $value;
+		return $this;
 	}
 	/**
 	 * Getter for unitPrice
 	 *
 	 * @return double
 	 */
-	public function getUnitPrice() 
+	public function getUnitPrice()
 	{
-	    return $this->unitPrice;
+		return $this->unitPrice;
 	}
 	/**
 	 * Setter for unitPrice
@@ -173,19 +173,19 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	 *
 	 * @return PurchaseOrderItem
 	 */
-	public function setUnitPrice($value) 
+	public function setUnitPrice($value)
 	{
-	    $this->unitPrice = $value;
-	    return $this;
+		$this->unitPrice = $value;
+		return $this;
 	}
 	/**
 	 * Getter for totalPrice
 	 *
 	 * @return double
 	 */
-	public function getTotalPrice() 
+	public function getTotalPrice()
 	{
-	    return $this->totalPrice;
+		return $this->totalPrice;
 	}
 	/**
 	 * Setter for totalPrice
@@ -194,10 +194,10 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	 *
 	 * @return PurchaseOrderItem
 	 */
-	public function setTotalPrice($value) 
+	public function setTotalPrice($value)
 	{
-	    $this->totalPrice = $value;
-	    return $this;
+		$this->totalPrice = $value;
+		return $this;
 	}
 	/**
 	 * (non-PHPdoc)
@@ -214,7 +214,7 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	}
 	/**
 	 * (non-PHPdoc)
-	 * 
+	 *
 	 * @see BaseEntityAbstract::preSave()
 	 */
 	public function preSave()
@@ -229,7 +229,7 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	public function __loadDaoMap()
 	{
 		DaoMap::begin($this, 'po_item');
-	
+
 		DaoMap::setManyToOne('purchaseOrder', 'PurchaseOrder', 'po_item_po');
 		DaoMap::setManyToOne('product', 'Product', 'po_item_pro');
 		DaoMap::setIntType('qty', 'int', 10, false);
@@ -246,7 +246,7 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	}
 	/**
 	 * creating a PO Item
-	 * 
+	 *
 	 * @param PurchaseOrder $po
 	 * @param Product       $product
 	 * @param double        $unitPrice
@@ -255,23 +255,24 @@ class PurchaseOrderItem extends BaseEntityAbstract
 	 * @param string        $supplierId
 	 * @param string        $description
 	 * @param double        $totalPrice
-	 * 
+	 *
 	 * @return PurchaseOrderItem
 	 */
-	public static function create(PurchaseOrder $po, Product $product, $unitPrice = '0.0000', $qty = 1, $totalPrice = null, $receivedQty = 0)
+	public static function create(PurchaseOrder $po, Product $product, $unitPrice = '0.0000', $qty = 1, $eta, $totalPrice = null, $receivedQty = 0)
 	{
 		$entity = new PurchaseOrderItem();
 		$msg = 'created POI for PO(' . $po->getPurchaseOrderNo() . ') with Product(SKU=' . $product->getSku() . ') unitPrice=' . $unitPrice . ', qty=' . $qty;
 		$entity->setPurchaseOrder($po)
-			->setProduct($product)
-			->setUnitPrice($unitPrice)
-			->setQty($qty)
-			->setStore(Core::getUser()->getStore())
-// 			->setReceivedQty($receivedQty)
-			->setTotalPrice(trim($totalPrice) !== '' ? $totalPrice : ($unitPrice * $qty))
-			->save()
-			->addLog($msg, Log::TYPE_SYSTEM, 'Auto Log', __CLASS__ . '::' . __FUNCTION__);
+		->setProduct($product)
+		->setUnitPrice($unitPrice)
+		->setQty($qty)
+		->setStore(Core::getUser()->getStore())
+		// 			->setReceivedQty($receivedQty)
+		->setTotalPrice(trim($totalPrice) !== '' ? $totalPrice : ($unitPrice * $qty))
+		->save()
+		->addLog($msg, Log::TYPE_SYSTEM, 'Auto Log', __CLASS__ . '::' . __FUNCTION__);
 		$po->addLog($msg, Log::TYPE_SYSTEM, 'Auto Log', __CLASS__ . '::' . __FUNCTION__);
+		ProductEta::create($po, $product, $entity->getId(), $eta);
 		return $entity;
 	}
 }
