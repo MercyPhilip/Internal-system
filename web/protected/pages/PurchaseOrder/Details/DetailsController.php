@@ -1,11 +1,11 @@
 <?php
 /**
  * This is the Product details page
- *
- * @package    Web
- * @subpackage Controller
- * @author     lhe<helin16@gmail.com>
- */
+*
+* @package    Web
+* @subpackage Controller
+* @author     lhe<helin16@gmail.com>
+*/
 class DetailsController extends DetailsPageAbstract
 {
 	/**
@@ -24,8 +24,8 @@ class DetailsController extends DetailsPageAbstract
 	public function __construct()
 	{
 		parent::__construct();
-// 		if(!AccessControl::canAccessPurcahseOrdersPage(Core::getRole()))
-// 			die('You do NOT have access to this page');
+		// 		if(!AccessControl::canAccessPurcahseOrdersPage(Core::getRole()))
+			// 			die('You do NOT have access to this page');
 	}
 	/**
 	 * Getting The end javascript
@@ -36,44 +36,46 @@ class DetailsController extends DetailsPageAbstract
 	{
 		if(!isset($this->Request['id']))
 			die('System ERR: no param passed in!');
-		if(trim($this->Request['id']) === 'new')
-			$purchaseOrder = new PurchaseOrder();
-		else if(!($purchaseOrder = PurchaseOrder::get($this->Request['id'])) instanceof PurchaseOrder)
-			die('Invalid Purchase Order!');
-		$comments = array();
-		foreach ($purchaseOrder->getComment() as $item) {
-			$comments[] = $item->getJson();
-		};
-		$statusOptions =  $purchaseOrder->getStatusOptions();
-		$purchaseOrderItems = array();
-		foreach (PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ?', array($purchaseOrder->getId()), true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('updated'=>'desc')) as $item) {
-			$product = $item->getProduct();
-			if(!$product instanceof Product)
-				continue;
-			$unitPrice = $item->getUnitPrice();
-			$qty = $item->getQty();
-			$totalPrice = $item->getTotalPrice();
-			$receivedQty = $item->getReceivedQty();
-			$purchaseOrderItems[] = array('id'=> $item->getId(), 'product'=> $product->getJson(), 'unitPrice'=> $unitPrice, 'qty'=> $qty, 'totalPrice'=> $totalPrice, 'receievedQty'=> $receivedQty);
-		};
-		$poitems = $receivingItems = array();
-		$js = parent::_getEndJs();
-		$js .= "pageJs.setPreData(" . json_encode($purchaseOrder->getJson()) . ")";
-		$js .= ".setHTMLID('paymentPanel', 'payment_panel')";
-		$js .= ".setHTMLID('totalPriceExcludeGST', 'total_price_exclude_gst')";
-		$js .= ".setHTMLID('totalPriceGST', 'total_price_gst')";
-		$js .= ".setHTMLID('totalPriceIncludeGST', 'total_price_include_gst')";
-		$js .= ".setHTMLID('totalPaidAmount', 'total-paid-amount')";
-		$js .= ".setHTMLID('totalShippingCost', 'total-shipping-cost')";
-		$js .= ".setComment(" . json_encode($comments) . ")";
-		$js .= ".setStatusOptions(" . json_encode($statusOptions) . ")";
-		$js .= ".setCallbackId('searchProduct', '" . $this->searchProductBtn->getUniqueID() . "')";
-		$js .= ".setCallbackId('saveOrder', '" . $this->saveOrderBtn->getUniqueID() . "')";
-		$js .= ".setPurchaseOrderItems(" . json_encode($purchaseOrderItems) . ")";
-		$js .= ".load()";
-		$js .= "._loadDataPicker()";
-		$js .= ".bindAllEventNObjects();";
-		return $js;
+			if(trim($this->Request['id']) === 'new')
+				$purchaseOrder = new PurchaseOrder();
+				else if(!($purchaseOrder = PurchaseOrder::get($this->Request['id'])) instanceof PurchaseOrder)
+					die('Invalid Purchase Order!');
+					$comments = array();
+					foreach ($purchaseOrder->getComment() as $item) {
+						$comments[] = $item->getJson();
+					};
+					$statusOptions =  $purchaseOrder->getStatusOptions();
+					$purchaseOrderItems = array();
+					foreach (PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ?', array($purchaseOrder->getId()), true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('updated'=>'desc')) as $item) {
+						$product = $item->getProduct();
+						if(!$product instanceof Product)
+							continue;
+							$unitPrice = $item->getUnitPrice();
+							$qty = $item->getQty();
+							$totalPrice = $item->getTotalPrice();
+							$receivedQty = $item->getReceivedQty();
+							$productEta = ProductEta::getAllByCriteria('purchaseOrderId = ? and itemId = ?', array($purchaseOrder->getId(),$item->getId()), true, 1, 1);
+							$eta = $productEta[0]->getEta();
+							$purchaseOrderItems[] = array('id'=> $item->getId(), 'product'=> $product->getJson(), 'unitPrice'=> $unitPrice, 'qty'=> $qty, 'totalPrice'=> $totalPrice, 'eta'=>$eta, 'receievedQty'=> $receivedQty);
+					};
+					$poitems = $receivingItems = array();
+					$js = parent::_getEndJs();
+					$js .= "pageJs.setPreData(" . json_encode($purchaseOrder->getJson()) . ")";
+					$js .= ".setHTMLID('paymentPanel', 'payment_panel')";
+					$js .= ".setHTMLID('totalPriceExcludeGST', 'total_price_exclude_gst')";
+					$js .= ".setHTMLID('totalPriceGST', 'total_price_gst')";
+					$js .= ".setHTMLID('totalPriceIncludeGST', 'total_price_include_gst')";
+					$js .= ".setHTMLID('totalPaidAmount', 'total-paid-amount')";
+					$js .= ".setHTMLID('totalShippingCost', 'total-shipping-cost')";
+					$js .= ".setComment(" . json_encode($comments) . ")";
+					$js .= ".setStatusOptions(" . json_encode($statusOptions) . ")";
+					$js .= ".setCallbackId('searchProduct', '" . $this->searchProductBtn->getUniqueID() . "')";
+					$js .= ".setCallbackId('saveOrder', '" . $this->saveOrderBtn->getUniqueID() . "')";
+					$js .= ".setPurchaseOrderItems(" . json_encode($purchaseOrderItems) . ")";
+					$js .= ".load()";
+					$js .= "._loadDataPicker()";
+					$js .= ".bindAllEventNObjects();";
+					return $js;
 	}
 	/**
 	 * Searching searchProduct
@@ -166,66 +168,71 @@ class DetailsController extends DetailsPageAbstract
 			Dao::beginTransaction();
 			if(!($purchaseOrder = PurchaseOrder::get(trim($param->CallbackParameter->id))) instanceof PurchaseOrder)
 				throw new Exception('Invalid Purchase Order passed in!');
-			if(!($supplier = Supplier::get(trim($param->CallbackParameter->supplierId))) instanceof Supplier)
-				throw new Exception('Invalid Supplier passed in!');
-			$isSubmit = isset($param->CallbackParameter->isSubmit) && intval($param->CallbackParameter->isSubmit) === 1 ? true : false;
-			$supplierRefNum = trim($param->CallbackParameter->supplierRefNum);
-			$supplierContactName = trim($param->CallbackParameter->contactName);
-			$supplierContactNo = trim($param->CallbackParameter->contactNo);
-			$shippingCost = trim($param->CallbackParameter->shippingCost);
-			$handlingCost = trim($param->CallbackParameter->handlingCost);
-			$comment = trim($param->CallbackParameter->comments);
-			$status = trim($param->CallbackParameter->status);
-			$eta =trim($param->CallbackParameter->ETA);
-			$purchaseOrderTotalAmount = trim($param->CallbackParameter->totalAmount);
-			$purchaseOrderTotalPaid = trim($param->CallbackParameter->totalPaid);
-			$purchaseOrder->setTotalAmount($purchaseOrderTotalAmount)
-				->setTotalPaid($purchaseOrderTotalPaid)
-				->setSupplierRefNo($supplierRefNum)
-				->setSupplierContact($supplierContactName)
-				->setSupplierContactNumber($supplierContactNo)
-				->setshippingCost($shippingCost)
-				->sethandlingCost($handlingCost)
-				->setStatus($status)
-				->setEta($eta)
-				->save();
-			$purchaseOrder->addComment($comment, Comments::TYPE_PURCHASING);
-			foreach ($param->CallbackParameter->items as $item) {
-				$productUnitPrice = trim($item->unitPrice);
-				$qtyOrdered = trim($item->qtyOrdered);
-				$productTotalPrice = trim($item->totalPrice);
-				if(!($product = Product::get(trim($item->productId))) instanceof Product)
-					throw new Exception('Invalid Product passed in!');
-				if(!isset($item->id) || trim($item->id) === '') {
-					$poItem = null;
-					$purchaseOrder->addItem($product, $productUnitPrice, $qtyOrdered, '', '', $productTotalPrice, $poItem);
-				} else if(($poItem = PurchaseOrderItem::get($item->id)) instanceof PurchaseOrderItem) {
-					$poItem->setProduct($product)
-						->setUnitPrice($productUnitPrice)
-						->setTotalPrice($productTotalPrice)
-						->setQty($qtyOrdered);
-				}
-				$poItem->setActive(intval($item->active) === 1)
+				if(!($supplier = Supplier::get(trim($param->CallbackParameter->supplierId))) instanceof Supplier)
+					throw new Exception('Invalid Supplier passed in!');
+					$isSubmit = isset($param->CallbackParameter->isSubmit) && intval($param->CallbackParameter->isSubmit) === 1 ? true : false;
+					$supplierRefNum = trim($param->CallbackParameter->supplierRefNum);
+					$supplierContactName = trim($param->CallbackParameter->contactName);
+					$supplierContactNo = trim($param->CallbackParameter->contactNo);
+					$shippingCost = trim($param->CallbackParameter->shippingCost);
+					$handlingCost = trim($param->CallbackParameter->handlingCost);
+					$comment = trim($param->CallbackParameter->comments);
+					$status = trim($param->CallbackParameter->status);
+					$eta =trim($param->CallbackParameter->ETA);
+					$purchaseOrderTotalAmount = trim($param->CallbackParameter->totalAmount);
+					$purchaseOrderTotalPaid = trim($param->CallbackParameter->totalPaid);
+					$purchaseOrder->setTotalAmount($purchaseOrderTotalAmount)
+					->setTotalPaid($purchaseOrderTotalPaid)
+					->setSupplierRefNo($supplierRefNum)
+					->setSupplierContact($supplierContactName)
+					->setSupplierContactNumber($supplierContactNo)
+					->setshippingCost($shippingCost)
+					->sethandlingCost($handlingCost)
+					->setStatus($status)
+					->setEta($eta)
 					->save();
-			};
-			$results['item'] = $purchaseOrder->getJson();
-			if($isSubmit === true) {
-				$pdfFile = EntityToPDF::getPDF($purchaseOrder);
-				$confirmEmail = trim($param->CallbackParameter->contactEmail);
-				$asset = Asset::registerAsset($purchaseOrder->getPurchaseOrderNo() . '.pdf', file_get_contents($pdfFile), Asset::TYPE_TMP);
-				//EmailSender::addEmail('purchasing@budgetpc.com.au', $confirmEmail, 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo(), 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
-				$emailList = str_replace(',', ';', $confirmEmail);
-				$emailLists = explode(';', $emailList);
-				foreach($emailLists as $emailAddress)
-				{
-					$emailAddress = trim($emailAddress);
-					if ($emailAddress == '') continue;
-					EmailSender::addEmail('purchasing@budgetpc.com.au', $emailAddress, 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo(), 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
-				}
-				EmailSender::addEmail('purchasing@budgetpc.com.au', 'purchasing@budgetpc.com.au', 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo(), 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
-				$purchaseOrder->addComment('An email sent to "' . $confirmEmail . '" with the attachment: ' . $asset->getAssetId(), Comments::TYPE_SYSTEM);
-			}
-			Dao::commitTransaction();
+					$purchaseOrder->addComment($comment, Comments::TYPE_PURCHASING);
+					foreach ($param->CallbackParameter->items as $item) {
+						$productUnitPrice = trim($item->unitPrice);
+						$qtyOrdered = trim($item->qtyOrdered);
+						$productTotalPrice = trim($item->totalPrice);
+						if(!($product = Product::get(trim($item->productId))) instanceof Product)
+							throw new Exception('Invalid Product passed in!');
+							if(!isset($item->id) || trim($item->id) === '') {
+								$poItem = null;
+								$purchaseOrder->addItem($product, $productUnitPrice, $qtyOrdered, '', '', $productTotalPrice, $poItem);
+							} else if(($poItem = PurchaseOrderItem::get($item->id)) instanceof PurchaseOrderItem) {
+								$poItem->setProduct($product)
+								->setUnitPrice($productUnitPrice)
+								->setTotalPrice($productTotalPrice)
+								->setQty($qtyOrdered);
+									
+								$productEta = ProductEta::getAllByCriteria('purchaseOrderId = ? and itemId = ?', array($purchaseOrder->getId(),$item->id), true, 1, 1);
+								$productEta[0]->setEta($item->eta);
+							}
+							$poItem->setActive(intval($item->active) === 1)
+							->save();
+							$productEta[0]->setActive(intval($item->active) === 1)
+							->save();
+					};
+					$results['item'] = $purchaseOrder->getJson();
+					if($isSubmit === true) {
+						$pdfFile = EntityToPDF::getPDF($purchaseOrder);
+						$confirmEmail = trim($param->CallbackParameter->contactEmail);
+						$asset = Asset::registerAsset($purchaseOrder->getPurchaseOrderNo() . '.pdf', file_get_contents($pdfFile), Asset::TYPE_TMP);
+						//EmailSender::addEmail('purchasing@budgetpc.com.au', $confirmEmail, 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo(), 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
+						$emailList = str_replace(',', ';', $confirmEmail);
+						$emailLists = explode(';', $emailList);
+						foreach($emailLists as $emailAddress)
+						{
+							$emailAddress = trim($emailAddress);
+							if ($emailAddress == '') continue;
+							EmailSender::addEmail('purchasing@budgetpc.com.au', $emailAddress, 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo(), 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
+						}
+						EmailSender::addEmail('purchasing@budgetpc.com.au', 'purchasing@budgetpc.com.au', 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo(), 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
+						$purchaseOrder->addComment('An email sent to "' . $confirmEmail . '" with the attachment: ' . $asset->getAssetId(), Comments::TYPE_SYSTEM);
+					}
+					Dao::commitTransaction();
 		}
 		catch(Exception $ex)
 		{
@@ -247,29 +254,29 @@ class DetailsController extends DetailsPageAbstract
 			$perchaseorder = !isset($param->CallbackParameter->id) ? new PurchaseOrder() : PurchaseOrder::get(trim($param->CallbackParameter->id));
 			if(!$perchaseorder instanceof PurchaseOrder)
 				throw new Exception('Invalid Purchase Order passed in!');
-			$purchaseOrderNo = trim($param->CallbackParameter->purchaseOrderNo);
-			$supplierId = trim($param->CallbackParameter->supplierId);
-			$supplier = Supplier::get($supplierId);
-			$orderDate = trim($param->CallbackParameter->orderDate);
-			$totalAmount = trim($param->CallbackParameter->totalAmount);
-			$totalPaid = trim($param->CallbackParameter->totalPaid);
+				$purchaseOrderNo = trim($param->CallbackParameter->purchaseOrderNo);
+				$supplierId = trim($param->CallbackParameter->supplierId);
+				$supplier = Supplier::get($supplierId);
+				$orderDate = trim($param->CallbackParameter->orderDate);
+				$totalAmount = trim($param->CallbackParameter->totalAmount);
+				$totalPaid = trim($param->CallbackParameter->totalPaid);
 
-			if(isset($param->CallbackParameter->id)) {
-				$perchaseorder->setPurchaseOrderNo($purchaseOrderNo)
+				if(isset($param->CallbackParameter->id)) {
+					$perchaseorder->setPurchaseOrderNo($purchaseOrderNo)
 					->setSupplier($supplier)
 					->setSupplierRefNo($supplierId)
 					->setOrderDate($orderDate)
 					->setTotalAmount($totalAmount)
 					->setTotalPaid($totalPaid)
 					->save();
-			} else {
-// 				PurchaseOrder::
-			}
+				} else {
+					// 				PurchaseOrder::
+				}
 
-			$results['url'] = '/purchase/' . $perchaseorder->getId() . '.html';
-			$results['item'] = $perchaseorder->getJson();
+				$results['url'] = '/purchase/' . $perchaseorder->getId() . '.html';
+				$results['item'] = $perchaseorder->getJson();
 
-			Dao::commitTransaction();
+				Dao::commitTransaction();
 		}
 		catch(Exception $ex)
 		{

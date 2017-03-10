@@ -267,7 +267,7 @@ class PurchaseOrderItem extends BaseEntityAbstract
 			->setUnitPrice($unitPrice)
 			->setQty($qty)
 			->setStore(Core::getUser()->getStore())
-			->setReceivedQty($receivedQty)
+// 			->setReceivedQty($receivedQty)
 			->setTotalPrice(trim($totalPrice) !== '' ? $totalPrice : ($unitPrice * $qty))
 			->save()
 			->addLog($msg, Log::TYPE_SYSTEM, 'Auto Log', __CLASS__ . '::' . __FUNCTION__);
