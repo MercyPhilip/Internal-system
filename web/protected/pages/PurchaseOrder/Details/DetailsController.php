@@ -192,6 +192,7 @@ class DetailsController extends DetailsPageAbstract
 					->setEta($eta)
 					->save();
 					$purchaseOrder->addComment($comment, Comments::TYPE_PURCHASING);
+					
 					foreach ($param->CallbackParameter->items as $item) {
 						$productUnitPrice = trim($item->unitPrice);
 						$qtyOrdered = trim($item->qtyOrdered);
@@ -200,20 +201,21 @@ class DetailsController extends DetailsPageAbstract
 							throw new Exception('Invalid Product passed in!');
 							if(!isset($item->id) || trim($item->id) === '') {
 								$poItem = null;
-								$purchaseOrder->addItem($product, $productUnitPrice, $qtyOrdered, '', '', $productTotalPrice, $poItem);
+								$purchaseOrder->addItem($product, $productUnitPrice, $qtyOrdered, $item->eta, '', '', $productTotalPrice, $poItem);
 							} else if(($poItem = PurchaseOrderItem::get($item->id)) instanceof PurchaseOrderItem) {
 								$poItem->setProduct($product)
 								->setUnitPrice($productUnitPrice)
 								->setTotalPrice($productTotalPrice)
 								->setQty($qtyOrdered);
-									
+								
 								$productEta = ProductEta::getAllByCriteria('purchaseOrderId = ? and itemId = ?', array($purchaseOrder->getId(),$item->id), true, 1, 1);
 								$productEta[0]->setEta($item->eta);
+								$productEta[0]->setActive(intval($item->active) === 1)
+								->save();
 							}
 							$poItem->setActive(intval($item->active) === 1)
 							->save();
-							$productEta[0]->setActive(intval($item->active) === 1)
-							->save();
+							
 					};
 					$results['item'] = $purchaseOrder->getJson();
 					if($isSubmit === true) {

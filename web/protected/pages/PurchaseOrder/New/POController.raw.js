@@ -106,7 +106,7 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 			tmp.item = item.retrieve('data');
 			tmp.item.totalPrice = tmp.item.totalPrice ? tmp.me.getValueFromCurrency(tmp.item.totalPrice) : '0';
 			tmp.item.unitPrice = tmp.item.unitPrice ? tmp.me.getValueFromCurrency(tmp.item.unitPrice) : '0';
-			tmp.submitData.items.push({'productId': tmp.item.product.id, 'qtyOrdered': tmp.item.qtyOrdered, 'totalPrice': tmp.item.totalPrice, 'unitPrice': tmp.item.unitPrice});
+			tmp.submitData.items.push({'productId': tmp.item.product.id, 'qtyOrdered': tmp.item.qtyOrdered, 'totalPrice': tmp.item.totalPrice, 'unitPrice': tmp.item.unitPrice, 'eta': tmp.item.eta});
 		});
 		if(tmp.submitData.items.size() <= 0) {
 			tmp.me.showModalBox('<strong class="text-danger">Error</strong>', 'At least one order item is needed!', true);
@@ -264,7 +264,7 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 		$$('.datepicker').each(function(item){
 			if(!item.hasClassName('datepicked')) {
 				tmp.me._signRandID(item);
-				tmp.picker = new Prado.WebUI.TDatePicker({'ID': item.id, 'InputMode':"TextBox",'Format':"yyyy-MM-dd 00:00:00",'FirstDayOfWeek':1,'CalendarStyle':"default",'FromYear':2009,'UpToYear':2024,'PositionMode':"Bottom", "ClassName": 'datepicker-layer-fixer'});
+				tmp.picker = new Prado.WebUI.TDatePicker({'ID': item.id, 'InputMode':"TextBox",'Format':"yyyy-MM-dd",'FirstDayOfWeek':1,'CalendarStyle':"default",'FromYear':2009,'UpToYear':2024,'PositionMode':"Bottom", "ClassName": 'datepicker-layer-fixer'});
 				item.store('picker', tmp.picker);
 			}
 		});
@@ -283,7 +283,7 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'productName'})
 				.insert({'bottom': orderItem.product.name })
 			})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'uprice col-xs-2'})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'uprice col-xs-1'})
 				.insert({'bottom': (orderItem.unitPrice) })
 				.observe('keydown', function(event){
 					tmp.txtBox = this;
@@ -306,6 +306,16 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'tprice col-xs-1'})
 				.insert({'bottom': (orderItem.totalPrice) })
+				.observe('keydown', function(event){
+					tmp.txtBox = this;
+					tmp.me.keydown(event, function() {
+						$(tmp.txtBox).up('.item_row').down('.glyphicon.glyphicon-floppy-saved').click();
+					});
+					return false;
+				})
+			})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'eta col-xs-1'})
+				.insert({'bottom': (orderItem.eta) })
 				.observe('keydown', function(event){
 					tmp.txtBox = this;
 					tmp.me.keydown(event, function() {
@@ -605,6 +615,7 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 	,_addNewProductRow: function(btn, poItem) {
 		var tmp = {};
 		tmp.me = this;
+
 		tmp.currentRow = $(btn).up('.new-order-item-input');
 		tmp.product = (typeof poItem === 'undefined') ? tmp.currentRow.retrieve('product') : poItem.product;
 		if(!tmp.product) {
@@ -629,6 +640,10 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 			return ;
 		}
 		tmp.totalPrice = tmp.me.getValueFromCurrency(tmp.unitPrice) * tmp.qtyOrdered;
+		
+		tmp.etaBox = tmp.currentRow.down('[new-order-item=eta]');
+		tmp.eta = (typeof poItem === 'undefined') ? $F(tmp.etaBox) : poItem.eta;
+	
 		//clear all error msg
 		tmp.currentRow.getElementsBySelector('.form-group.has-error .form-control').each(function(control){
 			$(control).retrieve('clearErrFunc')();
@@ -640,6 +655,7 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 			'unitPrice': tmp.me.getCurrency(tmp.unitPrice),
 			'qtyOrdered': tmp.qtyOrdered,
 			'totalPrice': tmp.me.getCurrency(tmp.totalPrice),
+			'eta'		: tmp.eta,
 			'btns': new Element('span', {'class': 'pull-right'})
 				.insert({'bottom': new Element('span', {'class': 'btn btn-danger btn-xs'})
 				.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-trash'}) })
@@ -716,11 +732,22 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 					$(this).select();
 				})
 			)
+			,'eta': tmp.me._getFormGroup( null, new Element('input', {'class': 'datepicker input-sm', 'new-order-item': 'eta', 'save-order': 'ETA', 'value': ''})
+				.observe('keyup', function(){
+					tmp.row =$(this).up('.item_row');
+					tmp.eta = $F(this);
+				})
+				.observe('click', function(event){
+					$(this).select();
+					
+				})
+			)
 			, 'btns': new Element('span', {'class': 'btn-group btn-group-sm pull-right new-order-item-btn'})
 					.insert({'bottom': new Element('span', {'class': 'btn btn-primary'})
 					.insert({'bottom': new Element('span', {'class': ' glyphicon glyphicon-floppy-saved'}) })
 					.observe('click', function() {
 						tmp.me._addNewProductRow(this);
+						tmp.me._loadDataPicker();
 					})
 				})
 				.insert({'bottom': new Element('span', {'class': 'btn btn-default'})
@@ -749,7 +776,7 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me = this;
 		//header row
 		tmp.productListDiv = new Element('table', {'class': 'table table-hover table-condensed order_change_details_table'})
-			.insert({'bottom': tmp.me._getProductRow({'product': {'sku': 'SKU', 'name': 'Description'}, 'unitPrice': 'Unit Price (Ex GST)', 'qtyOrdered': 'Qty', 'totalPrice': 'Total Price (Ex GST)'}, true)
+			.insert({'bottom': tmp.me._getProductRow({'product': {'sku': 'SKU', 'name': 'Description'}, 'unitPrice': 'Unit Price (Ex GST)', 'qtyOrdered': 'Qty', 'totalPrice': 'Total Price (Ex GST)', 'eta': 'ETA'}, true)
 				.wrap( new Element('thead') )
 			});
 		// tbody

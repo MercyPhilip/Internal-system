@@ -206,6 +206,12 @@ class Product extends InfoEntityAbstract
 	 */
 	private $weight = 0;
 	/**
+	 * The ETA of the product
+	 *
+	 * @var ProductEta array
+	 */
+	protected $eta = null;
+	/**
 	 * Getter for categories
 	 *
 	 * @return array()
@@ -873,6 +879,27 @@ class Product extends InfoEntityAbstract
 	{
 	    $this->weight = $value;
 	    return $this;
+	}
+	/**
+	 * Getter for ETA
+	 *
+	 * @return array()
+	 */
+	public function getProductEta()
+	{
+		if (!$this->eta instanceof ProductEta)
+		{
+			$etas = ProductEta::getAllByCriteria('productId = ? and storeId = ?', array($this->getId(), Core::getUser()->getStore()->getId()));
+			if(count($etas) > 0) {
+				foreach ($etas as $key => $value) {
+					$dataEta[] = ['key' => $key, 'eta' => $value->getEta()];
+				}
+				
+				$results = Config::multi_array_sort($dataEta, 'eta', SORT_REGULAR, SORT_ASC);
+				$this->eta = $etas[$results[0]['key']];
+			}
+		}
+		return $this->eta;
 	}
 	/**
 	 * Setter for attributeSet

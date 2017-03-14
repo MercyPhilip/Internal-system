@@ -69,13 +69,28 @@ abstract class Config
 	{
 		return dirname(__FILE__) . DIRECTORY_SEPARATOR . '..' . DIRECTORY_SEPARATOR . 'conf' . DIRECTORY_SEPARATOR;
 	}
-	
+	/**
+	 * For Debug
+	 *
+	 */
 	public static function dd($param) {
 		ob_start();
 		var_dump($param);
 		$content = ob_get_contents();
 		ob_end_clean();
 		file_put_contents('/tmp/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ':' . $content . PHP_EOL, FILE_APPEND | LOCK_EX);
+	}
+	/**
+	 * Sort array by value of specified key
+	 *
+	 * @return array
+	 */
+	public static function multi_array_sort($arr, $key, $type ,$sortType ){
+		foreach ($arr as $k => $v){
+			$name[$k] = $v[$key];
+		}
+		array_multisort($name, $sortType, $type, $arr);
+		return $arr;
 	}
 }
 

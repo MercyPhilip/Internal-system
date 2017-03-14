@@ -143,7 +143,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 	}
 	,_loadDataPicker: function () {
 		$$('.datepicker').each(function(item){
-			new Prado.WebUI.TDatePicker({'ID': item, 'InputMode':"TextBox",'Format':"yyyy-MM-dd 00:00:00",'FirstDayOfWeek':1,'CalendarStyle':"default",'FromYear':2009,'UpToYear':2024,'PositionMode':"Bottom", "ClassName": 'datepicker-layer-fixer'});
+			new Prado.WebUI.TDatePicker({'ID': item, 'InputMode':"TextBox",'Format':"yyyy-MM-dd",'FirstDayOfWeek':1,'CalendarStyle':"default",'FromYear':2009,'UpToYear':2024,'PositionMode':"Bottom", "ClassName": 'datepicker-layer-fixer'});
 		});
 		return this;
 	}
@@ -483,7 +483,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					$(this).select();
 				})
 			)
-			,'eta': tmp.me._getFormGroup( null, new Element('input', {'style': 'max-height:30px', 'class': 'datepicker', 'save-order': 'ETA', 'value': ''})
+			,'eta': tmp.me._getFormGroup( null, new Element('input', {'class': 'input-sm datepicker', 'new-order-item': 'eta', 'save-order': 'ETA', 'value': ''})
 				.observe('keyup', function(){
 					tmp.row =$(this).up('.item_row');
 					tmp.eta = $F(this);
@@ -497,6 +497,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					.insert({'bottom': new Element('span', {'class': ' glyphicon glyphicon-floppy-saved'}) })
 					.observe('click', function() {
 						tmp.me._addNewProductRow(this);
+						tmp.me._loadDataPicker();
 					})
 				})
 				.insert({'bottom': new Element('span', {'class': 'btn btn-default'})
@@ -652,7 +653,6 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		
 		tmp.etaBox = tmp.currentRow.down('[new-order-item=eta]');
 		tmp.eta = (typeof poItem === 'undefined') ? $F(tmp.etaBox) : poItem.eta;
-		console.log(tmp.eta);
 		
 		//clear all error msg
 		tmp.currentRow.getElementsBySelector('.form-group.has-error .form-control').each(function(control){
