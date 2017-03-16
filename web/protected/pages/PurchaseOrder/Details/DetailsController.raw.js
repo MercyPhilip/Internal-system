@@ -653,7 +653,10 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		
 		tmp.etaBox = tmp.currentRow.down('[new-order-item=eta]');
 		tmp.eta = (typeof poItem === 'undefined') ? $F(tmp.etaBox) : poItem.eta;
-		
+		if(tmp.eta === '') {
+			tmp.me._markFormGroupError(tmp.etaBox, 'Invalid value provided!');
+			return ;
+		}	
 		//clear all error msg
 		tmp.currentRow.getElementsBySelector('.form-group.has-error .form-control').each(function(control){
 			$(control).retrieve('clearErrFunc')();

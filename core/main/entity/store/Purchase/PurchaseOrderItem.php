@@ -273,6 +273,15 @@ class PurchaseOrderItem extends BaseEntityAbstract
 		->addLog($msg, Log::TYPE_SYSTEM, 'Auto Log', __CLASS__ . '::' . __FUNCTION__);
 		$po->addLog($msg, Log::TYPE_SYSTEM, 'Auto Log', __CLASS__ . '::' . __FUNCTION__);
 		ProductEta::create($po, $product, $entity->getId(), $eta);
+		
+		$status = ProductStatus::get(7);
+		$stock = $product->getStock();
+		if ($stock instanceof ProductStockInfo)
+		{
+			$stock->setStatus($status);
+			$stock->save();
+		}
+		
 		return $entity;
 	}
 }

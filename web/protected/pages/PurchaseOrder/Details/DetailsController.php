@@ -212,6 +212,14 @@ class DetailsController extends DetailsPageAbstract
 								$productEta[0]->setEta($item->eta);
 								$productEta[0]->setActive(intval($item->active) === 1)
 								->save();
+								
+								$status = ProductStatus::get(7);
+								$stock = $product->getStock();
+								if ($stock instanceof ProductStockInfo)
+								{
+									$stock->setStatus($status);
+									$stock->save();
+								}
 							}
 							$poItem->setActive(intval($item->active) === 1)
 							->save();

@@ -888,8 +888,9 @@ class Product extends InfoEntityAbstract
 	public function getProductEta()
 	{
 		if (!$this->eta instanceof ProductEta)
-		{
-			$etas = ProductEta::getAllByCriteria('productId = ? and storeId = ?', array($this->getId(), Core::getUser()->getStore()->getId()));
+		{	
+			$etas = ProductEta::getAllByCriteria('storeId = ? and productId = ?', array(Core::getUser()->getStore()->getId(), $this->getId(), ),true);
+			Config::dd($etas);
 			if(count($etas) > 0) {
 				foreach ($etas as $key => $value) {
 					$dataEta[] = ['key' => $key, 'eta' => $value->getEta()];
@@ -1233,6 +1234,10 @@ class Product extends InfoEntityAbstract
 				$array['totalRMAValue'] = $this->getstock()->getTotalRMAValue();
 				$array['totalOnHandValue'] = $this->getstock()->getTotalOnHandValue();
 				$array['totalInPartsValue'] = $this->getstock()->getTotalInPartsValue();
+				if($this->getProductEta() instanceof ProductEta){
+					$array['eta'] = $this->getProductEta()->getEta();
+				}
+				
 			}
 		}
 		catch (Exception $ex)

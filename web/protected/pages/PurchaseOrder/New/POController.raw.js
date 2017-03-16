@@ -643,6 +643,10 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 		
 		tmp.etaBox = tmp.currentRow.down('[new-order-item=eta]');
 		tmp.eta = (typeof poItem === 'undefined') ? $F(tmp.etaBox) : poItem.eta;
+		if(tmp.eta === '') {
+			tmp.me._markFormGroupError(tmp.etaBox, 'Invalid value provided!');
+			return ;
+		}
 	
 		//clear all error msg
 		tmp.currentRow.getElementsBySelector('.form-group.has-error .form-control').each(function(control){
@@ -732,7 +736,7 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 					$(this).select();
 				})
 			)
-			,'eta': tmp.me._getFormGroup( null, new Element('input', {'class': 'datepicker input-sm', 'new-order-item': 'eta', 'save-order': 'ETA', 'value': ''})
+			,'eta': tmp.me._getFormGroup( null, new Element('input', {'id':'eta', 'class': 'datepicker input-sm', 'new-order-item': 'eta', 'save-order': 'ETA', 'value': ''})
 				.observe('keyup', function(){
 					tmp.row =$(this).up('.item_row');
 					tmp.eta = $F(this);
