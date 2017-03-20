@@ -526,9 +526,9 @@ class PurchaseOrder extends BaseEntityAbstract
 	 *
 	 * @return PurchaseOrder
 	 */
-	public function addItem(Product $product, $unitPrice = '0.0000', $qty = 1, $eta, $supplierItemCode = '', $description = '', $totalPrice = null, &$newItem = null)
+	public function addItem(Product $product, $unitPrice = '0.0000', $qty = 1, $etaItem, $supplierItemCode = '', $description = '', $totalPrice = null, &$newItem = null)
 	{
-		$newItem = PurchaseOrderItem::create($this, $product, $unitPrice, $qty, $eta, $supplierItemCode, $description, $totalPrice);
+		$newItem = PurchaseOrderItem::create($this, $product, $unitPrice, $qty, $etaItem, $supplierItemCode, $description, $totalPrice);
 		return $this;
 	}
 	/**

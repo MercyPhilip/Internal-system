@@ -54,7 +54,7 @@ class DetailsController extends DetailsPageAbstract
 							$qty = $item->getQty();
 							$totalPrice = $item->getTotalPrice();
 							$receivedQty = $item->getReceivedQty();
-							$productEta = ProductEta::getAllByCriteria('purchaseOrderId = ? and itemId = ?', array($purchaseOrder->getId(),$item->getId()), true, 1, 1);
+							$productEta = ProductEta::getAllByCriteria('purchaseOrderId = ? and purchaseOrderItemId = ?', array($purchaseOrder->getId(),$item->getId()), true, 1, 1);
 							$eta = $productEta[0]->getEta();
 							$purchaseOrderItems[] = array('id'=> $item->getId(), 'product'=> $product->getJson(), 'unitPrice'=> $unitPrice, 'qty'=> $qty, 'totalPrice'=> $totalPrice, 'eta'=>$eta, 'receievedQty'=> $receivedQty);
 					};
@@ -199,6 +199,7 @@ class DetailsController extends DetailsPageAbstract
 						$productTotalPrice = trim($item->totalPrice);
 						if(!($product = Product::get(trim($item->productId))) instanceof Product)
 							throw new Exception('Invalid Product passed in!');
+							
 							if(!isset($item->id) || trim($item->id) === '') {
 								$poItem = null;
 								$purchaseOrder->addItem($product, $productUnitPrice, $qtyOrdered, $item->eta, '', '', $productTotalPrice, $poItem);
@@ -208,17 +209,20 @@ class DetailsController extends DetailsPageAbstract
 								->setTotalPrice($productTotalPrice)
 								->setQty($qtyOrdered);
 								
-								$productEta = ProductEta::getAllByCriteria('purchaseOrderId = ? and itemId = ?', array($purchaseOrder->getId(),$item->id), true, 1, 1);
+								$productEta = ProductEta::getAllByCriteria('purchaseOrderId = ? and purchaseOrderItemId = ?', array($purchaseOrder->getId(),$item->id), true, 1, 1);
 								$productEta[0]->setEta($item->eta);
 								$productEta[0]->setActive(intval($item->active) === 1)
 								->save();
 								
-								$status = ProductStatus::get(7);
+								
 								$stock = $product->getStock();
 								if ($stock instanceof ProductStockInfo)
-								{
-									$stock->setStatus($status);
-									$stock->save();
+								{	
+									if($stock->getStockOnHand() <= 0){
+										$status = ProductStatus::get(7);
+										$stock->setStatus($status);
+										$stock->save();
+									}
 								}
 							}
 							$poItem->setActive(intval($item->active) === 1)

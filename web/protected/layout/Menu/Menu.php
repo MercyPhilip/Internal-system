@@ -109,7 +109,8 @@ class Menu extends TTemplateControl
 					'icon' => '<span class="fa fa-area-chart"></span>',
 					'RunRates' =>array('url' => '/report/runrate.html', 'name' => 'Run Rate', 'icon' => '<span class="glyphicon glyphicon-plus"></span>'),
 					'BuyInReport' =>array('url' => '/report/buyinreport.html', 'name' => 'Buy In Report', 'icon' => '<span class="glyphicon glyphicon-log-in"></span>'),
-					'SellingReport' =>array('url' => '/report/sellingreport.html', 'name' => 'Selling Report', 'icon' => '<span class="glyphicon glyphicon-log-out"></span>')
+					'SellingReport' =>array('url' => '/report/sellingreport.html', 'name' => 'Selling Report', 'icon' => '<span class="glyphicon glyphicon-log-out"></span>'),
+					'eta' => array('url' => '/etareport.html', 'name' => 'ETA', 'icon' => '<span class="glyphicon glyphicon-eye-open"></span>')
 			);
 		}
 		if(AccessControl::canAccessCreateProductPage(Core::getRole())) {
