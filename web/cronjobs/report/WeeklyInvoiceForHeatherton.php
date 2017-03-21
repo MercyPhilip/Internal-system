@@ -50,14 +50,38 @@ class WeeklyInvoiceForHeatherton extends ExportAbstract
 		$now->setTimeZone('Australia/Melbourne');
 		$formatArray = array();
 		foreach($orders as $order)
-		{
+		{ 
+			$creditNotes = CreditNote::getAllByCriteria('orderId = ?', array($order->getId()));
+			if(count($creditNotes) == 0){
+				$creditNoteNo = '';
+				$creditNoteAmount = '0.0000';
+			} else {
+				$creditNoteNo = $creditNotes[0]->getCreditNoteNo();
+				$creditNoteAmount = StringUtilsAbstract::getCurrency($creditNotes[0]->getTotalValue());
+			}
+			$shippments = $order->getShippments();
+			if(count($shippments) == 0){
+				$shippedDate = '';
+			} else {
+				if(is_string($shippments[0]->getShippingDate()))
+					$shippedDate = new UDate($shippments[0]->getShippingDate());
+					$shippedDate = $shippedDate->setTimeZone('Australia/Melbourne')->__toString();
+			}
+			$status = $order->getStatus();
 			$return[] = array(
-					'Order Number' => $order->getOrderNo()
-					,'Order Date'=> $order->getOrderDate()->setTimeZone('Australia/Melbourne')->__toString()
-					,'Tax Invoice No.'=> $order->getInvNo()
-					,'Invoice Date'=> $order->getInvDate()->setTimeZone('Australia/Melbourne')->__toString()
-					,'PO Number'=> $order->getPONo()
-					,'Total Amount'=> StringUtilsAbstract::getCurrency($order->getTotalAmount())
+					'Invoice No.' 	 => $order->getInvNo(),
+					'Invoice Date'	 => $order->getInvDate()->setTimeZone('Australia/Melbourne')->__toString(),
+					'Order No.' 	 => $order->getOrderNo(),
+					'Shipped Date'   => $shippedDate,
+					'PO No.'		 => $order->getPONo(),
+					'Customer Name'  => 'GU GROUP PTY LTD',
+					'Status'		 => $status->getName(),
+					'Total Amount'	 => StringUtilsAbstract::getCurrency($order->getTotalAmount()),
+					'Total Paid'	 => StringUtilsAbstract::getCurrency($order->getTotalPaid()),
+					'Total Credited' => StringUtilsAbstract::getCurrency($order->getTotalCreditNoteValue()),
+					'Total Due'		 => StringUtilsAbstract::getCurrency($order->getTotalDue()),
+					'Credit Note No.' => $creditNoteNo,
+					'Credit Note Total Amount' => $creditNoteAmount
 			);
 		}
 		return $return;
@@ -89,8 +113,8 @@ class WeeklyInvoiceForHeatherton extends ExportAbstract
 			$class = get_called_class();
 			// 			$helinEmail = 'helin16@gmail.com';
 			$accountEmail = 'aiden.l@budgetpc.com.au';
-// 			$heathertonEmail = 'sales.heatherton@budgetpc.com.au';
-			$heathertonEmail = 'philip.x@budgetpc.com.au';
+			$heathertonEmail = 'sales.heatherton@budgetpc.com.au';
+// 			$heathertonEmail = 'philip.x@budgetpc.com.au';
 			// 			EmailSender::addEmail('', $helinEmail, $class::_getMailTitle(), $class::_getMailBody(), $assets);
 			EmailSender::addEmail('', $accountEmail, $class::_getMailTitle(), $class::_getMailBody(), $assets);
 			EmailSender::addEmail('', $heathertonEmail, $class::_getMailTitle(), $class::_getMailBody(), $assets);
