@@ -51,8 +51,6 @@ class WeeklyInvoiceForHeatherton extends ExportAbstract
 		$formatArray = array();
 		foreach($orders as $order)
 		{
-			$return = array();
-
 			$return[] = array(
 					'Order Number' => $order->getOrderNo()
 					,'Order Date'=> $order->getOrderDate()->setTimeZone('Australia/Melbourne')->__toString()
@@ -86,13 +84,13 @@ class WeeklyInvoiceForHeatherton extends ExportAbstract
 	protected static function _mailOut(Asset $asset = null)
 	{
 		$assets = array();
-		Config::dd($asset);
 		if($asset instanceof Asset)
 			$assets[] = $asset;
 			$class = get_called_class();
 			// 			$helinEmail = 'helin16@gmail.com';
-			$accountEmail = 'accounts@budgetpc.com.au';
-			$heathertonEmail = 'sales.heatherton@budgetpc.com.au';
+			$accountEmail = 'aiden.l@budgetpc.com.au';
+// 			$heathertonEmail = 'sales.heatherton@budgetpc.com.au';
+			$heathertonEmail = 'philip.x@budgetpc.com.au';
 			// 			EmailSender::addEmail('', $helinEmail, $class::_getMailTitle(), $class::_getMailBody(), $assets);
 			EmailSender::addEmail('', $accountEmail, $class::_getMailTitle(), $class::_getMailBody(), $assets);
 			EmailSender::addEmail('', $heathertonEmail, $class::_getMailTitle(), $class::_getMailBody(), $assets);
