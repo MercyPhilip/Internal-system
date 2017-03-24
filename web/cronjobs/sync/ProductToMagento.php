@@ -184,6 +184,14 @@ abstract class ProductToMagento
         		continue;
         	$products[$productTierPrice->getProduct()->getId()] = $productTierPrice->getProduct();
         }
+        //product ETA
+        $productEtas = ProductEta::getAllByCriteria('updated >= ?', array(trim($lastUpdatedTime)), true);
+        self::_log('GOT ' . count($productEtas) . ' Product ETA(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
+        foreach ($productEtas as $productEta) {
+        	if(!$productEta->getProduct() instanceof Product || array_key_exists($productEta->getProduct()->getId(), $products))
+        		continue;
+        		$products[$productEta->getProduct()->getId()] = $productEta->getProduct();
+        }
         return $products;
     }
     /**
@@ -389,6 +397,7 @@ abstract class ProductToMagento
    	    $groupPrices =  array();
    	    $tierPrices = array();
    	    $tierLevels = TierLevel::getAllByCriteria('id > 1');
+   	    $eta = '';
    	    foreach ($tierLevels as $tierLevel)
    	    {
    	    	$keyGroup = 'group_price:' . $tierLevel->getName();
@@ -563,6 +572,11 @@ abstract class ProductToMagento
    	        	}
    	        }
    	        $totalStockOnHand = $stock2 . $stock1;
+   	        
+   	        //Product ETA
+   	        if($product->getProductEta() instanceof ProductEta) {
+   	        	$eta = $product->getProductEta()->getEta();
+   	        }
    	    }
    	    $categoryIds = array_unique($categoryIds);
    		$result = array("store" => 'admin, default',
@@ -637,7 +651,9 @@ abstract class ProductToMagento
    				"is_recurring" => '',
    				"customtab" => $feature,
    				"customtabtitle" => $feature != '' ? 'Feature' : '',
-   				"media_gallery_reset" => 0);
+   				"media_gallery_reset" => 0,
+   				"eta" => $eta
+   		);
    		if (count($groupPrices) > 0)
    		{
    			foreach($groupPrices as $key => $groupPrice)

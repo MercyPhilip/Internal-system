@@ -1,11 +1,11 @@
 <?php
 /**
  * Entity for PurchaseOrder
- *
- * @package    Core
- * @subpackage Entity
- * @author     lhe<helin16@gmail.com>
- */
+*
+* @package    Core
+* @subpackage Entity
+* @author     lhe<helin16@gmail.com>
+*/
 class PurchaseOrder extends BaseEntityAbstract
 {
 	const PO_NO_PRE = 'BPO_';
@@ -102,7 +102,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function getPurchaseOrderNo()
 	{
-	    return $this->purchaseOrderNo;
+		return $this->purchaseOrderNo;
 	}
 	/**
 	 * Setter for purchaseOrderNo
@@ -113,8 +113,8 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function setPurchaseOrderNo($value)
 	{
-	    $this->purchaseOrderNo = $value;
-	    return $this;
+		$this->purchaseOrderNo = $value;
+		return $this;
 	}
 	/**
 	 * getter for isCredit
@@ -163,7 +163,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	public function getSupplier()
 	{
 		$this->loadManyToOne('supplier');
-	    return $this->supplier;
+		return $this->supplier;
 	}
 	/**
 	 * Setter for supplier
@@ -174,8 +174,8 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function setSupplier(Supplier $value)
 	{
-	    $this->supplier = $value;
-	    return $this;
+		$this->supplier = $value;
+		return $this;
 	}
 	/**
 	 * Getter for supplierRefNo
@@ -184,7 +184,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function getSupplierRefNo()
 	{
-	    return $this->supplierRefNo;
+		return $this->supplierRefNo;
 	}
 	/**
 	 * Setter for supplierRefNo
@@ -195,8 +195,8 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function setSupplierRefNo($value)
 	{
-	    $this->supplierRefNo = $value;
-	    return $this;
+		$this->supplierRefNo = $value;
+		return $this;
 	}
 	/**
 	 * Getter for status
@@ -205,7 +205,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function getStatus()
 	{
-	    return $this->status;
+		return $this->status;
 	}
 	/**
 	 * Setter for status
@@ -216,8 +216,8 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function setStatus($value)
 	{
-    	$this->status = trim($value);
-	    return $this;
+		$this->status = trim($value);
+		return $this;
 	}
 	/**
 	 * Getter for supplierContact
@@ -226,7 +226,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function getSupplierContact()
 	{
-	    return $this->supplierContact;
+		return $this->supplierContact;
 	}
 	/**
 	 * Setter for supplierContact
@@ -237,8 +237,8 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function setSupplierContact($value)
 	{
-	    $this->supplierContact = $value;
-	    return $this;
+		$this->supplierContact = $value;
+		return $this;
 	}
 	/**
 	 * Getter for supplierContactNumber
@@ -311,7 +311,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	public function getItems()
 	{
 		$this->loadOneToMany('items');
-	    return $this->items;
+		return $this->items;
 	}
 	/**
 	 * Setter for items
@@ -322,8 +322,8 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function setItems($value)
 	{
-	    $this->items = $value;
-	    return $this;
+		$this->items = $value;
+		return $this;
 	}
 	/**
 	 * Getter for totalProdcutCount
@@ -355,7 +355,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	public function getOrderDate()
 	{
 		$this->orderDate = new UDate(trim($this->orderDate));
-	    return $this->orderDate;
+		return $this->orderDate;
 	}
 	/**
 	 * Setter for orderDate
@@ -366,8 +366,8 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function setOrderDate($value)
 	{
-	    $this->orderDate = $value;
-	    return $this;
+		$this->orderDate = $value;
+		return $this;
 	}
 	/**
 	 * Getter for eta
@@ -377,7 +377,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	public function getEta()
 	{
 		$this->eta = new UDate(trim($this->eta));
-	    return $this->eta;
+		return $this->eta;
 	}
 	/**
 	 * Setter for eta
@@ -388,8 +388,8 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function setEta($value)
 	{
-	    $this->eta = $value;
-	    return $this;
+		$this->eta = $value;
+		return $this;
 	}
 	/**
 	 * validating the status
@@ -459,12 +459,12 @@ class PurchaseOrder extends BaseEntityAbstract
 		$receivedItems = ReceivingItem::getAllByCriteria('purchaseOrderId = ?', array($this->getId()));
 		if(count($receivedItems) === 0)
 			return 0;
-		$totalValue = 0;
-		foreach($receivedItems as $item)
-		{
-			$totalValue = $totalValue + ($item->getUnitPrice() * $item->getQty());
-		}
-		return $totalValue;
+			$totalValue = 0;
+			foreach($receivedItems as $item)
+			{
+				$totalValue = $totalValue + ($item->getUnitPrice() * $item->getQty());
+			}
+			return $totalValue;
 	}
 	/**
 	 * Getting the supplier invoices
@@ -484,7 +484,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	{
 		if(trim($this->getPurchaseOrderNo()) === '') {
 			$this->setPurchaseOrderNo(self::PO_NO_PRE . str_pad($this->getId(), 6, '0', STR_PAD_LEFT))
-				->save();
+			->save();
 		}
 		//if the order status is ordered, then calculated the
 		if(intval($this->getActive()) === 0 || trim($this->getStatus()) === PurchaseOrder::STATUS_CANCELED) {
@@ -492,15 +492,15 @@ class PurchaseOrder extends BaseEntityAbstract
 			foreach($items as $item) {
 				$item->getProduct()->ordered(0 - $item->getQty(), 'PO(' . $this->getPurchaseOrderNo() . ') is CANCELLED or Deactivated', $item);
 				$item->setStockCalculated(false)
-					->save()
-					->addLog('UNMarked this item for StockOnPO and stockCalculated', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__);
+				->save()
+				->addLog('UNMarked this item for StockOnPO and stockCalculated', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__);
 			}
 			$this->addComment(count($items) . ' POItem(s) are reverted, as this PO is now deactivated or CANCELLED');
 
 			$receivedItems = ReceivingItem::getAllByCriteria('purchaseOrderId = ?', array($this->getId()));
 			foreach($receivedItems as $item) {
 				$item->setActive(false)
-					->save();
+				->save();
 			}
 		}
 		else if(trim($this->getStatus()) === PurchaseOrder::STATUS_ORDERED) {
@@ -508,8 +508,8 @@ class PurchaseOrder extends BaseEntityAbstract
 			foreach($items as $item) {
 				$item->getProduct()->ordered($item->getQty(), 'PO(' . $this->getPurchaseOrderNo() . ') is ordered now.', $item);
 				$item->setStockCalculated(true)
-					->save()
-					->addLog('Marked this item for StockOnPO and stockCalculated', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__);
+				->save()
+				->addLog('Marked this item for StockOnPO and stockCalculated', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__);
 			}
 		}
 	}
@@ -526,9 +526,9 @@ class PurchaseOrder extends BaseEntityAbstract
 	 *
 	 * @return PurchaseOrder
 	 */
-	public function addItem(Product $product, $unitPrice = '0.0000', $qty = 1, $supplierItemCode = '', $description = '', $totalPrice = null, &$newItem = null)
+	public function addItem(Product $product, $unitPrice = '0.0000', $qty = 1, $etaItem, $supplierItemCode = '', $description = '', $totalPrice = null, &$newItem = null)
 	{
-		$newItem = PurchaseOrderItem::create($this, $product, $unitPrice, $qty, $supplierItemCode, $description, $totalPrice);
+		$newItem = PurchaseOrderItem::create($this, $product, $unitPrice, $qty, $etaItem, $supplierItemCode, $description, $totalPrice);
 		return $this;
 	}
 	/**
@@ -542,7 +542,7 @@ class PurchaseOrder extends BaseEntityAbstract
 			if(count($oldStatuses) > 0 && ($oldStatus = trim($oldStatuses[0]['status'])) !== ($status = trim($this->getStatus()))) {
 				$msg = 'Changed status from "' . $oldStatus . '" to "' . $status . '"';
 				$this->addComment($msg, Comments::TYPE_SYSTEM)
-					->addLog($msg, Log::TYPE_SYSTEM, 'PO_STATUS_CHANGE', __CLASS__ . '::' . __FUNCTION__);
+				->addLog($msg, Log::TYPE_SYSTEM, 'PO_STATUS_CHANGE', __CLASS__ . '::' . __FUNCTION__);
 			}
 		}
 		if($this->getFromPO() instanceof PurchaseOrder && intval($this->getIsCredit()) !== 1)
@@ -634,15 +634,15 @@ class PurchaseOrder extends BaseEntityAbstract
 	{
 		$entity = new PurchaseOrder();
 		return $entity->setSupplier($supplier)
-			->setSupplierRefNo(trim($supplierRefNo))
-			->setSupplierContact($supplierContact)
-			->setSupplierContactNumber($supplierContactNumber)
-			->setshippingCost($shippingCost)
-			->sethandlingCost($handlingCost)
-			->setIsCredit($isCredit)
-			->setFromPO($fromPO)
-			->setStore(Core::getUser()->getStore())
-			->save();
+		->setSupplierRefNo(trim($supplierRefNo))
+		->setSupplierContact($supplierContact)
+		->setSupplierContactNumber($supplierContactNumber)
+		->setshippingCost($shippingCost)
+		->sethandlingCost($handlingCost)
+		->setIsCredit($isCredit)
+		->setFromPO($fromPO)
+		->setStore(Core::getUser()->getStore())
+		->save();
 	}
 	/**
 	 * Getter for status options

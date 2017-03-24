@@ -27,10 +27,10 @@ class ComScriptCURL
 		$ch = curl_init();
 		foreach($options as $key => $value)
 		    curl_setopt($ch, $key, $value);
-		curl_exec($ch);
+		$result = curl_exec($ch);
 		fclose($fp);
 		curl_close($ch);
-		return $localFile;
+		return $result;
 	}
 	/**
 	 * read from a url
@@ -57,10 +57,12 @@ class ComScriptCURL
 			$options[$key] = $value;
 		if(count($data) > 0)
 		{
-			if(trim($customerRequest) === '')
+			if(trim($customerRequest) === ''){
 				$options[CURLOPT_POST] = true;
-			else
+				
+			} else {
 				$options[CURLOPT_CUSTOMREQUEST] = $customerRequest;
+			}
 			$options[CURLOPT_POSTFIELDS] = http_build_query($data);
 		}
 		$ch = curl_init();
@@ -108,4 +110,60 @@ class ComScriptCURL
 //                 CURLOPT_PROXYTYPE => CURLPROXY_SOCKS5
 	    );
 	}
+	
+	/**
+	 * upload local file via url
+	 *
+	 * @param string  $url             The url
+	 * @param int     $timeout         The timeout in seconds
+	 * @param array   $header		   The http header
+	 * @param array   $data            The data we are POSTING
+	 * @param array   $extraOpts	   The extraOpts
+	 *
+	 * @return mixed
+	 */
+	public static function uploadFile($url, $timeout = null, array $header = array(), $customerRequest = '', array $data = array(), $extraOpts = array())
+	{
+										
+		$timeout = trim($timeout);
+		$timeout = (!is_numeric($timeout) ? self::CURL_TIMEOUT : $timeout);
+		$options = array(
+				CURLOPT_URL				=> $url,
+				CURLOPT_USERAGENT		=> 'Mozilla/5.0 ( compatible; MSIE 10.0; Windows NT 6.1) Firefox/6.0.2',
+				CURLOPT_SSL_VERIFYPEER 	=> true,
+				CURLOPT_TIMEOUT 		=> $timeout, // set this to 8 hours so we dont timeout on big files
+				CURLOPT_FOLLOWLOCATION	=> true,
+				CURLOPT_RETURNTRANSFER 	=> true,
+				CURLOPT_HEADER 			=> false,
+				CURLOPT_HTTPHEADER 		=> $header,
+/*  				CURLOPT_POST 			=> true,
+				CURLOPT_SAFE_UPLOAD		=> true,
+				CURLOPT_POSTFIELDS		=> $data */
+		);
+  		if(trim($customerRequest) === ''){
+			$options[CURLOPT_POST] = true;
+			
+		} else {
+			$options[CURLOPT_CUSTOMREQUEST] = $customerRequest;
+		} 
+		$options[CURLOPT_SAFE_UPLOAD] = true;
+		$options[CURLOPT_POSTFIELDS] = $data; 
+		foreach(self::_getProxy() as $key => $value)
+			$options[$key] = $value;
+		foreach($extraOpts as $key => $value)
+			$options[$key] = $value;
+
+		$ch = curl_init();
+		foreach($options as $key => $value)
+			curl_setopt($ch, $key, $value);
+		
+		$result = curl_exec($ch);
+		if (curl_errno($ch))
+		{
+			throw new Exception(curl_error($ch), curl_errno($ch));
+		}
+		
+		curl_close($ch);
+		return $result;					
+	}	
 }

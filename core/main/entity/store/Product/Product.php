@@ -206,6 +206,12 @@ class Product extends InfoEntityAbstract
 	 */
 	private $weight = 0;
 	/**
+	 * The ETA of the product
+	 *
+	 * @var ProductEta array
+	 */
+	protected $eta = null;
+	/**
 	 * Getter for categories
 	 *
 	 * @return array()
@@ -875,6 +881,27 @@ class Product extends InfoEntityAbstract
 	    return $this;
 	}
 	/**
+	 * Getter for ETA
+	 *
+	 * @return array()
+	 */
+	public function getProductEta()
+	{
+		if (!$this->eta instanceof ProductEta)
+		{	
+			$etas = ProductEta::getAllByCriteria('storeId = ? and productId = ?', array(Core::getUser()->getStore()->getId(), $this->getId(), ),true);
+			if(count($etas) > 0) {
+				foreach ($etas as $key => $value) {
+					$dataEta[] = ['key' => $key, 'eta' => $value->getEta()];
+				}
+				
+				$results = Config::multi_array_sort($dataEta, 'eta', SORT_REGULAR, SORT_ASC);
+				$this->eta = $etas[$results[0]['key']];
+			}
+		}
+		return $this->eta;
+	}
+	/**
 	 * Setter for attributeSet
 	 *
 	 * @param ProductAttributeSet $value The attributeSet
@@ -1206,6 +1233,10 @@ class Product extends InfoEntityAbstract
 				$array['totalRMAValue'] = $this->getstock()->getTotalRMAValue();
 				$array['totalOnHandValue'] = $this->getstock()->getTotalOnHandValue();
 				$array['totalInPartsValue'] = $this->getstock()->getTotalInPartsValue();
+				if($this->getProductEta() instanceof ProductEta){
+					$array['eta'] = $this->getProductEta()->getEta();
+				}
+				
 			}
 		}
 		catch (Exception $ex)

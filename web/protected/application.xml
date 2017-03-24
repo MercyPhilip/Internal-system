@@ -194,6 +194,9 @@
       <url ServiceParameter="Report.BuyInReport.ReportController" pattern="/report/buyinreport.html" />
       <url ServiceParameter="Report.SellingReport.ReportController" pattern="/report/sellingreport.html" />
       
+      <!-- FrontEnd:: ETA Report page -->
+      <url ServiceParameter="Report.Eta.Controller" pattern="etareport.html"/>
+      
       <!-- FrontEnd:: Product Ageing Report page -->
       <url ServiceParameter="Report.ProductAgeing.ListController" pattern="productageing.html" />
 

@@ -280,6 +280,29 @@ class ReceivingController extends BPCPageAbstract
 					$outStandingOrders[$product->getId()] = array('product' => $product->getJson(), 'recievedQty' => $totalQty, 'outStandingOrders' => array_values($orders));
 				}
 			}
+			
+
+			foreach ($purchaseOrder->getItems() as $poItem){
+				$purchaseOrderItem = PurchaseOrderItem::get($poItem->getId());
+				if($purchaseOrderItem->getReceivedQty() >= $poItem->getQty()){
+					$productEta = ProductEta::getAllByCriteria('purchaseOrderId = ? and purchaseOrderItemId = ?', array($purchaseOrder->getId(),$poItem->getId()), true, 1, 1);
+					if(count($productEta) > 0){
+						$productEta[0]->setActive(0)
+						->save();
+					}
+				}
+			}
+				
+			$stock = $product->getStock();
+			if ($stock instanceof ProductStockInfo)
+			{
+				if($stock->getStockOnHand() > 0){
+					$status = ProductStatus::get(2);
+					$stock->setStatus($status);
+					$stock->save();
+				}
+			}
+			
 			$results['outStandingOrders'] = count($outStandingOrders) > 0 ? array_values($outStandingOrders) : array();
 			$results['item'] = PurchaseOrder::get($purchaseOrder->getId())->getJson();
 			$invoiceNos = array_unique($invoiceNos);

@@ -4,11 +4,25 @@
 var PageJs = new Class.create();
 PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	_tiers: []
-	,_getTitleRowData: function() {
-		return {'email': "Email", 'terms' : 'Terms', 'tier' : {'name' : 'Tier'}, 'name': 'Name', 'contactNo': 'Contact Num', 'description': 'Description', 'addresses': 'Addresses',
-			'address': {'billing': {'full': 'Billing Address'}, 'shipping': {'full': 'Shipping Address'} },
-			'mageId': "Mage Id", 'active': "Active?", 'isBlocked' : 'IsBlocked'
-			};
+	,_getTitleRowData: function(message) {
+		var tmp = {};
+		tmp.me = this;
+		message = message||{};
+//		console.log(firstRow);
+		
+		if(message.length > 0 ){
+			
+			return {'email': "Email", 'terms' : 'Terms', 'tier' : {'name' : 'Tier'}, 'name': 'Name', 'contactNo': 'Contact Num', 'description': 'Description', 'message': message, 'addresses': 'Addresses',
+				'address': {'billing': {'full': 'Billing Address'}, 'shipping': {'full': 'Shipping Address'} },
+				'mageId': "Mage Id", 'active': "Active?", 'isBlocked' : 'IsBlocked', 'groupCom' : 'Commercial Group', 'groupEdu' : 'Educational Group', 'groupGame' : 'Gaming Group'
+				};			
+		} else {
+			return {'email': "Email", 'terms' : 'Terms', 'tier' : {'name' : 'Tier'}, 'name': 'Name', 'contactNo': 'Contact Num', 'description': 'Description', 'addresses': 'Addresses',
+				'address': {'billing': {'full': 'Billing Address'}, 'shipping': {'full': 'Shipping Address'} },
+				'mageId': "Mage Id", 'active': "Active?", 'isBlocked' : 'IsBlocked', 'groupCom' : 'Commercial Group', 'groupEdu' : 'Educational Group', 'groupGame' : 'Gaming Group'
+				};
+		}
+
 	}
 	/**
 	 * Load the tier
@@ -45,6 +59,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				else
 					tmp.me.getSearchCriteria().getResults(true, tmp.me._pagination.pageSize);
 			});
+		
 		$('searchDiv').getElementsBySelector('[search_field]').each(function(item) {
 			item.observe('keydown', function(event) {
 				tmp.me.keydown(event, function() {
@@ -52,6 +67,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				});
 			})
 		});
+
 		return this;
 	}
 	/**
@@ -83,7 +99,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		tmp.item = btn.down('.glyphicon-plus') ? '' : $(btn).up('[item_id]').retrieve('data');
-		jQuery('.item_row.success').removeClass('success');
+//		jQuery('.item_row.success').removeClass('success');
 		tmp.selectedRow = jQuery('[item_id=' + tmp.item.id + ']')
 		.addClass('success');
 	}
@@ -110,7 +126,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				'html'     : true, 
 				'placement': function () {return tmp.type? 'left' : 'right'},
 				'container': 'body', 
-				'trigger'  : 'manual', 
+				'trigger'  : 'manual',
 				'viewport' : {"selector": ".list-panel", "padding": 0 },
 				'content'  : function () {
 					return tmp.type? '<p>' + tmp.item.address.shipping.full +'</p>' : '<p>' + tmp.item.address.billing.full +'</p>'
@@ -185,12 +201,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	 * get result row for data given
 	 */
 	,_getResultRow: function(row, isTitle) {
+
 		var tmp = {};
 		tmp.me = this;
-		tmp.tag = (tmp.isTitle === true ? 'th' : 'td');
+		tmp.tag = (isTitle === true ? 'th' : 'td');
 		tmp.isTitle = (isTitle || false);
 		tmp.row = new Element('tr', {'class': (tmp.isTitle === true ? 'item_top_row' : 'btn-hide-row item_row') + (row.active == 0 ? ' danger' : ''), 'item_id': (tmp.isTitle === true ? '' : row.id)}).store('data', row)
-			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-2'})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-1'})
 				.insert({'bottom': tmp.isTitle == true? '' : new Element('span').setStyle('margin: 0 5px 0 0')
 					.insert({'bottom': new Element('input', {'type': 'checkbox', 'class': 'customer-selected'})
 						.observe('click', function(e){
@@ -236,8 +253,25 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.insert({'bottom': (tmp.isTitle === true ? row.isBlocked : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.isBlocked}) ) })
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'contact col-xs-1 truncate'}).update(row.contactNo)})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'description col-xs-1'}).update(row.description) })
-			.insert({'bottom': new Element(tmp.tag, {'class': 'address col-xs-1'})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'description col-xs-1'}).update(row.description) });
+
+		if(row.hasOwnProperty('message')){	
+//			console.log(row.message);
+			for(var n = row.message.length; n--;) {
+				tmp.row = tmp.row.insert({'bottom': new Element(tmp.tag, {'class': 'message col-xs-1','style': 'width: 12%'})
+					.insert({'bottom': tmp.isTitle === true ? new Element('div',{'style': 'width: 100%'}).insert({'bottom': row.message[n].title })
+							.insert({'bottom': new Element(tmp.tag, {'class': 'message col-xs-1','style': 'width: 12%; padding-left:0'})
+						.insert({'bottom':	new Element('span',{'style': 'float:left; width: 40%; padding-top:5px'}).insert({'bottom':row.message[n].nameOpen }) })
+						.insert({'bottom':	new Element('span',{'style': 'float:left; width: 60%; padding-top:5px'}).insert({'bottom':row.message[n].nameClick}) }) })
+						: new Element('span', {'style': 'display: inline-block; padding-left:15px'})					
+						.insert({'bottom': new Element('span', {'style': 'display: inline-block; padding-right: 15px'}).update(row.message[n].opened) })
+						.insert({'bottom': new Element('span', {'style': 'display: inline-block; padding-left: 50px'}).update(row.message[n].clicked) })
+					})
+				})
+			}
+		}
+			
+		tmp.row = tmp.row.insert({'bottom': new Element(tmp.tag, {'class': 'address col-xs-1'})
 				.insert({'bottom': tmp.isTitle === true ? row.addresses : new Element('span', {'style': 'display: inline-block'})
 					.insert({'bottom': new Element('a', {'class': 'visible-xs visible-md visible-sm visible-lg', 'href': 'javascript: void(0);'})
 						.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-plane address-shipping', 'style': 'font-size: 1.3em'}) })
@@ -258,7 +292,16 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'mageId col-xs-1'}).update(row.mageId) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'cust_active col-xs-1'})
 				.insert({'bottom': (tmp.isTitle === true ? row.active : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.active}) ) })
+			})	
+			.insert({'bottom': new Element(tmp.tag, {'class': 'grouping col-xs-1'})
+				.insert({'bottom': (tmp.isTitle === true ? row.groupCom : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.groupCom}) ) })
 			})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'grouping col-xs-1'})
+				.insert({'bottom': (tmp.isTitle === true ? row.groupEdu : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.groupEdu}) ) })
+			})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'grouping col-xs-1'})
+				.insert({'bottom': (tmp.isTitle === true ? row.groupGame : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.groupGame}) ) })
+			})			
 			
 			.insert({'bottom': new Element(tmp.tag, {'class': 'text-right col-xs-1'}).update(
 				tmp.isTitle === true ?  
@@ -299,6 +342,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					});
 				})	
 			});
+		
 		return tmp.row;
 	}
 	,_getNextPageBtn: function() {
@@ -346,4 +390,152 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			}
 		})
 	}
+	/**
+	 * upload customer list to Act-On
+	 */
+	,integrateActon: function(btn) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.data = {};
+		$$('[search_field]').each(function(item){
+			tmp.data[item.readAttribute('search_field')] = $F(item);
+		});
+		if(confirm(' Would you like to create a contact list on Act-On?'))
+		{
+			tmp.me.postAjax(tmp.me.getCallbackId('integrateActon'), tmp.data, {
+				'onLoading': function() {
+					jQuery(btn).button('loading');
+				}
+				,'onSuccess': function (sender, param) {
+					try {
+						tmp.result = tmp.me.getResp(param, false, true);
+			
+						if(!tmp.result)
+							return;
+						if(tmp.result.errorCode){
+							// errorCode 10056 means list already exists
+							if(tmp.result.errorCode == 10056){
+								if(confirm('The list you selected already exists.\n' + ' Would you like to update the exist list?'))
+								{
+									tmp.me.postAjax(tmp.me.getCallbackId('updateActon'), {'filename': tmp.result.filename, 'listname': tmp.result.listname}, {
+										'onLoading': function() {
+											jQuery(btn).button('loading');
+										}
+										,'onSuccess': function (sender, param) {
+											tmp.result = tmp.me.getResp(param, false, true);
+											if(!tmp.result)
+												return;
+											if(tmp.result.errorCode){
+												tmp.me.showModalBox('Error', tmp.result.message + ' --' + tmp.result.errorCode, false);
+											} else if(tmp.result.status){
+												tmp.me.showModalBox('Success', tmp.result.message, false);
+											}
+										}
+										,'onComplete': function() {
+											jQuery(btn).button('reset');
+										}
+									})
+								}		
+							} else {
+								tmp.me.showModalBox('Error', tmp.result.message + ' --' + tmp.result.errorCode, false);
+							}
+	
+						} else if(tmp.result.status){
+							tmp.me.showModalBox('Success', tmp.result.message, false);
+						}
+						
+	
+					} catch (e) {
+						tmp.me.showModalBox('<b>Error:</b>', '<b class="text-danger">' + e + '</b>');
+					}
+				}
+				,'onComplete': function() {
+					jQuery(btn).button('reset');
+				}
+			})
+		}
+		return tmp.me;
+	}	
+	,checkboxToggle: function(){
+		var tmp = {};
+		tmp.me = this;
+		jQuery('#labelCom').click(function(){
+			jQuery('#groupCom').prop('checked', true);
+			jQuery('.groupGen').prop('checked', false);
+
+		})
+		jQuery('#labelEdu').click(function(){
+			jQuery('#groupEdu').prop('checked', true);
+			jQuery('.groupGen').prop('checked', false);
+
+		})		
+		jQuery('#labelGame').click(function(){
+			jQuery('#groupGame').prop('checked', true);
+			jQuery('.groupGen').prop('checked', false);
+
+		})
+		jQuery('#labelGen').click(function(){
+			jQuery('#groupGen').prop('checked', true);
+			jQuery('.groupCom').prop('checked', false);
+
+		})
+		jQuery('.groupGen').change(function() {
+			if(jQuery(this).is(":checked")){
+				jQuery('.groupCom').prop('checked', false);
+			}
+		})
+		
+		jQuery('.groupCom').change(function() {
+			if(jQuery(this).is(":checked")){
+				jQuery('.groupGen').prop('checked', false);
+			}
+		})
+		return tmp.me;
+	}
+	,_checkActOnEnable: function() {
+		var tmp = {}
+		tmp.me = this;
+
+		tmp.me.postAjax(tmp.me.getCallbackId('checkActOnEnable'),{},{
+			'onLoading':function(){}
+			,'onSuccess': function (sender, param) {
+				tmp.result = tmp.me.getResp(param, false, true);
+				
+				if(!tmp.result)
+					return;
+
+				if(tmp.result.enable == 0){
+					jQuery('#integrateActonBtn','#respondingNum').hide();
+				}
+			}
+			,'onComplete': function(){}
+		})			
+		
+
+		return tmp.me;
+	}
 });
+
+jQuery('#integrateActonBtn').ready(function(){
+	var check = new PageJs();
+	check._checkActOnEnable();
+});
+
+jQuery(document).on('click','th > div > th > span',function(){
+    var table = jQuery(this).parents('table').eq(0);
+    var rows = table.find('tr:gt(0):lt(90)').toArray().sort(comparer(jQuery(this).parents('tr > th').index()));
+//    console.log(table);
+    this.asc = !this.asc;
+    if (!this.asc){rows = rows.reverse();}
+    table.children('tbody').empty().html(rows);
+});
+function comparer(index) {
+    return function(a, b) {
+        var valA = getCellValue(a, index), valB = getCellValue(b, index);
+        return jQuery.isNumeric(valA) && jQuery.isNumeric(valB) ?
+            valA - valB : valA.localeCompare(valB);
+    };
+}
+function getCellValue(row, index){
+    return jQuery(row).children('td').eq(index).text();
+}

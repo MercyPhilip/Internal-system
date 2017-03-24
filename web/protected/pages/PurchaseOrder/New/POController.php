@@ -1,11 +1,11 @@
 <?php
 /**
  * This is the OrderController
- *
- * @package    Web
- * @subpackage Controller
- * @author     lhe<helin16@gmail.com>
- */
+*
+* @package    Web
+* @subpackage Controller
+* @author     lhe<helin16@gmail.com>
+*/
 class POController extends BPCPageAbstract
 {
 	/**
@@ -31,9 +31,9 @@ class POController extends BPCPageAbstract
 		$cScripts = self::getLastestJS(__CLASS__);
 		if (isset($cScripts['js']) && ($lastestJs = trim($cScripts['js'])) !== '')
 			$this->getPage()->getClientScript()->registerScriptFile($thisClass . 'Js', $this->publishFilePath(dirname(__FILE__) . DIRECTORY_SEPARATOR . $lastestJs));
-		if (isset($cScripts['css']) && ($lastestCss = trim($cScripts['css'])) !== '')
-			$this->getPage()->getClientScript()->registerStyleSheetFile($thisClass . 'Css', $this->publishFilePath(dirname(__FILE__) . DIRECTORY_SEPARATOR . $lastestCss));
-		return $this;
+			if (isset($cScripts['css']) && ($lastestCss = trim($cScripts['css'])) !== '')
+				$this->getPage()->getClientScript()->registerStyleSheetFile($thisClass . 'Css', $this->publishFilePath(dirname(__FILE__) . DIRECTORY_SEPARATOR . $lastestCss));
+				return $this;
 	}
 	/**
 	 * Getting The end javascript
@@ -50,14 +50,14 @@ class POController extends BPCPageAbstract
 		$shippingMethods =  array_map(create_function('$a', 'return $a->getJson();'), Courier::getAll());
 		$supplier = (isset($_REQUEST['supplierid']) && ($supplier = Supplier::get(trim($_REQUEST['supplierid']))) instanceof Supplier) ? $supplier->getJson() : null;
 		$js .= "pageJs";
-			$js .= ".setHTMLID('itemDiv', 'detailswrapper')";
-			$js .= ".setHTMLID('searchPanel', 'search_panel')";
-			$js .= ".setCallbackId('searchSupplier', '" . $this->searchSupplierBtn->getUniqueID() . "')";
-			$js .= ".setCallbackId('searchProduct', '" . $this->searchProductBtn->getUniqueID() . "')";
-			$js .= ".setCallbackId('saveOrder', '" . $this->saveOrderBtn->getUniqueID() . "')";
-			$js .= ".setPaymentMethods(" . json_encode($paymentMethods) . ")";
-			$js .= ".setShippingMethods(" . json_encode($shippingMethods) . ")";
-			$js .= ".init(" . json_encode($supplier) . ");";
+		$js .= ".setHTMLID('itemDiv', 'detailswrapper')";
+		$js .= ".setHTMLID('searchPanel', 'search_panel')";
+		$js .= ".setCallbackId('searchSupplier', '" . $this->searchSupplierBtn->getUniqueID() . "')";
+		$js .= ".setCallbackId('searchProduct', '" . $this->searchProductBtn->getUniqueID() . "')";
+		$js .= ".setCallbackId('saveOrder', '" . $this->saveOrderBtn->getUniqueID() . "')";
+		$js .= ".setPaymentMethods(" . json_encode($paymentMethods) . ")";
+		$js .= ".setShippingMethods(" . json_encode($shippingMethods) . ")";
+		$js .= ".init(" . json_encode($supplier) . ");";
 		return $js;
 	}
 	protected function _getJSPrefix()
@@ -189,78 +189,78 @@ class POController extends BPCPageAbstract
 			if(!$supplier instanceof Supplier)
 				throw new Exception('Invalid Supplier passed in!');
 
-			$supplierContactName = trim($param->CallbackParameter->supplier->contactName);
-			$supplierContactNo = trim($param->CallbackParameter->supplier->contactNo);
-			$supplierEmail = trim($param->CallbackParameter->supplier->email);
-			if(!empty($supplierContactName) && $supplierContactName !== $supplier->getContactName())
-				$supplier->setContactName($supplierContactName);
-			if(!empty($supplierContactNo) && $supplierContactNo !== $supplier->getContactNo())
-				$supplier->setContactNo($supplierContactNo);
-			if(!empty($supplierEmail) && $supplierEmail !== $supplier->getEmail())
-				$supplier->setEmail($supplierEmail);
-			$supplier->save();
+				$supplierContactName = trim($param->CallbackParameter->supplier->contactName);
+				$supplierContactNo = trim($param->CallbackParameter->supplier->contactNo);
+				$supplierEmail = trim($param->CallbackParameter->supplier->email);
+				if(!empty($supplierContactName) && $supplierContactName !== $supplier->getContactName())
+					$supplier->setContactName($supplierContactName);
+					if(!empty($supplierContactNo) && $supplierContactNo !== $supplier->getContactNo())
+						$supplier->setContactNo($supplierContactNo);
+						if(!empty($supplierEmail) && $supplierEmail !== $supplier->getEmail())
+							$supplier->setEmail($supplierEmail);
+							$supplier->save();
 
-			$purchaseOrder = PurchaseOrder::create(
-					$supplier,
-					trim($param->CallbackParameter->supplierRefNum),
-					$supplierContactName,
-					$supplierContactNo,
-					StringUtilsAbstract::getValueFromCurrency(trim($param->CallbackParameter->shippingCost)),
-					StringUtilsAbstract::getValueFromCurrency(trim($param->CallbackParameter->handlingCost))
-				)
-				->setTotalAmount(StringUtilsAbstract::getValueFromCurrency(trim($param->CallbackParameter->totalPaymentDue)))
-				->setEta(trim($param->CallbackParameter->eta))
-				->setStatus(PurchaseOrder::STATUS_NEW)
-				->save()
-				->addComment(trim($param->CallbackParameter->comments), Comments::TYPE_PURCHASING);
-			foreach ($param->CallbackParameter->items as $item) {
-				if(!($product = Product::get(trim($item->productId))) instanceof Product)
-					throw new Exception('Invalid Product passed in!');
-				$purchaseOrder->addItem($product, StringUtilsAbstract::getValueFromCurrency(trim($item->unitPrice)), intval(trim($item->qtyOrdered)));
-			};
-			if($param->CallbackParameter->submitToSupplier === true) {
-				$purchaseOrder->setStatus( PurchaseOrder::STATUS_ORDERED )
-					->save();
-			}
+							$purchaseOrder = PurchaseOrder::create(
+									$supplier,
+									trim($param->CallbackParameter->supplierRefNum),
+									$supplierContactName,
+									$supplierContactNo,
+									StringUtilsAbstract::getValueFromCurrency(trim($param->CallbackParameter->shippingCost)),
+									StringUtilsAbstract::getValueFromCurrency(trim($param->CallbackParameter->handlingCost))
+									)
+									->setTotalAmount(StringUtilsAbstract::getValueFromCurrency(trim($param->CallbackParameter->totalPaymentDue)))
+									->setEta(trim($param->CallbackParameter->eta))
+									->setStatus(PurchaseOrder::STATUS_NEW)
+									->save()
+									->addComment(trim($param->CallbackParameter->comments), Comments::TYPE_PURCHASING);
+									foreach ($param->CallbackParameter->items as $item) {
+										if(!($product = Product::get(trim($item->productId))) instanceof Product)
+											throw new Exception('Invalid Product passed in!');
+											$purchaseOrder->addItem($product, StringUtilsAbstract::getValueFromCurrency(trim($item->unitPrice)), intval(trim($item->qtyOrdered)), $item->eta);
+									};
+									if($param->CallbackParameter->submitToSupplier === true) {
+										$purchaseOrder->setStatus( PurchaseOrder::STATUS_ORDERED )
+										->save();
+									}
 
-			$daoStart = false;
-			Dao::commitTransaction();
-			$results['item'] = $purchaseOrder->getJson();
-			if(isset($param->CallbackParameter->confirmEmail) && (trim($confirmEmail = trim($param->CallbackParameter->confirmEmail)) !== '')) {
-				$pdfFile = EntityToPDF::getPDF($purchaseOrder);
-				$asset = Asset::registerAsset($purchaseOrder->getPurchaseOrderNo() . '.pdf', file_get_contents($pdfFile), Asset::TYPE_TMP);
-				//EmailSender::addEmail('purchasing@budgetpc.com.au', $confirmEmail, 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
-				$emailList = str_replace(',', ';', $confirmEmail);
-				$emailLists = explode(';', $emailList);
-				
-				$storeId = Core::getUser()->getStore()->getId();
-				if ($storeId == 2)
-				{
-					$emailFrom = 'purchasing.heatherton@budgetpc.com.au';
-					$subject = 'BudgetPC(' . Core::getUser()->getStore()->getName() . ') Purchase Order:';
-					$fromStore = 'from BudgetPC(' . Core::getUser()->getStore()->getName() . ').';
-				}
-				else 
-				{
-					$emailFrom = 'purchasing@budgetpc.com.au';
-					$subject = 'BudgetPC Purchase Order:';
-					$fromStore = 'from BudgetPC.';
-				}
-				foreach($emailLists as $emailAddress)
-				{
-					$emailAddress = trim($emailAddress);
-					if ($emailAddress == '') continue;
-					EmailSender::addEmail($emailFrom, $emailAddress, $subject . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') ' . $fromStore, array($asset));
-				}
-				EmailSender::addEmail($emailFrom, $emailFrom, $subject . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') ' . $fromStore, array($asset));
-				$purchaseOrder->addComment('An email sent to "' . $confirmEmail . '" with the attachment: ' . $asset->getAssetId(), Comments::TYPE_SYSTEM);
-			}
+									$daoStart = false;
+									Dao::commitTransaction();
+									$results['item'] = $purchaseOrder->getJson();
+									if(isset($param->CallbackParameter->confirmEmail) && (trim($confirmEmail = trim($param->CallbackParameter->confirmEmail)) !== '')) {
+										$pdfFile = EntityToPDF::getPDF($purchaseOrder);
+										$asset = Asset::registerAsset($purchaseOrder->getPurchaseOrderNo() . '.pdf', file_get_contents($pdfFile), Asset::TYPE_TMP);
+										//EmailSender::addEmail('purchasing@budgetpc.com.au', $confirmEmail, 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
+										$emailList = str_replace(',', ';', $confirmEmail);
+										$emailLists = explode(';', $emailList);
+
+										$storeId = Core::getUser()->getStore()->getId();
+										if ($storeId == 2)
+										{
+											$emailFrom = 'purchasing.heatherton@budgetpc.com.au';
+											$subject = 'BudgetPC(' . Core::getUser()->getStore()->getName() . ') Purchase Order:';
+											$fromStore = 'from BudgetPC(' . Core::getUser()->getStore()->getName() . ').';
+										}
+										else
+										{
+											$emailFrom = 'purchasing@budgetpc.com.au';
+											$subject = 'BudgetPC Purchase Order:';
+											$fromStore = 'from BudgetPC.';
+										}
+										foreach($emailLists as $emailAddress)
+										{
+											$emailAddress = trim($emailAddress);
+											if ($emailAddress == '') continue;
+											EmailSender::addEmail($emailFrom, $emailAddress, $subject . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') ' . $fromStore, array($asset));
+										}
+										EmailSender::addEmail($emailFrom, $emailFrom, $subject . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') ' . $fromStore, array($asset));
+										$purchaseOrder->addComment('An email sent to "' . $confirmEmail . '" with the attachment: ' . $asset->getAssetId(), Comments::TYPE_SYSTEM);
+									}
 		}
 		catch(Exception $ex)
 		{
 			if($daoStart === true)
 				Dao::rollbackTransaction();
-			$errors[] = $ex->getMessage() . "<pre>" . $ex->getTraceAsString() . "</pre>";
+				$errors[] = $ex->getMessage() . "<pre>" . $ex->getTraceAsString() . "</pre>";
 		}
 		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
 	}
