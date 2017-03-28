@@ -653,7 +653,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		
 		tmp.etaBox = tmp.currentRow.down('[new-order-item=eta]');
 		tmp.eta = (typeof poItem === 'undefined') ? $F(tmp.etaBox) : poItem.eta;
-		if(tmp.eta === '') {
+		if(tmp.eta === '' && window.location.pathname == 'purchase/new.html') {
 			tmp.me._markFormGroupError(tmp.etaBox, 'Invalid value provided!');
 			return ;
 		}	

@@ -222,7 +222,7 @@ class DetailsController extends DetailsPageAbstract
 								$status = $product->getStatus();
 								if ($status instanceof ProductStatus)
 								{	
-									if($stock->getId() > 7){
+									if($status->getId() > 7){
 										$status = ProductStatus::get(7);
 										$product->setStatus($status);
 									}
