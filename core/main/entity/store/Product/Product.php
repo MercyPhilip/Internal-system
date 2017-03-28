@@ -889,7 +889,7 @@ class Product extends InfoEntityAbstract
 	{
 		if (!$this->eta instanceof ProductEta)
 		{	
-			$etas = ProductEta::getAllByCriteria('storeId = ? and productId = ?', array(Core::getUser()->getStore()->getId(), $this->getId(), ),true);
+			$etas = ProductEta::getAllByCriteria('storeId = ? and productId = ? and received = 0', array(Core::getUser()->getStore()->getId(), $this->getId(), ),true);
 			if(count($etas) > 0) {
 				foreach ($etas as $key => $value) {
 					$dataEta[] = ['key' => $key, 'eta' => $value->getEta()];

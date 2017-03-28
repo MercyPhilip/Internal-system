@@ -55,7 +55,11 @@ class DetailsController extends DetailsPageAbstract
 							$totalPrice = $item->getTotalPrice();
 							$receivedQty = $item->getReceivedQty();
 							$productEta = ProductEta::getAllByCriteria('purchaseOrderId = ? and purchaseOrderItemId = ?', array($purchaseOrder->getId(),$item->getId()), true, 1, 1);
-							$eta = $productEta[0]->getEta();
+							if(count($productEta) > 0){
+								$eta = $productEta[0]->getEta();
+							} else {
+								$eta = '';
+							}
 							$purchaseOrderItems[] = array('id'=> $item->getId(), 'product'=> $product->getJson(), 'unitPrice'=> $unitPrice, 'qty'=> $qty, 'totalPrice'=> $totalPrice, 'eta'=>$eta, 'receievedQty'=> $receivedQty);
 					};
 					$poitems = $receivingItems = array();
@@ -215,13 +219,12 @@ class DetailsController extends DetailsPageAbstract
 								->save();
 								
 								
-								$stock = $product->getStock();
-								if ($stock instanceof ProductStockInfo)
+								$status = $product->getStatus();
+								if ($status instanceof ProductStatus)
 								{	
-									if($stock->getStockOnHand() <= 0){
+									if($stock->getId() > 7){
 										$status = ProductStatus::get(7);
-										$stock->setStatus($status);
-										$stock->save();
+										$product->setStatus($status);
 									}
 								}
 							}

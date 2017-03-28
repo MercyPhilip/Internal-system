@@ -287,7 +287,7 @@ class ReceivingController extends BPCPageAbstract
 				if($purchaseOrderItem->getReceivedQty() >= $poItem->getQty()){
 					$productEta = ProductEta::getAllByCriteria('purchaseOrderId = ? and purchaseOrderItemId = ?', array($purchaseOrder->getId(),$poItem->getId()), true, 1, 1);
 					if(count($productEta) > 0){
-						$productEta[0]->setActive(0)
+						$productEta[0]->setReceived(1)
 						->save();
 					}
 				}
@@ -296,11 +296,13 @@ class ReceivingController extends BPCPageAbstract
 			$stock = $product->getStock();
 			if ($stock instanceof ProductStockInfo)
 			{
-				if($stock->getStockOnHand() > 0){
-					$status = ProductStatus::get(2);
-					$stock->setStatus($status);
-					$stock->save();
+				if($stock->getStockOnHand() > 5){
+					$status = ProductStatus::get(3);
+				}else {
+					$status = ProductStatus::get(4);
 				}
+					$stock->setStatus($status);
+					$stock->save();				
 			}
 			
 			$results['outStandingOrders'] = count($outStandingOrders) > 0 ? array_values($outStandingOrders) : array();
