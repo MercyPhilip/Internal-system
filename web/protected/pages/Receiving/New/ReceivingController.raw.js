@@ -933,7 +933,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.product = product;
 		tmp.btn = $('barcode_input');
 		tmp.me._signRandID(tmp.btn);
-		tmp.me.postAjax(tmp.me.getCallbackId('checkProduct'), {'product': tmp.product, 'purchaseOrder': tmp.me._purchaseOrder}, {
+		tmp.me.postAjax(tmp.me.getCallbackId('checkProduct'), {'product': {'id': tmp.product.id}, 'purchaseOrder': {'id': tmp.me._purchaseOrder.id}}, {
 			'onLoading': function(sender, param) {
 				jQuery('#' + tmp.btn.id).button('loading');
 			}
@@ -1029,7 +1029,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me = this;
 		tmp.btn = btn;
 		tmp.data = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')),'save-order');
-		tmp.data.purchaseOrder = tmp.me._purchaseOrder;
+		tmp.data.purchaseOrder = {'id':tmp.me._purchaseOrder['id']};
 		tmp.data.products = {};
 		tmp.data.products.matched = [];
 		tmp.data.products.notMatched = [];
@@ -1042,9 +1042,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							tmp.scanData.push(tmp.me._collectFormData(scanItem,'scanned-item'));
 						}
 					});
-          tmp.data.products.matched.push({'product':item.retrieve('data'),'serial':tmp.scanData});
+          tmp.data.products.matched.push({'product':{'id': item.retrieve('data').id,'EANcode':item.retrieve('data').EANcode,'UPCcode': item.retrieve('data').UPCcode, 'warehouseLocation':item.retrieve('data').warehouseLocation},'serial':tmp.scanData});
 				} else {
-					tmp.data.products.notMatched.push(item.retrieve('data'));
+					tmp.data.products.notMatched.push({'id': item.retrieve('data').id,'EANcode':item.retrieve('data').EANcode,'UPCcode': item.retrieve('data').UPCcode, 'warehouseLocation':item.retrieve('data').warehouseLocation});
 				}
 			}
 		});
