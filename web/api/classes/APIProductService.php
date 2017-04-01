@@ -350,6 +350,7 @@ class APIProductService extends APIServiceAbstract
         	               $this->_runner->log('Same Image Exists[' . $newImgKey . '], SKIP!', '', APIService::TAB . APIService::TAB . APIService::TAB);
 		                   continue;
 		               }
+		               
 		               $asset = Asset::registerAsset($image['name'], $newImageContent, Asset::TYPE_PRODUCT_IMG);
 		               $this->_runner->log('Registered a new Asset [AssetID=' . $asset->getAssetId() . '].', '', APIService::TAB . APIService::TAB . APIService::TAB);
 		               $product->addImage($asset);
@@ -411,7 +412,8 @@ class APIProductService extends APIServiceAbstract
    		$results=$results['items'][0];
    	}
    	$stockOnHand = $results['stockOnHand'];
-   	return array('stockOnHand' => $stockOnHand);
+   	$statusId = $results['status']['id'];
+   	return array('stockOnHand' => $stockOnHand, 'statusId' => $statusId);
    }
    
    /**

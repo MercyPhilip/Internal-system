@@ -297,9 +297,9 @@ class ReceivingController extends BPCPageAbstract
 			if ($stock instanceof ProductStockInfo)
 			{
 				if($stock->getStockOnHand() > 5){
-					$status = ProductStatus::get(3);
+					$status = ProductStatus::get(2);
 				}else {
-					$status = ProductStatus::get(4);
+					$status = ProductStatus::get(3);
 				}
 					$stock->setStatus($status);
 					$stock->save();				
