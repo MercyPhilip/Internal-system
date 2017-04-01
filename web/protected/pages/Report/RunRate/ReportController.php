@@ -132,8 +132,15 @@ class ReportController extends BPCPageAbstract
             	$extraInfo = array('lastbuyprice' => '', '7days' => 0, '14days' => 0, '1month' => 0, '3month' => 0, '6month' => 0, '12month' => 0);
             else
             	$extraInfo = array('lastbuyprice' => '', $field => 0);
+            
             foreach($result as $row){
-            	$proBrand = Manufacturer::get($row['proBrand'])->getName();
+            	
+            	if(($proBrands = Manufacturer::get($row['proBrand'])) instanceof Manufacturer){
+            		$proBrand = $proBrands->getName();
+            	}else {
+            		Config::dd($row['proId']);
+            		$proBrand = '';
+            	}
             	$row['proBrand'] = $proBrand;
             	$proCats = Product_Category::getAllByCriteria('productId = ?', array($row['proId']));
             	if(count($proCats) > 0){
@@ -142,8 +149,9 @@ class ReportController extends BPCPageAbstract
             		$proCat = '';
             	}
             	
-            	$proIdMaps[$row['proId']] = $row + array('proCat' => $proCat) + $extraInfo;
-            	}
+            		$proIdMaps[$row['proId']] = $row + array('proCat' => $proCat) + $extraInfo;
+            }
+            
             // get last buy price
             $lastbuys = $this->_getLastBuy(array_keys($proIdMaps));
             foreach($lastbuys as $row)
@@ -156,6 +164,7 @@ class ReportController extends BPCPageAbstract
             {
             	$proIdMaps[$row['proId']] = isset($proIdMaps[$row['proId']])? array_merge($proIdMaps[$row['proId']], $row): $proIdMaps[$row['proId']];
             }
+            
             if (!($asset = $this->_getExcel($proIdMaps, $dateRange)) instanceof Asset)
                 throw new Exception('Failed to create a excel file');
             $results['url'] = $asset->getUrl();
