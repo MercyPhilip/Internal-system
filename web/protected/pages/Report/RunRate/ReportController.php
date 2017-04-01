@@ -112,6 +112,7 @@ class ReportController extends BPCPageAbstract
             		prosinfo.totalOnHandValue, pp.price from product pro ' . implode(' ', $joins) . (count($wheres) > 0 ? (' where ' . implode(' AND ', $wheres)) : '');
             $sql = $sql . ' order by pro.sku ';
             $result = Dao::getResultsNative($sql, $params, PDO::FETCH_ASSOC);
+            
             if(count($result) === 0)
                 throw new Exception('No result found!');
             if(count($result) > 3000)
@@ -327,9 +328,13 @@ class ReportController extends BPCPageAbstract
 	    $now = UDate::now();
 	    $objWriter = new PHPExcel_Writer_Excel2007($phpexcel);
 	    $filePath = '/tmp/' . md5($now);
+	    
 	    $objWriter->save($filePath);
+	    Config::dd($filePath);
 	    $fileName = 'RunRate_' . str_replace(':', '_', str_replace('-', '_', str_replace(' ', '_', $now->setTimeZone(SystemSettings::getSettings(SystemSettings::TYPE_SYSTEM_TIMEZONE))))) . '.xlsx';
+	    Config::dd($fileName);
 	    $asset = Asset::registerAsset($fileName, file_get_contents($filePath), Asset::TYPE_TMP);
+	    Config::dd($asset);
 	    return $asset;
 	}
 }
