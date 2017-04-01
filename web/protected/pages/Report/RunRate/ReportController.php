@@ -108,7 +108,7 @@ class ReportController extends BPCPageAbstract
             $joins[] = 'inner join productprice pp on (pp.productId = pro.id and pp.active = 1 and pp.typeId = 1)';
             $joins[] = 'inner join productstockinfo prosinfo on (pro.id = prosinfo.productId and prosinfo.active = 1 and prosinfo.storeId = :storeId)';
             $params['storeId'] = Core::getUser()->getStore()->getId();
-            $sql = 'select pro.id `proId`, pro.sku `proSku`, pro.name `proName`, prosinfo.stockOnHand, 
+            $sql = 'select pro.id `proId`, pro.sku `proSku`, pro.name `proName`, pro.manufacturerId `proBrand`, prosinfo.stockOnHand, 
             		prosinfo.totalOnHandValue, pp.price from product pro ' . implode(' ', $joins) . (count($wheres) > 0 ? (' where ' . implode(' AND ', $wheres)) : '');
             $sql = $sql . ' order by pro.sku ';
             $result = Dao::getResultsNative($sql, $params, PDO::FETCH_ASSOC);
@@ -132,8 +132,18 @@ class ReportController extends BPCPageAbstract
             	$extraInfo = array('lastbuyprice' => '', '7days' => 0, '14days' => 0, '1month' => 0, '3month' => 0, '6month' => 0, '12month' => 0);
             else
             	$extraInfo = array('lastbuyprice' => '', $field => 0);
-            foreach($result as $row)
-                $proIdMaps[$row['proId']] = $row + $extraInfo;
+            foreach($result as $row){
+            	$proBrand = Manufacturer::get($row['proBrand'])->getName();
+            	$row['proBrand'] = $proBrand;
+            	$proCats = Product_Category::getAllByCriteria('productId = ?', array($row['proId']));
+            	if(count($proCats) > 0){
+            		$proCat = $proCats[0]->getCategory()->getName();
+            	}else{
+            		$proCat = '';
+            	}
+            	
+            	$proIdMaps[$row['proId']] = $row + array('proCat' => $proCat) + $extraInfo;
+            	}
             // get last buy price
             $lastbuys = $this->_getLastBuy(array_keys($proIdMaps));
             foreach($lastbuys as $row)
@@ -248,6 +258,8 @@ class ReportController extends BPCPageAbstract
 	    $columnNo = 0;
 	    $rowNo = 1; // excel start at 1 NOT 0
 	    // header row
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Brand');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Category');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'SKU');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Product Name');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Last Buy Price');
@@ -268,6 +280,8 @@ class ReportController extends BPCPageAbstract
 		    foreach($data as $productId => $rowNoData)
 		    {
 		    	$columnNo = 0; // excel start at 1 NOT 0
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proBrand']);
+		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proCat']);
 		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proSku']);
 		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proName']);
 		    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, StringUtilsAbstract::getCurrency(doubleval($rowNoData['lastbuyprice'])));
@@ -304,6 +318,8 @@ class ReportController extends BPCPageAbstract
 	    	foreach($data as $productId => $rowNoData)
 	    	{
 	    		$columnNo = 0; // excel start at 1 NOT 0
+	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proBrand']);
+	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proCat']);
 	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proSku']);
 	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['proName']);
 	    		$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, StringUtilsAbstract::getCurrency(doubleval($rowNoData['lastbuyprice'])));
@@ -330,11 +346,8 @@ class ReportController extends BPCPageAbstract
 	    $filePath = '/tmp/' . md5($now);
 	    
 	    $objWriter->save($filePath);
-	    Config::dd($filePath);
 	    $fileName = 'RunRate_' . str_replace(':', '_', str_replace('-', '_', str_replace(' ', '_', $now->setTimeZone(SystemSettings::getSettings(SystemSettings::TYPE_SYSTEM_TIMEZONE))))) . '.xlsx';
-	    Config::dd($fileName);
 	    $asset = Asset::registerAsset($fileName, file_get_contents($filePath), Asset::TYPE_TMP);
-	    Config::dd($asset);
 	    return $asset;
 	}
 }
