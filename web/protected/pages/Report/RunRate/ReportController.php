@@ -138,7 +138,6 @@ class ReportController extends BPCPageAbstract
             	if(($proBrands = Manufacturer::get($row['proBrand'])) instanceof Manufacturer){
             		$proBrand = $proBrands->getName();
             	}else {
-            		Config::dd($row['proId']);
             		$proBrand = '';
             	}
             	$row['proBrand'] = $proBrand;
