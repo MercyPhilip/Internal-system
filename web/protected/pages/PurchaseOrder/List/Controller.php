@@ -189,6 +189,16 @@ class Controller extends CRUDPageAbstract
     			throw new Exception();
     		$item->setActive(false)
     			->save();
+    		$poItems = PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ?', array($id));
+    		foreach ($poItems as $poItem){
+    			$poItem->setActive(false)
+    				->save();
+    		}
+    		$poEtas = ProductEta::getAllByCriteria('purchaseOrderId = ?', array($id));
+    		foreach ($poEtas as $poEta){
+    			$poEta->setActive(false)
+    			->save();
+    		}
     		$results['item'] = $item->getJson();
     	}
     	catch(Exception $ex)
