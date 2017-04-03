@@ -670,11 +670,6 @@ class ProductController extends CRUDPageAbstract
     	{
     		$errors[] = $ex->getMessage();
     	}
-    	ob_start();
-    	var_dump($results);
-    	$content = ob_get_contents();
-    	ob_end_clean();
-    	file_put_contents('/tmp/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ':' . $content . PHP_EOL, FILE_APPEND | LOCK_EX);
     	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
     }    
 }

@@ -114,6 +114,8 @@ class ProductImage extends BaseEntityAbstract
 		{
 			$array['asset'] = (($asset = Asset::getAsset($this->getImageAssetId())) instanceof Asset) ? $asset->getJson() : null;
 		}
+		// some images contain 'Malformed UTF-8 characters', so delete content from array of asset
+		unset($array['asset']['content']);
 		return parent::getJson($array, $reset);
 	}
 	/**
