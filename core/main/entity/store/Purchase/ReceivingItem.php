@@ -21,6 +21,12 @@ class ReceivingItem extends BaseEntityAbstract
 	 */
 	protected $purchaseOrder;
 	/**
+	 * The purchaseorderitem
+	 *
+	 * @var PurchaseOrderItem
+	 */
+	protected $purchaseOrderItem;
+	/**
 	 * The unitprice of each item
 	 *
 	 * @var double
@@ -89,13 +95,35 @@ class ReceivingItem extends BaseEntityAbstract
 		return $this;
 	}
 	/**
+	 * Getter for purchaseOrderItem
+	 *
+	 * @return PurchaseOrderItem
+	 */
+	public function getPurchaseOrderItem()
+	{
+		$this->loadManyToOne('purchaseOrderItem');
+		return $this->purchaseOrderItem;
+	}
+	/**
+	 * Setter for purchaseOrderItem
+	 *
+	 * @param PurchaseOrderItem $value The purchaseOrderItem
+	 *
+	 * @return ReceivingItem
+	 */
+	public function setPurchaseOrderItem(PurchaseOrderItem $value)
+	{
+		$this->purchaseOrderItem = $value;
+		return $this;
+	}
+	/**
 	 * Getter for unitPrice
 	 *
 	 * @return double
 	 */
 	public function getUnitPrice()
 	{
-	    return $this->unitPrice;
+		return $this->unitPrice;
 	}
 	/**
 	 * Setter for unitPrice
@@ -106,8 +134,8 @@ class ReceivingItem extends BaseEntityAbstract
 	 */
 	public function setUnitPrice($value)
 	{
-	    $this->unitPrice = $value;
-	    return $this;
+		$this->unitPrice = $value;
+		return $this;
 	}
 	/**
 	 * Getter for invoiceNo
@@ -116,7 +144,7 @@ class ReceivingItem extends BaseEntityAbstract
 	 */
 	public function getInvoiceNo()
 	{
-	    return $this->invoiceNo;
+		return $this->invoiceNo;
 	}
 	/**
 	 * Setter for invoiceNo
@@ -127,8 +155,8 @@ class ReceivingItem extends BaseEntityAbstract
 	 */
 	public function setInvoiceNo($value)
 	{
-	    $this->invoiceNo = $value;
-	    return $this;
+		$this->invoiceNo = $value;
+		return $this;
 	}
 	/**
 	 * Getter for serialNo
@@ -137,7 +165,7 @@ class ReceivingItem extends BaseEntityAbstract
 	 */
 	public function getSerialNo()
 	{
-	    return $this->serialNo;
+		return $this->serialNo;
 	}
 	/**
 	 * Setter for serialNo
@@ -148,8 +176,8 @@ class ReceivingItem extends BaseEntityAbstract
 	 */
 	public function setSerialNo($value)
 	{
-	    $this->serialNo = $value;
-	    return $this;
+		$this->serialNo = $value;
+		return $this;
 	}
 	/**
 	 * Getter for qty
@@ -158,7 +186,7 @@ class ReceivingItem extends BaseEntityAbstract
 	 */
 	public function getQty()
 	{
-	    return $this->qty;
+		return $this->qty;
 	}
 	/**
 	 * Setter for qty
@@ -169,8 +197,8 @@ class ReceivingItem extends BaseEntityAbstract
 	 */
 	public function setQty($qty)
 	{
-	    $this->qty = $qty;
-	    return $this;
+		$this->qty = $qty;
+		return $this;
 	}
 	/**
 	 * (non-PHPdoc)
@@ -190,21 +218,22 @@ class ReceivingItem extends BaseEntityAbstract
 				$qty = intval($this->getQty());
 			}
 			$this->getPurchaseOrder()->addLog($msg, Log::TYPE_SYSTEM, Log::TYPE_SYSTEM, $log_Comments, __CLASS__ . '::' . __FUNCTION__)
-				->addComment($msg, Comments::TYPE_WAREHOUSE);
+			->addComment($msg, Comments::TYPE_WAREHOUSE);
 			$this->getProduct()->received($qty, $this->getUnitPrice(), $msg, $this);
-
-			$nofullReceivedItems = PurchaseOrderItem::getAllByCriteria('productId = ? and purchaseOrderId = ? and storeId = ?', array($this->getProduct()->getId(), $this->getPurchaseOrder()->getId(), Core::getUser()->getStore()->getId()), true, 1, 1, array('po_item.receivedQty' => 'asc'));
+			
+			// 						$nofullReceivedItems = PurchaseOrderItem::getAllByCriteria('productId = ? and purchaseOrderId = ? and storeId = ?', array($this->getProduct()->getId(), $this->getPurchaseOrder()->getId(), Core::getUser()->getStore()->getId()), true, 1, 1, array('po_item.receivedQty' => 'asc'));
+			$nofullReceivedItems = $this->getPurchaseOrderItem();
 			if(count($nofullReceivedItems) > 0) {
-				$nofullReceivedItems[0]
-					->setReceivedQty($nofullReceivedItems[0]->getReceivedQty() + $qty)
-					->save()
-					->addLog($msg, Log::TYPE_SYSTEM, $log_Comments, __CLASS__ . '::' . __FUNCTION__)
-					->addComment($msg, Comments::TYPE_WAREHOUSE);
+				$nofullReceivedItems
+				->setReceivedQty($nofullReceivedItems->getReceivedQty() + $qty)
+				->save()
+				->addLog($msg, Log::TYPE_SYSTEM, $log_Comments, __CLASS__ . '::' . __FUNCTION__)
+				->addComment($msg, Comments::TYPE_WAREHOUSE);
 			}
 			$totalCount = PurchaseOrderItem::countByCriteria('active = 1 and purchaseOrderId = ? and receivedQty < qty and storeId = ?', array($this->getPurchaseOrder()->getId(), Core::getUser()->getStore()->getId()));
 			$this->getPurchaseOrder()->setStatus($totalCount > 0 ? PurchaseOrder::STATUS_RECEIVING : PurchaseOrder::STATUS_RECEIVED)
-				->save()
-				->addComment($msg, Comments::TYPE_WAREHOUSE);
+			->save()
+			->addComment($msg, Comments::TYPE_WAREHOUSE);
 		}
 	}
 	/**
@@ -214,12 +243,12 @@ class ReceivingItem extends BaseEntityAbstract
 	public function getJson($extra = array(), $reset = false)
 	{
 		$array = $extra;
-	    if(!$this->isJsonLoaded($reset)) {
-		    $array['createdBy'] = $this->getCreatedBy() instanceof UserAccount ?$this->getCreatedBy()->getJson() : array();
-		    $array['product'] = $this->getProduct() instanceof Product ?$this->getProduct()->getJson() : array();
-		    $array['purchaseOrder'] = $this->getPurchaseOrder() instanceof PurchaseOrder ? $this->getPurchaseOrder()->getJson() : array();
-	    }
-	    return parent::getJson($array, $reset);
+		if(!$this->isJsonLoaded($reset)) {
+			$array['createdBy'] = $this->getCreatedBy() instanceof UserAccount ?$this->getCreatedBy()->getJson() : array();
+			$array['product'] = $this->getProduct() instanceof Product ?$this->getProduct()->getJson() : array();
+			$array['purchaseOrder'] = $this->getPurchaseOrder() instanceof PurchaseOrder ? $this->getPurchaseOrder()->getJson() : array();
+		}
+		return parent::getJson($array, $reset);
 	}
 	/**
 	 * (non-PHPdoc)
@@ -228,8 +257,9 @@ class ReceivingItem extends BaseEntityAbstract
 	public function __loadDaoMap()
 	{
 		DaoMap::begin($this, 'rec_item');
-
+		
 		DaoMap::setManyToOne('purchaseOrder', 'PurchaseOrder', 'rec_item_po');
+		DaoMap::setManyToOne('purchaseOrderItem', 'PurchaseOrderItem', 'rec_item_item');
 		DaoMap::setManyToOne('product', 'Product', 'rec_item_pro');
 		DaoMap::setIntType('unitPrice', 'double', '10,4');
 		DaoMap::setStringType('serialNo', 'varchar', '100');
@@ -240,7 +270,7 @@ class ReceivingItem extends BaseEntityAbstract
 		DaoMap::createIndex('serialNo');
 		DaoMap::createIndex('unitPrice');
 		DaoMap::createIndex('invoiceNo');
-		DaoMap::setIntType('qty');
+		DaoMap::createIndex('qty');
 		DaoMap::commit();
 	}
 	/**
@@ -254,20 +284,22 @@ class ReceivingItem extends BaseEntityAbstract
 	 *
 	 * @return PurchaseOrderItem
 	 */
-	public static function create(PurchaseOrder $po, Product $product, $unitPrice = '0.0000', $qty = 1, $serialNo = '', $invoiceNo = '', $comments = "")
+	public static function create(PurchaseOrder $po, PurchaseOrderItem $item, Product $product, $unitPrice = '0.0000', $qty = 1, $serialNo = '', $invoiceNo = '', $comments = "")
 	{
 		$entity = new ReceivingItem();
 		$msg = 'Received a Product(SKU=' . $product . ') with unitPrice=' . $unitPrice . ', serialNo=' . $serialNo . ', invoiceNo=' . $invoiceNo;
 		$entity->setPurchaseOrder($po)
-			->setProduct($product)
-			->setQty($qty)
-			->setUnitPrice($unitPrice)
-			->setInvoiceNo($invoiceNo)
-			->setSerialNo($serialNo)
-			->setStore(Core::getUser()->getStore())
-			->save()
-			->addComment($comments, Comments::TYPE_WAREHOUSE)
-			->addLog($msg, Log::TYPE_SYSTEM, Log::TYPE_SYSTEM, get_class($entity) . '_CREATE', __CLASS__ . '::' . __FUNCTION__);
+		->setPurchaseOrderItem($item)
+		->setProduct($product)
+		->setQty($qty)
+		->setUnitPrice($unitPrice)
+		->setInvoiceNo($invoiceNo)
+		->setSerialNo($serialNo)
+		->setStore(Core::getUser()->getStore())
+		->save()
+		->addComment($comments, Comments::TYPE_WAREHOUSE)
+		->addLog($msg, Log::TYPE_SYSTEM, Log::TYPE_SYSTEM, get_class($entity) . '_CREATE', __CLASS__ . '::' . __FUNCTION__);
+		
 		return $entity;
 	}
 }

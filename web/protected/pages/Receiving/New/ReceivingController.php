@@ -224,6 +224,7 @@ class ReceivingController extends BPCPageAbstract
 			$invoiceNos = array();
 			foreach ($products->matched as $item) {
 				$product = Product::get(trim($item->product->id));
+				$purchaseOrderItem = PurchaseOrderItem::get(trim($item->product->poItemId));
 				if(!$product instanceof Product)
 					throw new Exception('Invalid Product passed in!');
 
@@ -260,8 +261,9 @@ class ReceivingController extends BPCPageAbstract
 					$invoiceNo = trim($serial->invoiceNo);
 					$invoiceNos[] = $invoiceNo;
 					$comments = trim($serial->comments);
-					ReceivingItem::create($purchaseOrder, $product, $unitPrice, $qty, $serialNo, $invoiceNo, $comments);
+					ReceivingItem::create($purchaseOrder, $purchaseOrderItem, $product, $unitPrice, $qty, $serialNo, $invoiceNo, $comments);
 				}
+				
 				OrderItem::getQuery()->eagerLoad('OrderItem.order', 'inner join', 'ord', 'ord.id = ord_item.orderId and ord.active = 1 and ord.type = :ordType and ord_item.productId = :productId and ord.statusId in ( :statusId1, :statusId2, :statusId3) and ord.storeId = :storeId');
 				$orderItems = OrderItem::getAllByCriteria('ord_item.active = 1 and ord.storeId = ord_item.storeId', array(
 						'ordType' => Order::TYPE_INVOICE
@@ -279,6 +281,7 @@ class ReceivingController extends BPCPageAbstract
 					}
 					$outStandingOrders[$product->getId()] = array('product' => $product->getJson(), 'recievedQty' => $totalQty, 'outStandingOrders' => array_values($orders));
 				}
+				
 			}
 			
 

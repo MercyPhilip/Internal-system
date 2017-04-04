@@ -335,7 +335,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.productListDiv.insert({'bottom': tmp.newDiv = tmp.me._getNewProductRow()});
 		return new Element('div', {'class': 'panel panel-warning'}).insert({'bottom':  tmp.productListDiv});
 	}
-	,_openReceivedItemsListPage: function(productId) {
+	,_openReceivedItemsListPage: function(product) {
 		var tmp = {};
 		tmp.me = this;
 		jQuery.fancybox({
@@ -346,7 +346,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			'fitToView'     : false,
 			'autoSize'      : false,
 			'type'			: 'iframe',
-			'href'			: '/serialnumbers.html?blanklayout=1&productid=' + productId + '&purchaseorderid=' + tmp.me._purchaseOrder.id
+			'href'			: '/serialnumbers.html?blanklayout=1&productid=' + product.id + '&purchaseorderid=' + tmp.me._purchaseOrder.id + '&purchaseorderitemid=' + product.purchaseOrderItem.id
  		});
 		return tmp.me;
 	}
@@ -420,7 +420,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			tmp.wareLocationEL.down('input[save-item=wareLocation]').disabled = true;
 			orderItem.btns = '';
 		}
-		tmp.row = new Element((tmp.isTitle === true ? 'strong' : 'div'), {'class': 'item_row list-group-item', 'productId': orderItem.product.id})
+		tmp.row = new Element((tmp.isTitle === true ? 'strong' : 'div'), {'class': 'item_row list-group-item', 'productId': orderItem.product.id,
+			'poItemId': (orderItem.product.hasOwnProperty('purchaseOrderItem') === true ? orderItem.product.purchaseOrderItem.id : '') })
 			.store('data', orderItem.product)
 			.insert({'bottom': tmp.infoRow = new Element('div', {'class': tmp.isTitle ? 'row btn-hide-row' : 'row btn-hide-row product-head-row'})
 				.insert({'bottom': new Element('span', {'class': ' col-sm-2 productName'})
@@ -432,7 +433,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 						.insert({'bottom': new Element('span', {'class': 'orderedQty'}).update(orderItem.product.purchaseOrderItem ? '/' + orderItem.product.purchaseOrderItem.qty : '') })
 						.observe('click', function(){
 							if(orderItem.product.id && tmp.me._purchaseOrder.id)
-								tmp.me._openReceivedItemsListPage(orderItem.product.id);
+								tmp.me._openReceivedItemsListPage(orderItem.product);
 						})
 					})
 				})
@@ -1042,9 +1043,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							tmp.scanData.push(tmp.me._collectFormData(scanItem,'scanned-item'));
 						}
 					});
-          tmp.data.products.matched.push({'product':{'id': item.retrieve('data').id,'EANcode':item.retrieve('data').EANcode,'UPCcode': item.retrieve('data').UPCcode, 'warehouseLocation':item.retrieve('data').warehouseLocation},'serial':tmp.scanData});
+          tmp.data.products.matched.push({'product':{'id': item.retrieve('data').id, 'poItemId': item.retrieve('data').purchaseOrderItem.id, 'EANcode':item.retrieve('data').EANcode,'UPCcode': item.retrieve('data').UPCcode, 'warehouseLocation':item.retrieve('data').warehouseLocation},'serial':tmp.scanData});
 				} else {
-					tmp.data.products.notMatched.push({'id': item.retrieve('data').id,'EANcode':item.retrieve('data').EANcode,'UPCcode': item.retrieve('data').UPCcode, 'warehouseLocation':item.retrieve('data').warehouseLocation});
+					tmp.data.products.notMatched.push({'id': item.retrieve('data').id, 'poItemId': item.retrieve('data').purchaseOrderItem.id,'EANcode':item.retrieve('data').EANcode,'UPCcode': item.retrieve('data').UPCcode, 'warehouseLocation':item.retrieve('data').warehouseLocation});
 				}
 			}
 		});

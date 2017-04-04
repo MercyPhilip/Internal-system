@@ -36,6 +36,13 @@ class Controller extends CRUDPageAbstract
 				$js .= "$('searchBtn').up('.panel').down('.panel-body').insert({'bottom': new Element('input', {'type': 'hidden', 'search_field': 'purchaseorderid', 'value': '" . $purchaseOrder->getId() . "'}) });";
 				$js .= "$('searchBtn').up('.panel').hide();";
 			}
+			
+			if(isset($_REQUEST['purchaseorderitemid'])) {
+				if (!($purchaseOrderItem = PurchaseOrderItem::get(trim($_REQUEST['purchaseorderitemid']))) instanceof PurchaseOrderItem)
+					die('Invalid PurchaseOrderItem Provided');
+				$js .= "$('searchBtn').up('.panel').down('.panel-body').insert({'bottom': new Element('input', {'type': 'hidden', 'search_field': 'purchaseorderitemid', 'value': '" . $purchaseOrderItem->getId() . "'}) });";
+				$js .= "$('searchBtn').up('.panel').hide();";
+			}
 
 			$js .= "$('searchBtn').click();";
 		}
@@ -73,8 +80,12 @@ class Controller extends CRUDPageAbstract
 				$params[] = trim($productid);
 			}
 			if(isset($serachCriteria['purchaseorderid']) && ($purchaseorderid = trim($serachCriteria['purchaseorderid'])) !== '') {
-				$where[] = 'purchaseorderid = ?';
+				$where[] = 'purchaseOrderId = ?';
 				$params[] = trim($purchaseorderid);
+			}
+			if(isset($serachCriteria['purchaseorderitemid']) && ($purchaseorderitemid = trim($serachCriteria['purchaseorderitemid'])) !== '') {
+				$where[] = 'purchaseOrderItemId = ?';
+				$params[] = trim($purchaseorderitemid);
 			}
 			if(isset($serachCriteria['pro.ids']) && ($productids = trim($serachCriteria['pro.ids'])) !== '' && count($productids = trim($serachCriteria['pro.ids'])) > 0) {
 				$value = explode(',', $productids);
