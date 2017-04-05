@@ -1,20 +1,416 @@
-var PageJs=new Class.create;
-PageJs.prototype=Object.extend(new CRUDPageJs,{_getTitleRowData:function(){return{totalAmount:"PO Amount Inc. GST",totalReceivedValue:"Bill Amount Inc. GST",totalPaid:"Total Paid",purchaseOrderNo:"PO Number",supplier:{name:"Supplier"},status:"Status",supplierRefNo:"PO Ref.",orderDate:"Order Date",active:"Active"}},_loadChosen:function(){jQuery(".chosen").chosen({disable_search_threshold:10,no_results_text:"Oops, nothing found!",width:"95%"});jQuery('.chosen-container input[type="text"]').keydown(function(b){if(13==b.which||
-13==b.keyCode)b.preventDefault(),$("searchPanel").down("#searchBtn").click()});return this},_bindSearchKey:function(){var b,c,a,d;b=this;$$("#searchBtn").first().observe("click",function(a){$$("#showSearch").first().checked?b.getSearchCriteria().getResults(!0,b._pagination.pageSize):$$("#showSearch").first().click()});c=(new Element("input",{"class":"select2 form-control","data-placeholder":"the Name of Supplier",search_field:"po.supplierIds"})).insert({bottom:(new Element("option")).update("")});
-$(b.searchDivId).down('[search_field="po.supplierIds"]').replace(c);jQuery('.select2[search_field="po.supplierIds"]').select2({allowClear:!0,hidden:!0,multiple:!0,ajax:{url:"/ajax/getSuppliers",dataType:"json",delay:10,data:function(a){return{searchTxt:a}},results:function(b){a=[];b.resultData.items.each(function(b){a.push({id:b.id,text:b.name,data:b})});return{results:a}},cache:!0},formatResult:function(a){return a?"<div value="+a.data.id+">"+a.data.name+"</div >":""},escapeMarkup:function(a){return a},
-minimumInputLength:1});c=new Element("select",{"class":"select2 form-control",multiple:!0,"data-placeholder":"the Status of PO",search_field:"po.status"});b._status.each(function(a){c.insert({bottom:d=(new Element("option",{value:a})).update(a)});"NEW"!==a&&"ORDERED"!==a&&"RECEIVING"!==a||d.writeAttribute("selected",!0)});$(b.searchDivId).down('[search_field="po.status"]').replace(c);jQuery('.select2[search_field="po.status"]').select2({allowClear:!0,hidden:!0});c=(new Element("input",{"class":"select2 form-control",
-"data-placeholder":"search for a Products",search_field:"pro.ids"})).insert({bottom:(new Element("option")).update("")});$("searchDiv").down('[search_field="pro.ids"]').replace(c);jQuery('.select2[search_field="pro.ids"]').select2({allowClear:!0,hidden:!0,multiple:!0,ajax:{url:"/ajax/getProducts",dataType:"json",delay:10,data:function(a){return{searchTxt:a,pageNo:1,pageSize:10,userId:jQuery("#userId").attr("value")}},results:function(b){a=[];b.resultData.items.each(function(b){a.push({id:b.id,text:b.name,
-data:b})});return{results:a}},cache:!0},formatResult:function(a){return a?"<div value="+a.data.id+">"+a.data.name+"</div >":""},escapeMarkup:function(a){return a},minimumInputLength:3});$("searchDiv").getElementsBySelector("[search_field]").each(function(a){a.observe("keydown",function(a){b.keydown(a,function(){$(b.searchDivId).down("#searchBtn").click()})})});return this},_loadDataPicker:function(){var b,c;b=this;$$(".datepicker").each(function(a){a.hasClassName("datepicked")||(b._signRandID(a),
-c=new Prado.WebUI.TDatePicker({ID:a.id,InputMode:"TextBox",Format:"yyyy-MM-dd 00:00:00",FirstDayOfWeek:1,CalendarStyle:"default",FromYear:2009,UpToYear:2024,PositionMode:"Bottom",ClassName:"datepicker-layer-fixer"}),a.store("picker",c))});return b},getResults:function(b,c){var a,d,e,f,g;a=this;d=b||!1;e=$(a.resultDivId);!0===d&&(a._pagination.pageNo=1);a._pagination.pageSize=c||a._pagination.pageSize;a.postAjax(a.getCallbackId("getItems"),{pagination:a._pagination,searchCriteria:a._searchCriteria},
-{onLoading:function(){jQuery("#"+a.searchDivId+" #searchBtn").button("loading");!0===d&&e.update((new Element("tr")).update((new Element("td")).update(a.getLoadingImg())))},onSuccess:function(b,c){try{if(f=a.getResp(c,!1,!0))$(a.totalNoOfItemsId).update(f.pageStats.totalRows),!0===d&&e.update(a._getResultRow(a._getTitleRowData(),!0).wrap(new Element("thead"))),e.getElementsBySelector(".paginWrapper").each(function(a){a.remove()}),(g=$(e).down("tbody"))||$(e).insert({bottom:g=new Element("tbody")}),
-f.items.each(function(b){b.item.totalProdcutCount=b.totalProdcutCount;b=b.item;g.insert({bottom:a._getResultRow(b).addClassName("item_row").writeAttribute("item_id",b.id)})}),f.pageStats.pageNumber<f.pageStats.totalPages&&e.insert({bottom:a._getNextPageBtn().addClassName("paginWrapper")})}catch(k){e.insert({bottom:a.getAlertBox("Error",k).addClassName("alert-danger")})}},onComplete:function(){jQuery("#"+a.searchDivId+" #searchBtn").button("reset")}})},_deactivateItem:function(b){var c,a,d;c=this;
-a=$$('[item_id="'+b.id+'"]').first();c.postAjax(c.getCallbackId("deactivateItems"),{item_id:b.id},{onLoading:function(){a&&a.hide();c.hideModalBox()},onSuccess:function(b,f){try{a.toggleClassName("danger");d=c.getResp(f,!1,!0);if(!d.item)throw"errror";a.replace(c._getResultRow(d.item,!1))}catch(g){c.showModalBox('<span class="text-danger">ERROR</span>',g,!0)}},onComplete:function(){a&&a.show()}})},_shoConfirmDel:function(b){var c,a;c=this;a=(new Element("div")).insert({bottom:(new Element("strong")).update("You are about to delete a Purchase Order: "+
-b.purchaseOrderNo)}).insert({bottom:(new Element("strong")).update("After confirming deletion:")}).insert({bottom:(new Element("ul")).insert({bottom:(new Element("li")).update(" - All received item will be deleted, and stock will be reverted from StockOnHand to StockOnPO.")}).insert({bottom:(new Element("li")).update(" - This PO will be dactivated.")})}).insert({bottom:(new Element("div")).update((new Element("strong")).update("Are you sure you want to continue?"))}).insert({bottom:(new Element("div")).insert({bottom:(new Element("span",
-{"class":"btn btn-danger"})).update("YES, deactivate it").observe("click",function(){c._deactivateItem(b)})}).insert({bottom:(new Element("span",{"class":"btn btn-default pull-right"})).update("NO, cancel this").observe("click",function(){c.hideModalBox()})})});c.showModalBox('<strong class="text-warning">Confirm</strong>',a);return c},_getResultRow:function(b,c){var a={me:this};a.tag=!0===a.isTitle?"th":"td";a.isTitle=c||!1;a.invoiceNoDiv=new Element("div");c||b.supplierInvoices.each(function(b){a.invoiceNoDiv.insert({bottom:(new Element("div")).update(b)})});
-a.row=(new Element("tr",{"class":(!0===a.isTitle?"item_top_row":"btn-hide-row item_row po_item")+(0==b.active?" danger":""),item_id:!0===a.isTitle?"":b.id})).store("data",b).insert({bottom:(new Element(a.tag,{"class":"purchaseOrderNo col-xs-1"})).update(a.isTitle?b.purchaseOrderNo:(new Element("a",{href:"/purchase/"+b.id+".html",target:"_BLANK"})).update(b.purchaseOrderNo))}).insert({bottom:(new Element(a.tag,{"class":" col-xs-1"})).update(a.me.loadUTCTime(b.orderDate).toLocaleString())}).insert({bottom:(new Element(a.tag,
-{"class":" col-xs-1"})).update(b.supplier.name?b.supplier.name:"")}).insert({bottom:(new Element(a.tag,{"class":" col-xs-1"})).update(a.isTitle?"Invoice No(s)":b.totalPaid?a.invoiceNoDiv:"")}).insert({bottom:(new Element(a.tag,{"class":" col-xs-1"})).update(b.supplierRefNo?b.supplierRefNo:"")}).insert({bottom:(new Element(a.tag,{"class":" col-xs-1"})).update(a.isTitle?"Products Count":(new Element("a",{href:"/serialnumbers.html?purchaseorderid="+b.id,target:"_BLANK"})).insert({bottom:(new Element("abbr",
-{title:"Received Product Count on this PO"})).update(b.totalReceivedCount)}).insert({bottom:(new Element("span")).update(" / ")}).insert({bottom:(new Element("abbr",{title:"Total Product Count on this PO"})).update(b.totalProductCount)}))}).insert({bottom:(new Element(a.tag,{"class":" col-xs-1"})).update(a.isTitle?"ETA":b.eta?a.me.loadUTCTime(b.eta).toDateString():"")}).insert({bottom:(new Element(a.tag,{"class":" col-xs-1"})).update(a.isTitle?b.totalAmount:a.me.getCurrency(b.totalAmount))}).insert({bottom:(new Element(a.tag,
-{"class":" col-xs-1"})).update(a.isTitle?b.totalReceivedValue:a.me.getCurrency(1.1*b.totalReceivedValue))}).insert({bottom:(new Element(a.tag,{"class":" col-xs-1"})).update(a.isTitle?"Total Paid":b.totalPaid?a.me.getCurrency(b.totalPaid):"")}).insert({bottom:(new Element(a.tag,{"class":" col-xs-1",order_status:b.status})).update(b.status)}).insert({bottom:a.btns=new Element(a.tag,{"class":"col-xs-1 text-right"})});!0!==a.isTitle&&a.btns.insert({bottom:(new Element("div",{"class":"btn-group"})).insert({bottom:!b.id||
-"ORDERED"!==b.status&&"RECEIVING"!==b.status||!0!==b.active?"":(new Element("a",{"class":"btn btn-success btn-xs",href:"/receiving/"+b.id+".html",target:"_BLANK",title:"Receiving Items"})).update("Receiving")}).insert({bottom:(new Element("a",{"class":"btn btn-default btn-xs",title:"Edit",href:"/purchase/"+b.id+".html",target:"_BLANK"})).insert({bottom:new Element("span",{"class":"glyphicon glyphicon-pencil"})})}).insert({bottom:(new Element("span",{"class":"btn btn-danger btn-xs",title:"Delete"})).insert({bottom:new Element("span",
-{"class":"glyphicon glyphicon-trash"})}).observe("click",function(){a.me._shoConfirmDel(b)})})});return a.row},genReport:function(b){var c,a,d,e;c=this;a={};$$("[search_field]").each(function(b){a[b.readAttribute("search_field")]=$F(b)});c.postAjax(c.getCallbackId("genReportmBtn"),a,{onLoading:function(){jQuery(b).button("loading")},onSuccess:function(a,b){try{if((d=c.getResp(b,!1,!0))&&d.url&&(e=window.open(d.url),!e))throw'You browser is blocking the popup window, please click <a class="btn btn-xs btn-primary" href="'+
-d.url+'" target="__BLANK">here</a> to open it manually.';}catch(h){c.showModalBox("<b>Error:</b>",'<b class="text-danger">'+h+"</b>")}},onComplete:function(){jQuery(b).button("reset")}});return c}});
+/**
+ * The page Js file
+ */
+var PageJs = new Class.create();
+
+PageJs.prototype = Object.extend(new CRUDPageJs(), {
+	_getTitleRowData: function() {
+		return {'totalAmount': 'PO Amount Inc. GST', 'totalReceivedValue': 'Bill Amount Inc. GST', 'totalPaid': 'Total Paid', 'purchaseOrderNo': 'PO Number', 'supplier': {'name': 'Supplier'}, 'pickup': 'Pickup','status': 'Status', 'supplierRefNo': 'PO Ref.', 'orderDate': 'Order Date', 'active': 'Active'};
+
+	}
+	,_loadChosen: function () {
+		jQuery(".chosen").chosen({
+			disable_search_threshold: 10,
+			no_results_text: "Oops, nothing found!",
+			width: "95%"
+		});
+		jQuery('.chosen-container input[type="text"]').keydown(function(event) {
+		  if(event.which == 13 || event.keyCode == 13) {
+			event.preventDefault();
+			$('searchPanel').down('#searchBtn').click();
+		  }
+		});
+		return this;
+	}
+	/**
+	 * Binding the search key
+	 */
+	,_bindSearchKey: function() {
+		var tmp = {};
+		tmp.me = this;
+		$$('#searchBtn').first()
+			.observe('click', function(event) {
+				if(!$$('#showSearch').first().checked)
+					$$('#showSearch').first().click();
+				else
+					tmp.me.getSearchCriteria().getResults(true, tmp.me._pagination.pageSize);
+			});
+		tmp.selectEl = new Element('input', {'class': 'select2 form-control', 'data-placeholder': 'the Name of Supplier', 'search_field': 'po.supplierIds'}).insert({'bottom': new Element('option').update('')});
+		$(tmp.me.searchDivId).down('[search_field="po.supplierIds"]').replace(tmp.selectEl);
+		jQuery('.select2[search_field="po.supplierIds"]').select2({
+			allowClear: true,
+			hidden: true,
+			multiple: true,
+			 ajax: { url: "/ajax/getSuppliers",
+					 dataType: 'json',
+					 delay: 10,
+					 data: function (params) {
+						 return {
+							 searchTxt: params, // search term
+						 };
+					 },
+					 results: function (data) {
+						 tmp.result = [];
+						 data.resultData.items.each(function(item){
+							 tmp.result.push({"id": item.id, 'text': item.name, 'data': item});
+						 })
+		                return {
+		                    results:  tmp.result 
+		                };
+		             },
+					 cache: true
+				 },
+				 formatResult : function(result) {
+					 if(!result)
+						 return '';
+					 return '<div value=' + result.data.id + '>' + result.data.name + '</div >';
+				 },
+				 escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+				 minimumInputLength: 1,
+		});
+		tmp.selectEl = new Element('select', {'class': 'select2 form-control', 'multiple': true, 'data-placeholder': 'the Status of PO', 'search_field': 'po.status'});
+		tmp.me._status.each(function(item){
+			tmp.selectEl.insert({'bottom': tmp.option = new Element('option', {'value': item}).update(item)});
+			if(item === 'NEW' || item === 'ORDERED' || item === 'RECEIVING')
+				tmp.option.writeAttribute('selected', true);
+		});
+		$(tmp.me.searchDivId).down('[search_field="po.status"]').replace(tmp.selectEl);
+		jQuery('.select2[search_field="po.status"]').select2({
+			allowClear: true,
+			hidden: true,
+		});
+		tmp.selectEl = new Element('input', {'class': 'select2 form-control', 'data-placeholder': 'search for a Products', 'search_field': 'pro.ids'}).insert({'bottom': new Element('option').update('')});
+		$('searchDiv').down('[search_field="pro.ids"]').replace(tmp.selectEl);
+		jQuery('.select2[search_field="pro.ids"]').select2({
+			allowClear: true,
+			hidden: true,
+			multiple: true,
+			ajax: { url: "/ajax/getProducts",
+				dataType: 'json',
+				delay: 10,
+				data: function (params) {
+					return {
+						searchTxt: params, // search term
+						pageNo: 1,
+						pageSize: 10,
+						'userId' : jQuery('#userId').attr('value')
+					};
+				},
+				results: function (data) {
+					tmp.result = [];
+					data.resultData.items.each(function(item){
+						tmp.result.push({"id": item.id, 'text': item.name, 'data': item});
+					})
+					return {
+						results:  tmp.result 
+					};
+				},
+				cache: true
+			},
+			formatResult : function(result) {
+				if(!result)
+					return '';
+				return '<div value=' + result.data.id + '>' + result.data.name + '</div >';
+			},
+			escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+			minimumInputLength: 3,
+		});
+		// bind search key
+		$('searchDiv').getElementsBySelector('[search_field]').each(function(item) {
+			item.observe('keydown', function(event) {
+				tmp.me.keydown(event, function() {
+					$(tmp.me.searchDivId).down('#searchBtn').click();
+				});
+			})
+		});
+		return this;
+	}
+	,_loadDataPicker: function () {
+		var tmp = {};
+		tmp.me = this;
+		$$('.datepicker').each(function(item){
+			if(!item.hasClassName('datepicked')) {
+				tmp.me._signRandID(item);
+				tmp.picker = new Prado.WebUI.TDatePicker({'ID': item.id, 'InputMode':"TextBox",'Format':"yyyy-MM-dd 00:00:00",'FirstDayOfWeek':1,'CalendarStyle':"default",'FromYear':2009,'UpToYear':2024,'PositionMode':"Bottom", "ClassName": 'datepicker-layer-fixer'});
+				item.store('picker', tmp.picker);
+			}
+		});
+		return tmp.me;
+	}
+	,getResults: function(reset, pageSize) {
+		var tmp = {};
+		tmp.num = 0;
+		tmp.me = this;
+		tmp.reset = (reset || false);
+		tmp.resultDiv = $(tmp.me.resultDivId);
+
+		if(tmp.reset === true)
+			tmp.me._pagination.pageNo = 1;
+		tmp.me._pagination.pageSize = (pageSize || tmp.me._pagination.pageSize);
+		tmp.me.postAjax(tmp.me.getCallbackId('getItems'), {'pagination': tmp.me._pagination, 'searchCriteria': tmp.me._searchCriteria}, {
+			'onLoading': function () {
+				jQuery('#' + tmp.me.searchDivId + ' #searchBtn').button('loading');
+				//reset div
+				if(tmp.reset === true) {
+					tmp.resultDiv.update( new Element('tr').update( new Element('td').update( tmp.me.getLoadingImg() ) ) );
+				}
+			}
+			,'onSuccess': function(sender, param) {
+				
+				try{
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result)
+						return;
+					$(tmp.me.totalNoOfItemsId).update(tmp.result.pageStats.totalRows);
+
+					//reset div
+					if(tmp.reset === true) {
+						tmp.resultDiv.update(tmp.me._getResultRow(tmp.me._getTitleRowData(), true).wrap(new Element('thead')));
+					}
+					//remove next page button
+					tmp.resultDiv.getElementsBySelector('.paginWrapper').each(function(item){
+						item.remove();
+					});
+
+					//show all items
+					tmp.tbody = $(tmp.resultDiv).down('tbody');
+					if(!tmp.tbody)
+						$(tmp.resultDiv).insert({'bottom': tmp.tbody = new Element('tbody') });
+					
+					$('pre-selected-count').update(tmp.num);
+					tmp.result.items.each(function(item) {
+						item.item.totalProdcutCount = item.totalProdcutCount;
+						item = item.item;
+						tmp.tbody.insert({'bottom': tmp.me._getResultRow(item).addClassName('item_row').writeAttribute('item_id', item.id) });
+						if(item.pickup == true){
+							tmp.num += 1;	
+						}
+					});
+					//set amount of arranged pickup
+					if($('pre-selected-count').innerHTML.length > 0){
+						tmp.num += parseInt($('pre-selected-count').innerHTML);
+					}
+					
+					$('pre-selected-count').update(tmp.num);
+					
+					//show the next page button
+					if(tmp.result.pageStats.pageNumber < tmp.result.pageStats.totalPages)
+						tmp.resultDiv.insert({'bottom': tmp.me._getNextPageBtn().addClassName('paginWrapper') });
+				} catch (e) {
+					tmp.resultDiv.insert({'bottom': tmp.me.getAlertBox('Error', e).addClassName('alert-danger') });
+				}
+			}
+			,'onComplete': function() {
+				jQuery('#' + tmp.me.searchDivId + ' #searchBtn').button('reset');
+			}
+		});
+	}
+	,_deactivateItem: function(po) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.row = $$('[item_id="'+ po.id +'"]').first();
+		tmp.me.postAjax(tmp.me.getCallbackId('deactivateItems'), {'item_id': po.id}, {
+			'onLoading': function() {
+				if(tmp.row)
+					tmp.row.hide();
+				tmp.me.hideModalBox();
+			}
+			,'onSuccess': function(sender, param){
+				try {
+					tmp.row.toggleClassName('danger');
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result.item)
+						throw 'errror';
+					tmp.row.replace(tmp.me._getResultRow(tmp.result.item, false));
+				} catch(e) {
+					tmp.me.showModalBox('<span class="text-danger">ERROR</span>', e, true);
+				}
+			}
+			,'onComplete': function() {
+				if(tmp.row)
+					tmp.row.show();
+			}
+		});
+	}
+	/**
+	 * showing the confirmation panel for deleting the po
+	 */
+	,_shoConfirmDel: function(purchaseorder) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.confirmDiv = new Element('div')
+			.insert({'bottom': new Element('strong').update('You are about to delete a Purchase Order: ' + purchaseorder.purchaseOrderNo) })
+			.insert({'bottom': new Element('strong').update('After confirming deletion:') })
+			.insert({'bottom': new Element('ul')
+				.insert({'bottom': new Element('li').update(' - All received item will be deleted, and stock will be reverted from StockOnHand to StockOnPO.') })
+				.insert({'bottom': new Element('li').update(' - This PO will be dactivated.') })
+			})
+			.insert({'bottom': new Element('div').update(new Element('strong').update('Are you sure you want to continue?')) })
+			.insert({'bottom': new Element('div')
+				.insert({'bottom': new Element('span', {'class': 'btn btn-danger'})
+					.update('YES, deactivate it')
+					.observe('click', function(){
+						tmp.me._deactivateItem(purchaseorder);
+					})
+				})
+				.insert({'bottom': new Element('span', {'class': 'btn btn-default pull-right'})
+					.update('NO, cancel this')
+					.observe('click', function(){
+						tmp.me.hideModalBox();
+					})
+				})
+			});
+		tmp.me.showModalBox('<strong class="text-warning">Confirm</strong>', tmp.confirmDiv);
+		return tmp.me;
+	}
+	/**
+	 * Getting each row for displaying the result list
+	 */
+	,_getResultRow: function(row, isTitle) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.tag = (tmp.isTitle === true ? 'th' : 'td');
+		tmp.isTitle = (isTitle || false);
+		tmp.invoiceNoDiv = new Element('div');
+		if(!isTitle)
+			row.supplierInvoices.each(function(item){
+				tmp.invoiceNoDiv.insert({'bottom': new Element('div').update(item)})
+			});
+		tmp.row = new Element('tr', {'class': (tmp.isTitle === true ? 'item_top_row' : 'btn-hide-row item_row po_item') + (row.active == 0 ? ' danger' : ''), 'item_id': (tmp.isTitle === true ? '' : row.id)}).store('data', row)
+			.insert({'bottom': new Element(tmp.tag, {'class': 'purchaseOrderNo col-xs-1'}).update( tmp.isTitle ? row.purchaseOrderNo :
+				new Element('a', {'href': '/purchase/' + row.id + '.html', 'target': '_BLANK'})
+					.update(row.purchaseOrderNo)
+			) })
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(tmp.me.loadUTCTime(row.orderDate).toLocaleString())})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(row.supplier.name ? row.supplier.name : '')})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? row.totalPaid ? tmp.invoiceNoDiv : '' : 'Invoice No(s)')})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(row.supplierRefNo ? row.supplierRefNo : '')})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(tmp.isTitle ? 'Products Count' :
+				new Element('a', {'href': '/serialnumbers.html?purchaseorderid=' + row.id, 'target': '_BLANK' })
+					.insert({'bottom': new Element('abbr',{'title': 'Received Product Count on this PO'}).update(row.totalReceivedCount) })
+					.insert({'bottom': new Element('span').update(' / ') })
+					.insert({'bottom': new Element('abbr', {'title': 'Total Product Count on this PO'}).update(row.totalProductCount) })
+
+			) })
+//			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? row.eta ? tmp.me.loadUTCTime(row.eta).toDateString() : '' : 'ETA')})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? tmp.me.getCurrency(row.totalAmount) : row.totalAmount)})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? tmp.me.getCurrency(row.totalReceivedValue * 1.1) : row.totalReceivedValue)})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? row.totalPaid ? tmp.me.getCurrency(row.totalPaid) : '' : 'Total Paid')})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(tmp.isTitle ? row.pickup : new Element('input', {'class': 'pickup', 'type': 'checkbox', 'checked': row.pickup}))})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1', 'order_status': row.status}).update(row.status)})
+			.insert({'bottom': tmp.btns = new Element(tmp.tag, {'class': 'col-xs-1 text-right'}) 	});
+		if(tmp.isTitle !== true)
+			tmp.btns.insert({'bottom': new Element('div', {'class': 'btn-group'})
+				.insert({'bottom': (!(row.id && (row.status === 'ORDERED' || row.status === 'RECEIVING')) || row.active !== true)  ? '' : new Element('a', {'class': 'btn btn-success btn-xs', 'href': '/receiving/' + row.id + '.html', 'target': '_BLANK', 'title': 'Receiving Items'})
+					.update('Receiving')
+				})
+				.insert({'bottom': new Element('a', {'class': 'btn btn-default btn-xs', 'title': 'Edit', 'href': '/purchase/' + row.id + '.html', 'target': '_BLANK'})
+					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-pencil'}) })
+				})
+				.insert({'bottom': new Element('span', {'class': 'btn btn-danger btn-xs', 'title': 'Delete'})
+					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-trash'}) })
+					.observe('click', function(){
+						tmp.me._shoConfirmDel(row);
+					})
+				})
+			});
+		return tmp.row;
+	}
+	/**
+	 * export csv report
+	 */
+	,genReport: function(btn) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.data = {};
+		$$('[search_field]').each(function(item){
+			tmp.data[item.readAttribute('search_field')] = $F(item);
+		});
+		tmp.me.postAjax(tmp.me.getCallbackId('genReportmBtn'), tmp.data, {
+			'onLoading': function() {
+				jQuery(btn).button('loading');
+			}
+			,'onSuccess': function (sender, param) {
+				try {
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result || !tmp.result.url)
+						return;
+					tmp.newWind = window.open(tmp.result.url);
+					if(!tmp.newWind) {
+						throw 'You browser is blocking the popup window, please click <a class="btn btn-xs btn-primary" href="' + tmp.result.url + '" target="__BLANK">here</a> to open it manually.';
+					}
+				} catch (e) {
+					tmp.me.showModalBox('<b>Error:</b>', '<b class="text-danger">' + e + '</b>');
+				}
+			}
+			,'onComplete': function() {
+				jQuery(btn).button('reset');
+			}
+		})
+		return tmp.me;
+	}
+	/**
+	 * get selected POs for pickup
+	 */
+	,_getSelection: function() {
+		var tmp = {}
+		tmp.me = this;
+		tmp.pos = [];
+		
+		tmp.itemList = $('item-list');
+		tmp.itemList.getElementsBySelector('.item_row.po_item').each(function(row){
+			tmp.checked = row.down('input.pickup[type="checkbox"]').checked;
+			tmp.poId = row.readAttribute('item_id');
+			if(tmp.checked === true && jQuery.isNumeric(tmp.poId) === true)
+				tmp.pos.push(row.retrieve('data'));
+		});
+		
+		$('total-selected-count').update(tmp.pos.length);
+		
+		return tmp.pos;
+	}
+	/**
+	 * save pickup flag
+	 */
+	,pickupSave: function(btn) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.data = tmp.me._getSelection();
+		tmp.totalQty = $('total-selected-count').innerHTML;
+		tmp.preQty = $('pre-selected-count').innerHTML;
+		tmp.num = tmp.totalQty - tmp.preQty;
+		if(tmp.num <= 0){
+			tmp.me.showModalBox('Warning', 'No new pickup arranged!', false);
+			return;
+		}
+		if(confirm(' Totally ' + ( tmp.num ) + ' POs are arranged to pickup. \n Continue?')){
+			tmp.me.postAjax(tmp.me.getCallbackId('pickupSaveBtn'), tmp.data, {
+				'onLoading': function() {
+					jQuery(btn).button('loading');
+				}
+				,'onSuccess': function (sender, param) {
+					try {
+						tmp.result = tmp.me.getResp(param, false, true);
+						
+						if(!tmp.result)
+							return;
+						
+						tmp.me.showModalBox('Success', 'Pickup arranged!', false);
+						tmp.result.items.each(function(row){
+							
+							if($$('.po_item[item_id=' + row.id +']').size() >0) {
+								$$('.po_item[item_id=' + row.id +']').first().replace(tmp.me._getResultRow(row, false));
+							}
+						})
+					} catch (e) {
+						tmp.me.showModalBox('<b>Error:</b>', '<b class="text-danger">' + e + '</b>');
+					}
+				}
+				,'onComplete': function() {
+					jQuery(btn).button('reset');
+				}
+			})
+		}
+		return tmp.me;
+	}
+});

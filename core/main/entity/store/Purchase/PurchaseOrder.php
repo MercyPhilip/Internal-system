@@ -96,6 +96,24 @@ class PurchaseOrder extends BaseEntityAbstract
 	private $totalAmount = 0;
 	private $totalPaid = 0;
 	/**
+	 * Whether this PO is arranged to pickup
+	 *
+	 * @var bool
+	 */
+	private $pickup = false;
+	/**
+	 * The date and time when this PO is arranged to pickup
+	 *
+	 * @var UDate
+	 */
+	private $arrangePickupDate;
+	/**
+	 * The used ID who arranged this PO to pickup
+	 *
+	 * @int
+	 */
+	protected $arrangePickupBy;
+	/**
 	 * Getter for purchaseOrderNo
 	 *
 	 * @return string
@@ -392,6 +410,71 @@ class PurchaseOrder extends BaseEntityAbstract
 		return $this;
 	}
 	/**
+	 * Getter for pickup
+	 *
+	 * @return bool
+	 */
+	public function getPickup()
+	{
+		return (trim($this->pickup) === '1');
+	}
+	/**
+	 * Setter for pickup
+	 *
+	 * @param unkown $value The pickup
+	 *
+	 * @return PurchaseOrder
+	 */
+	public function setPickup($value)
+	{
+		$this->pickup = $value;
+		return $this;
+	}
+	/**
+	 * Getter for arrangePickupDate
+	 *
+	 * @return UDate
+	 */
+	public function getArrangePickupDate()
+	{
+		$this->arrangePickupDate = new UDate(trim($this->arrangePickupDate));
+		return $this->arrangePickupDate;
+	}
+	/**
+	 * Setter for arrangePickupDate
+	 *
+	 * @param string $value The arrangePickupDate
+	 *
+	 * @return PurchaseOrder
+	 */
+	public function setArrangePickupDate($value)
+	{
+		$this->arrangePickupDate = $value;
+		return $this;
+	}
+	/**
+	 * Getter for arrangePickupBy
+	 *
+	 * @return string
+	 */
+	public function getArrangePickupBy()
+	{
+		$this->loadManyToOne('arrangePickupBy');
+		return $this->arrangePickupBy;
+	}
+	/**
+	 * Setter for arrangePickupBy
+	 *
+	 * @param string $value The arrangePickupBy
+	 *
+	 * @return PurchaseOrder
+	 */
+	public function setArrangePickupBy(UserAccount $value)
+	{
+		$this->arrangePickupBy = $value;
+		return $this;
+	}
+	/**
 	 * validating the status
 	 *
 	 * @param string $status The status that we are validating
@@ -572,6 +655,9 @@ class PurchaseOrder extends BaseEntityAbstract
 		DaoMap::setIntType('totalPaid', 'Double', '10,4');
 		DaoMap::setOneToMany('items', 'PurchaseOrderItem', 'po_item');
 		DaoMap::setManyToOne('store', 'Store', 'si');
+		DaoMap::setBoolType('pickup', 'bool', false);
+		DaoMap::setDateType('arrangePickupDate');
+		DaoMap::setManyToOne('arrangePickupBy', 'UserAccount');
 		parent::__loadDaoMap();
 
 		DaoMap::createUniqueIndex('purchaseOrderNo');
@@ -586,6 +672,9 @@ class PurchaseOrder extends BaseEntityAbstract
 		DaoMap::createIndex('supplierContactNumber');
 		DaoMap::createIndex('shippingCost');
 		DaoMap::createIndex('handlingCost');
+		DaoMap::createIndex('pickup');
+		DaoMap::createIndex('arrangePickupDate');
+		DaoMap::createIndex('arrangePickupBy');
 
 		DaoMap::commit();
 	}

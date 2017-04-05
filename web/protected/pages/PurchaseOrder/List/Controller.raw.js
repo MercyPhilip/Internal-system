@@ -139,6 +139,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	}
 	,getResults: function(reset, pageSize) {
 		var tmp = {};
+		tmp.num = 0;
 		tmp.me = this;
 		tmp.reset = (reset || false);
 		tmp.resultDiv = $(tmp.me.resultDivId);
@@ -178,7 +179,17 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 						item.item.totalProdcutCount = item.totalProdcutCount;
 						item = item.item;
 						tmp.tbody.insert({'bottom': tmp.me._getResultRow(item).addClassName('item_row').writeAttribute('item_id', item.id) });
+						if(item.pickup == true){
+							tmp.num += 1;	
+						}
 					});
+					//set amount of arranged pickup
+					if($('pre-selected-count').innerHTML.length > 0){
+						tmp.num += parseInt($('pre-selected-count').innerHTML);
+					}
+					
+					$('pre-selected-count').update(tmp.num);
+					
 					//show the next page button
 					if(tmp.result.pageStats.pageNumber < tmp.result.pageStats.totalPages)
 						tmp.resultDiv.insert({'bottom': tmp.me._getNextPageBtn().addClassName('paginWrapper') });
@@ -282,6 +293,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? tmp.me.getCurrency(row.totalAmount) : row.totalAmount)})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? tmp.me.getCurrency(row.totalReceivedValue * 1.1) : row.totalReceivedValue)})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? row.totalPaid ? tmp.me.getCurrency(row.totalPaid) : '' : 'Total Paid')})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(tmp.isTitle ? row.pickup : new Element('input', {'class': 'pickup', 'type': 'checkbox', 'checked': row.pickup}))})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1', 'order_status': row.status}).update(row.status)})
 			.insert({'bottom': tmp.btns = new Element(tmp.tag, {'class': 'col-xs-1 text-right'}) 	});
 		if(tmp.isTitle !== true)
@@ -332,6 +344,70 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				jQuery(btn).button('reset');
 			}
 		})
+		return tmp.me;
+	}
+	/**
+	 * get selected POs for pickup
+	 */
+	,_getSelection: function() {
+		var tmp = {}
+		tmp.me = this;
+		tmp.pos = [];
+		
+		tmp.itemList = $('item-list');
+		tmp.itemList.getElementsBySelector('.item_row.po_item').each(function(row){
+			tmp.checked = row.down('input.pickup[type="checkbox"]').checked;
+			tmp.poId = row.readAttribute('item_id');
+			if(tmp.checked === true && jQuery.isNumeric(tmp.poId) === true)
+				tmp.pos.push(row.retrieve('data'));
+		});
+		
+		$('total-selected-count').update(tmp.pos.length);
+		
+		return tmp.pos;
+	}
+	/**
+	 * save pickup flag
+	 */
+	,pickupSave: function(btn) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.data = tmp.me._getSelection();
+		tmp.totalQty = $('total-selected-count').innerHTML;
+		tmp.preQty = $('pre-selected-count').innerHTML;
+		tmp.num = tmp.totalQty - tmp.preQty;
+		if(tmp.num == 0){
+			tmp.me.showModalBox('Warning', 'No new pickup arranged!', false);
+			return;
+		}
+		if(confirm(' Totally ' + ( tmp.num ) + ' POs are arranged to pickup. \n Continue?')){
+			tmp.me.postAjax(tmp.me.getCallbackId('pickupSaveBtn'), tmp.data, {
+				'onLoading': function() {
+					jQuery(btn).button('loading');
+				}
+				,'onSuccess': function (sender, param) {
+					try {
+						tmp.result = tmp.me.getResp(param, false, true);
+						
+						if(!tmp.result)
+							return;
+						
+						tmp.me.showModalBox('Success', 'Pickup arranged!', false);
+						tmp.result.items.each(function(row){
+							
+							if($$('.po_item[item_id=' + row.id +']').size() >0) {
+								$$('.po_item[item_id=' + row.id +']').first().replace(tmp.me._getResultRow(row, false));
+							}
+						})
+					} catch (e) {
+						tmp.me.showModalBox('<b>Error:</b>', '<b class="text-danger">' + e + '</b>');
+					}
+				}
+				,'onComplete': function() {
+					jQuery(btn).button('reset');
+				}
+			})
+		}
 		return tmp.me;
 	}
 });

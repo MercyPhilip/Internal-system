@@ -39,6 +39,7 @@ class Controller extends CRUDPageAbstract
 		$js .= 'pageJs';
 		$js .= ".setCallbackId('deactivateItems', '" . $this->deactivateItemBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('genReportmBtn', '" . $this->genReportmBtn->getUniqueID() . "')";
+		$js .= ".setCallbackId('pickupSaveBtn', '" . $this->pickupSaveBtn->getUniqueID() . "')";
 		$js .= "._bindSearchKey()";
 		$js .= "._loadChosen()";
 		$js .= "._loadDataPicker();";
@@ -187,6 +188,7 @@ class Controller extends CRUDPageAbstract
 
     		if(!$item instanceof PurchaseOrder)
     			throw new Exception();
+    		
     		$item->setActive(false)
     			->save();
     		$poItems = PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ?', array($id));
@@ -372,6 +374,44 @@ class Controller extends CRUDPageAbstract
     	$asset = Asset::registerAsset($fileName, file_get_contents($filePath), Asset::TYPE_TMP);
     	return $asset;
     }
-    
+    /**
+     * Save pickup flag
+     *
+     * @param unknown $sender
+     * @param unknown $param
+     * @throws Exception
+     */
+    public function pickupSave($sender, $param)
+    {
+    	
+    	$results = $errors = array();
+    	
+    	try
+    	{
+    		Dao::beginTransaction();
+    		foreach ($param->CallbackParameter as $data){
+    			$id = isset($data->id) ? $data->id : '';
+    			if(!($po = PurchaseOrder::get($id)) instanceof PurchaseOrder)
+    				throw new Exception('Invalid Purchase Order!');
+    				$pickup = 1;
+    				$arrangePickupDate = UDate::now();
+    				$arrangePickupBy = Core::getUser();
+    				
+    				$po->setPickup($pickup)
+    				->setArrangePickupDate($arrangePickupDate)
+    				->setArrangePickupBy($arrangePickupBy)
+    				->save();
+    				//     			->addLog('SellOnWeb changed by ' . Core::getUser()->getUserName() . '(' . intval(!$sellOnWeb) . ' => ' . intval($sellOnWeb) . ')', Log::TYPE_SYSTEM, 'SELLONWEB_CHG', __CLASS__ . '::' . __FUNCTION__);
+    				$results['items'][] = $po->getJson();
+    		}
+    		Dao::commitTransaction();
+    	}
+    	catch(Exception $ex)
+    	{
+    		Dao::rollbackTransaction();
+    		$errors[] = $ex->getMessage();
+    	}
+    	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+    }
 }
 ?>

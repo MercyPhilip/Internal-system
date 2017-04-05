@@ -88,7 +88,10 @@ class Menu extends TTemplateControl
 					'Receiving' =>array('url' => '/receiving.html', 'name' => 'Receiving Products', 'icon' => '<span class="fa fa-home"></span>'),
 					'serialNumbers' => array('url' => '/serialnumbers.html', 'name' => 'Serial Numbers', 'icon' => '<span class="glyphicon glyphicon-search"></span>'),
 					'Locations' =>array('url' => '/locations.html', 'name' => 'Locations', 'icon' => '<span class="fa fa-arrows"></span>'),
-					'PreferLocationTypes' =>array('url' => '/locationtypes.html', 'name' => 'Prefer Location Types', 'icon' => '<span class="glyphicon glyphicon-tasks"></span>')
+					'PreferLocationTypes' =>array('url' => '/locationtypes.html', 'name' => 'Prefer Location Types', 'icon' => '<span class="glyphicon glyphicon-tasks"></span>'),
+					'Pickup' =>array('url' => '/pickup.html', 'name' => 'Van Pickup', 'icon' => '<span class="fa fa-truck"></span>'),
+					'Delivery' =>array('url' => '/delivery.html', 'name' => 'Van Delivery', 'icon' => '<span class="fa fa-plane"></span>')
+					
 			);
 			if(AccessControl::canAccessStockAdjustPage(Core::getRole()))
 				$array['Logistics']['stockadjustment'] = array('url' => '/stockadjustment.html', 'name' => 'Stock Adjustment', 'icon'=> '<span class=""></span>');
