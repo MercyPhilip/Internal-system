@@ -125,9 +125,9 @@ class ReportController extends BPCPageAbstract
             $sql = "select pro.id `productId`, pro.sku `sku`, pro.name `name`, 
             		ifnull(rec.unitPrice, '') buyinprice, ifnull(DATE_FORMAT(rec.updated, '%Y-%m-%d'), '') buyindate, 
             		s.`name` supplier, m.`name` brand, po.purchaseOrderNo purchaseOrderNo,
-            		sum(ifnull(rec.qty, 0)) qty
+            		sum(ifnull(rec.qty, 0)) qty, ifnull(rec.invoiceNo, '') invoiceNo
             		from product pro " . implode(' ', $joins) . (count($wheres) > 0 ? (" where " . implode(' AND ', $wheres)) : '');
-            $sql = $sql . " group by pro.id, pro.sku, pro.name, rec.unitPrice, DATE_FORMAT(rec.updated, '%Y-%m-%d'), s.`name`, m.`name`,po.purchaseOrderNo order by pro.sku, rec.updated desc";
+            $sql = $sql . " group by pro.id, pro.sku, pro.name, rec.unitPrice, DATE_FORMAT(rec.updated, '%Y-%m-%d'), s.`name`, m.`name`,po.purchaseOrderNo, rec.invoiceNo order by pro.sku, rec.updated desc";
             
             $result = Dao::getResultsNative($sql, $params, PDO::FETCH_ASSOC);
             if(count($result) === 0)
@@ -163,6 +163,7 @@ class ReportController extends BPCPageAbstract
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Supplier');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Brand');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Purchase Order No');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Supplier Invoice No');
 	    $rowNo++;
 	    // data row
 	    foreach($data as $rowNoData)
@@ -176,6 +177,7 @@ class ReportController extends BPCPageAbstract
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['supplier']);
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['brand']);
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['purchaseOrderNo']);
+	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['invoiceNo']);
 	    	
 	    	$rowNo++;
 	    }

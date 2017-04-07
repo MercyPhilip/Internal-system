@@ -101,8 +101,8 @@
                                     <span class="bank_details_name"><span class="details_title">Account Name: </span><%= Core::getUser()->getStore()->getId() == 1 ? 'Budget PC Pty Ltd' : 'Gu Group Pty Ltd'%></span>
                                 </div>
                                 <div class="bank_details box">
-                                    <span class="bank_details_acc_bsb"><span class="details_title">BSB:</span><%= Core::getUser()->getStore()->getId() == 1 ? '013 366' : '013 268'%></span>
-                                    <span class="bank_details_acc_no"><span class="details_title">ACC:</span><%= Core::getUser()->getStore()->getId() == 1 ? '4796 74364' : '4617 37021'%></span>
+                                    <span class="bank_details_acc_bsb"><span class="details_title">BSB:</span><%= Core::getUser()->getStore()->getId() == 1 ? '013366' : '013268'%></span>
+                                    <span class="bank_details_acc_no"><span class="details_title">ACC:</span><%= Core::getUser()->getStore()->getId() == 1 ? '479674364' : '461737021'%></span>
                                 </div>
                             </span>
                         </div>
