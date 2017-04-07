@@ -3,115 +3,111 @@
  */
 var PageJs = new Class.create();
 PageJs.prototype = Object.extend(new CRUDPageJs(), {
-  _openinFB: true
-  ,manufactures: []
-  ,suppliers: []
-  ,productCategories: []
   /**
    * Getting the title row data
    */
   ,_getTitleRowData: function() {
-    return {'sku': 'SKU', 'name': 'Product Name', 'supplier': 'Supplier','poNumber': 'PO Number' , 'unitPrice': 'Unit Price(Ex)', 'qty': 'Qty', 'poDate': 'PO Date', 'eta': 'ETA'};
+    return {'sku': 'SKU', 'name': 'Product Name', 'supplier': 'Supplier','poNumber': 'PO Number' , 'unitPrice': 'Unit Price(Ex)', 'qty': 'Qty', 'poDate': 'PO Date', 'pickupDate': 'Pickup Date'};
   }
-  /**
-   * Load the manufacturers
-   */
-  ,_loadManufactures: function(manufactures) {
-    this.manufactures = manufactures;
-    var tmp = {};
-    tmp.me = this;
-    tmp.selectionBox = $(tmp.me.searchDivId).down('[search_field="pro.manufacturerIds"]');
-    tmp.me.manufactures.each(function(option) {
-      tmp.selectionBox.insert({'bottom': new Element('option',{'value': option.id}).update(option.name) });
-    });
-    return this;
-  }
-  /**
-   * Load the suppliers
-   */
-  ,_loadSuppliers: function(suppliers) {
-    this.suppliers = suppliers;
-    var tmp = {};
-    tmp.me = this;
-    tmp.selectionBox = $(tmp.me.searchDivId).down('[search_field="pro.supplierIds"]');
-    tmp.me.suppliers.each(function(option) {
-      tmp.selectionBox.insert({'bottom': new Element('option',{'value': option.id}).update(option.name) });
-    });
-    return this;
-  }
-  /**
-   * Load thecategories
-   */
-  ,_loadCategories: function(categories) {
-    this.categories = categories;
-    var tmp = {};
-    tmp.me = this;
-    tmp.selectionBox = $(tmp.me.searchDivId).down('[search_field="pro.productCategoryIds"]');
-    tmp.me.categories.sort(function(a, b){
-      return a.namePath > b.namePath;
-    }).each(function(option) {
-      tmp.selectionBox.insert({'bottom': new Element('option',{'value': option.id}).update(option.namePath) });
-    });
-    return this;
-  }
-  /**
-   * initiating the chosen input
-   */
-  ,_loadChosen: function () {
-    jQuery(".chosen").select2({
-        minimumResultsForSearch: Infinity
-    });
-    return this;
-  }
-  /**
-   * Binding the search key
-   */
-  ,_bindSearchKey: function() {
-    var tmp = {}
-    tmp.me = this;
-    $$('#searchBtn').first()
-      .observe('click', function(event) {
-        if(!$$('#showSearch').first().checked)
-          $$('#showSearch').first().click();
-        else
-          tmp.me.getSearchCriteria().getResults(true, tmp.me._pagination.pageSize);
-      });
-    
-    $('searchDiv').getElementsBySelector('[search_field]').each(function(item) {
-      item.observe('keydown', function(event) {
-        tmp.me.keydown(event, function() {
-          $(tmp.me.searchDivId).down('#searchBtn').click();
-        });
-      })
-    });
   
-    return this;
-  }
-  ,_loadDatePicker: function () {
-    $$('.datepicker').each(function(item){
-      new Prado.WebUI.TDatePicker({'ID': item, 'InputMode':"TextBox",'Format':"dd/MM/yyyy",'FirstDayOfWeek':1,'CalendarStyle':"default",'FromYear':2009,'UpToYear':2024,'PositionMode':"Bottom", "ClassName": 'datepicker-layer-fixer'});
-    });
-    return this;
-  }
+	,getResults: function(reset, pageSize) {
+		var tmp = {};
+		tmp.num = 0;
+		tmp.me = this;
+		tmp.reset = (reset || false);
+		tmp.resultDiv = $(tmp.me.resultDivId);
+
+		if(tmp.reset === true)
+			tmp.me._pagination.pageNo = 1;
+		tmp.me._pagination.pageSize = (pageSize || tmp.me._pagination.pageSize);
+		tmp.me.postAjax(tmp.me.getCallbackId('getItems'), {'pagination': tmp.me._pagination}, {
+			'onLoading': function () {
+				jQuery('#' + tmp.me.searchDivId + ' #searchBtn').button('loading');
+				//reset div
+				if(tmp.reset === true) {
+					tmp.resultDiv.update( new Element('tr').update( new Element('td').update( tmp.me.getLoadingImg() ) ) );
+				}
+			}
+			,'onSuccess': function(sender, param) {
+				
+				try{
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result)
+						return;
+					$(tmp.me.totalNoOfItemsId).update(tmp.result.pageStats.totalRows);
+
+					//reset div
+					if(tmp.reset === true) {
+						tmp.resultDiv.update(tmp.me._getResultRow(tmp.me._getTitleRowData(), true).wrap(new Element('thead')));
+					}
+					//remove next page button
+					tmp.resultDiv.getElementsBySelector('.paginWrapper').each(function(item){
+						item.remove();
+					});
+
+					//show all items
+					tmp.tbody = $(tmp.resultDiv).down('tbody');
+					if(!tmp.tbody)
+						$(tmp.resultDiv).insert({'bottom': tmp.tbody = new Element('tbody') });
+					
+					$('pre-selected-count').update(tmp.num);
+					tmp.result.items.each(function(item) {
+						item.item.totalProdcutCount = item.totalProdcutCount;
+						item = item.item;
+						tmp.tbody.insert({'bottom': tmp.me._getResultRow(item).addClassName('item_row').writeAttribute('item_id', item.id) });
+						if(item.pickup == true){
+							tmp.num += 1;	
+						}
+					});
+					//set amount of arranged pickup
+					if($('pre-selected-count').innerHTML.length > 0){
+						tmp.num += parseInt($('pre-selected-count').innerHTML);
+					}
+					
+					$('pre-selected-count').update(tmp.num);
+					
+					//show the next page button
+					if(tmp.result.pageStats.pageNumber < tmp.result.pageStats.totalPages)
+						tmp.resultDiv.insert({'bottom': tmp.me._getNextPageBtn().addClassName('paginWrapper') });
+				} catch (e) {
+					tmp.resultDiv.insert({'bottom': tmp.me.getAlertBox('Error', e).addClassName('alert-danger') });
+				}
+			}
+			,'onComplete': function() {
+				jQuery('#' + tmp.me.searchDivId + ' #searchBtn').button('reset');
+			}
+		});
+	}
   /**
-   * get selected
+   * get pickeded
    */
-  ,_getSelection: function() {
-    var tmp = {}
-    tmp.me = this;
-    tmp.customers = [];
-    
-    tmp.itemList = $('item-list');
-    tmp.itemList.getElementsBySelector('.btn-hide-row.item_row').each(function(row){
-      tmp.checked = row.down('input.customer-selected[type="checkbox"]').checked;
-      tmp.customerId = row.readAttribute('item_id');
-      if(tmp.checked === true && jQuery.isNumeric(tmp.customerId) === true)
-        tmp.customers.push(row.retrieve('data'));
-    });
-    
-    $('total-selected-count').update(tmp.customers.length);
-    return tmp.customers;
-  }
+	,_pickupedItem: function(po) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.row = $$('[item_id="'+ po.id +'"]').first();
+		tmp.me.postAjax(tmp.me.getCallbackId('deactivateItems'), {'item_id': po.id}, {
+			'onLoading': function() {
+				if(tmp.row)
+					tmp.row.hide();
+				tmp.me.hideModalBox();
+			}
+			,'onSuccess': function(sender, param){
+				try {
+					tmp.row.toggleClassName('danger');
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result.item)
+						throw 'errror';
+					tmp.row.replace(tmp.me._getResultRow(tmp.result.item, false));
+				} catch(e) {
+					tmp.me.showModalBox('<span class="text-danger">ERROR</span>', e, true);
+				}
+			}
+			,'onComplete': function() {
+				if(tmp.row)
+					tmp.row.show();
+			}
+		});
+	}
   /**
    * get result row for data given
    */
@@ -123,8 +119,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
     tmp.row = new Element('tr', {'class': (tmp.isTitle === true ? 'item_top_row' : 'btn-hide-row item_row') + (row.active == 0 ? ' danger' : ''), 'item_id': (tmp.isTitle === true ? '' : row.id)}).store('data', row)
       .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'sku col-xs-1'}).update(row.sku)
         :new Element(tmp.tag, {'class': 'sku col-xs-1', 'item': 'sku'}).update(row.product.sku)     
-        .observe('click', function(){
-        })    
       })
       .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'name col-xs-4 truncate'}).update(row.name)
         :new Element(tmp.tag, {'class': 'name col-xs-4 truncate', 'item': 'name'}).update(row.product.name)   
@@ -140,65 +134,56 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
           :new Element(tmp.tag, {'class': 'unitprice col-xs-1 truncate', 'item': 'unitprice'}).update(row.item.unitPrice)
       })
       .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'qty col-xs-1 truncate'}).update(row.qty)
-          :new Element(tmp.tag, {'class': 'qty col-xs-1 truncate', 'item': 'unitprice'}).update(row.item.qty)
-      })
-      .insert({'bottom': new Element(tmp.tag, {'style': 'position:relative; left: -60px','class': 'col-xs-1'})
-        .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'eta col-xs-1 truncate'}).update(row.eta)
-            : new Element('input', {'class': 'datepicker', 'item': 'eta_'+row.id, 'value': moment(row.eta).format('DD/MM/YYYY')})
-        })
+          :new Element(tmp.tag, {'class': 'qty col-xs-1 truncate', 'item': 'qty'}).update(row.item.qty)
       })
       .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'podate col-xs-1 truncate'}).update(row.poDate)
-          :new Element(tmp.tag, {'class': 'podate col-xs-1 truncate', 'item': 'unitprice'}).update(row.item.created)
+          :new Element(tmp.tag, {'class': 'podate col-xs-1 truncate', 'item': 'podate'}).update(moment(row.item.created).format('DD/MM/YYYY'))
       }); 
+      .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'podate col-xs-1 truncate'}).update(row.poDate)
+          :new Element(tmp.tag, {'class': 'pickupdate col-xs-1 truncate', 'item': 'pickupdate'}).update(moment(row.item.arrangePickupDate).format('DD/MM/YYYY'))
+      })
+      .insert({'bottom': tmp.btns = new Element(tmp.tag, {'class': 'col-xs-1 text-right'}) 	});
+		if(tmp.isTitle !== true)
+			tmp.btns.insert({'bottom': new Element('div', {'class': 'btn-group'})
+				.insert({'bottom': new Element('span', {'class': 'btn btn-danger btn-xs', 'title': 'Delete'})
+					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-trash'}) })
+					.observe('click', function(){
+						tmp.me._shoConfirmPickup(row);
+					})
+				})
+			});
+  	})
     return tmp.row;
   }
-  ,_getSaveBtn: function(data) {
-    var tmp = {};
-    tmp.me = this;
-    tmp.saveDiv = new Element('div', {'class': 'row'})
-        .insert({'bottom': new Element('span', {'id': 'saveBtn', 'class': 'btn btn-primary pull-right col-sm-4', 'data-loading-text': 'saving ...'}).update('Save')
-          .observe('click', function() {
-            tmp.me.saveEta(this, data);
-          })
-        });
-    
-    return tmp.saveDiv;
-  }
-  ,saveEta: function(btn, productEta) {
-    var tmp = {};
-    tmp.me = this;
-    
-    for (var n = productEta.length; n--;) {
-      productEta[n].eta = jQuery('[item=eta_'+productEta[n].id).val();
-    }
-    tmp.me.postAjax(tmp.me.getCallbackId('saveEta'), {'productEta': productEta}, {
-      'onSuccess': function(sender, param) {
-        try{
-          tmp.result = tmp.me.getResp(param, false, true);
-          if(!tmp.result || !tmp.result.item)
-            return;
-          tmp.me.showModalBox('Success', 'Save Successfully!', false);
-        } catch (e) {
-          tmp.me.showModalBox('ERROR', e, true);
-        }
-      }
-    })
-    return tmp.me;
-  }
-  ,_getNextPageBtn: function() {
-    var tmp = {}
-    tmp.me = this;
-    return new Element('tfoot')
-      .insert({'bottom': new Element('tr')
-        .insert({'bottom': new Element('td', {'colspan': '8', 'class': 'text-center'})
-          .insert({'bottom': new Element('span', {'class': 'btn btn-primary', 'data-loading-text':"Fetching more results ..."}).update('Show More')
-            .observe('click', function() {
-              tmp.me._pagination.pageNo = tmp.me._pagination.pageNo*1 + 1;
-              jQuery(this).button('loading');
-              tmp.me.getResults();
-            })
-          })
-        })
-      });
-  }
+	/**
+	 * showing the confirmation panel for pickuping the po
+	 */
+	,_shoConfirmPickup: function(purchaseorder) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.confirmDiv = new Element('div')
+			.insert({'bottom': new Element('strong').update('You are about to delete a Purchase Order: ' + purchaseorder.purchaseOrderNo) })
+			.insert({'bottom': new Element('strong').update('After confirming deletion:') })
+			.insert({'bottom': new Element('ul')
+				.insert({'bottom': new Element('li').update(' - All received item will be deleted, and stock will be reverted from StockOnHand to StockOnPO.') })
+				.insert({'bottom': new Element('li').update(' - This PO will be dactivated.') })
+			})
+			.insert({'bottom': new Element('div').update(new Element('strong').update('Are you sure you want to continue?')) })
+			.insert({'bottom': new Element('div')
+				.insert({'bottom': new Element('span', {'class': 'btn btn-danger'})
+					.update('YES, deactivate it')
+					.observe('click', function(){
+						tmp.me._pickupItem(purchaseorder);
+					})
+				})
+				.insert({'bottom': new Element('span', {'class': 'btn btn-default pull-right'})
+					.update('NO, cancel this')
+					.observe('click', function(){
+						tmp.me.hideModalBox();
+					})
+				})
+			});
+		tmp.me.showModalBox('<strong class="text-warning">Confirm</strong>', tmp.confirmDiv);
+		return tmp.me;
+	}
 });

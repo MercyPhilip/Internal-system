@@ -375,7 +375,7 @@ class Controller extends CRUDPageAbstract
     	return $asset;
     }
     /**
-     * Save pickup flag
+     * Save arrangePickup flag
      *
      * @param unknown $sender
      * @param unknown $param
@@ -393,16 +393,14 @@ class Controller extends CRUDPageAbstract
     			$id = isset($data->id) ? $data->id : '';
     			if(!($po = PurchaseOrder::get($id)) instanceof PurchaseOrder)
     				throw new Exception('Invalid Purchase Order!');
-    				$pickup = 1;
-    				$arrangePickupDate = UDate::now();
-    				$arrangePickupBy = Core::getUser();
-    				
-    				$po->setPickup($pickup)
-    				->setArrangePickupDate($arrangePickupDate)
-    				->setArrangePickupBy($arrangePickupBy)
-    				->save();
-    				//     			->addLog('SellOnWeb changed by ' . Core::getUser()->getUserName() . '(' . intval(!$sellOnWeb) . ' => ' . intval($sellOnWeb) . ')', Log::TYPE_SYSTEM, 'SELLONWEB_CHG', __CLASS__ . '::' . __FUNCTION__);
-    				$results['items'][] = $po->getJson();
+    			$poItems = PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ? and storeId = ?', array($id, Core::getUser()->getStore()->getId()));
+    			$supplier = $po->getSupplier();
+    			foreach ($poItems as $poItem){
+    				$product = $poItem->getProduct();
+    				PickupDelivery::create($supplier, $product, $po, PickupDelivery::TYPE_PICKUP);
+    			}
+    			
+    			$results['items'][] = array();
     		}
     		Dao::commitTransaction();
     	}

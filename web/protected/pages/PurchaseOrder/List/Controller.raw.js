@@ -5,7 +5,7 @@ var PageJs = new Class.create();
 
 PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	_getTitleRowData: function() {
-		return {'totalAmount': 'PO Amount Inc. GST', 'totalReceivedValue': 'Bill Amount Inc. GST', 'totalPaid': 'Total Paid', 'purchaseOrderNo': 'PO Number', 'supplier': {'name': 'Supplier'}, 'status': 'Status', 'supplierRefNo': 'PO Ref.', 'orderDate': 'Order Date', 'active': 'Active'};
+		return {'totalAmount': 'PO Amount Inc. GST', 'totalReceivedValue': 'Bill Amount Inc. GST', 'totalPaid': 'Total Paid', 'purchaseOrderNo': 'PO Number', 'supplier': {'name': 'Supplier'}, 'arrangePickup': 'Pickup','status': 'Status', 'supplierRefNo': 'PO Ref.', 'orderDate': 'Order Date', 'active': 'Active'};
 
 	}
 	,_loadChosen: function () {
@@ -156,6 +156,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				}
 			}
 			,'onSuccess': function(sender, param) {
+				
 				try{
 					tmp.result = tmp.me.getResp(param, false, true);
 					if(!tmp.result)
@@ -175,11 +176,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					tmp.tbody = $(tmp.resultDiv).down('tbody');
 					if(!tmp.tbody)
 						$(tmp.resultDiv).insert({'bottom': tmp.tbody = new Element('tbody') });
+					
+					$('pre-selected-count').update(tmp.num);
 					tmp.result.items.each(function(item) {
 						item.item.totalProdcutCount = item.totalProdcutCount;
 						item = item.item;
 						tmp.tbody.insert({'bottom': tmp.me._getResultRow(item).addClassName('item_row').writeAttribute('item_id', item.id) });
-						if(item.pickup == true){
+						if(item.arrangePickup == true){
 							tmp.num += 1;	
 						}
 					});
@@ -289,11 +292,11 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					.insert({'bottom': new Element('abbr', {'title': 'Total Product Count on this PO'}).update(row.totalProductCount) })
 
 			) })
-			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? row.eta ? tmp.me.loadUTCTime(row.eta).toDateString() : '' : 'ETA')})
+//			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? row.eta ? tmp.me.loadUTCTime(row.eta).toDateString() : '' : 'ETA')})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? tmp.me.getCurrency(row.totalAmount) : row.totalAmount)})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? tmp.me.getCurrency(row.totalReceivedValue * 1.1) : row.totalReceivedValue)})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? row.totalPaid ? tmp.me.getCurrency(row.totalPaid) : '' : 'Total Paid')})
-			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(tmp.isTitle ? row.pickup : new Element('input', {'class': 'pickup', 'type': 'checkbox', 'checked': row.pickup}))})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(tmp.isTitle ? row.arrangePickup : new Element('input', {'class': 'arrangePickup', 'type': 'checkbox', 'checked': row.arrangePickup}))})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1', 'order_status': row.status}).update(row.status)})
 			.insert({'bottom': tmp.btns = new Element(tmp.tag, {'class': 'col-xs-1 text-right'}) 	});
 		if(tmp.isTitle !== true)
@@ -347,7 +350,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		return tmp.me;
 	}
 	/**
-	 * get selected POs for pickup
+	 * get selected POs for arrangePickup
 	 */
 	,_getSelection: function() {
 		var tmp = {}
@@ -356,7 +359,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		
 		tmp.itemList = $('item-list');
 		tmp.itemList.getElementsBySelector('.item_row.po_item').each(function(row){
-			tmp.checked = row.down('input.pickup[type="checkbox"]').checked;
+			tmp.checked = row.down('input.arrangePickup[type="checkbox"]').checked;
 			tmp.poId = row.readAttribute('item_id');
 			if(tmp.checked === true && jQuery.isNumeric(tmp.poId) === true)
 				tmp.pos.push(row.retrieve('data'));
@@ -367,7 +370,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		return tmp.pos;
 	}
 	/**
-	 * save pickup flag
+	 * save arrangePickup flag
 	 */
 	,pickupSave: function(btn) {
 		var tmp = {};
@@ -376,7 +379,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.totalQty = $('total-selected-count').innerHTML;
 		tmp.preQty = $('pre-selected-count').innerHTML;
 		tmp.num = tmp.totalQty - tmp.preQty;
-		if(tmp.num == 0){
+		if(tmp.num <= 0){
 			tmp.me.showModalBox('Warning', 'No new pickup arranged!', false);
 			return;
 		}

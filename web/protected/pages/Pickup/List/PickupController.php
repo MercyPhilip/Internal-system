@@ -13,15 +13,13 @@ class PickupController extends CRUDPageAbstract
 	 * @see BPCPageAbstract::$menuItem
 	 */
 	public $menuItem = 'pickups';
-	protected $_focusEntity = 'ProductEta';
+	protected $_focusEntity = 'PurchaseOrder';
 	/**
 	 * constructor
 	 */
 	public function __construct()
 	{
 		parent::__construct();
-		if(!AccessControl::canAccessReportsPage(Core::getRole()))
-			die('You do NOT have access to this page');
 	}
 	/**
 	 * (non-PHPdoc)
@@ -29,24 +27,11 @@ class PickupController extends CRUDPageAbstract
 	 */
 	protected function _getEndJs()
 	{
-		$manufactureArray = $supplierArray = $statuses = $productCategoryArray = array();
-		foreach (Manufacturer::getAll() as $os)
-			$manufactureArray[] = $os->getJson();
-			foreach (Supplier::getAll() as $os)
-				$supplierArray[] = $os->getJson();
-				foreach (ProductCategory::getAll() as $os)
-					$productCategoryArray[] = $os->getJson();
-					
-					$js = parent::_getEndJs();
-					$js .= 'pageJs._loadManufactures('.json_encode($manufactureArray).')';
-					$js .= '._loadSuppliers('.json_encode($supplierArray).')';
-					$js .= '._loadCategories('.json_encode($productCategoryArray).')';
-					$js .= "._loadChosen()";
-					$js .= "._bindSearchKey()";
-					$js .= ".setCallbackId('saveEta', '" . $this->saveEtaBtn->getUniqueID() . "')";
-					$js .= ".getResults(true, " . $this->pageSize . ");";
-					
-					return $js;
+		$js = parent::_getEndJs();
+		$js .= 'pageJs.getResults(true, ' . $this->pageSize . ');';
+		$js .= ".setCallbackId('pickupItem', '" . $this->pickupItemBtn->getUniqueID() . "')";
+		
+		return $js;
 	}
 	/**
 	 * Getting the items
@@ -70,36 +55,10 @@ class PickupController extends CRUDPageAbstract
 				$pageSize = $param->CallbackParameter->pagination->pageSize;
 			}
 			
-			// 			$serachCriteria = isset($param->CallbackParameter->searchCriteria) ? json_decode(json_encode($param->CallbackParameter->searchCriteria), true) : array();
-			
 			$where = array(1);
 			$params = array();
 			$where[] = 'storeId = :storeId';
 			$params['storeId'] = Core::getUser()->getStore()->getId();
-			if(isset($param->CallbackParameter->searchCriteria)){
-				$serachCriteria = json_decode(json_encode($param->CallbackParameter->searchCriteria), true);
-				// 			}
-				// 			if((isset($serachCriteria['pro.sku']) && trim($sku = $serachCriteria['pro.sku']) !== '') || (isset($serachCriteria['pro.name']) && trim($name = $serachCriteria['pro.name']) !== '') ) {
-				$sku = $serachCriteria['pro.sku'];
-				$name = $serachCriteria['pro.name'];
-				$manufacturerIds = $serachCriteria['pro.manufacturerIds'];
-				$supplierIds = $serachCriteria['pro.supplierIds'];
-				$categoryIds = $serachCriteria['pro.productCategoryIds'];
-				$products = Product::getProducts($sku, $name, $supplierIds, $manufacturerIds, $categoryIds);
-				if(count($products) > 0) {
-					foreach ($products as $index => $value){
-						$key = 'pro_' . $index;
-						$keys[] = ':' . $key;
-						$ids[$key] = trim($value->getId());
-					}
-					$where[] = 'productId in (' . implode(',', $keys) . ')';
-					$params = array_merge($params, $ids);
-				} else {
-					$results['message'][] = 'Invalid product!';
-					$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
-					return ;
-				}
-			}
 			$where[] = 'eta <= :now';
 			$params['now'] = date('Y-m-d',strtotime('-2 day'));
 			$where[] = 'received = 0';
