@@ -19,10 +19,15 @@ class PickupDelivery extends BaseEntityAbstract
 	/**
 	 * The PO/Order number
 	 *
-	 * @var PickupDelivery/Order
+	 * @var PurchaseOrder/Order
 	 */
 	protected $order;
-// 	protected $purchaseOrder;
+	/**
+	 * The PO/Order tem number
+	 *
+	 * @var PurchaseOrder/Order Item
+	 */
+	protected $item;
 	/**
 	 * The supplier
 	 *
@@ -97,38 +102,43 @@ class PickupDelivery extends BaseEntityAbstract
 	 *
 	 * @return PurchaseOrder/Order
 	 */
-	public function getPurchaseOrder()
-	{
-		$this->loadManyToOne('purchaseOrder');
-		return $this->order;
-	}
 	public function getOrder()
 	{
 		$this->loadManyToOne('order');
 		return $this->order;
 	}
 	/**
-	 * Setter for purchaseOrder
+	 * Setter for order/purchaseOrder
 	 *
-	 * @param PurchaseOrder $value The purchaseOrder
+	 * @param Order/PurchaseOrder $value The order/purchaseOrder
 	 *
 	 * @return PickupDelivery
 	 */
-	public function setPurchaseOrder(PurchaseOrder $value)
+	public function setOrder($value)
 	{
 		$this->order = $value;
 		return $this;
 	}
 	/**
-	 * Setter for order
+	 * Getter for purchaseOrder/order item
 	 *
-	 * @param Order $value The order
+	 * @return PurchaseOrder/Order Item
+	 */
+	public function getItem()
+	{
+		$this->loadManyToOne('item');
+		return $this->item;
+	}
+	/**
+	 * Setter for order/purchaseOrder item
+	 *
+	 * @param Order/PurchaseOrder Item $value The order/purchaseOrder item
 	 *
 	 * @return PickupDelivery
 	 */
-	public function setOrder(Order $value)
+	public function setItem($value)
 	{
-		$this->order = $value;
+		$this->item = $value;
 		return $this;
 	}
 	/**
@@ -313,14 +323,16 @@ class PickupDelivery extends BaseEntityAbstract
 	{
 		if ($this->type == self::TYPE_PICKUP){
 			$class = 'PurchaseOrder';
+			$classItem = 'PurchaseOrderItem';
 		}else{
 			$class = 'Order';
+			$classItem = 'OrderItem';
 		}
 		DaoMap::begin($this, 'pickup_deliv');
 
 		DaoMap::setStringType('type', 'varchar', 10);
-// 		DaoMap::setManyToOne('purchaseOrder', 'PurchaseOrder', 'pickup_deliv_po');
 		DaoMap::setManyToOne('order', $class, 'pickup_deliv_ord');
+		DaoMap::setManyToOne('item', $classItem, 'pickup_deliv_item');
 		DaoMap::setManyToOne('supplier', 'Supplier', 'pickup_deliv_sup');
 		DaoMap::setManyToOne('product', 'Product', 'pickup_deliv_pro');
 		DaoMap::setManyToOne('store', 'Store', 'si');
@@ -351,9 +363,9 @@ class PickupDelivery extends BaseEntityAbstract
 		$array = $extra;
 		if(!$this->isJsonLoaded($reset))
 		{
-			$array['supplier'] = $this->getSupplier() instanceof Supplier ? $this->getSupplier()->getJson() : array();
 			$array['product'] = $this->getProduct() instanceof Product ? $this->getProduct()->getJson() : array();
-// 			$array['order'] = count($this->getOrder()) > 0 ? $this->getOrder()->getJson() : array();
+			$array['order'] = count($this->getOrder()) > 0 ? $this->getOrder()->getJson() : array();
+			$array['item'] = count($this->getItem()) > 0 ? $this->getItem()->getJson() : array();
 		}
 		return parent::getJson($array, $reset);
 	}
@@ -385,19 +397,15 @@ class PickupDelivery extends BaseEntityAbstract
 	 *
 	 * @return PickupDelivery
 	 */
-	public static function create(Supplier $supplier, Product $product, $order, $type)
+	public static function create(Supplier $supplier, Product $product, $order, $item, $type)
 	{
 		$entity = new PickupDelivery();
 		
 		$entity->setSupplier($supplier)
-		->setType(trim($type));
-		
-		if($type == self::TYPE_PICKUP){
-			$entity->setPurchaseOrder($order);
-		} else {
-			$entity->setOrder($order);
-		}
-		$entity->setProduct($product)
+		->setType(trim($type))
+		->setOrder($order)
+		->setItem($item)
+		->setProduct($product)
 		->setArranged(1)
 		->setArrangedDate(UDate::now())
 		->setArrangedBy(Core::getUser())

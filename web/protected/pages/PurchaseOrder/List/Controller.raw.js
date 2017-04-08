@@ -4,7 +4,8 @@
 var PageJs = new Class.create();
 
 PageJs.prototype = Object.extend(new CRUDPageJs(), {
-	_getTitleRowData: function() {
+	_pre_num : 0
+	,_getTitleRowData: function() {
 		return {'totalAmount': 'PO Amount Inc. GST', 'totalReceivedValue': 'Bill Amount Inc. GST', 'totalPaid': 'Total Paid', 'purchaseOrderNo': 'PO Number', 'supplier': {'name': 'Supplier'}, 'arrangePickup': 'Pickup','status': 'Status', 'supplierRefNo': 'PO Ref.', 'orderDate': 'Order Date', 'active': 'Active'};
 
 	}
@@ -30,10 +31,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.me = this;
 		$$('#searchBtn').first()
 			.observe('click', function(event) {
-				if(!$$('#showSearch').first().checked)
+				if(!$$('#showSearch').first().checked){
 					$$('#showSearch').first().click();
-				else
+				}
+				else{
+					tmp.me._pre_num = 0;
 					tmp.me.getSearchCriteria().getResults(true, tmp.me._pagination.pageSize);
+				}
 			});
 		tmp.selectEl = new Element('input', {'class': 'select2 form-control', 'data-placeholder': 'the Name of Supplier', 'search_field': 'po.supplierIds'}).insert({'bottom': new Element('option').update('')});
 		$(tmp.me.searchDivId).down('[search_field="po.supplierIds"]').replace(tmp.selectEl);
@@ -177,21 +181,19 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					if(!tmp.tbody)
 						$(tmp.resultDiv).insert({'bottom': tmp.tbody = new Element('tbody') });
 					
-					$('pre-selected-count').update(tmp.num);
+					$('pre-selected-count').update(tmp.me._pre_num);
 					tmp.result.items.each(function(item) {
 						item.item.totalProdcutCount = item.totalProdcutCount;
 						item = item.item;
 						tmp.tbody.insert({'bottom': tmp.me._getResultRow(item).addClassName('item_row').writeAttribute('item_id', item.id) });
-						if(item.arrangePickup == true){
+						if(item.pickupDelivery == true){
 							tmp.num += 1;	
 						}
 					});
 					//set amount of arranged pickup
-					if($('pre-selected-count').innerHTML.length > 0){
-						tmp.num += parseInt($('pre-selected-count').innerHTML);
-					}
+					tmp.me._pre_num = parseInt($('pre-selected-count').innerHTML) + tmp.num;
 					
-					$('pre-selected-count').update(tmp.num);
+					$('pre-selected-count').update(tmp.me._pre_num);
 					
 					//show the next page button
 					if(tmp.result.pageStats.pageNumber < tmp.result.pageStats.totalPages)
@@ -296,7 +298,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? tmp.me.getCurrency(row.totalAmount) : row.totalAmount)})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? tmp.me.getCurrency(row.totalReceivedValue * 1.1) : row.totalReceivedValue)})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? row.totalPaid ? tmp.me.getCurrency(row.totalPaid) : '' : 'Total Paid')})
-			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(tmp.isTitle ? row.arrangePickup : new Element('input', {'class': 'arrangePickup', 'type': 'checkbox', 'checked': row.arrangePickup}))})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(tmp.isTitle ? row.arrangePickup : new Element('input', {'class': 'arrangePickup', 'type': 'checkbox', 'checked': row.pickupDelivery}))})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1', 'order_status': row.status}).update(row.status)})
 			.insert({'bottom': tmp.btns = new Element(tmp.tag, {'class': 'col-xs-1 text-right'}) 	});
 		if(tmp.isTitle !== true)
@@ -402,6 +404,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 								$$('.po_item[item_id=' + row.id +']').first().replace(tmp.me._getResultRow(row, false));
 							}
 						})
+						tmp.me._pre_num = parseInt(tmp.num) + parseInt(tmp.preQty);
+						$('pre-selected-count').update(tmp.me._pre_num);
 					} catch (e) {
 						tmp.me.showModalBox('<b>Error:</b>', '<b class="text-danger">' + e + '</b>');
 					}

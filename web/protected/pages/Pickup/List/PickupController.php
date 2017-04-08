@@ -13,7 +13,7 @@ class PickupController extends CRUDPageAbstract
 	 * @see BPCPageAbstract::$menuItem
 	 */
 	public $menuItem = 'pickups';
-	protected $_focusEntity = 'PurchaseOrder';
+	protected $_focusEntity = 'PickupDelivery';
 	/**
 	 * constructor
 	 */
@@ -28,8 +28,9 @@ class PickupController extends CRUDPageAbstract
 	protected function _getEndJs()
 	{
 		$js = parent::_getEndJs();
-		$js .= 'pageJs.getResults(true, ' . $this->pageSize . ');';
-		$js .= ".setCallbackId('pickupItem', '" . $this->pickupItemBtn->getUniqueID() . "')";
+		$js .= "pageJs.setCallbackId('pickupItem', '" . $this->pickupItemBtn->getUniqueID() . "')";
+		$js .= "._bindSearchKey()";
+		$js .= ".getResults(true, " . $this->pageSize . ");";
 		
 		return $js;
 	}
@@ -59,13 +60,47 @@ class PickupController extends CRUDPageAbstract
 			$params = array();
 			$where[] = 'storeId = :storeId';
 			$params['storeId'] = Core::getUser()->getStore()->getId();
-			$where[] = 'eta <= :now';
-			$params['now'] = date('Y-m-d',strtotime('-2 day'));
-			$where[] = 'received = 0';
+			if(isset($param->CallbackParameter->searchCriteria)){
+				$serachCriteria = json_decode(json_encode($param->CallbackParameter->searchCriteria), true);
+				$supplierName = trim($serachCriteria['po.supplier']);
+				$suppliers = Supplier::getAllByCriteria('name like ?', array('%'.$supplierName.'%'));
+				if(count($suppliers) > 0){
+					foreach ($suppliers as $index => $value){
+						$key = 'su_' . $index;
+						$keys[] = ':' . $key;
+						$ids[$key] = trim($value->getId());
+					}
+				
+					$where[] = 'supplierId in (' . implode(',', $keys) . ')';
+					$params = array_merge($params, $ids);
+				}else {
+					$results['message'][] = 'Invalid supplier!';
+					$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+					return ;
+				}
+				
+				$poNum = trim($serachCriteria['po.no']);
+				$pos = PurchaseOrder::getAllByCriteria('purchaseOrderNo like ?', array('%'.$poNum.'%'));
+				if (count($pos) > 0){
+					foreach ($pos as $index => $value){
+						$key = 'po_' . $index;
+						$keysPo[] = ':' . $key;
+						$idsPo[$key] = trim($value->getId());
+					}
+					$where[] = 'orderId in (' . implode(',', $keysPo) . ')';
+					$params = array_merge($params, $idsPo);
+				}else {
+					$results['message'][] = 'Invalid PO Number!';
+					$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+					return ;
+				}
+			}
+			$where[] = 'done = 0';
 			$stats = array();
-			$objects = $class::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('eta' => 'asc'), $stats);
+			$objects = $class::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('arrangedDate' => 'asc'), $stats);
 			$results['pageStats'] = $stats;
 			$results['items'] = array();
+			
 			foreach($objects as $obj)
 				$results['items'][] = $obj->getJson();
 		}
@@ -73,45 +108,40 @@ class PickupController extends CRUDPageAbstract
 		{
 			$errors[] = $ex->getMessage();
 		}
-		
 		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
 	}
 	/**
-	 * save ETA
+	 * confirm item pickuped
 	 *
 	 * @param unknown $sender
 	 * @param unknown $param
 	 * @throws Exception
+	 *
 	 */
-	public function saveEta($sender, $param)
+	public function pickupItem($sender, $param)
 	{
-		
 		$results = $errors = array();
 		try
 		{
-			Dao::beginTransaction();
+			$id = isset($param->CallbackParameter->item_id) ? $param->CallbackParameter->item_id : array();
+			$poId = isset($param->CallbackParameter->po_id) ? $param->CallbackParameter->po_id : array();
 			
-			foreach ($param->CallbackParameter->productEta as $object){
-				$id = isset($object->id) ? $object->id : '';
-				if(!($productEta = ProductEta::get($id)) instanceof ProductEta){
-					throw new Exception('Invalid product ETA!');
-				}
-				
-				$ymd = DateTime::createFromFormat('d/m/Y', $object->eta)->format('Y-m-d');
-				if($ymd !== $productEta->getEta()){
-					$productEta->setEta($ymd)
-					->save();
-					
-					$results['item'][] = $productEta->getJson();
-				}
-				
-			}
-			Dao::commitTransaction();
+			$po = PurchaseOrder::get($poId);
+			if(!$po instanceof PurchaseOrder)
+				throw new Exception();
+			
+			$pickup = PickupDelivery::get($id);
+			
+			$pickup->setDoneDate(UDate::now())
+			->setDoneBy(Core::getUser())
+			->setActive(false)
+			->save();
+
+			$results['item'] = $pickup->getJson();
 		}
 		catch(Exception $ex)
 		{
-			Dao::rollbackTransaction();
-			$errors[] = $ex->getMessage();
+			$errors[] = $ex->getMessage() . $ex->getTraceAsString();
 		}
 		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
 	}

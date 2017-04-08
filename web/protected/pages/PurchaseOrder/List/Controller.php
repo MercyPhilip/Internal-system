@@ -201,6 +201,11 @@ class Controller extends CRUDPageAbstract
     			$poEta->setActive(false)
     			->save();
     		}
+    		$pickups = PickupDelivery::getAllByCriteria('orderId = ?', array($id));
+    		foreach ($pickups as $pickup){
+    			$pickup->setActive(false)
+    			->save();
+    		}
     		$results['item'] = $item->getJson();
     	}
     	catch(Exception $ex)
@@ -396,8 +401,11 @@ class Controller extends CRUDPageAbstract
     			$poItems = PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ? and storeId = ?', array($id, Core::getUser()->getStore()->getId()));
     			$supplier = $po->getSupplier();
     			foreach ($poItems as $poItem){
-    				$product = $poItem->getProduct();
-    				PickupDelivery::create($supplier, $product, $po, PickupDelivery::TYPE_PICKUP);
+    				$pickup = PickupDelivery::getAllByCriteria('itemId = ? and storeId = ?', array($poItem->getId(), Core::getUser()->getStore()->getId()));
+    				if (count($pickup) == 0){
+	    				$product = $poItem->getProduct();
+	    				PickupDelivery::create($supplier, $product, $po, $poItem, PickupDelivery::TYPE_PICKUP);
+    				}
     			}
     			
     			$results['items'][] = array();
