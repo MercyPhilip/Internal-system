@@ -1,6 +1,7 @@
 <com:TContent ID="MainContent">
 	<com:Application.controls.bootstrapDateTimePicker.bootstrapDateTimePicker />
 	<com:TCallback ID="pickupItemBtn" OnCallback = 'Page.pickupItem' />
+	<com:TCallback ID="saveCommentBtn" OnCallback = 'Page.saveComment' />
 	<div class="pagewrapper item-list-wrapper">
 		<div class="panel panel-default" id="searchPanel">
 			<div class="panel-heading">

@@ -29,7 +29,9 @@ class PickupController extends CRUDPageAbstract
 	{
 		$js = parent::_getEndJs();
 		$js .= "pageJs.setCallbackId('pickupItem', '" . $this->pickupItemBtn->getUniqueID() . "')";
+		$js .= ".setCallbackId('saveComment', '" . $this->saveCommentBtn->getUniqueID() . "')";
 		$js .= "._bindSearchKey()";
+		$js .= '.setRoleId('. Core::getRole()->getId() .')';
 		$js .= ".getResults(true, " . $this->pageSize . ");";
 		
 		return $js;
@@ -138,6 +140,37 @@ class PickupController extends CRUDPageAbstract
 			->save();
 
 			$results['item'] = $pickup->getJson();
+		}
+		catch(Exception $ex)
+		{
+			$errors[] = $ex->getMessage() . $ex->getTraceAsString();
+		}
+		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	}
+	/**
+	 * save comment
+	 *
+	 * @param unknown $sender
+	 * @param unknown $param
+	 * @throws Exception
+	 *
+	 */
+	public function saveComment($sender, $param)
+	{
+		$results = $errors = array();
+		try
+		{
+			$id = isset($param->CallbackParameter->item_id) ? $param->CallbackParameter->item_id : array();
+			$comment = isset($param->CallbackParameter->comment) ? $param->CallbackParameter->comment : array();
+			
+			$pickupDeli = PickupDelivery::get($id);
+			if(!$pickupDeli instanceof PickupDelivery)
+				throw new Exception();
+			
+			$pickupDeli->addComment($comment, 'PICKUPDELIVERY')
+			->save();
+
+			$results['item'] = $pickupDeli->getJson();
 		}
 		catch(Exception $ex)
 		{

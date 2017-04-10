@@ -24,7 +24,7 @@
 		border: none;
 		border-bottom: 1px solid #eee; 
 		position: relative;
-		padding-left: 50%; 
+		padding-left: 42%; 
 		white-space: normal;
 		text-align:left;
 		font-size: 16px;
@@ -47,5 +47,19 @@
 	Label the data
 	*/
 	#item-list td:before { content: attr(data-title); }
-	.glyphicon-ok-circle {width:80px;}
+	.glyphicon-ok-circle { width:80px;}
 }
+@media only screen and (min-width: 801px) {	
+	#item-list .name {
+		width: 25%;
+	}
+	#item-list .comment {
+		width: 16.6%;
+	}
+
+}
+	#item-list .comment {
+		white-space: -moz-pre-wrap !important;
+		white-space: -webkit-pre-wrap;
+		word-break: break-all;
+	}

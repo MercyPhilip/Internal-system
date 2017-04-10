@@ -366,6 +366,7 @@ class PickupDelivery extends BaseEntityAbstract
 			$array['product'] = $this->getProduct() instanceof Product ? $this->getProduct()->getJson() : array();
 			$array['order'] = count($this->getOrder()) > 0 ? $this->getOrder()->getJson() : array();
 			$array['item'] = count($this->getItem()) > 0 ? $this->getItem()->getJson() : array();
+			$array['comment'] = count($this->getComment()) > 0 ? $this->getComment()[0]->getComments() : '';
 		}
 		return parent::getJson($array, $reset);
 	}

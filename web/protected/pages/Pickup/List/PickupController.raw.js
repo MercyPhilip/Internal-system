@@ -7,8 +7,12 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
      * Getting the title row data
      */
     _getTitleRowData: function() {
-      return {'sku': 'SKU', 'name': 'Product Name', 'supplier': 'Supplier','poNumber': 'PO Number' , 'unitPrice': 'Unit Price(Ex)', 'qty': 'Qty', 'poDate': 'PO Date', 'pickupDate': 'Pickup Date'};
+      return {'sku': 'SKU', 'name': 'Product Name', 'supplier': 'Supplier','poNumber': 'PO Number' , 'unitPrice': 'Unit Price(Ex)', 'qty': 'Qty', 'poDate': 'PO Date', 'comment': 'Comment', 'pickupDate': 'Arrange Date'};
     }
+	,setRoleId: function(roleId) {
+		this._roleId = roleId;
+		return this;
+	}
 	/**
 	 * Binding the search key
 	 */
@@ -95,7 +99,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		tmp.row = $$('[item_id="'+ pickup.id +'"]').first();
-		console.log(pickup);
 		tmp.me.postAjax(tmp.me.getCallbackId('pickupItem'), {'item_id': pickup.id, 'po_id': pickup.order.id}, {
 			'onLoading': function() {
 				if(tmp.row)
@@ -123,6 +126,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
    * get result row for data given
    */
   ,_getResultRow: function(row, isTitle) {
+	  console.log(row);
     var tmp = {};
     tmp.me = this;
     tmp.tag = (isTitle === true ? 'th' : 'td');
@@ -148,21 +152,41 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
       })
       .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'podate'}).update(row.poDate)
           :new Element(tmp.tag, {'class': 'podate', 'item': 'podate', 'data-title': 'PO Date'}).update(moment(row.order.orderDate).format('DD/MM/YYYY'))
-      }) 
-      .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'podate'}).update(row.pickupDate)
+      });
+    
+    	if(tmp.me._roleId === 1){
+    		tmp.row.insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'comment'}).update(row.comment)
+    	              :new Element(tmp.tag, {'class': 'comment', 'item': 'comment_'+row.id, 'data-title': 'Comment'}).update(row.comment)
+    	          });
+    	}else{
+    		tmp.row.insert({'bottom': new Element(tmp.tag, {'class': 'comment', 'data-title': 'Comment'})
+    	      	.insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'comment'}).update(row.comment)
+    	    		:new Element('input', {'class': 'comment', 'item': 'comment_'+row.id, 'style': 'width:100%;', 'value': row.comment})
+    	      	})
+    	      });
+    	}
+
+    	tmp.row.insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'podate'}).update(row.pickupDate)
           :new Element(tmp.tag, {'class': 'pickupdate', 'item': 'pickupdate', 'data-title': 'Pickup Date'}).update(moment(row.item.arrangedDate).format('DD/MM/YYYY'))
       })
       .insert({'bottom': tmp.btns = new Element(tmp.tag, {'class': 'text-center'}) });
 		if(tmp.isTitle !== true)
 			tmp.btns.insert({'bottom': new Element('div', {'class': 'btn-group'})
+				.insert({'bottom': tmp.me._roleId === 1 ? null
+					:new Element('button', {'class': 'btn btn-default btn-md', 'title': 'Save Comment'})
+				
+					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-saved'}) })
+					.observe('click', function(){
+						tmp.me._saveComment(row);
+					})
+				})
 				.insert({'bottom': new Element('button', {'class': 'btn btn-success btn-md', 'title': 'Confirm'})
 					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-ok-circle'}) })
 					.observe('click', function(){
 						tmp.me._showConfirmPickup(row);
-					})
+				})
 				})
 			});
-  	
     return tmp.row;
   }
 	/**
@@ -189,5 +213,27 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			});
 		tmp.me.showModalBox('<strong class="text-warning">Confirm</strong>', tmp.confirmDiv);
 		return tmp.me;
+	}
+	/**
+	 * save the comment for pickuping the po
+	 */
+	,_saveComment: function(pickup) {
+		var tmp = {};
+		tmp.me = this;
+		pickup.comment = jQuery('[item=comment_'+pickup.id).val();
+		tmp.row = $$('[item_id="'+ pickup.id +'"]').first();
+		tmp.me.postAjax(tmp.me.getCallbackId('saveComment'), {'item_id': pickup.id, 'comment': pickup.comment}, {
+			'onSuccess': function(sender, param){
+				try {
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result.item)
+						throw 'errror';
+					tmp.me.showModalBox('Success', 'Save Successfully!', false);
+					tmp.row.replace(tmp.me._getResultRow(tmp.result.item, false));
+				} catch(e) {
+					tmp.me.showModalBox('<span class="text-danger">ERROR</span>', e, true);
+				}
+			}
+		});
 	}
 });
