@@ -126,7 +126,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
    * get result row for data given
    */
   ,_getResultRow: function(row, isTitle) {
-	  console.log(row);
     var tmp = {};
     tmp.me = this;
     tmp.tag = (isTitle === true ? 'th' : 'td');
@@ -228,6 +227,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					tmp.result = tmp.me.getResp(param, false, true);
 					if(!tmp.result.item)
 						throw 'errror';
+					if(tmp.result.item == 'no comment')
+						throw 'No commnet added';
 					tmp.me.showModalBox('Success', 'Save Successfully!', false);
 					tmp.row.replace(tmp.me._getResultRow(tmp.result.item, false));
 				} catch(e) {

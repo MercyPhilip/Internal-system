@@ -28,6 +28,7 @@
 		white-space: normal;
 		text-align:left;
 		font-size: 16px;
+		min-height: 39px;
 	}
  
 	#item-list td:before { 
@@ -56,10 +57,4 @@
 	#item-list .comment {
 		width: 16.6%;
 	}
-
 }
-	#item-list .comment {
-		white-space: -moz-pre-wrap !important;
-		white-space: -webkit-pre-wrap;
-		word-break: break-all;
-	}

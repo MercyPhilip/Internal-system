@@ -161,16 +161,30 @@ class PickupController extends CRUDPageAbstract
 		try
 		{
 			$id = isset($param->CallbackParameter->item_id) ? $param->CallbackParameter->item_id : array();
-			$comment = isset($param->CallbackParameter->comment) ? $param->CallbackParameter->comment : array();
-			
+			$comment = isset($param->CallbackParameter->comment) ? $param->CallbackParameter->comment : '';
+
 			$pickupDeli = PickupDelivery::get($id);
 			if(!$pickupDeli instanceof PickupDelivery)
 				throw new Exception();
 			
-			$pickupDeli->addComment($comment, 'PICKUPDELIVERY')
-			->save();
+			if ($comment == ''){
+				$preComments = $pickupDeli->getComment();
+				if (count($preComments) > 0){
+					foreach ($preComments as $preComment){
+						$preComment->setActive(0)
+						->save();
+						
+					}
+					$results['item'] = $pickupDeli->getJson();
+				}else{
+					$results['item'] = 'no comment';
+				}
+			} else {
+				$pickupDeli->addComment($comment, 'PICKUPDELIVERY')
+				->save();
+				$results['item'] = $pickupDeli->getJson();
+			}
 
-			$results['item'] = $pickupDeli->getJson();
 		}
 		catch(Exception $ex)
 		{
