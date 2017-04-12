@@ -173,6 +173,11 @@
       <!-- FrontEnd:: Stock Adjustment page -->
       <url ServiceParameter="StockAdjustment.List.ListController" pattern="stockadjustment.html" />
 
+      <!-- FrontEnd:: BudgetPC Van Pickup page -->
+      <url ServiceParameter="Pickup.List.PickupController" pattern="pickup.html" />
+      <!-- FrontEnd:: BudgetPC Van Delivery page -->
+      <url ServiceParameter="Delivery.List.DeliveryController" pattern="delivery.html" />
+      
       <!-- FrontEnd:: Log list page -->
       <url ServiceParameter="Log.List.ListController" pattern="logs.html" />
       <!-- FrontEnd:: Message list page -->

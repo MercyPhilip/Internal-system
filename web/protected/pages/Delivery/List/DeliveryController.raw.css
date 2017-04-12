@@ -1,0 +1,112 @@
+@media only screen and (max-device-width: 450px) {
+	
+	/* Force table to not be like tables anymore */
+	#item-list table, 
+	#item-list thead, 
+	#item-list tbody, 
+	#item-list th, 
+	#item-list td, 
+	#item-list tr { 
+		display: block; 
+	}
+ 
+	/* Hide table headers (but not display: none;, for accessibility) */
+	#item-list thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+ 
+	#item-list tr { border: 1px solid #ccc; }
+ 
+	#item-list td { 
+		/* Behave  like a "row" */
+		border: none;
+		border-bottom: 1px solid #eee; 
+		position: relative;
+		padding-left: 47%; 
+		white-space: normal;
+		text-align:left;
+		font-size: 15px;
+		min-height: 39px;
+	}
+ 
+	#item-list td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 6px;
+		left: 6px;
+		width: 45%; 
+		padding-right: 10px; 
+		white-space: nowrap;
+		text-align:left;
+		font-weight: bold;
+	}
+ 
+	/*
+	Label the data
+	*/
+	#item-list td:before { content: attr(data-title); }
+	.glyphicon-ok-circle { width:80px;}
+}
+@media only screen and (min-device-width: 451px) and (max-width: 800px) {
+	
+	/* Force table to not be like tables anymore */
+	#item-list table, 
+	#item-list thead, 
+	#item-list tbody, 
+	#item-list th, 
+	#item-list td, 
+	#item-list tr { 
+		display: block; 
+	}
+ 
+	/* Hide table headers (but not display: none;, for accessibility) */
+	#item-list thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+ 
+	#item-list tr { border: 1px solid #ccc; }
+ 
+	#item-list td { 
+		/* Behave  like a "row" */
+		border: none;
+		border-bottom: 1px solid #eee; 
+		position: relative;
+		padding-left: 47%; 
+		white-space: normal;
+		text-align:left;
+		font-size: 15px;
+		min-height: 39px;
+	}
+ 
+	#item-list td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 6px;
+		left: 6px;
+		width: 45%; 
+		padding-right: 10px; 
+		white-space: nowrap;
+		text-align:left;
+		font-weight: bold;
+	}
+ 
+	/*
+	Label the data
+	*/
+	#item-list td:before { content: attr(data-title); }
+	.glyphicon-ok-circle { width:80px;}
+}
+@media only screen and (min-width: 801px) {	
+	#item-list .name {
+		width: 20%;
+	}
+	#item-list .comment {
+		width: 13.6%;
+	}
+}

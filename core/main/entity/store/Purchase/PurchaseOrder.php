@@ -603,6 +603,9 @@ class PurchaseOrder extends BaseEntityAbstract
 			$array['totalReceivedCount'] = $this->getTotalReceivedCount();
 			$array['totalReceivedValue'] = $this->getTotalRecievedValue();
 			$array['supplierInvoices'] = $this->getSupplierInvoices();
+			if (count($this->getPickupDeliveryItems()) > 0 ){
+				$array['pickupDelivery'] = 1;
+			}
 			if($getItems === true)
 				$array['purchaseOrderItems'] =  array_map(create_function('$a', 'return $a->getJson();'), $this->getPurchaseOrderItems());
 		}
@@ -652,5 +655,14 @@ class PurchaseOrder extends BaseEntityAbstract
 	public static function getStatusOptions()
 	{
 		return array(self::STATUS_NEW, self::STATUS_ORDERED, self::STATUS_RECEIVING, self::STATUS_CANCELED, self::STATUS_CLOSED, self::STATUS_RECEIVED);
+	}
+	/**
+	 * get all PickupDelivery items under this PO
+	 *
+	 * @return array
+	 */
+	public function getPickupDeliveryItems()
+	{
+		return PickupDelivery::getAllByCriteria('orderId = ? and storeId = ? and done = 0', array($this->getId(), Core::getUser()->getStore()->getId()));
 	}
 }

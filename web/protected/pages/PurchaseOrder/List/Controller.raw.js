@@ -4,8 +4,9 @@
 var PageJs = new Class.create();
 
 PageJs.prototype = Object.extend(new CRUDPageJs(), {
-	_getTitleRowData: function() {
-		return {'totalAmount': 'PO Amount Inc. GST', 'totalReceivedValue': 'Bill Amount Inc. GST', 'totalPaid': 'Total Paid', 'purchaseOrderNo': 'PO Number', 'supplier': {'name': 'Supplier'}, 'status': 'Status', 'supplierRefNo': 'PO Ref.', 'orderDate': 'Order Date', 'active': 'Active'};
+	_pre_num : 0
+	,_getTitleRowData: function() {
+		return {'totalAmount': 'PO Amount Inc. GST', 'totalReceivedValue': 'Bill Amount Inc. GST', 'totalPaid': 'Total Paid', 'purchaseOrderNo': 'PO Number', 'supplier': {'name': 'Supplier'}, 'arrangePickup': 'Pickup','status': 'Status', 'supplierRefNo': 'PO Ref.', 'orderDate': 'Order Date', 'active': 'Active'};
 
 	}
 	,_loadChosen: function () {
@@ -30,10 +31,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.me = this;
 		$$('#searchBtn').first()
 			.observe('click', function(event) {
-				if(!$$('#showSearch').first().checked)
+				if(!$$('#showSearch').first().checked){
 					$$('#showSearch').first().click();
-				else
+				}
+				else{
+					tmp.me._pre_num = 0;
 					tmp.me.getSearchCriteria().getResults(true, tmp.me._pagination.pageSize);
+				}
 			});
 		tmp.selectEl = new Element('input', {'class': 'select2 form-control', 'data-placeholder': 'the Name of Supplier', 'search_field': 'po.supplierIds'}).insert({'bottom': new Element('option').update('')});
 		$(tmp.me.searchDivId).down('[search_field="po.supplierIds"]').replace(tmp.selectEl);
@@ -139,6 +143,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	}
 	,getResults: function(reset, pageSize) {
 		var tmp = {};
+		tmp.num = 0;
 		tmp.me = this;
 		tmp.reset = (reset || false);
 		tmp.resultDiv = $(tmp.me.resultDivId);
@@ -155,6 +160,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				}
 			}
 			,'onSuccess': function(sender, param) {
+				
 				try{
 					tmp.result = tmp.me.getResp(param, false, true);
 					if(!tmp.result)
@@ -174,11 +180,21 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					tmp.tbody = $(tmp.resultDiv).down('tbody');
 					if(!tmp.tbody)
 						$(tmp.resultDiv).insert({'bottom': tmp.tbody = new Element('tbody') });
+					
+					$('pre-selected-count').update(tmp.me._pre_num);
 					tmp.result.items.each(function(item) {
 						item.item.totalProdcutCount = item.totalProdcutCount;
 						item = item.item;
 						tmp.tbody.insert({'bottom': tmp.me._getResultRow(item).addClassName('item_row').writeAttribute('item_id', item.id) });
+						if(item.pickupDelivery == true){
+							tmp.num += 1;	
+						}
 					});
+					//set amount of arranged pickup
+					tmp.me._pre_num = parseInt($('pre-selected-count').innerHTML) + tmp.num;
+					
+					$('pre-selected-count').update(tmp.me._pre_num);
+					
 					//show the next page button
 					if(tmp.result.pageStats.pageNumber < tmp.result.pageStats.totalPages)
 						tmp.resultDiv.insert({'bottom': tmp.me._getNextPageBtn().addClassName('paginWrapper') });
@@ -278,10 +294,11 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					.insert({'bottom': new Element('abbr', {'title': 'Total Product Count on this PO'}).update(row.totalProductCount) })
 
 			) })
-			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? row.eta ? tmp.me.loadUTCTime(row.eta).toDateString() : '' : 'ETA')})
+//			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? row.eta ? tmp.me.loadUTCTime(row.eta).toDateString() : '' : 'ETA')})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? tmp.me.getCurrency(row.totalAmount) : row.totalAmount)})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? tmp.me.getCurrency(row.totalReceivedValue * 1.1) : row.totalReceivedValue)})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(!tmp.isTitle ? row.totalPaid ? tmp.me.getCurrency(row.totalPaid) : '' : 'Total Paid')})
+			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1'}).update(tmp.isTitle ? row.arrangePickup : new Element('input', {'class': 'arrangePickup', 'type': 'checkbox', 'checked': row.pickupDelivery}))})
 			.insert({'bottom': new Element(tmp.tag, {'class': ' col-xs-1', 'order_status': row.status}).update(row.status)})
 			.insert({'bottom': tmp.btns = new Element(tmp.tag, {'class': 'col-xs-1 text-right'}) 	});
 		if(tmp.isTitle !== true)
@@ -332,6 +349,72 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				jQuery(btn).button('reset');
 			}
 		})
+		return tmp.me;
+	}
+	/**
+	 * get selected POs for arrangePickup
+	 */
+	,_getSelection: function() {
+		var tmp = {}
+		tmp.me = this;
+		tmp.pos = [];
+		
+		tmp.itemList = $('item-list');
+		tmp.itemList.getElementsBySelector('.item_row.po_item').each(function(row){
+			tmp.checked = row.down('input.arrangePickup[type="checkbox"]').checked;
+			tmp.poId = row.readAttribute('item_id');
+			if(tmp.checked === true && jQuery.isNumeric(tmp.poId) === true)
+				tmp.pos.push(row.retrieve('data'));
+		});
+		
+		$('total-selected-count').update(tmp.pos.length);
+		
+		return tmp.pos;
+	}
+	/**
+	 * save arrangePickup flag
+	 */
+	,pickupSave: function(btn) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.data = tmp.me._getSelection();
+		tmp.totalQty = $('total-selected-count').innerHTML;
+		tmp.preQty = $('pre-selected-count').innerHTML;
+		tmp.num = tmp.totalQty - tmp.preQty;
+		if(tmp.num <= 0){
+			tmp.me.showModalBox('Warning', 'No new pickup arranged!', false);
+			return;
+		}
+		if(confirm(' Totally ' + ( tmp.num ) + ' POs are arranged to pickup. \n Continue?')){
+			tmp.me.postAjax(tmp.me.getCallbackId('pickupSaveBtn'), tmp.data, {
+				'onLoading': function() {
+					jQuery(btn).button('loading');
+				}
+				,'onSuccess': function (sender, param) {
+					try {
+						tmp.result = tmp.me.getResp(param, false, true);
+						
+						if(!tmp.result)
+							return;
+						
+						tmp.me.showModalBox('Success', 'Pickup arranged!', false);
+						tmp.result.items.each(function(row){
+							
+							if($$('.po_item[item_id=' + row.id +']').size() >0) {
+								$$('.po_item[item_id=' + row.id +']').first().replace(tmp.me._getResultRow(row, false));
+							}
+						})
+						tmp.me._pre_num = parseInt(tmp.num) + parseInt(tmp.preQty);
+						$('pre-selected-count').update(tmp.me._pre_num);
+					} catch (e) {
+						tmp.me.showModalBox('<b>Error:</b>', '<b class="text-danger">' + e + '</b>');
+					}
+				}
+				,'onComplete': function() {
+					jQuery(btn).button('reset');
+				}
+			})
+		}
 		return tmp.me;
 	}
 });
