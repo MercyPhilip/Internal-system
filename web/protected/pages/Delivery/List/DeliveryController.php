@@ -1,18 +1,18 @@
 <?php
 /**
- * This is the listing page for Pickups
+ * This is the listing page for Deliveries
  *
  * @package    Web
  * @subpackage Controller
  * @author     lhe<helin16@gmail.com>
  */
-class PickupController extends CRUDPageAbstract
+class DeliveryController extends CRUDPageAbstract
 {
 	/**
 	 * (non-PHPdoc)
 	 * @see BPCPageAbstract::$menuItem
 	 */
-	public $menuItem = 'pickups';
+	public $menuItem = 'deliveries';
 	protected $_focusEntity = 'PickupDelivery';
 	/**
 	 * constructor
@@ -28,7 +28,7 @@ class PickupController extends CRUDPageAbstract
 	protected function _getEndJs()
 	{
 		$js = parent::_getEndJs();
-		$js .= "pageJs.setCallbackId('pickupItem', '" . $this->pickupItemBtn->getUniqueID() . "')";
+		$js .= "pageJs.setCallbackId('deliveryItem', '" . $this->deliveryItemBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('saveComment', '" . $this->saveCommentBtn->getUniqueID() . "')";
 		$js .= "._bindSearchKey()";
 		$js .= '.setRoleId('. Core::getRole()->getId() .')';
@@ -63,41 +63,41 @@ class PickupController extends CRUDPageAbstract
 			$where[] = 'storeId = :storeId';
 			$params['storeId'] = Core::getUser()->getStore()->getId();
 			$where[] = 'type = :type';
-			$params['type'] = PickupDelivery::TYPE_PICKUP;
+			$params['type'] = PickupDelivery::TYPE_DELIVERY;
 			if(isset($param->CallbackParameter->searchCriteria)){
 				$serachCriteria = json_decode(json_encode($param->CallbackParameter->searchCriteria), true);
-				$query = PickupDelivery::getQuery();
 			
-				if (trim($serachCriteria['po.supplier']) !== ''){
-					$supplierName = trim($serachCriteria['po.supplier']);
-					$suppliers = Supplier::getAllByCriteria('name like ?', array('%'.$supplierName.'%'));
-					if(count($suppliers) > 0){
-						foreach ($suppliers as $index => $value){
-							$key = 'su_' . $index;
+				if (trim($serachCriteria['ord.name']) !== ''){
+					$customerName = trim($serachCriteria['ord.name']);
+					$customers = Customer::getAllByCriteria('name like ?', array('%'.$customerName.'%'));
+					if(count($customers) > 0){
+						foreach ($customers as $index => $value){
+							$key = 'cus_' . $index;
 							$keys[] = ':' . $key;
 							$ids[$key] = trim($value->getId());
 						}
-						$where[] = 'orderId in (select id from purchaseorder po where po.active =1 and po.supplierId in (' . implode(',', $keys) . '))';
+					
+						$where[] = 'orderId in (select id from `order` where active =1 and customerId in (' . implode(',', $keys) . '))';
 						$params = array_merge($params, $ids);
 					}else {
-						$results['message'][] = 'Invalid supplier!';
+						$results['message'][] = 'Invalid customer!';
 						$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
 						return ;
 					}
 				}
-				if (trim($serachCriteria['po.no']) !== ''){
-					$poNum = trim($serachCriteria['po.no']);
-					$pos = PurchaseOrder::getAllByCriteria('purchaseOrderNo like ?', array('%'.$poNum.'%'));
-					if (count($pos) > 0){
-						foreach ($pos as $index => $value){
-							$key = 'po_' . $index;
-							$keysPo[] = ':' . $key;
-							$idsPo[$key] = trim($value->getId());
+				if (trim($serachCriteria['ord.no']) !== ''){
+					$orderNum = trim($serachCriteria['ord.no']);
+					$orders = Order::getAllByCriteria('orderNo like ?', array('%'.$orderNum.'%'));
+					if (count($orders) > 0){
+						foreach ($orders as $index => $value){
+							$key = 'ord_' . $index;
+							$keysOrder[] = ':' . $key;
+							$idsOrder[$key] = trim($value->getId());
 						}
-						$where[] = 'orderId in (' . implode(',', $keysPo) . ')';
-						$params = array_merge($params, $idsPo);
+						$where[] = 'orderId in (' . implode(',', $keysOrder) . ')';
+						$params = array_merge($params, $idsOrder);
 					}else {
-						$results['message'][] = 'Invalid PO Number!';
+						$results['message'][] = 'Invalid Order Number!';
 						$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
 						return ;
 					}
@@ -119,33 +119,41 @@ class PickupController extends CRUDPageAbstract
 		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
 	}
 	/**
-	 * confirm item pickuped
+	 * confirm item delivered
 	 *
 	 * @param unknown $sender
 	 * @param unknown $param
 	 * @throws Exception
 	 *
 	 */
-	public function pickupItem($sender, $param)
+	public function deliveryItem($sender, $param)
 	{
 		$results = $errors = array();
 		try
-		{
+		{	
 			$id = isset($param->CallbackParameter->item_id) ? $param->CallbackParameter->item_id : array();
-			$poId = isset($param->CallbackParameter->po_id) ? $param->CallbackParameter->po_id : array();
+			$orderId = isset($param->CallbackParameter->order_id) ? $param->CallbackParameter->order_id : array();
+			$signature = isset($param->CallbackParameter->signature) ? $param->CallbackParameter->signature: array();
+			$recepiant = isset($param->CallbackParameter->recepiant) ? $param->CallbackParameter->recepiant: array();
 			
-			$po = PurchaseOrder::get($poId);
-			if(!$po instanceof PurchaseOrder)
+			$order = Order::get($orderId);
+			if(!$order instanceof Order)
 				throw new Exception();
 			
-			$pickup = PickupDelivery::get($id);
+			$deliveries = PickupDelivery::getAllByCriteria('orderId =? and storeId =?', array($orderId, Core::getUser()->getStore()->getId()));
 			
-			$pickup->setDoneDate(UDate::now())
-			->setDoneBy(Core::getUser())
-			->setActive(false)
-			->save();
-
-			$results['item'] = $pickup->getJson();
+			foreach ($deliveries as $delivery){
+				$delivery->setDoneDate(UDate::now())
+				->setDoneBy(Core::getUser())
+				->setActive(false)
+				->save();
+			}
+			//save signature in svg format and set file name to InvNo_RecepiantName  
+			$data = base64_decode($signature[1]);
+			$fileName = 'InvNo_'.$order->getInvNo().'_Recepiant_'.$recepiant.'.svg';
+			Asset::registerAsset($fileName, $data, 'DELIVERY_SIGNATURE');
+			
+			$results['item'] = $delivery->getJson();
 		}
 		catch(Exception $ex)
 		{

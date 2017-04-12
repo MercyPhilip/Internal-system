@@ -327,6 +327,28 @@ class OrderDetailsController extends BPCPageAbstract
 			$order->setStatus($orderStatus);
 			$order->addComment('change Status from [' . $oldStatus. '] to [' . $order->getStatus() . ']: ' . $comments, Comments::TYPE_NORMAL)
 				->save();
+			
+			if ($orderStatus->getId() == 7){
+				foreach ($order->getInfos() as $info){
+					if(!$info instanceof OrderInfo)
+						continue;
+					$typeValue = $info->getValue();
+					if ($typeValue == 'BudgetPC Van Delievery' && $order->getType() == Order::TYPE_INVOICE){
+						$orderItems = OrderItem::getAllByCriteria('orderId = ? and storeId =?', array($order->getId(), Core::getUser()->getStore()->getId()));
+						foreach ($orderItems as $orderItem){
+							PickupDelivery::create($orderItem->getProduct(), $order, $orderItem, PickupDelivery::TYPE_DELIVERY);
+						}
+					}
+				}
+			}else{
+				$deliveries = PickupDelivery::getAllByCriteria('orderId = ? and storeId =? and type = ?', array($order->getId(), Core::getUser()->getStore()->getId(), PickupDelivery::TYPE_DELIVERY));
+				if (count($deliveries) > 0){
+					foreach ($deliveries as $delivery){
+						$delivery->setActive(0)
+						->save();
+					}
+				}
+			}
 			Dao::commitTransaction();
 		}
 		catch(Exception $ex)
@@ -618,6 +640,24 @@ class OrderDetailsController extends BPCPageAbstract
 				->save()
 				->addComment(($msg = 'Changed Shipping Method to "' . $shippingMethod . '"'), Comments::TYPE_NORMAL)
 				->addLog($msg, Log::TYPE_SYSTEM, '', __CLASS__ . '::' . __FUNCTION__);
+			
+			if ($shippingMethod== 'BudgetPC Van Delievery'){
+				if($order->getStatus()->getId() == 7 && $order->getType() == Order::TYPE_INVOICE){
+					$orderItems = OrderItem::getAllByCriteria('orderId = ? and storeId =?', array($order->getId(), Core::getUser()->getStore()->getId()));
+					foreach ($orderItems as $orderItem){
+						PickupDelivery::create($orderItem->getProduct(), $order, $orderItem, PickupDelivery::TYPE_DELIVERY);
+					}
+				}
+			}else{
+				$deliveries = PickupDelivery::getAllByCriteria('orderId = ? and storeId =? and type = ?', array($order->getId(), Core::getUser()->getStore()->getId(), PickupDelivery::TYPE_DELIVERY));
+				if (count($deliveries) > 0){
+					foreach ($deliveries as $delivery){
+						$delivery->setActive(0)
+						->save();
+					}
+				}
+			}
+				
 			$results['item'] = $order->getJson();
 			Dao::commitTransaction();
 		}

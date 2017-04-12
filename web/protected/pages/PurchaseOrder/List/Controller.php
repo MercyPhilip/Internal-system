@@ -399,12 +399,11 @@ class Controller extends CRUDPageAbstract
     			if(!($po = PurchaseOrder::get($id)) instanceof PurchaseOrder)
     				throw new Exception('Invalid Purchase Order!');
     			$poItems = PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ? and storeId = ?', array($id, Core::getUser()->getStore()->getId()));
-    			$supplier = $po->getSupplier();
     			foreach ($poItems as $poItem){
     				$pickup = PickupDelivery::getAllByCriteria('itemId = ? and storeId = ?', array($poItem->getId(), Core::getUser()->getStore()->getId()));
     				if (count($pickup) == 0){
 	    				$product = $poItem->getProduct();
-	    				PickupDelivery::create($supplier, $product, $po, $poItem, PickupDelivery::TYPE_PICKUP);
+	    				PickupDelivery::create($product, $po, $poItem, PickupDelivery::TYPE_PICKUP);
     				}
     			}
     			

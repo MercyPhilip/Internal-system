@@ -29,12 +29,6 @@ class PickupDelivery extends BaseEntityAbstract
 	 */
 	protected $item;
 	/**
-	 * The supplier
-	 *
-	 * @var Supplier
-	 */
-	protected $supplier;
-	/**
 	 * The product
 	 *
 	 * @var Product
@@ -139,28 +133,6 @@ class PickupDelivery extends BaseEntityAbstract
 	public function setItem($value)
 	{
 		$this->item = $value;
-		return $this;
-	}
-	/**
-	 * Getter for supplier
-	 *
-	 * @return Supplier
-	 */
-	public function getSupplier()
-	{
-		$this->loadManyToOne('supplier');
-		return $this->supplier;
-	}
-	/**
-	 * Setter for supplier
-	 *
-	 * @param Supplier $value The supplier
-	 *
-	 * @return PickupDelivery
-	 */
-	public function setSupplier(Supplier $value)
-	{
-		$this->supplier = $value;
 		return $this;
 	}
 	/**
@@ -333,7 +305,6 @@ class PickupDelivery extends BaseEntityAbstract
 		DaoMap::setStringType('type', 'varchar', 10);
 		DaoMap::setManyToOne('order', $class, 'pickup_deliv_ord');
 		DaoMap::setManyToOne('item', $classItem, 'pickup_deliv_item');
-		DaoMap::setManyToOne('supplier', 'Supplier', 'pickup_deliv_sup');
 		DaoMap::setManyToOne('product', 'Product', 'pickup_deliv_pro');
 		DaoMap::setManyToOne('store', 'Store', 'si');
 		DaoMap::setBoolType('arranged', 'bool', false);
@@ -363,11 +334,12 @@ class PickupDelivery extends BaseEntityAbstract
 		$array = $extra;
 		if(!$this->isJsonLoaded($reset))
 		{
-			$array['product'] = $this->getProduct() instanceof Product ? $this->getProduct()->getJson() : array();
 			$array['order'] = count($this->getOrder()) > 0 ? $this->getOrder()->getJson() : array();
 			$array['item'] = count($this->getItem()) > 0 ? $this->getItem()->getJson() : array();
+			$array['item']['product']['name'] = str_replace(',',' ',$array['item']['product']['name']);
 			$array['comment'] = count($this->getComment()) > 0 ? $this->getComment()[0]->getComments() : '';
 		}
+		Config::dd($array['item']['product']['name']);
 		return parent::getJson($array, $reset);
 	}
 	/**
@@ -398,12 +370,11 @@ class PickupDelivery extends BaseEntityAbstract
 	 *
 	 * @return PickupDelivery
 	 */
-	public static function create(Supplier $supplier, Product $product, $order, $item, $type)
+	public static function create(Product $product, $order, $item, $type)
 	{
 		$entity = new PickupDelivery();
 		
-		$entity->setSupplier($supplier)
-		->setType(trim($type))
+		$entity->setType(trim($type))
 		->setOrder($order)
 		->setItem($item)
 		->setProduct($product)

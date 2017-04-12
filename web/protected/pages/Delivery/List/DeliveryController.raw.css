@@ -52,32 +52,9 @@
 }
 @media only screen and (min-width: 801px) {	
 	#item-list .name {
-		width: 20%;
+		width: 25%;
 	}
 	#item-list .comment {
-		width: 12.6%;
-	}
-	#item-list .company {
-		width: 8.6%;
+		width: 16.6%;
 	}
 }
-	
-	#signatureparent {
-		color:darkblue;
-		background-color:darkgrey;
-		/*max-width:600px;*/
-		padding:0 20px;
-		font-size: 15px;
-	}
-	
-	/*This is the div within which the signature canvas is fitted*/
-	#signature {
-		border: 2px dotted black;
-		background-color:lightgrey;
-	}
-
-	/* Drawing the 'gripper' for touch-enabled devices */ 
-	html.touch #content {
-		float:left;
-		width:92%;
-	}

@@ -7,7 +7,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
      * Getting the title row data
      */
     _getTitleRowData: function() {
-      return {'sku': 'SKU', 'name': 'Product Name', 'supplier': 'Supplier','poNumber': 'PO Number' , 'unitPrice': 'Unit Price(Ex)', 'qty': 'Qty', 'poDate': 'PO Date', 'comment': 'Comment', 'pickupDate': 'Arrange Date'};
+      return {'sku': 'SKU', 'name': 'Product Name', 'company': 'Customer Name', 'customer': 'Contact Name', 'address': 'Address', 'tel': 'Contact Number', 'orderNumber': 'Order Number' , 'unitPrice': 'Unit Price(Ex)', 'qty': 'Qty', 'orderDate': 'Order Date', 'comment': 'Comment', 'pickedDate': 'Picked Date'};
     }
 	,setRoleId: function(roleId) {
 		this._roleId = roleId;
@@ -93,13 +93,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		});
 	}
   /**
-   * get pickeded
+   * get delivered
    */
-	,_pickupedItem: function(pickup) {
+	,_deliveredItem: function(delivery) {
 		var tmp = {};
 		tmp.me = this;
-		tmp.row = $$('[item_id="'+ pickup.id +'"]').first();
-		tmp.me.postAjax(tmp.me.getCallbackId('pickupItem'), {'item_id': pickup.id, 'po_id': pickup.order.id}, {
+		tmp.row = $$('[item_id="'+ delivery.id +'"]').first();
+		tmp.me.postAjax(tmp.me.getCallbackId('deliveryItem'), {'item_id': delivery.id, 'order_id': delivery.order.id, 'signature': delivery.signature, 'recepiant': delivery.recepiant}, {
 			'onLoading': function() {
 				if(tmp.row)
 					tmp.row.hide();
@@ -130,6 +130,12 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
     tmp.me = this;
     tmp.tag = (isTitle === true ? 'th' : 'td');
     tmp.isTitle = (isTitle || false);
+    if(tmp.isTitle === false){
+    	tmp.address = row.order.address.shipping.street + ',' + row.order.address.shipping.city + ',' + row.order.address.shipping.region + ',' + row.order.address.shipping.country;
+	    if(tmp.address == ''){
+	    	tmp.address = row.order.address.shipping.full;
+	    }
+    }
     tmp.row = new Element('tr', {'class': (tmp.isTitle === true ? 'item_top_row' : 'btn-hide-row item_row') + (row.active == 0 ? ' success' : ''), 'item_id': (tmp.isTitle === true ? '' : row.id)}).store('data', row)
       .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'sku'}).update(row.sku)
         :new Element(tmp.tag, {'class': 'sku', 'item': 'sku', 'data-title': 'SKU'}).update(row.item.product.sku)     
@@ -137,20 +143,34 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
       .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'name'}).update(row.name)
         :new Element(tmp.tag, {'class': 'name', 'item': 'name', 'data-title': 'Product Name'}).update(row.item.product.name)   
       })
-      .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'supplier'}).update(row.supplier)
-          :new Element(tmp.tag, {'class': 'supplier', 'item': 'supplier', 'data-title': 'Supplier'}).update(row.order.supplier.name)   
+      .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'company'}).update(row.company)
+        :new Element(tmp.tag, {'class': 'company', 'item': 'company', 'data-title': 'Customer Name'}).update(row.order.customer.name)   
       })
-      .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'ponumber'}).update(row.poNumber)
-        :new Element(tmp.tag, {'class': 'ponumber', 'item': 'po', 'data-title': 'PO NUmber'}).update(row.order.purchaseOrderNo)
+      .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'customer'}).update(row.customer)
+    	:new Element(tmp.tag, {'class': 'customer', 'item': 'customer', 'data-title': 'Contact Name'}).update(row.order.customer.address.shipping.contactName)   
+      })
+      .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'address'}).update(row.address)
+    	:new Element(tmp.tag, {'class': 'address', 'item': 'address', 'data-title': 'Address'})
+      		.insert({'bottom': new Element('span', {'style': 'display: inline-block'})
+      			.insert({'bottom': new Element('a', {'class': 'visible-xs visible-md visible-sm visible-lg', 'href': 'http://maps.google.com/maps?q=' + encodeURIComponent( tmp.address ), 'target': '_blank' })
+      				.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-plane address-shipping', 'style': 'font-size: 1.3em; top: 5px; left: 15px;'}) })
+      			 })  
+      		})
+      })
+      .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'tel'}).update(row.tel)
+    	:new Element(tmp.tag, {'class': 'tel', 'item': 'tel', 'data-title': 'Contact Number'}).update(row.order.customer.contactNo)   
+      })
+      .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'orderNumber'}).update(row.orderNumber)
+        :new Element(tmp.tag, {'class': 'orderNumber', 'item': 'orderNumber', 'data-title': 'Order Number'}).update(row.order.orderNo)
       })
       .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'unitprice'}).update(row.unitPrice)
-          :new Element(tmp.tag, {'class': 'unitprice', 'item': 'unitprice', 'data-title': 'Unit Price(Ex)'}).update(row.item.unitPrice)
+        :new Element(tmp.tag, {'class': 'unitprice', 'item': 'unitprice', 'data-title': 'Unit Price(Ex)'}).update(row.item.unitPrice)
       })
       .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'qty'}).update(row.qty)
-          :new Element(tmp.tag, {'class': 'qty', 'item': 'qty', 'data-title': 'Qty'}).update(row.item.qty)
+        :new Element(tmp.tag, {'class': 'qty', 'item': 'qty', 'data-title': 'Qty'}).update(row.item.qtyOrdered)
       })
-      .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'podate'}).update(row.poDate)
-          :new Element(tmp.tag, {'class': 'podate', 'item': 'podate', 'data-title': 'PO Date'}).update(moment(row.order.orderDate).format('DD/MM/YYYY'))
+      .insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'orderDate'}).update(row.orderDate)
+        :new Element(tmp.tag, {'class': 'orderDate', 'item': 'orderDate', 'data-title': 'Order Date'}).update(moment(row.order.orderDate).format('DD/MM/YYYY'))
       });
     
     	if(tmp.me._roleId === 1){
@@ -165,8 +185,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
     	      });
     	}
 
-    	tmp.row.insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'podate'}).update(row.pickupDate)
-          :new Element(tmp.tag, {'class': 'pickupdate', 'item': 'pickupdate', 'data-title': 'Pickup Date'}).update(moment(row.arrangedDate).format('DD/MM/YYYY'))
+    	tmp.row.insert({'bottom': tmp.isTitle === true ? new Element(tmp.tag, {'class': 'pickedDate'}).update(row.pickedDate)
+          :new Element(tmp.tag, {'class': 'pickedDate', 'item': 'pickedDate', 'data-title': 'Picked Date'}).update(moment(row.arrangedDate).format('DD/MM/YYYY'))
       })
       .insert({'bottom': tmp.btns = new Element(tmp.tag, {'class': 'text-center'}) });
 		if(tmp.isTitle !== true)
@@ -182,25 +202,33 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.insert({'bottom': new Element('button', {'class': 'btn btn-success btn-md', 'title': 'Confirm'})
 					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-ok-circle'}) })
 					.observe('click', function(){
-						tmp.me._showConfirmPickup(row);
-				})
+						tmp.me._showConfirmDelivery(row);
+					})
 				})
 			});
     return tmp.row;
   }
 	/**
-	 * showing the confirmation panel for pickuping the po
+	 * showing the confirmation panel for deliverying the order
 	 */
-	,_showConfirmPickup: function(pickup) {
+	,_showConfirmDelivery: function(delivery) {
 		var tmp = {};
 		tmp.me = this;
 		tmp.confirmDiv = new Element('div')
-			.insert({'bottom': new Element('div').update(new Element('strong').update('Pickup Confirmation')) })
+			.insert({'bottom': new Element('div', {'id': 'signatureparent'})
+				.insert({'bottom': new Element('span',{'class':'recepiantText row'}).update('Recepiant: ')
+					.insert({'bottom': new Element('input',{'class':'recepiant'})})
+				})
+				.insert({'bottom': new Element('span',{'class': 'row'}).update('Signature: ')})
+				.insert({'bottom': new Element('div', {'id': 'signature'})	})
+			})
 			.insert({'bottom': new Element('div')
 				.insert({'bottom': new Element('span', {'class': 'btn btn-success'})
 					.update('YES, confirmed')
 					.observe('click', function(){
-						tmp.me._pickupedItem(pickup);
+						delivery.recepiant = jQuery('.recepiant').val();
+						delivery.signature = tmp.me.signature.jSignature('getData', 'svgbase64');
+						tmp.me._deliveredItem(delivery);
 					})
 				})
 				.insert({'bottom': new Element('span', {'class': 'btn btn-default pull-right'})
@@ -210,18 +238,20 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					})
 				})
 			});
-		tmp.me.showModalBox('<strong class="text-warning">Confirm</strong>', tmp.confirmDiv);
+		
+		tmp.me.showModalBox('<strong class="text-warning">Delivery Confirmation</strong>', tmp.confirmDiv);
+		tmp.me._jSignature();
 		return tmp.me;
 	}
 	/**
-	 * save the comment for pickuping the po
+	 * save the comment for deliverying the order
 	 */
-	,_saveComment: function(pickup) {
+	,_saveComment: function(delivery) {
 		var tmp = {};
 		tmp.me = this;
-		pickup.comment = jQuery('[item=comment_'+pickup.id).val();
-		tmp.row = $$('[item_id="'+ pickup.id +'"]').first();
-		tmp.me.postAjax(tmp.me.getCallbackId('saveComment'), {'item_id': pickup.id, 'comment': pickup.comment}, {
+		delivery.comment = jQuery('[item=comment_'+delivery.id).val();
+		tmp.row = $$('[item_id="'+ delivery.id +'"]').first();
+		tmp.me.postAjax(tmp.me.getCallbackId('saveComment'), {'item_id': delivery.id, 'comment': delivery.comment}, {
 			'onSuccess': function(sender, param){
 				try {
 					tmp.result = tmp.me.getResp(param, false, true);
@@ -236,5 +266,18 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				}
 			}
 		});
+	}
+	/**
+	 * signature confirm
+	 */
+	,_jSignature: function() {
+		var tmp = {};
+		tmp.me = this;
+		jQuery(document).ready(function() {
+			// This is the part where jSignature is initialized.
+			tmp.me.signature = jQuery("#signature").jSignature({'UndoButton':true});
+
+		})
+		return tmp.me;
 	}
 });
