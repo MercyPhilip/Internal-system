@@ -153,7 +153,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
     	:new Element(tmp.tag, {'class': 'address', 'item': 'address', 'data-title': 'Address'})
       		.insert({'bottom': new Element('span', {'style': 'display: inline-block'})
       			.insert({'bottom': new Element('a', {'class': 'visible-xs visible-md visible-sm visible-lg', 'href': 'http://maps.google.com/maps?q=' + encodeURIComponent( tmp.address ), 'target': '_blank' })
-      				.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-plane address-shipping', 'style': 'font-size: 1.3em; top: 5px; left: 15px;'}) })
+      				.insert({'bottom': new Element('span', {'class': 'fa fa-map-marker address-shipping', 'style': 'font-size: 2.3em;'}) })
       			 })  
       		})
       })
