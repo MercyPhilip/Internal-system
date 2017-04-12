@@ -50,7 +50,7 @@
 	#item-list td:before { content: attr(data-title); }
 	.glyphicon-ok-circle { width:80px;}
 }
-@media only screen and (min-width 451px and max-width: 800px) {
+@media only screen and (min-width: 451px) and (max-width: 800px) {
 	
 	/* Force table to not be like tables anymore */
 	#item-list table, 
@@ -104,9 +104,9 @@
 }
 @media only screen and (min-width: 801px) {	
 	#item-list .name {
-		width: 25%;
+		width: 20%;
 	}
 	#item-list .comment {
-		width: 16.6%;
+		width: 13.6%;
 	}
 }
