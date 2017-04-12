@@ -1,4 +1,4 @@
-@media only screen and (max-width: 450px) {
+@media only screen and (max-device-width: 450px) {
 	
 	/* Force table to not be like tables anymore */
 	#item-list table, 
@@ -50,7 +50,7 @@
 	#item-list td:before { content: attr(data-title); }
 	.glyphicon-ok-circle { width:80px;}
 }
-@media only screen and (min-width: 451px) and (max-width: 800px) {
+@media only screen and (min-device-width: 451px) and (max-width: 800px) {
 	
 	/* Force table to not be like tables anymore */
 	#item-list table, 
