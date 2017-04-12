@@ -22,6 +22,8 @@ class ListController extends CRUDPageAbstract
 		parent::__construct();
 		if(!AccessControl::canAccessCreateProductPage(Core::getRole()))
 			die('You do NOT have access to this page');
+		if(Core::getUser()->getStore()->getId() != 1)
+			die(BPCPageAbstract::show404Page('Access Denied', 'You do NOT have the access to this page!'));
 	}
 	/**
 	 * (non-PHPdoc)
@@ -112,6 +114,7 @@ class ListController extends CRUDPageAbstract
 					$where[] = 'npro_pro.manualDatafeed = :manualDatafeed';
 					$params['manualDatafeed'] =  intval($manualDatafeed);
 				}
+				
 				//product statuses
 				if(!isset($serachCriteria['pro.productStatusIds']) || is_null($serachCriteria['pro.productStatusIds']))
 					$productStatusIds = array();
@@ -140,14 +143,14 @@ class ListController extends CRUDPageAbstract
 			}
 			$stats = array();
 			NewProduct::getQuery()->eagerLoad('NewProduct.product', 'inner join', 'npro_pro', 'npro.productId = npro_pro.id and npro.active = 1  ');
-			$orderby = array();
+			$orderby = array('id' => 'desc');
 			if (count($where) > 0)
 			{
-				$newProducts = NewProduct::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array(), $stats);
+				$newProducts = NewProduct::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, $orderby, $stats);
 			}
 			else
 			{
-				$newProducts = NewProduct::getAll(true, $pageNo, $pageSize, array(), $stats);
+				$newProducts = NewProduct::getAll(true, $pageNo, $pageSize, $orderby, $stats);
 			}
 			$results['pageStats'] = $stats;
 			$results['items'] = array();
@@ -260,11 +263,14 @@ class ListController extends CRUDPageAbstract
 				}
 				$product->setSku($sku)
 						->setName($name)
-						->setStatus($stock)
 						->setSellOnWeb(false)
 						->save();
 				$this->_updateCategories($product, $categories)
 					->_setPrices($product, $price);
+				$stores = Store::getAll();
+				foreach($stores as $store)
+					$status = ProductStockInfo::create($product, null, $store);
+				if ($stock != null) $product->setStatus($stock);
 				$item = NewProduct::create($product);
 			}
 			$results['item'] = $item->getJson();
@@ -325,8 +331,7 @@ class ListController extends CRUDPageAbstract
 			{
 				$item->getProduct()->setActive(false)->save();
 				
-				$item->setActive(false)
-				->save();
+				$item->setActive(false)->save();
 			}
 			Dao::commitTransaction();
 		}
@@ -464,14 +469,14 @@ class ListController extends CRUDPageAbstract
 
 			$stats = array();
 			NewProduct::getQuery()->eagerLoad('NewProduct.product', 'inner join', 'npro_pro', 'npro.productId = npro_pro.id and npro.active = 1  ');
-			$orderby = array();
+			$orderby = array('id' => 'desc');
 			if (count($wheres) > 0)
 			{
-				$newProducts = NewProduct::getAllByCriteria(implode(' AND ', $wheres), $params, true, $pageNo, $pageSize, array(), $stats);
+				$newProducts = NewProduct::getAllByCriteria(implode(' AND ', $wheres), $params, true, $pageNo, $pageSize, $orderby, $stats);
 			}
 			else
 			{
-				$newProducts = NewProduct::getAll(true, $pageNo, $pageSize, array(), $stats);
+				$newProducts = NewProduct::getAll(true, $pageNo, $pageSize, $orderby, $stats);
 			}
 			if(count($newProducts) === 0)
 				throw new Exception('No result found!');

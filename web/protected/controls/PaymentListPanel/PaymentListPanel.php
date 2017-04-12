@@ -71,8 +71,9 @@ class PaymentListPanel extends TTemplateControl
 			} else {
 				throw new Exception('System Error: you can ONLY get payments for a Order or a CreditNote');
 			}
+			$where = $where . ' and storeId = ?';
 			$stats = $items = array();
-			foreach(Payment::getAllByCriteria($where, array($entity->getId()), true, $pageNo, $pageSize, array('id' => 'desc'), $stats) as $payment) {
+			foreach(Payment::getAllByCriteria($where, array($entity->getId(), Core::getUser()->getStore()->getId()), true, $pageNo, $pageSize, array('id' => 'desc'), $stats) as $payment) {
 				$items[] = $payment->getJson();
 			}
 			$result['pagination'] =  $stats;

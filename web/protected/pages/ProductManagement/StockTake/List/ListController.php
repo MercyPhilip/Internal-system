@@ -39,6 +39,7 @@ class ListController extends CRUDPageAbstract
 			$statuses[] = $os->getJson();
 		foreach (ProductCategory::getAll() as $os)
 			$productCategoryArray[] = $os->getJson();
+		//$locationTypes = array_map(create_function('$a', 'return $a->getJson();'), PreferredLocationType::getAllByCriteria('storeId = ?', array(Core::getUser()->getStore()->getId())));
 		$locationTypes = array_map(create_function('$a', 'return $a->getJson();'), PreferredLocationType::getAll());
 		
 		$js = parent::_getEndJs();
@@ -181,6 +182,8 @@ class ListController extends CRUDPageAbstract
     		$where[] = 'pro.sellOnWeb = :sellOnWeb';
     		$params['sellOnWeb'] = intval($sellOnWeb);
     	}
+    	Product::getQuery()->eagerLoad('Product.stocks', 'inner join', 'pro_stock_info', 'pro.id = pro_stock_info.productId and pro_stock_info.storeId = :storeId');
+    	$params['storeId'] = Core::getUser()->getStore()->getId();
     	if (count($manufacturerIds) > 0) {
     		$ps = array();
     		$keys = array();
@@ -200,7 +203,7 @@ class ListController extends CRUDPageAbstract
     			$keys[] = ':' . $key;
     			$ps[$key] = trim($value);
     		}
-    		$where[] = 'pro.statusId in (' . implode(',', $keys) . ')';
+    		$where[] = 'pro_stock_info.statusId in (' . implode(',', $keys) . ')';
     		$params = array_merge($params, $ps);
     	}
     	if (count($supplierIds) > 0) {
@@ -211,7 +214,7 @@ class ListController extends CRUDPageAbstract
     			$keys[] = ':' . $key;
     			$ps[$key] = trim($value);
     		}
-    		Product::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
+    		Product::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.active = 1 and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
     		$params = array_merge($params, $ps);
     	}
     	if (count($categoryIds) > 0) {
@@ -236,11 +239,11 @@ class ListController extends CRUDPageAbstract
     		$params = array_merge($params, $ps);
     	}
     	if (($sh_from = trim($sh_from)) !== '') {
-    		$where[] = 'pro.stockOnHand >= :stockOnHand_from';
+    		$where[] = 'pro_stock_info.stockOnHand >= :stockOnHand_from';
     		$params['stockOnHand_from'] = intval($sh_from);
     	}
     	if (($sh_to = trim($sh_to)) !== '') {
-    		$where[] = 'pro.stockOnHand <= :stockOnHand_to';
+    		$where[] = 'pro_stock_info.stockOnHand <= :stockOnHand_to';
     		$params['stockOnHand_to'] = intval($sh_to);
     	}
     	$products = Product::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, $orderBy, $stats);
@@ -350,8 +353,8 @@ class ListController extends CRUDPageAbstract
     		}
     		if(count($deleteIds) > 0)
     		{
-    			PreferredLocation::updateByCriteria('active = 0', 'id in (' . implode(',', $deleteIds) . ')');
-    			StockTake::updateByCriteria('active = 0', 'preferredlocationId in (' . implode(',', $deleteIds) . ')');
+    			PreferredLocation::updateByCriteria('active = 0', ' storeId = ' . Core::getUser()->getStore()->getId(). ' and id in (' . implode(',', $deleteIds) . ')');
+    			StockTake::updateByCriteria('active = 0', ' storeId = ' . Core::getUser()->getStore()->getId(). ' and preferredlocationId in (' . implode(',', $deleteIds) . ')');
     		}
     
     		//update or create new
@@ -364,7 +367,7 @@ class ListController extends CRUDPageAbstract
     
     			$locationName = trim($location->value);
     			$counting = trim($location->counting);
-    			$locs = Location::getAllByCriteria('name = ?', array($locationName), true, 1, 1);
+    			$locs = Location::getAllByCriteria('name = ? and storeId = ?', array($locationName, Core::getUser()->getStore()->getId()), true, 1, 1);
     			$loc = (count($locs) > 0 ? $locs[0] : Location::create($locationName, $locationName));
     			if(!isset($location->id) || ($id = trim($location->id)) === '')
     			{
@@ -381,6 +384,7 @@ class ListController extends CRUDPageAbstract
     				->setActive(trim($location->active) === '1')
     				->setProduct($product)
     				->setType($type)
+    				->setStore(Core::getUser()->getStore())
     				->save();
     				StockTake::create($preferredLocation, $counting);
     			}

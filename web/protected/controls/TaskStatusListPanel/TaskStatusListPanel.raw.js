@@ -141,8 +141,9 @@ TaskStatusListPanelJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me = this;
 		jQuery.getJSON('/ajax/getAll', {
 			'entityName': 'Task',
-			'searchTxt': 'fromEntityName = ? and fromEntityId = ?',
-			'searchParams': [tmp.me.entityName, tmp.me.entity.id]
+			'searchTxt': 'fromEntityName = ? and fromEntityId = ? and storeId = ?',
+			'searchParams': [tmp.me.entityName, tmp.me.entity.id, jQuery('#storeId').attr('value')],
+			'userId' : jQuery('#userId').attr('value')
 		}, function( data){
 			tmp.me._formatResult(data);
 		})

@@ -336,11 +336,12 @@ class Task extends BaseEntityAbstract
 		if(!$this->isJsonLoaded($reset))
 		{
 			$array['customer'] = $this->getCustomer()->getJson();
-			$array['fromEntity'] = $this->getFromEntity() instanceof BaseEntityAbstract ? $this->getFromEntity()->getJson() : array();
+			$fromEntiy = $this->getFromEntity();
+			$array['fromEntity'] = $fromEntiy instanceof BaseEntityAbstract ? $fromEntiy->getJson() : array();
 			$array['technician'] = $this->getTechnician() instanceof UserAccount ? $this->getTechnician()->getJson() : array();
 			$array['status'] = $this->getStatus() instanceof TaskStatus ? $this->getStatus()->getJson() : array();
 			$array['createdBy'] = $this->getCreatedBy() instanceof UserAccount ? $this->getCreatedBy()->getJson() : array();
-			$array['noOfKits'] = Kit::countByCriteria('taskId = ?', array($this->getId()));
+			$array['noOfKits'] = Kit::countByCriteria('taskId = ? and storeId = ?', array($this->getId(), Core::getUser()->getStore()->getId()));
 		}
 		return parent::getJson($array, $reset);
 	}
@@ -387,7 +388,7 @@ class Task extends BaseEntityAbstract
 		DaoMap::setManyToOne('technician', 'UserAccount', 't_tech', true);
 		DaoMap::setDateType('dueDate');
 		DaoMap::setStringType('instructions', 'text');
-
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createIndex('fromEntityName');
@@ -410,7 +411,8 @@ class Task extends BaseEntityAbstract
 		$task->setDueDate($dueDate)
 			->setCustomer($customer)
 			->setInstructions($instructions = trim($instructions))
-			->setTechnician($tech);
+			->setTechnician($tech)
+			->setStore(Core::getUser()->getStore());
 		if($fromEntity instanceof BaseEntityAbstract) {
 			$task->setFromEntityId($fromEntity->getId())
 				->setFromEntityName(get_class($fromEntity));

@@ -16,6 +16,7 @@ class OrderStatus extends InfoEntityAbstract
 	const ID_INSUFFICIENT_STOCK = 6;
 	const ID_PICKED = 7;
 	const ID_SHIPPED = 8;
+	const ID_NOETA = 9;
 	/**
 	 * The name of the status
 	 * 

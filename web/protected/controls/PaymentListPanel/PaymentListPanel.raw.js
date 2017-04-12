@@ -89,7 +89,7 @@ PaymentListPanelJs.prototype = {
 				type: 'GET',
 				dataType: "json",
 				url: '/ajax/getComments',
-				data: {'entity': tmp.item.readAttribute('comments-entity'), 'entityId': tmp.item.readAttribute('comments-entity-Id'), 'type': '' },
+				data: {'entity': tmp.item.readAttribute('comments-entity'), 'entityId': tmp.item.readAttribute('comments-entity-Id'), 'type': '', 'storeId' : jQuery('#storeId').attr('value'), 'userId' : jQuery('#userId').attr('value') },
 				success: function(result) {
 					tmp.newDiv = 'N/A';
 					if(result.resultData && result.resultData.items && result.resultData.items.length > 0) {
@@ -259,7 +259,6 @@ PaymentListPanelJs.prototype = {
 		tmp.me = this;
 		tmp.paymentDiv = selBox.up('.new-payment-div');
 		tmp.paymentDiv.getElementsBySelector('.after_select_method').each(function(item) { item.remove(); });
-
 		if($F(paidMountBox).blank() || tmp.me._currencyInputChanged(paidMountBox) !== true) {
 			$(paidMountBox).select();
 			return;
@@ -327,7 +326,6 @@ PaymentListPanelJs.prototype = {
 				) ) })
 			})
 		});
-
 		tmp.me.paymentMethods.each(function(item) {
 			tmp.paymentMethodSelBox.insert({'bottom': new Element('option', {'value': item.id}).update(item.name) });
 		});
@@ -345,9 +343,9 @@ PaymentListPanelJs.prototype = {
 		}
 		tmp.data = null;
 		if (tmp.me._order && tmp.me._order.id) {
-			tmp.data = {'entity' : 'Order', 'entityId' : tmp.me._order.id};
+			tmp.data = {'entity' : 'Order', 'entityId' : tmp.me._order.id, 'userId' : jQuery('#userId').attr('value')};
 		} else if (tmp.me._creditNote && tmp.me._creditNote.id) {
-			tmp.data = {'entity' : 'CreditNote', 'entityId' : tmp.me._creditNote.id};
+			tmp.data = {'entity' : 'CreditNote', 'entityId' : tmp.me._creditNote.id,  'userId' : jQuery('#userId').attr('value')};
 		}
 		if (tmp.data !== null) {
 			tmp.data.pagination = {'pageNo': tmp.pageNo};
@@ -409,7 +407,6 @@ PaymentListPanelJs.prototype = {
 									)
 							) });
 						}
-
 					} catch (e) {
 						tmp.panelBody = $(tmp.me._panelHTMLID).down('.panel-body');
 						if(tmp.panelBody)
@@ -427,7 +424,6 @@ PaymentListPanelJs.prototype = {
 			})
 		}
 	}
-
 	,load: function() {
 		 var tmp = {};
 		 tmp.me = this;

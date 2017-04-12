@@ -40,6 +40,7 @@ class OrderInfo extends InfoAbstract
 	public function __loadDaoMap()
 	{
 		DaoMap::begin($this, 'oinfo');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 		DaoMap::commit();
 	}

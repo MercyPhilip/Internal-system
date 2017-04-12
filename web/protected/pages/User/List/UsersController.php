@@ -51,8 +51,8 @@ class UsersController extends BPCPageAbstract
 				$pageSize = $param->CallbackParameter->pagination->pageSize;
 			}
 			
-			$where = '`ua`.id != :sysId';
-			$params = array('sysId' => UserAccount::ID_SYSTEM_ACCOUNT);
+			$where = '`ua`.id != :sysId and `ua`.id != :sysId1 and `ua`.id != :sysId2';
+			$params = array('sysId' => UserAccount::ID_SYSTEM_ACCOUNT, 'sysId1' => UserAccount::ID_SYSTEM_ACCOUNT_STORE1, 'sysId2' => UserAccount::ID_SYSTEM_ACCOUNT_STORE2);
 			if($serachCriteria !== '')
 			{
 				UserAccount::getQuery()->eagerLoad("UserAccount.person", 'inner join', 'ord', '`p`.id = `ua`.personId and (`p`.firstName like :firstName and `p`.lastName like :lastName)');
@@ -61,7 +61,9 @@ class UsersController extends BPCPageAbstract
 				$where .= ' OR `ua`.username like :username';
 				$params['username'] = $serachCriteria . '%';
 			}
-			
+			UserAccount::getQuery()->eagerLoad("UserAccount.roles", 'inner join', 'role_useraccount', 'role_useraccount.useraccountId = `ua`.id and role_useraccount.roleId != ' . Role::ID_TIERS);
+			$where = $where . ' and ua.storeId = :storeId';
+			$params['storeId'] = Core::getUser()->getStore()->getId();
 			$stats = array();
 			$users = UserAccount::getAllByCriteria($where, $params, true, $pageNo, $pageSize, array(), $stats);
 			$results['pageStats'] = $stats;

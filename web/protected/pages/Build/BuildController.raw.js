@@ -15,6 +15,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me._initPage();
 		tmp.me._initProductSelect2();
 		tmp.me._bindDownloadBtn();
+		if (jQuery('#storeId').attr('value') != 1) jQuery('.select2').prop('disabled', true);
 		return tmp.me;
 	}
 	,_initPage: function() {
@@ -120,7 +121,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							'searchTxt': term,
 							'isKit': tmp.select2.attr('isKit'),
 							'pageNo': page, // page number
-							'pageSize': tmp.pageSize
+							'pageSize': tmp.pageSize,
+							'userId' : jQuery('#userId').attr('value')
 						};
 					},
 					results: function (data, page) {

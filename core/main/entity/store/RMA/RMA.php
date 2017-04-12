@@ -4,6 +4,7 @@ class RMA extends BaseEntityAbstract
 	const STATUS_NEW = 'NEW';
 	const STATUS_RECEIVING = 'RECEIVING';
 	const STATUS_RECEIVED = 'RECEIVED';
+	const STATUS_PROCESSING = 'PROCESSING';
 	const STATUS_CLOSED = 'CLOSED';
 	/**
 	 * The RA no
@@ -12,7 +13,7 @@ class RMA extends BaseEntityAbstract
 	 */
 	private $raNo = '';
 	/**
-	 * The creditNote items
+	 * The RMAItem items
 	 *
 	 * @var array
 	 */
@@ -285,6 +286,7 @@ class RMA extends BaseEntityAbstract
 		DaoMap::setIntType('totalValue', 'double', '10,4');
 		DaoMap::setStringType('description', 'varchar', '255');
 		DaoMap::setOneToMany('items', 'RMAItem', 'ra_item');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		
 		parent::__loadDaoMap();
 
@@ -306,6 +308,7 @@ class RMA extends BaseEntityAbstract
 		$ra = new RMA();
 		return $ra->setCustomer($customer)
 			->setDescription(trim($description))
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 	/**
@@ -322,6 +325,7 @@ class RMA extends BaseEntityAbstract
 		$ra = $ra->setOrder($order)
 			->setCustomer($customer instanceof Customer ? $customer : $order->getCustomer())
 			->setDescription(trim($description))
+			->setStore(Core::getUser()->getStore())
 			->save();
 		$msg = 'A RMA(' . $ra->getRaNo() . ') has been created for Order(ID= ' . $order->getId() . ', OrderNo.=' . $order->getOrderNo() . '): ' . $description;
 		$order->addComment($msg, Comments::TYPE_SYSTEM)
@@ -335,7 +339,7 @@ class RMA extends BaseEntityAbstract
 	 */
 	public static function getAllStatuses()
 	{
-		return array(self::STATUS_NEW, self::STATUS_RECEIVING, self::STATUS_RECEIVED, self::STATUS_CLOSED);
+		return array(self::STATUS_PROCESSING, self::STATUS_CLOSED);
 	}
 	public function getRMAItems()
 	{

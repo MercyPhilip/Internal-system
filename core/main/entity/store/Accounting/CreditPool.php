@@ -73,6 +73,7 @@ class CreditPool extends BaseEntityAbstract
 
 		DaoMap::setManyToOne('customer', 'Customer', 'cn_cus');
 		DaoMap::setIntType('totalCreditLeft', 'double', '10,4');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::commit();
@@ -95,7 +96,7 @@ class CreditPool extends BaseEntityAbstract
 			return null;
 		}
 		// if created from customer
-		$objs = self::getAllByCriteria('customerId = ?', array($customer->getId()), true, 1, 1);
+		$objs = self::getAllByCriteria('customerId = ? and storeId = ?', array($customer->getId(), Core::getUser()->getStore()->getId()), true, 1, 1);
 		$creditpool = ( count($objs) > 0 ? $objs[0] : new CreditPool() );
 		
 		// if created from order
@@ -107,7 +108,9 @@ class CreditPool extends BaseEntityAbstract
 			{
 				$creditpool->setCustomer($customer)
 					->setTotalCreditLeft(0)
-					->save();
+					->setStore(Core::getUser()->getStore())
+					->save()
+					->addLog('credit created by ' . Core::getUser()->getUserName() . '($0.00' . ' => ' . StringUtilsAbstract::getCurrency($creditpool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
 				return $creditpool;
 			}
 		}
@@ -116,16 +119,23 @@ class CreditPool extends BaseEntityAbstract
 		if ($order instanceof  Order)
 		{
 			$totalPaid = $order->getTotalPaid();
+			if (($totalPaid > 0) && ($totalPaid >= $totalCredit))
+			{
+				$totalPaid = $totalCredit;
+			}
 		}
-		if (($totalPaid > 0) && ($totalPaid >= $totalCredit))
+		else
 		{
 			$totalPaid = $totalCredit;
 		}
 		$creditAmount = doubleval($totalPaid);
+		$origCredt = $creditpool->getTotalCreditLeft();
 		$creditpool->setCustomer($customer)
 			->setTotalCreditLeft($creditAmount)
-			->save();
-		
+			->setStore(Core::getUser()->getStore())
+			->save()
+			->addLog('credit changed by ' . Core::getUser()->getUserName() . '(' . StringUtilsAbstract::getCurrency($origCredt) . ' => ' . StringUtilsAbstract::getCurrency($creditpool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
+				
 		//Create log for creditpool
 		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_CREDIT, $creditNote->getId(), $creditAmount);
 		
@@ -175,8 +185,11 @@ class CreditPool extends BaseEntityAbstract
 		$creditPaidAmount = doubleval($payment->getValue());
 		$creditPaidAmount = 0 - $creditPaidAmount;
 		// update credit left
-		$creditpool->setTotalCreditLeft($creditPaidAmount)->save();
-		
+		$origCredt = $creditpool->getTotalCreditLeft();
+		$creditpool->setTotalCreditLeft($creditPaidAmount)
+			->save()
+			->addLog('credit changed by ' . Core::getUser()->getUserName() . '(' . StringUtilsAbstract::getCurrency($origCredt) . ' => ' . StringUtilsAbstract::getCurrency($creditpool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
+				
 		//Create log for creditpool
 		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_ORDER, $order->getId(), $creditPaidAmount);
 	
@@ -209,7 +222,10 @@ class CreditPool extends BaseEntityAbstract
 		$creditAmount = doubleval($payment->getValue());
 		$creditPaidAmount = 0 - $creditAmount;
 		// update credit left
-		$creditpool->setTotalCreditLeft($creditPaidAmount)->save();
+		$origCredt = $creditpool->getTotalCreditLeft();
+		$creditpool->setTotalCreditLeft($creditPaidAmount)
+			->save()
+			->addLog('credit changed by ' . Core::getUser()->getUserName() . '(' . StringUtilsAbstract::getCurrency($origCredt) . ' => ' . StringUtilsAbstract::getCurrency($creditpool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
 		//Create log for creditpool
 		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_REFUND, $creditNote->getId(), $creditPaidAmount);
 
@@ -225,7 +241,8 @@ class CreditPool extends BaseEntityAbstract
 	 */
 	public static function getCreditPoolByCustomer($customer)
 	{
-		$objs = self::getAllByCriteria('customerId = ?', array($customer->getId()), true, 1, 1);
+		if (!$customer instanceof Customer) return null;
+		$objs = self::getAllByCriteria('customerId = ? and storeId = ?', array($customer->getId(), Core::getUser()->getStore()->getId()), true, 1, 1);
 		if (count($objs) <= 0)
 		{
 			// if cant find the customer
@@ -252,6 +269,21 @@ class CreditPool extends BaseEntityAbstract
 			if ($payment->getMethod()->getId() != PaymentMethod::ID_STORE_CREDIT)
 			{
 				// the payment method is not offset credit ( id= 11)
+				// check if the customer overpaid
+				// if yes, then need to create credit pool for the customer
+				$totalPaid = doubleval($entity->getTotalPaid());
+				$totalAmt = doubleval($entity->getTotalAmount());
+				$payAmt = doubleval($payment->getValue());
+				if ($totalPaid > $totalAmt)
+				{
+					$creditAmt  = $payAmt;
+					self::createByOrder($entity, $creditAmt);
+				}
+				else if (($totalPaid + $payAmt) > $totalAmt)
+				{
+					$creditAmt  = $totalPaid + $payAmt - $totalAmt;
+					self::createByOrder($entity, $creditAmt);
+				}
 				return;
 			}
 			$creditpool = CreditPool::applyToOrder($entity, $payment);
@@ -320,5 +352,45 @@ class CreditPool extends BaseEntityAbstract
 			}
 		}
 	}
-	
+	/**
+	 * Creating a CreditPool
+	 *
+	 * @param Order $order
+	 * @param number $creditAmount
+	 *
+	 * @return CreditPool
+	 */
+	public static function createByOrder(Order $order, $creditAmt)
+	{
+		$customer = $order->getCustomer();
+		if (!$customer instanceof Customer)
+		{
+			// must have customer info to create credit
+			return null;
+		}
+		// if created from customer
+		$objs = self::getAllByCriteria('customerId = ? and storeId = ?', array($customer->getId(), Core::getUser()->getStore()->getId()), true, 1, 1);
+		$creditpool = ( count($objs) > 0 ? $objs[0] : new CreditPool() );
+
+		$creditAmt = doubleval($creditAmt);
+		$origCredt = $creditpool->getTotalCreditLeft();
+		$creditpool->setCustomer($customer)
+			->setTotalCreditLeft($creditAmt)
+			->setStore(Core::getUser()->getStore())
+			->save()
+			->addLog('credit changed by ' . Core::getUser()->getUserName() . '(' . StringUtilsAbstract::getCurrency($origCredt) . ' => ' . StringUtilsAbstract::getCurrency($creditpool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
+		//Create log for creditpool
+		CreditPoolLog::create($creditpool, CreditPoolLog::TYPE_CREDIT, $order->getId(), $creditAmt);
+		return $creditpool;
+	}
+	/**
+	 * update total credit left directly
+	 * @param unknown $value
+	 * @return CreditPool
+	 */
+	public function updateTotalCreditLeft($value)
+	{
+		$this->totalCreditLeft = $value;
+		return $this;
+	}
 }

@@ -273,6 +273,7 @@ class ProductAgeingLog extends InfoEntityAbstract
 		DaoMap::setManyToOne('creditNoteItem', 'CreditNoteItem', 'pal_cn_item', true);
 		DaoMap::setManyToOne('productQtyLog', 'ProductQtyLog', 'pal_pql');
 		DaoMap::setStringType('comments', 'varchar', 255);
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::commit();
@@ -287,6 +288,7 @@ class ProductAgeingLog extends InfoEntityAbstract
 	{
 		$log = new ProductAgeingLog();
 		$log->setProductQtyLog($productQtyLog)
+			->setStore(Core::getUser()->getStore())
 			->setComments($comments);
 		return $log->save();
 	}

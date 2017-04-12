@@ -82,6 +82,8 @@ class Controller extends CRUDPageAbstract
 					$where[] = 'po.supplierId in(' . implode(', ', $suppWhere) . ')';
 				}
 			}
+			$where[] = 'ri.storeId = :storeId';
+			$params['storeId'] = Core::getUser()->getStore()->getId();
 			$sql = 'select sql_calc_found_rows ri.invoiceNo,
 						po.supplierId,
 						sum(ri.qty) `qty`,
@@ -90,7 +92,7 @@ class Controller extends CRUDPageAbstract
 						group_concat(distinct ri.id) `itemIds`,
 						min(ri.created) `created`
 					from receivingitem ri
-					inner join purchaseorder po on (po.id = ri.purchaseOrderId)
+					inner join purchaseorder po on (po.id = ri.purchaseOrderId and po.storeId = ri.storeId)
 					where ' . implode(' AND ', $where) . '
 					group by po.supplierId,  ri.invoiceNo
 					order by ri.id desc
@@ -147,8 +149,8 @@ class Controller extends CRUDPageAbstract
 			if(!isset($param->CallbackParameter->oldInvoiceNo))
 				throw new Exception('Invalid oldInvoiceNo.');
 			$oldInvoiceNo = trim($param->CallbackParameter->oldInvoiceNo);
-			ReceivingItem::updateByCriteria('invoiceNo = :newInvoiceNo', 'invoiceNo = :oldInvoiceNo and purchaseOrderId in (select po.id from purchaseorder po where po.active = 1 and po.supplierId = :supplierId)', 
-					array('newInvoiceNo' => $newInoviceNo, 'oldInvoiceNo' => $oldInvoiceNo, 'supplierId' => $supplier->getId()));
+			ReceivingItem::updateByCriteria('invoiceNo = :newInvoiceNo', 'invoiceNo = :oldInvoiceNo and purchaseOrderId in (select po.id from purchaseorder po where po.active = 1 and po.supplierId = :supplierId and po.storeId = :storeId)', 
+					array('newInvoiceNo' => $newInoviceNo, 'oldInvoiceNo' => $oldInvoiceNo, 'supplierId' => $supplier->getId(), 'storeId' => Core::getUser()->getStore()->getId()));
 		}
 		catch(Exception $ex)
 		{

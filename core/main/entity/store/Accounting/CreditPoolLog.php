@@ -158,6 +158,7 @@ class CreditPoolLog extends BaseEntityAbstract
 		DaoMap::setIntType('typeId', 'double', '10,4');
 		DaoMap::setIntType('amount', 'double', '10,4');
 		DaoMap::setIntType('totalCreditLeft', 'double', '10,4');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::commit();
@@ -201,6 +202,7 @@ class CreditPoolLog extends BaseEntityAbstract
 			->setTypeId($typeId)
 			->setAmount($creditAmount)
 			->setTotalCreditLeft($totalCreditLeft)
+			->setStore(Core::getUser()->getStore())
 			->save();
 		
 		return $cph;

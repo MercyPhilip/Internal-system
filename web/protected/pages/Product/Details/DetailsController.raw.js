@@ -13,6 +13,8 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 	,_productTreeId: 'product_category_tree' //the html id of the tree
 	,_imgPanelId: 'images_panel'             //the html id of the iamges panel
 	,_readOnlyMode: false
+	,_storeId: 1
+	,_roleId: 0
 	,_accountingCodes: []
 	,_selectTypeTxt: 'Select One...'
 	/**
@@ -54,7 +56,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 	/**
 	 * Getting the row for function: _getListPanel()
 	 */
-	,_getListPanelRow: function(data, selBoxData, titleData, isTitle, selBoxChangeFunc) {
+	,_getListPanelRow: function(title, data, selBoxData, titleData, isTitle, selBoxChangeFunc) {
 		var tmp = {};
 		tmp.me = this;
 		tmp.isTitle = (isTitle || false);
@@ -67,7 +69,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			.insert({'bottom': new Element(tmp.tag).update(
 					tmp.isTitle === true ? titleData.type :
 					tmp.me._getSelBox(selBoxData, (data[tmp.typeString] && data[tmp.typeString].id ? data[tmp.typeString].id : ''))
-						.addClassName('form-control input-sm ')
+						.addClassName('form-control input-sm ' + title)
 						.writeAttribute('list-panel-row', 'typeId')
 						.writeAttribute('required', true)
 						.writeAttribute('list-item', (data.id ? data.id : tmp.randId))
@@ -101,13 +103,13 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			});
 		}
 		tmp.inputBoxDiv = new Element('div', {'class': 'input-group input-group-sm'})
-			.insert({'bottom': new Element('input', {'type': 'text', 'class': 'form-control', 'list-panel-row': 'value', 'required': true, 'value': (data[tmp.valueString] ? data[tmp.valueString]: '') })
+			.insert({'bottom': new Element('input', {'type': 'text', 'class': 'form-control '  + title, 'list-panel-row': 'value', 'required': true, 'value': (data[tmp.valueString] ? data[tmp.valueString]: '') })
 				.writeAttribute('list-item', (data.id ? data.id : tmp.randId))
 			})
 			.insert({'bottom': new Element('input', {'type': 'hidden', 'class': 'form-control', 'list-panel-row': 'active', 'value': '1' })
 				.writeAttribute('list-item', (data.id ? data.id : tmp.randId))
 			})
-			.insert({'bottom': new Element('span', {'class': 'btn btn-danger input-group-addon'})
+			.insert({'bottom': new Element('span', {'class': 'btn btn-del btn-danger input-group-addon ' + title})
 				.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-trash'}) })
 				.observe('click', function() {
 					if(data.id) {
@@ -128,6 +130,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 	,_getListPanel: function(title, listData, titleData, selBoxData, selBoxChangeFunc) {
 		var tmp = {};
 		tmp.me = this;
+		title = title.replace(/:/g, '');
 		tmp.newDiv = new Element('div', {'class': 'panel panel-default'})
 			.insert({'bottom': new Element('div', {'class': 'panel-heading'})
 				.insert({'bottom': new Element('a', {'class': 'toggle-btn', 'href': 'javascript: void(0);', 'title': 'click show/hide content below'})
@@ -136,7 +139,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 						$(this).up('.panel').down('.list-div').toggle();
 					})
 				})
-				.insert({'bottom': new Element('span', {'class': 'btn btn-primary btn-xs pull-right', 'title': 'New'})
+				.insert({'bottom': new Element('span', {'class': 'btn btn-del btn-primary btn-xs pull-right ' + title, 'title': 'New'})
 					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-plus'}) })
 					.insert({'bottom': ' NEW' })
 					.observe('click', function(){
@@ -146,7 +149,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 							tmp.newData.start = '0001-01-01 00:00:00';
 						if(titleData.end)
 							tmp.newData.end = '9999-12-31 23:59:59';
-						tmp.parentPanel.down('.table tbody').insert({'bottom': tmp.me._getListPanelRow(tmp.newData, selBoxData, titleData, false, selBoxChangeFunc).addClassName('list-panel-row').writeAttribute('item_id', '') });
+						tmp.parentPanel.down('.table tbody').insert({'bottom': tmp.me._getListPanelRow(title, tmp.newData, selBoxData, titleData, false, selBoxChangeFunc).addClassName('list-panel-row').writeAttribute('item_id', '') });
 						tmp.parentPanel.down('.list-div').show();
 						tmp.me._bindDatePicker();
 					})
@@ -154,14 +157,14 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			})
 			.insert({'bottom': new Element('div', {'class': 'list-div table-responsive'})
 				.insert({'bottom': new Element('table', {'class': 'table table-condensed', 'style' : 'width : auto'})
-					.insert({'bottom': new Element('thead').update( tmp.me._getListPanelRow(titleData, selBoxData, titleData, true, selBoxChangeFunc) ) })
+					.insert({'bottom': new Element('thead').update( tmp.me._getListPanelRow(title, titleData, selBoxData, titleData, true, selBoxChangeFunc) ) })
 					.insert({'bottom': tmp.listDiv = new Element('tbody') })
 				})
 			});
 		
 		if(listData) {
 			listData.each(function(data){
-				tmp.listDiv.insert({'bottom': tmp.me._getListPanelRow(data, selBoxData, titleData, false, selBoxChangeFunc).addClassName('list-panel-row').writeAttribute('item_id', data.id) });
+				tmp.listDiv.insert({'bottom': tmp.me._getListPanelRow(title, data, selBoxData, titleData, false, selBoxChangeFunc).addClassName('list-panel-row').writeAttribute('item_id', data.id) });
 			});
 		}
 		
@@ -222,6 +225,8 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 							if(!tmp.me._readOnlyMode) {
 								$(tmp.btn).replace(tmp.newTextarea);
 								tmp.me._loadRichTextEditor(tmp.newTextarea);
+								if (tmp.me._storeId != 1)
+									jQuery('.summernote[save="fullDescription"]').summernote('disable');
 							} else {
 								$$('.fullDescriptionEl').first().replace(
 									new Element('div', {'class': 'col-sm-12'}).update(tmp.me._getFormGroup('Full Description:', new Element('input', {'type': 'text', 'disabled': true, 'value': result ? result : ''}) ) )
@@ -264,6 +269,8 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 							if(!tmp.me._readOnlyMode) {
 								$(tmp.btn).replace(tmp.newTextarea);
 								tmp.me._loadRichTextEditor(tmp.newTextarea);
+								if (tmp.me._storeId != 1)
+									jQuery('.summernote[save="customTab"]').summernote('disable');
 							} else {
 								$$('.customTabEl').first().replace(
 									new Element('div', {'class': 'col-sm-12'}).update(tmp.me._getFormGroup('Feature:', new Element('input', {'type': 'text', 'disabled': true, 'value': result ? result : ''}) ) )
@@ -302,9 +309,12 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		tmp.me = this;
 		tmp.categoies = [];
 		tmp.selectedCateIds = [];
+		if ((tmp.me._item) && (tmp.me._item.categories) && (tmp.me._item.categories.length > 0))
+		{
 		tmp.me._item.categories.each(function(cate) {
 			tmp.selectedCateIds.push(cate.id);
 		})
+		}
 		categories.each(function(category) {
 			tmp.categoies.push(tmp.me._getChildCategoryJson(category, tmp.selectedCateIds));
 		});
@@ -404,10 +414,11 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					) ) })
 				})
 				.insert({'bottom': new Element('div', {'class': ''})
-					.insert({'bottom': new Element('div', {'class': 'col-sm-3'}).update(tmp.me._getFormGroup('Attribute Set Name:', new Element('input', {'disabled': true, 'type': 'text', 'value': tmp.item.attributeSet ? tmp.item.attributeSet.name : ''}) ) ) })
+					.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Attribute Set Name:', new Element('input', {'disabled': true, 'type': 'text', 'value': tmp.item.attributeSet ? tmp.item.attributeSet.name : ''}) ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-3'}).update(tmp.me._getFormGroup('Attribute Set Description:', new Element('input', {'disabled': true, 'type': 'text', 'value': tmp.item.attributeSet ? tmp.item.attributeSet.description : ''}) ) ) })
-					.insert({'bottom': new Element('div', {'class': 'col-sm-3'}).update(tmp.me._getFormGroup('Attribute Set ID:', new Element('input', {'disabled': true, 'type': 'text', 'value': tmp.item.attributeSet ? tmp.item.attributeSet.id : ''}) ) ) })
-					.insert({'bottom': new Element('div', {'class': 'col-sm-3'}).update(tmp.me._getFormGroup('Attribute Set Mage ID:', new Element('input', {'disabled': true, 'type': 'text', 'value': tmp.item.attributeSet ? tmp.item.attributeSet.mageId : ''}) ) ) })
+					.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Attribute Set ID:', new Element('input', {'disabled': true, 'type': 'text', 'value': tmp.item.attributeSet ? tmp.item.attributeSet.id : ''}) ) ) })
+					.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Attribute Set Mage ID:', new Element('input', {'disabled': true, 'type': 'text', 'value': tmp.item.attributeSet ? tmp.item.attributeSet.mageId : ''}) ) ) })
+					.insert({'bottom': new Element('div', {'class': 'col-sm-3'}).update(tmp.me._getFormGroup('ETA:', new Element('input', {'type': 'date', 'value': tmp.item.eta ? tmp.item.eta : ''}) ) ) })
 				})
 				.insert({'bottom': new Element('div', {'class': ''})
 					.insert({'bottom': new Element('div', {'class': 'col-sm-10'}).update(tmp.me._getFormGroup('Short Description:', new Element('input', {'save-item': 'shortDescription', 'type': 'text', 'value': tmp.item.shortDescription ? tmp.item.shortDescription : ''}) ) ) })
@@ -511,7 +522,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				.insert({'bottom': new Element('img', {'data-src': 'holder.js/100%x180', 'src': tmp.src}) })
 			})
 			.insert({'bottom': new Element('span', {'class': 'btns'})
-				.insert({'bottom': new Element('small', {'class': 'btn btn-danger btn-xs'})
+				.insert({'bottom': new Element('small', {'class': 'btn btn-del btn-danger btn-xs'})
 					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-trash'}) })
 				})
 				.observe('click', function(){
@@ -585,12 +596,12 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		}
 
 		if(tmp.noLocalReader) {
-			tmp.uploadDiv.update(new Element('span', {'class': 'btn btn-danger btn-xs pull-right', 'title': 'Your browser does NOT support this feature. Pls change browser and try again'})
+			tmp.uploadDiv.update(new Element('span', {'class': 'btn btn-del btn-danger btn-xs pull-right', 'title': 'Your browser does NOT support this feature. Pls change browser and try again'})
 				.insert({'bottom': new Element('span', {'class': ' glyphicon glyphicon-exclamation-sign'}) })
 				.insert({'bottom': ' Not Supported'})
 			);
 		} else {
-			tmp.uploadDiv.insert({'bottom': new Element('span', {'class': 'btn btn-primary btn-xs pull-right', 'title': 'New'})
+			tmp.uploadDiv.insert({'bottom': new Element('span', {'class': 'btn btn-del btn-primary btn-xs pull-right', 'title': 'New'})
 				.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-plus'}) })
 				.insert({'bottom': ' NEW' })
 				.observe('click', function(){
@@ -761,6 +772,23 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		});
 		return tmp.selectEl;
 	}
+	,_getOtherStocks: function(product) {
+		var stocks = {};
+		ret = '';
+		if (!product || !product.stock || !product.stock.storeId) return ret;
+		currentStoreId = product.stock.storeId.id;
+		stocks = product.stocks;
+		stocks.each(function(stock) {
+			if (stock.storeId.id != currentStoreId)
+			{
+				if (ret == '')
+					ret = ret + '[' + stock.storeId.name + ':' + stock.stockOnHand + ']';
+				else
+					ret = ret + ', [' + stock.storeId.name + ':' + stock.stockOnHand + ']';
+			}
+		});
+		return ret;
+	}
 	,_getStockDev: function(product) {
 		var tmp = {};
 		tmp.me = this;
@@ -779,7 +807,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			})
 			.insert({'bottom': new Element('div', {'class': 'panel-body'})
 				.insert({'bottom': new Element('div', {'class': 'row'})
-					.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock On Hand', new Element('input', {'save-item': 'stockOnHand', 'type': 'value', 'disabled': true, 'value': tmp.item.stockOnHand ? tmp.item.stockOnHand : ''}) ) ) })
+					.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock On Hand: ' + tmp.me._getOtherStocks(product), new Element('input', {'save-item': 'stockOnHand', 'type': 'value', 'disabled': true, 'value': tmp.item.stockOnHand ? tmp.item.stockOnHand : ''}) ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock On Hand Value', new Element('input', {'save-item': 'totalOnHandValue', 'type': 'value', 'disabled': true, 'value': tmp.item.totalOnHandValue ? tmp.me.getCurrency(tmp.item.totalOnHandValue) : ''}) ) ) })
 				})
 				.insert({'bottom': new Element('div', {'class': 'row'})
@@ -883,7 +911,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 						.insert({'bottom': tmp.me._getListPanel('Locations:', tmp.me._item.locations, {'type': 'Type', 'value': 'value'}, tmp.me._locationTypes).wrap(new Element('div', {'class': 'col-sm-4 locations-panel'})) })
 					})
 					.insert({'bottom': new Element('div', {'class': 'row'})
-						.insert({'bottom': new Element('span', {'class': 'btn btn-primary pull-right col-sm-4', 'data-loading-text': 'saving ...'}).update('Save')
+						.insert({'bottom': new Element('span', {'class': 'btn btn-del Locations btn-primary pull-right col-sm-4', 'data-loading-text': 'saving ...'}).update('Save')
 							.observe('click', function() {
 								tmp.me._submitSave(this);
 							})
@@ -938,13 +966,45 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			tmp.parentWindow.pageJs.selectProduct(tmp.me._item, tmp.newPObtn);
 		}
 	}
-	,readOnlyMode: function(){
+	,readOnlyMode: function(mode, storeId, roleId){
 		var tmp = {};
 		tmp.me = this;
-		tmp.me._readOnlyMode = true;
+		tmp.me._readOnlyMode = !mode;
+		tmp.me._storeId = storeId;
+		tmp.me._roleId = roleId;
+		if (!mode)
+		{
 		$$('.btn.btn-loadFullDesc').first().click();
-		jQuery("input").prop("disabled", true);
+			$$('.btn.btn-loadCustomTab').first().click();
+			jQuery(".summernote").summernote('disable');
+			jQuery(".chosen").prop("disabled", true).trigger("chosen:updated");
+			if (roleId != 1)
+			{
+				// not warehouse
 		jQuery("select").prop("disabled", true);
-		jQuery(".btn").remove();
+				jQuery("input").prop("disabled", true);
+				jQuery(".btn-del").remove();
+			}
+			else
+			{
+				jQuery("select:not(.Locations)").prop("disabled", true);
+				jQuery("input:not(.Locations)").prop("disabled", true);
+				jQuery('.btn-del:not(.Locations)').remove();
+			}
+		}
+		else
+		{
+			if (storeId != 1)
+			{
+				$$('.btn.btn-loadFullDesc').first().click();
+				$$('.btn.btn-loadCustomTab').first().click();
+				jQuery("input:not(.Locations)").prop("disabled", true);
+				jQuery("select:not(.Locations)").prop("disabled", true);
+				jQuery(".chosen").prop("disabled", true).trigger("chosen:updated");
+				jQuery('.chosen[save-item="statusId"]').prop("disabled", false).trigger("chosen:updated");
+				jQuery('.btn-del:not(.Locations)').remove();
+				jQuery(".summernote").summernote('disable');
+			}
+		}
 	}
 });

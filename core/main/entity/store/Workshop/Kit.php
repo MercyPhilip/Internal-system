@@ -282,7 +282,7 @@ class Kit extends BaseEntityAbstract
 	public function reCalPriceNCost()
 	{
 		$price = $cost = 0;
-		$components = KitComponent::getAllByCriteria('kitId = ?', array($this->getId()));
+		$components = KitComponent::getAllByCriteria('kitId = ? and storeId = ?', array($this->getId(), Core::getUser()->getStore()->getId()));
 		if(count($components) > 0) {
 			foreach($components as $component) {
 				$price += $component->getUnitPrice() * $component->getQty();
@@ -346,7 +346,7 @@ class Kit extends BaseEntityAbstract
 		if($this->getProduct()->getIsKit() !== true)
 			throw new EntityException('The product of the kit needs to have the flag IsKit ticked.');
 		if(trim($this->getId()) !== '') {
-			if(self::countByCriteria('id = ? and productId != ?', array($this->getId(), $this->getProduct()->getId())) > 0 )
+			if(self::countByCriteria('id = ? and productId != ? and storeId = ?', array($this->getId(), $this->getProduct()->getId(), Core::getUser()->getStore()->getId())) > 0 )
 				throw new EntityException('You can NOT change the product of the KIT[' . $this->getBarcode() . '] once it is created.');
 			$origKit = self::get($this->getId());
 			$this->_changeLog('soldToCustomer', 'getName', $origKit, 'Customer')
@@ -381,7 +381,10 @@ class Kit extends BaseEntityAbstract
 			$array['soldToCustomer'] = $this->getSoldToCustomer() instanceof Customer ? $this->getSoldToCustomer()->getJson() : null;
 			$array['soldOnOrder'] = $this->getSoldOnOrder() instanceof Order ? $this->getSoldOnOrder()->getJson() : null;
 			$array['shippment'] = $this->getShippment() instanceof Shippment ? $this->getShippment()->getJson() : null;
-			$array['components'] = array_map(create_function('$a', 'return $a->getJson();'), KitComponent::getAllByCriteria('kitId = ?', array($this->getId())));
+			$kitComponents = KitComponent::getAllByCriteria('kitId = ? and storeId = ?', array($this->getId(), Core::getUser()->getStore()->getId()));
+			$array['components'] = array();
+			foreach ($kitComponents as $kitcomponent)
+				$array['components'][] = $kitcomponent->getJson();	
 		}
 		return parent::getJson($array, $reset);
 	}
@@ -402,7 +405,7 @@ class Kit extends BaseEntityAbstract
 		DaoMap::setManyToOne('shippment', 'Shippment', 'kit_ship', true);
 		DaoMap::setIntType('cost', 'Double', '10,4');
 		DaoMap::setIntType('price', 'Double', '10,4');
-
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createUniqueIndex('barcode');
@@ -423,6 +426,7 @@ class Kit extends BaseEntityAbstract
 		$kit = new Kit();
 		$kit->setProduct($product)
 			->setTask($task)
+			->setStore(Core::getUser()->getStore())
 			->save();
 		if(($comments = trim($comments)) === '')
 			$kit->addComment($comments);
@@ -437,7 +441,7 @@ class Kit extends BaseEntityAbstract
 	 */
 	public static function getByBarcode($barcode)
 	{
-		$kits = self::getAllByCriteria('barcode = ?', array($barcode), false, 1, 1);
+		$kits = self::getAllByCriteria('barcode = ? and storeId = ?', array($barcode, Core::getUser()->getStore()->getId()), false, 1, 1);
 		return count($kits) === 0 ? null : $kits[0];
 	}
 }

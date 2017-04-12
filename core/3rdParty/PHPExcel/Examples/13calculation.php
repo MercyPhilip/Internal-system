@@ -22,7 +22,7 @@
  * @package    PHPExcel
  * @copyright  Copyright (c) 2006 - 2014 PHPExcel (http://www.codeplex.com/PHPExcel)
  * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
- * @version    1.8.0, 2014-03-02
+ * @version    ##VERSION##, ##DATE##
  */
 
 /** Error reporting */
@@ -34,6 +34,7 @@ date_default_timezone_set('Europe/London');
 define('EOL',(PHP_SAPI == 'cli') ? PHP_EOL : '<br />');
 
 date_default_timezone_set('Europe/London');
+mt_srand(1234567890);
 
 /** Include PHPExcel */
 require_once dirname(__FILE__) . '/../Classes/PHPExcel.php';

@@ -1,6 +1,6 @@
 #!/bin/bash
 FN=`date +"%d_%m_%Y"`
-DBN=bpcinternal
+DBN=bpcinternal_multistore
 USERNAME=root
 PASSWORD=root
 DUMPPASSWORD=budget123pc

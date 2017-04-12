@@ -60,7 +60,9 @@ class ListController extends CRUDPageAbstract
 			}
 			
 			$stats = array();
-			$salestargets = SalesTarget::getAll(true, $pageNo, $pageSize, array(), $stats);
+			$where[] = 'stgt.storeId = ?';
+			$params[] = Core::getUser()->getStore()->getId();
+			$salestargets = SalesTarget::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array(), $stats);
 			$results['pageStats'] = $stats;
 			$results['items'] = array();
 			foreach($salestargets as $item)
@@ -113,6 +115,7 @@ class ListController extends CRUDPageAbstract
 					->setDPeriod($days)
 					->setTargetRevenue(doubleval(trim($targetrevenue)))
 					->setTargetProfit(doubleval(trim($targetprofit)))
+					->setStore(Core::getUser()->getStore())
 					->save();
 			}
 			else

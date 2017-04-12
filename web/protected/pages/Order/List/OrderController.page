@@ -3,6 +3,7 @@
 	<com:Application.controls.bootstrapDateTimePicker.bootstrapDateTimePicker />
 	<com:Application.controls.select2.select2 />
 	<com:Application.controls.InsufficientStockOrdersListPanel.InsufficientStockOrdersListPanel />
+	<com:Application.controls.NoETAOrdersListPanel.NoETAOrdersListPanel />
 	<com:Application.controls.SalesTargetListPanel.SalesTargetListPanel />
 	<com:TCallback ID="getOrdersBtn" onCallBack="Page.getOrders" />
 	<div class="row">
@@ -38,13 +39,19 @@
 	                   </div>
 	               </div>
 	               <div class='row'>
-	               	  <div class="col-xs-6">
+	               	  <div class="col-xs-3">
 	                       <div class="form-group form-group-sm input-group">
-	                           <label for="type" class="input-group-addon">D.Method: </label>
-	                           <input search_field="delivery_method" class="form-control input-sm" />
+	                           <label for="type" class="input-group-addon">SKU: </label>
+	                           <input id='productId' search_field="productId" class="form-control input-sm sku" placeholder="The SKU" />
 	                       </div>
 	                   </div>
-	                   <div class="col-sm-3">
+	               	  <div class="col-xs-4">
+	                       <div class="form-group form-group-sm input-group">
+	                           <label for="type" class="input-group-addon">D.Method: </label>
+	                           <input search_field="delivery_method" class="form-control input-sm delivery_method" />
+	                       </div>
+	                   </div>
+	                   <div class="col-sm-2">
 	                       <div class="form-group form-group-sm input-group">
 	                           <label for="status" class="input-group-addon">Paid: </label>
 	                           <select search_field="ord.passPaymentCheck" class="form-control input-sm">
@@ -120,6 +127,7 @@
 				     			<li class="type-swither-item active" data-type="INVOICE"><a href="javascript: void(0);">All INVOICES</a></li>
 				     			<li class="type-swither-item" data-type="INVOICE" extraSearchCriteria="(ROUND(ord.totalAmount,2) - ROUND(ord.totalPaid, 2) - ROUND(ord.totalCreditNoteValue, 2)) > 0"><a href="javascript: void(0);">Open INVOICES</a></li>
 				     			<li class="type-swither-item" data-type="INVOICE" extraSearchCriteria="(ROUND(ord.totalAmount,2) - ROUND(ord.totalPaid, 2) - ROUND(ord.totalCreditNoteValue, 2)) <= 0"><a href="javascript: void(0);">Closed INVOICES</a></li>
+				     			<li class="type-swither-item" data-type="INVOICE" extraSearchCriteria="attention" ><a href="javascript: void(0);">Attention</a></li>
 				     		</ul>
 				     	</div>
 				     	<div class="col-xs-6 text-right">
@@ -141,6 +149,8 @@
 			</div>
 	   </div>
 	   <div class="col-md-3" id="salestarget-panel">
+	   </div>
+	   <div class="col-md-3" id="noeta-panel">
 	   </div>
 	   <div class="col-md-3" id="right-panel">
 	   </div>

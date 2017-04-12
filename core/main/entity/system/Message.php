@@ -256,6 +256,7 @@ class Message extends BaseEntityAbstract
 		DaoMap::setStringType('body', 'longtext');
 		DaoMap::setStringType('status', 'varchar', 10);
 		DaoMap::setStringType('attachAssetIds', 'longtext');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		
 		parent::__loadDaoMap();
 	
@@ -293,6 +294,7 @@ class Message extends BaseEntityAbstract
 			->setBody(trim($body))
 			->setType(trim($type))
 			->setAttachAssetIds(implode(',', $attacheAssetIds))
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 }

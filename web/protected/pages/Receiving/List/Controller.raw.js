@@ -30,7 +30,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					return {
 						searchTxt: params, // search term
 						pageNo: 1,
-						pageSize: 10
+						pageSize: 10,
+						'userId' : jQuery('#userId').attr('value')
 					};
 				},
 				results: function (data) {
@@ -66,7 +67,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					return {
 						searchTxt: params, // search term
 						pageNo: 1,
-						pageSize: 10
+						pageSize: 10,
+						'userId' : jQuery('#userId').attr('value')
 					};
 				},
 				results: function (data) {

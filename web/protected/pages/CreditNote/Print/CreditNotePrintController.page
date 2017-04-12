@@ -16,11 +16,11 @@
                                 <div class="cname">BUDGET PC PTY LTD</div>
                                 <div class="abn">ABN 29 133 654 761</div>
                                 <span class="inlineblock dates">
-                                    <div class="dateRow"><span class="rowTitle inlineblock">Order Date:</span><span class="rowContent inlineblock"><%= $this->creditNote->getOrder() instanceof Order? $this->creditNote->getOrder()->getOrderDate()->format('d/M/Y') : '' %></span></div>
+                                    <div class="dateRow"><span class="rowTitle inlineblock">Order Date:</span><span class="rowContent inlineblock"><%= $this->getOrdDate() %></span></div>
                                     <div class="dateRow"><span class="rowTitle inlineblock">Order No:</span><span class="rowContent inlineblock"><%= $this->creditNote->getOrder() instanceof Order? $this->creditNote->getOrder()->getOrderNo() : ''%></span></div>
                                     <div class="dateRow"><span class="rowTitle inlineblock">Invoice No:</span><span class="rowContent inlineblock"><%= $this->creditNote->getOrder() instanceof Order? $this->creditNote->getOrder()->getInvNo() : ''%></span></div>
                                     <div class="dateRow"><span class="rowTitle inlineblock">Apply To:</span><span class="rowContent inlineblock"><%= $this->creditNote->getApplyTo()%></span></div>
-                                    <div class="dateRow"><span class="rowTitle inlineblock">Applied Date:</span><span class="rowContent inlineblock"><%= $this->creditNote->getApplyDate()->format('d/M/Y') %></span></div>
+                                    <div class="dateRow"><span class="rowTitle inlineblock">Applied Date:</span><span class="rowContent inlineblock"><%= $this->creditNote->getApplyDate()->setTimeZone(UDate::TIME_ZONE_MELB)->format('d/M/Y') %></span></div>
                                 </span>
                             </span>
                         </div>
@@ -90,8 +90,8 @@
                         </div>
                         <div class="order_company_details">
                             <div class="addr">
-                                <span class="addr"><span class="details_title">Mount Waverley</span>Unit 111, 45 Gilby Rd, Mt Waverley</span>
-                                <span class="phone"><span class="details_title">PH</span>+61 3 9541 9000</span>
+                                <span class="addr"><span class="details_title"><%= Core::getUser()->getStore()->getId() == 1 ? "Mount Waverley" : "Heatherton" %></span><%= Core::getUser()->getStore()->getId() == 1 ? "Unit 111, 45 Gilby Rd, Mt Waverley" : "Unit 29, 1 Kingston Rd, Heatherton" %></span>
+                                <span class="phone"><span class="details_title">PH</span><%=Core::getUser()->getStore()->getId() == 1 ? "+61 3 9541 9000" : "+61 3 9541 9000"%> </span>
                                 <span class="url details_title">
                                     www.budgetpc.com.au
                                 </span>

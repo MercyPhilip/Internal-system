@@ -150,8 +150,9 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				data: function (params) {
 					return {
 						entityName: 'PurchaseOrder',
-						searchTxt: 'po.purchaseOrderNo like :poNo',
-						searchParams: {'poNo': '%' + params + '%'}, // search term
+						searchTxt: 'po.purchaseOrderNo like :poNo and po.storeId = :storeId',
+						searchParams: {'poNo': '%' + params + '%', 'storeId' : jQuery('#storeId').attr('value')}, // search term
+						'userId' : jQuery('#userId').attr('value')
 					};
 				},
 				results: function (data) {

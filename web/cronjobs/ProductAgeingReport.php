@@ -43,14 +43,14 @@ abstract class ProductAgeingReport
 	{
 		if(self::DEBUG === true)
 			self::_logMsg('Empty ALL content in ProductAgeingLog', __CLASS__, __FUNCTION__);
-		ProductAgeingLog::deleteByCriteria('active = 1');
+		ProductAgeingLog::deleteByCriteria('active = 1 and storeId = ?', array(Core::getUser()->getStore()->getId()));
 		return true;
 	}
 	private static function _getLastPurchase(Product $product, $pageSize = self::PAGE_SIZE)
 	{
 		$totalReceivedQty = 0;
 		$lastPurchaseTime = new UDate();
-		$totalPages = ceil(ProductQtyLog::countByCriteria('productId = ? and active = 1', array($product->getId())) / $pageSize);
+		$totalPages = ceil(ProductQtyLog::countByCriteria('productId = ? and active = 1 and storeId = ?', array($product->getId(), Core::getUser()->getStore()->getId())) / $pageSize);
 		if(self::DEBUG === true)
 			self::_logMsg('totalPages: ' . $totalPages, __CLASS__, __FUNCTION__);
 		for($pageNumber = 1; $pageNumber <= $totalPages; $pageNumber++)
@@ -78,11 +78,15 @@ abstract class ProductAgeingReport
 	}
 	private static function _getProducts()
 	{
-		return Product::getAllByCriteria('pro.active = 1 and pro.stockOnHand > 0');
+		$where = array(1);
+		$params = array();
+		Product::getQuery()->eagerLoad('Product.stocks', 'inner join', 'pro_stock_info', 'pro.id = pro_stock_info.productId and pro_stock_info.storeId = :storeId');
+		$params['storeId'] = Core::getUser()->getStore()->getId();
+		return Product::getAllByCriteria('pro.active = 1 and pro_stock_info.active = 1 and pro_stock_info.stockOnHand > 0', $params);
 	}
 	private static function _getProductQtyLogs(Product $product, $pageNumber, $pageSize = self::PAGE_SIZE)
 	{
-		return ProductQtyLog::getAllByCriteria('pql.active = 1 and pql.productId = ? and pql.stockOnHandVar > 0 and pql.type in (?, ?, ?)', array($product->getId(), ProductQtyLog::TYPE_PO, ProductQtyLog::TYPE_STOCK_MOVE_INTERNAL, ProductQtyLog::TYPE_STOCK_ADJ), true, $pageNumber, $pageSize, array('id' => 'desc'));
+		return ProductQtyLog::getAllByCriteria('pql.active = 1 and pql.productId = ? and pql.stockOnHandVar > 0 and pql.type in (?, ?, ?) and pql.storeId = ?', array($product->getId(), ProductQtyLog::TYPE_PO, ProductQtyLog::TYPE_STOCK_MOVE_INTERNAL, ProductQtyLog::TYPE_STOCK_ADJ, Core::getUser()->getStore()->getId()), true, $pageNumber, $pageSize, array('id' => 'desc'));
 	}
 	
 	private static function _logMsg($msg, $className, $funcName) {
@@ -91,6 +95,9 @@ abstract class ProductAgeingReport
 		return $now;
 	}
 }
-
-Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT));
+// for store1
+Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT_STORE1));
+ProductAgeingReport::run();
+// fore store2
+Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT_STORE2));
 ProductAgeingReport::run();

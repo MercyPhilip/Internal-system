@@ -36,6 +36,13 @@ class Controller extends CRUDPageAbstract
 				$js .= "$('searchBtn').up('.panel').down('.panel-body').insert({'bottom': new Element('input', {'type': 'hidden', 'search_field': 'purchaseorderid', 'value': '" . $purchaseOrder->getId() . "'}) });";
 				$js .= "$('searchBtn').up('.panel').hide();";
 			}
+			
+			if(isset($_REQUEST['purchaseorderitemid'])) {
+				if (!($purchaseOrderItem = PurchaseOrderItem::get(trim($_REQUEST['purchaseorderitemid']))) instanceof PurchaseOrderItem)
+					die('Invalid PurchaseOrderItem Provided');
+				$js .= "$('searchBtn').up('.panel').down('.panel-body').insert({'bottom': new Element('input', {'type': 'hidden', 'search_field': 'purchaseorderitemid', 'value': '" . $purchaseOrderItem->getId() . "'}) });";
+				$js .= "$('searchBtn').up('.panel').hide();";
+			}
 
 			$js .= "$('searchBtn').click();";
 		}
@@ -73,8 +80,12 @@ class Controller extends CRUDPageAbstract
 				$params[] = trim($productid);
 			}
 			if(isset($serachCriteria['purchaseorderid']) && ($purchaseorderid = trim($serachCriteria['purchaseorderid'])) !== '') {
-				$where[] = 'purchaseorderid = ?';
+				$where[] = 'purchaseOrderId = ?';
 				$params[] = trim($purchaseorderid);
+			}
+			if(isset($serachCriteria['purchaseorderitemid']) && ($purchaseorderitemid = trim($serachCriteria['purchaseorderitemid'])) !== '') {
+				$where[] = 'purchaseOrderItemId = ?';
+				$params[] = trim($purchaseorderitemid);
 			}
 			if(isset($serachCriteria['pro.ids']) && ($productids = trim($serachCriteria['pro.ids'])) !== '' && count($productids = trim($serachCriteria['pro.ids'])) > 0) {
 				$value = explode(',', $productids);
@@ -86,6 +97,8 @@ class Controller extends CRUDPageAbstract
 				$where[] = 'purchaseOrderId in ('.implode(", ", array_fill(0, count($value), "?")).')';
 				$params = array_merge($params, $value);
 			}
+			$where[] = 'storeId = ?';
+			$params[] = Core::getUser()->getStore()->getId();
 			$objects = array();
 			if(count($where) > 0)
 				$objects = ReceivingItem::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('rec_item.productId' => 'desc'), $stats);

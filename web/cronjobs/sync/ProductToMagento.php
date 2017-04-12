@@ -152,6 +152,14 @@ abstract class ProductToMagento
                 continue;
             $products[$product->getId()] = $product;
         }
+        //product stock info
+        $productStocks = ProductStockInfo::getAllByCriteria('updated >= ?', array(trim($lastUpdatedTime)), true);
+        self::_log('GOT ' . count($productStocks) . ' Product Stock(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
+        foreach ($productStocks as $productStock) {
+            if(!($product = Product::get($productStock->getProductId())) instanceof Product || array_key_exists($productStock->getProductId(), $products))
+                continue;
+        	$products[$productStock->getProductId()] = $product;
+        }
         //Product_Category
         $productCates = Product_Category::getAllByCriteria('updated >= ?', array(trim($lastUpdatedTime)));
         self::_log('GOT ' . count($productCates) . ' Product_Category(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
@@ -175,6 +183,14 @@ abstract class ProductToMagento
         	if(!$productTierPrice->getProduct() instanceof Product || array_key_exists($productTierPrice->getProduct()->getId(), $products))
         		continue;
         	$products[$productTierPrice->getProduct()->getId()] = $productTierPrice->getProduct();
+        }
+        //product ETA
+        $productEtas = ProductEta::getAllByCriteria('updated >= ?', array(trim($lastUpdatedTime)), true);
+        self::_log('GOT ' . count($productEtas) . ' Product ETA(s) that has changed after "' . trim($lastUpdatedTime) . '".', '', $preFix);
+        foreach ($productEtas as $productEta) {
+        	if(!$productEta->getProduct() instanceof Product || array_key_exists($productEta->getProduct()->getId(), $products))
+        		continue;
+        		$products[$productEta->getProduct()->getId()] = $productEta->getProduct();
         }
         return $products;
     }
@@ -280,7 +296,8 @@ abstract class ProductToMagento
    		// Add some data
    		$objPHPExcel->setActiveSheetIndex(0);
    		self::_log("Populating " . count($products) . ' product(s) onto the first sheet.', '', $preFix . self::TAB);
-   		$imageFiles = self::_genSheet($lastUpdatedInDB, $objPHPExcel->getActiveSheet(), $products, $preFix, $debug);
+		$activeSheet = $objPHPExcel->getActiveSheet();
+   		$imageFiles = self::_genSheet($lastUpdatedInDB, $activeSheet, $products, $preFix, $debug);
    		self::_log("Got " . count($imageFiles) . ' imageFile(s)', '', $preFix . self::TAB);
 
    		$filePath = self::$_outputFileDir ;
@@ -374,11 +391,13 @@ abstract class ProductToMagento
    	    $attributeSetDefault = 'Default';
    	    $attributeSetName = $attributeSetDefault;
    	    $enabled = true;
+   	    $totalStockOnHand = 0;
    	    $sku = $statusId = $productName = $rrpPrice = $weight = $shortDescription = $fullDecription = $feature = $supplierName = $supplierCode = $manufacturerName = $asNewFrom = $asNewTo = $specialPrice = $specialPriceFromDate = $specialPriceToDate = '';
    	    $categoryIds = array(2); //default category
    	    $groupPrices =  array();
    	    $tierPrices = array();
    	    $tierLevels = TierLevel::getAllByCriteria('id > 1');
+   	    $eta = '';
    	    foreach ($tierLevels as $tierLevel)
    	    {
    	    	$keyGroup = 'group_price:' . $tierLevel->getName();
@@ -535,7 +554,28 @@ abstract class ProductToMagento
 	   	        		else
 	   	        			$tierPrices[$key] = $tierQuantity . ':' . $tierPriceValue;
 	   	        	}
-	   	        }
+   	        	}
+   	    	}
+	       	$stock1 = $stock2  = 0;
+   	        foreach($product->getStocks() as $stock)
+   	        {
+   	        	switch ($stock->getStore()->getId())
+   	        	{
+   	        		case 1:
+   	        			$stock1 = intval($stock->getStatus()->getId());
+   	        			break;
+   	        		case 2:
+   	        			$stock2 = intval($stock->getStatus()->getId());
+   	        			break;
+   	        		default:
+   	        			break;
+   	        	}
+   	        }
+   	        $totalStockOnHand = $stock2 . $stock1;
+   	        
+   	        //Product ETA
+   	        if($product->getProductEta() instanceof ProductEta) {
+   	        	$eta = $product->getProductEta()->getEta();
    	        }
    	    }
    	    $categoryIds = array_unique($categoryIds);
@@ -586,7 +626,7 @@ abstract class ProductToMagento
    				"backorders" => '',
    				"use_config_backorders" => '',
    				"min_sale_qty" => '',
-   				"use_config_min_sale_qty" => '',
+   				"use_config_min_sale_qty" => $totalStockOnHand,
    				"max_sale_qty" => '',
    				"use_config_max_sale_qty" => '',
    				"all_ln_stock" => $statusId,
@@ -611,7 +651,9 @@ abstract class ProductToMagento
    				"is_recurring" => '',
    				"customtab" => $feature,
    				"customtabtitle" => $feature != '' ? 'Feature' : '',
-   				"media_gallery_reset" => 0);
+   				"media_gallery_reset" => 0,
+   				"eta" => $eta
+   		);
    		if (count($groupPrices) > 0)
    		{
    			foreach($groupPrices as $key => $groupPrice)

@@ -4,6 +4,7 @@
 var PageJs = new Class.create();
 PageJs.prototype = Object.extend(new BPCPageJs(), {
 	_customer: null
+	,_warningShowed : false
 	,_order: null
 	,setOrder: function(_order) {
 		this._order = _order;
@@ -452,6 +453,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				.insert({'bottom': new Element('btn', {'class': 'btn btn-danger btn-xs pull-right'})
 					.update('CANCEL THIS ' + tmp.me._order.type)
 					.observe('click', function() {
+						//if (jQuery(this).attr('disabled')) return;
 						tmp.me._showConfirmCancelOrderPanel(this);
 					})
 				});
@@ -530,7 +532,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							tmp.row.remove();
 						}
 					}
-
 					tmp.me._recalculateSummary();
 				})
 			});
@@ -549,8 +550,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				.insert({'bottom': new Element(tmp.tag, {'class': 'uprice col-xs-1'})
 					.insert({'bottom': tmp.isTitle === true || typeof(orderItem.unitPrice) === 'object' ? orderItem.unitPrice : tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('order-item', tmp.me.getCurrency(tmp.me.getValueFromCurrency(orderItem.unitPrice)), {'order-item': 'unitPrice', 'required': true}) )  })
 				})
-				.insert({'bottom': new Element(tmp.tag, {'class': 'tprice col-xs-1'})
-					.insert({'bottom': (tmp.isTitle === true || typeof(orderItem.tierPrice) === 'object') ? orderItem.tierPrice : tmp.me._getTierPrices(orderItem.product) })
+				.insert({'bottom': new Element(tmp.tag, {'class': 'trprice col-xs-1'})
+					.insert({'bottom': (tmp.isTitle === true || typeof(orderItem.tierPrice) === 'object') ? orderItem.tierPrice : orderItem.product && orderItem.product.id == 47511? tmp.me._getSurchargeBtns(orderItem.product): tmp.me._getTierPrices(orderItem.product) })
 				})
 				.insert({'bottom': new Element(tmp.tag, {'class': 'rprice col-xs-1'})
 					.insert({'bottom': (tmp.isTitle === true || typeof(orderItem.retailPrice) === 'object') ? orderItem.retailPrice : tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('order-item', tmp.me.getCurrency(tmp.me.getValueFromCurrency(orderItem.retailPrice)), {'order-item': 'retailPrice', disabled: true, 'required': true})  ) })
@@ -745,7 +746,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 						.update(new Element('textarea', {'new-order-item': 'itemDescription'}).setStyle('width: 100%').update(!product.name.blank() ? product.name : product.shortDescription))
 					});
 				jQuery('#' + tmp.me.modalId).modal('hide');
-				
 				qty = $F(tmp.inputRow.down('[new-order-item=qtyOrdered]')).strip();
 				//tmp.retailPrice = product.prices.size() === 0 ? 0 : product.prices[0].price;
 				tmp.retailPrice = tmp.me._getRetailPrice(product);
@@ -753,11 +753,28 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				if (tmp.tierPrice == 0 ) tmp.tierPrice = tmp.retailPrice;
 				tmp.inputRow.down('[new-order-item=unitPrice]').writeAttribute('value', tmp.me.getCurrency(tmp.tierPrice)).select();
 				tmp.inputRow.down('[new-order-item=retailPrice]').writeAttribute('value', tmp.me.getCurrency(tmp.retailPrice));
-				$(tmp.inputRow.down('.tprice')).update(tmp.me._getTierPrices(product));
+				$(tmp.inputRow.down('.trprice')).update(tmp.me._getTierPrices(product));
 				tmp.me._calculateNewProductPrice(tmp.inputRow, 'new-order-item');
 			})
 			;
 		return tmp.newRow;
+	}
+	/**
+	 * get local time
+	 */
+	,_getLocalTime: function(){
+		
+		var now = new Date();
+	    var utcTime = now;
+	    var dd = utcTime.getDate(); 
+	    var MM = utcTime.getMonth()+1;
+	    var yyyy = utcTime.getFullYear(); 
+	    var hh = utcTime.getHours(); 
+	    var mm = utcTime.getMinutes(); 
+	    var ss = utcTime.getSeconds(); 
+	    if(dd<10){dd='0'+dd} 
+	    if(MM<10){MM='0'+MM};
+	    return yyyy + "-" + MM + "-" + dd + " " + hh + ":" + mm + ":" + ss;
 	}
 	/**
 	 * get retail price
@@ -774,6 +791,12 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				if(price.type && parseInt(price.type.id) === 1) {
 					tmp.price = Number(price.price);
 				}
+				else if(price.type && (parseInt(price.type.id) === 2))
+				{
+					now = tmp.me._getLocalTime();
+					if ((now >= price.start) && (now <= price.end))
+						tmp.specilaPrice = Number(price.price);
+				}
 				else if(price.type && (parseInt(price.type.id) === 7))
 				{
 					tmp.srp = Number(price.price);
@@ -783,10 +806,60 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		if (tmp.srp) {
 			return tmp.srp;
 		}
+		if (tmp.specilaPrice) {
+			return tmp.specilaPrice;
+		}
 		if (tmp.price) {
 			return tmp.price;
 		}
 		return 0;
+	}
+	/**
+	 * Getting the surcharge buttons
+	 */
+	,_getSurchargeBtns: function(row)
+	{
+		var tmp = {};
+		tmp.me = this;
+		tmp.newDiv = new Element('div', {'class': 'surcharge-btns-div'})
+		.insert({'bottom': new Element('div', {'class': 'btn-group btn-group-xs visible-xs visible-md visible-sm visible-lg'})
+			.setStyle('margin-left: 3px;')
+			.insert({'bottom': new Element('span', {'class': 'btn btn-success'})
+				.insert({'bottom': new Element('span', {'class': 'hidden-xs hidden-sm'}).update('2%') })
+				.observe('click', function() {
+					tmp.subTotal = tmp.me.getValueFromCurrency(jQuery('[order-price-summary="subTotal"]').val());
+					tmp.unitInputBox = this.up('.order-item-row').down('input[order-item="unitPrice"]');
+					tmp.unitQtyInputBox = this.up('.order-item-row').down('input[order-item="qtyOrdered"]');
+					tmp.surcharge = tmp.me.getValueFromCurrency(jQuery(tmp.unitInputBox).val());
+					tmp.surchargeQty = jQuery(tmp.unitQtyInputBox).val();
+					tmp.subTotal = tmp.subTotal - tmp.surcharge * tmp.surchargeQty;
+					tmp.surcharge = tmp.subTotal * 0.02;
+					jQuery(tmp.unitInputBox).val(tmp.me.getCurrency(tmp.surcharge)).html(tmp.me.getCurrency(tmp.surcharge));
+					tmp.me._calculateNewProductPrice($(this).up('.item_row'), 'order-item');
+					tmp.me._recalculateSummary();
+				})
+			})
+		})
+		.insert({'bottom': new Element('div', {'class': 'btn-group btn-group-xs visible-xs visible-md visible-sm visible-lg'})
+			.setStyle('margin-left: 3px;')
+			.insert({'bottom': new Element('span', {'class': 'btn btn-primary'})
+				.insert({'bottom': new Element('span', {'class': 'hidden-xs hidden-sm'}).update('3%') })
+				.observe('click', function() {
+					tmp.subTotal = tmp.me.getValueFromCurrency(jQuery('[order-price-summary="subTotal"]').val());
+					tmp.unitInputBox = this.up('.order-item-row').down('input[order-item="unitPrice"]');
+					tmp.unitQtyInputBox = this.up('.order-item-row').down('input[order-item="qtyOrdered"]');
+					tmp.surcharge = tmp.me.getValueFromCurrency(jQuery(tmp.unitInputBox).val());
+					tmp.surchargeQty = jQuery(tmp.unitQtyInputBox).val();
+					tmp.subTotal = tmp.subTotal - tmp.surcharge * tmp.surchargeQty;
+					tmp.surcharge = tmp.subTotal * 0.03;
+					jQuery(tmp.unitInputBox).val(tmp.me.getCurrency(tmp.surcharge)).html(tmp.me.getCurrency(tmp.surcharge));
+					tmp.me._calculateNewProductPrice($(this).up('.item_row'), 'order-item');
+					tmp.me._recalculateSummary();
+					
+				})
+			})
+		});
+		return tmp.newDiv;
 	}
 	/**
 	 * Getting the tierprices for a product
@@ -796,7 +869,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me = this;
 		tiers = row.tierPrice;
 		//unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : 'N/A';
-		unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? row.totalOnHandValue/row.stockOnHand : 0;
+		unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? row.totalOnHandValue/row.stockOnHand : Number(row.buyinprice);
 		tmp.price = '';
 		tmp.specilaPrice = '';
 		tmp.srp = '';
@@ -808,7 +881,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				}
 				else if(price.type && (parseInt(price.type.id) === 2))
 				{
-					tmp.specilaPrice = Number(price.price);
+					now = tmp.me._getLocalTime();
+					if ((now >= price.start) && (now <= price.end))
+						tmp.specilaPrice = Number(price.price);
 				}
 				else if(price.type && (parseInt(price.type.id) === 7))
 				{
@@ -816,14 +891,13 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				}
 			});
 		}
-		if ((!tiers) || !unitCost) return '';
+		if ((!tiers) || !unitCost) return '&nbsp;';
 		tmp.tierStrings = [];
 		tiers.each(function(tier) {
 			warning = false;
 			if (tier.tierPriceType.id == 1)
 			{
 				tierPrice = Number((unitCost * (tier.value / 100) + unitCost) * 1.1).toFixed(2);
-				
 			}
 			else
 			{
@@ -831,11 +905,15 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			}
 			if (tmp.srp && tierPrice > tmp.srp)
 				warning = true;
+			if (tmp.specilaPrice && tierPrice > tmp.specilaPrice)
+				warning = true;
 			if (tmp.price && tierPrice > tmp.price)
 				warning = true;
 			tmp.tierStrings.push('<div ' + (warning? 'style="color : red;"' : '') + '><small><strong class="hidden-xs hide-when-info hidden-sm">' + tier.tierLevel.name + ': </strong>' + tmp.me.getCurrency(tierPrice) + ': <abbr title="Quantity" >' + (tier.quantity > 0 ? tier.quantity : '') + ' </abbr></small></div>');
 		})
-		return tmp.tierStrings.join('');
+		tierResult = tmp.tierStrings.join('');
+		if (tierResult == '') tierResult = '&nbsp;';
+		return tierResult;
 	}
 	/**
 	 * get tier price based on qty
@@ -856,7 +934,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				}
 				else if(price.type && (parseInt(price.type.id) === 2))
 				{
-					tmp.specilaPrice = Number(price.price);
+					now = tmp.me._getLocalTime();
+					if ((now >= price.start) && (now <= price.end))
+						tmp.specilaPrice = Number(price.price);
 				}
 				else if(price.type && (parseInt(price.type.id) === 7))
 				{
@@ -870,7 +950,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			if (tier.tierPriceType.id == 1)
 			{
 				tierPrice = Number((unitCost * (tier.value / 100) + unitCost) * 1.1).toFixed(2);
-				
 			}
 			else
 			{
@@ -879,17 +958,20 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			quantity = Number(tier.quantity);
 			if (quantity > qty)
 			{
-				if (tmp.srp)
+				if (tmp.srp && tierPriceSeleted > tmp.srp)
 					tierPriceSeleted = tmp.srp;
+				else if (tmp.specilaPrice && tierPriceSeleted > tmp.specilaPrice)
+					tierPriceSeleted = tmp.specilaPrice;
 				else if (tmp.price && tierPriceSeleted > tmp.price)
 					tierPriceSeleted = tmp.price;
 				return tierPriceSeleted;
 			}
 			tierPriceSeleted = tierPrice;
 		})
-					
-		if (tmp.srp)
+		if (tmp.srp && tierPriceSeleted > tmp.srp)
 			tierPriceSeleted = tmp.srp;
+		else if (tmp.specilaPrice && tierPriceSeleted > tmp.specilaPrice)
+			tierPriceSeleted = tmp.specilaPrice;
 		else if (tmp.price && tierPriceSeleted > tmp.price)
 			tierPriceSeleted = tmp.price;
 		return tierPriceSeleted;
@@ -905,14 +987,12 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.pageNo = (pageNo || 1);
 		tmp.me._signRandID(tmp.btn);
 		tmp.searchTxtBox = !$(tmp.btn).up('.product-autocomplete') || !$(tmp.btn).up('.product-autocomplete').down('.search-txt') ? $($(tmp.btn).retrieve('searchBoxId')) : $(tmp.btn).up('.product-autocomplete').down('.search-txt');
-
 		tmp.me._signRandID(tmp.searchTxtBox);
 		tmp.searchTxt = $F(tmp.searchTxtBox);
 
 		tmp.me.postAjax(tmp.me.getCallbackId('searchProduct'), {'searchTxt': tmp.searchTxt, 'pageNo': tmp.pageNo, 'customerId': tmp.me._customer ? tmp.me._customer.id : ''}, {
 			'onLoading': function() {
 				jQuery('#' + tmp.btn.id).button('loading');
-				jQuery('#' + tmp.searchTxtBox.id).button('loading');
 			}
 			,'onSuccess': function(sender, param) {
 				if(tmp.showMore === false)
@@ -921,7 +1001,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					tmp.resultList = $(btn).up('.search-product-list');
 				try {
 					tmp.result = tmp.me.getResp(param, false, true);
-					if(!tmp.result || !tmp.result.items || tmp.result.items.size() === 0)
+					if(!tmp.result || !tmp.result.items || tmp.result.items.length === 0)
 						throw 'Nothing Found for: ' + tmp.searchTxt;
 					tmp.me._signRandID(tmp.searchTxtBox);
 					tmp.result.items.each(function(product) {
@@ -951,7 +1031,6 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			}
 			,'onComplete': function(sender, param) {
 				jQuery('#' + tmp.btn.id).button('reset');
-				jQuery('#' + tmp.searchTxtBox.id).button('reset');
 			}
 		});
 		return tmp.me;
@@ -1031,7 +1110,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		//calculate the total due
 		tmp.totalPaid = (jQuery('[order-price-summary="totalPaidAmount"]').length > 0 ? jQuery('[order-price-summary="totalPaidAmount"]').val() : 0);
 		tmp.totalDue = (tmp.subTotal * 1 - tmp.totalPaid * 1);
-		if(tmp.totalDue < 0) {
+		if(tmp.totalDue < 0 && !tmp.me._warningShowed) {
+			tmp.me._warningShowed = true;
 			tmp.me.showModalBox(
 				'<h4 class="text-danger">Attention!</h4>',
 				'<div><strong>The customer has paid more than the due amount?</strong></div><div><span class="btn btn-primary" onclick="pageJs.hideModalBox();">OK</span>',
@@ -1169,14 +1249,15 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.totalPrice = tmp.unitPrice * (1 - tmp.discount/100) * tmp.qty;
 		$(tmp.row.down('[' + attrName + '=totalPrice]')).value = tmp.me.getCurrency( tmp.totalPrice );
 		tmp.product = row.retrieve('product') ? row.retrieve('product') : (row.retrieve('data') && row.retrieve('data').product ? row.retrieve('data').product : {});
-		//tmp.tierPrice = tmp.me._getTierPrice(product, tmp.qty);
 		if(tmp.product.id) {
 			tmp.unitCost = tmp.product.unitCost;
 			tmp.margin = tmp.me.getCurrency( tmp.totalPrice * 1 - tmp.unitCost * 1.1 * tmp.qty );
 			if(tmp.row.down('.margin'))
 				$(tmp.row.down('.margin')).update( tmp.margin + (parseInt(tmp.unitCost) === 0 ? '<div><small class="label label-danger">No Cost Yet</small</div>' : '') );
 		}
+
 		tmp.rowData = tmp.row.retrieve('data');
+
 		tmp.rowData.unitPrice = tmp.unitPrice;
 		tmp.rowData.discount = tmp.discount;
 		tmp.rowData.qtyOrdered = tmp.qty;
@@ -1244,14 +1325,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			,'tierPrice': ''
 			,'retailPrice': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', tmp.me.getCurrency(0), {'new-order-item': 'retailPrice', 'required': true, 'disabled': true}) )
 			,'qtyOrdered': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', 1, {'new-order-item': 'qtyOrdered', 'required': true}) )
-			,'discount': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', 0, {'new-order-item': 'discount'}, function(event) {
-					if($F($(this)).blank() || $F($(this)) > 100) {
-						$(this).value = 0;
-						$(this).select();
-					}
-					tmp.me._calculateNewProductPrice($(this).up('.item_row'), 'new-order-item');
-				})
-			)
+			,'discount': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', 0, {'new-order-item': 'discount'}) )
 			,'totalPrice': tmp.me._getFormGroup( null, tmp.me._getOrderItemInputBox('new-order-item', tmp.me.getCurrency(0), {'new-order-item': 'totalPrice', 'required': true, 'disabled': true}) )
 			,'margin': tmp.me.getCurrency(0)
 			, 'btns': new Element('span', {'class': 'btn-group btn-group-sm pull-right'})
@@ -1644,8 +1718,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					'id': item.id,
 					'product': item.product,
 					'itemDescription': item.itemDescription,
-					'tierPrice': tmp.me.getCurrency(tmp.unitPriceValue),
 					'unitPrice': tmp.me.getCurrency(tmp.unitPriceValue),
+					'tierPrice': tmp.me.getCurrency(tmp.unitPriceValue),
 					'retailPrice': tmp.me.getCurrency(tmp.me._getRetailPrice(item.product)),
 					'qtyOrdered': item.qtyOrdered,
 					'discount' : Math.ceil(tmp.shouldTotalPriceValue) === 0 ? 0 : Math.round(((tmp.shouldTotalPriceValue - tmp.totalPriceValue) * 100) / tmp.shouldTotalPriceValue),
@@ -1697,6 +1771,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me = this;
 		tmp.canEditPayment = (canEditPayment || false);
 		jQuery('.btn').not('.new_comments_wrapper #add_new_comments_btn').attr('disabled', true);
+		//jQuery('.btn').not('.new_comments_wrapper #add_new_comments_btn').remove();
 		jQuery('input').attr('disabled', true);
 		jQuery('select').attr('disabled', true);
 		jQuery('.form-control').attr('disabled', true);

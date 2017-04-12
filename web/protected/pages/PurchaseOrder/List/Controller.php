@@ -39,6 +39,7 @@ class Controller extends CRUDPageAbstract
 		$js .= 'pageJs';
 		$js .= ".setCallbackId('deactivateItems', '" . $this->deactivateItemBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('genReportmBtn', '" . $this->genReportmBtn->getUniqueID() . "')";
+		$js .= ".setCallbackId('pickupSaveBtn', '" . $this->pickupSaveBtn->getUniqueID() . "')";
 		$js .= "._bindSearchKey()";
 		$js .= "._loadChosen()";
 		$js .= "._loadDataPicker();";
@@ -135,7 +136,7 @@ class Controller extends CRUDPageAbstract
             			{
             				if(trim($value) !== '')
             				{
-            					$where[] = 'id in (select purchaseOrderId from receivingitem rec_item where po.id = rec_item.purchaseOrderId and rec_item.active =1 and rec_item.invoiceNo like ?)';
+            					$where[] = 'id in (select purchaseOrderId from receivingitem rec_item where po.id = rec_item.purchaseOrderId and rec_item.active =1 and po.storeId = rec_item.storeId and rec_item.invoiceNo like ?)';
             					$params[] = '%' . trim($value) . '%';
             				}
             				break;
@@ -143,7 +144,7 @@ class Controller extends CRUDPageAbstract
             		case 'pro.ids':
             			{
 							$value = explode(',', $value);
-							$query->eagerLoad("PurchaseOrder.items", 'inner join', 'po_item', 'po_item.purchaseOrderId = po.id and po_item.active = 1');
+							$query->eagerLoad("PurchaseOrder.items", 'inner join', 'po_item', 'po_item.purchaseOrderId = po.id and po_item.active = 1 and po.storeId = po_item.storeId');
 							$where[] = 'po_item.productId in ('.implode(", ", array_fill(0, count($value), "?")).')';
 							$params = array_merge($params, $value);
 							break;
@@ -151,6 +152,8 @@ class Controller extends CRUDPageAbstract
             	}
             	$noSearch = false;
             }
+            $where[] = 'po.storeId = ?';
+            $params[] = Core::getUser()->getStore()->getId();
             $objects = PurchaseOrder::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('po.id' => 'desc'), $stats);
             $results['pageStats'] = $stats;
             $results['items'] = array();
@@ -185,8 +188,24 @@ class Controller extends CRUDPageAbstract
 
     		if(!$item instanceof PurchaseOrder)
     			throw new Exception();
+    		
     		$item->setActive(false)
     			->save();
+    		$poItems = PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ?', array($id));
+    		foreach ($poItems as $poItem){
+    			$poItem->setActive(false)
+    				->save();
+    		}
+    		$poEtas = ProductEta::getAllByCriteria('purchaseOrderId = ?', array($id));
+    		foreach ($poEtas as $poEta){
+    			$poEta->setActive(false)
+    			->save();
+    		}
+    		$pickups = PickupDelivery::getAllByCriteria('orderId = ?', array($id));
+    		foreach ($pickups as $pickup){
+    			$pickup->setActive(false)
+    			->save();
+    		}
     		$results['item'] = $item->getJson();
     	}
     	catch(Exception $ex)
@@ -279,7 +298,7 @@ class Controller extends CRUDPageAbstract
     						{
     							if(trim($value) !== '')
     							{
-    								$where[] = 'id in (select purchaseOrderId from receivingitem rec_item where po.id = rec_item.purchaseOrderId and rec_item.active =1 and rec_item.invoiceNo like ?)';
+    								$where[] = 'id in (select purchaseOrderId from receivingitem rec_item where po.id = rec_item.purchaseOrderId and rec_item.active =1 and po.storeId = rec_item.storeId and rec_item.invoiceNo like ?)';
     								$params[] = '%' . trim($value) . '%';
     							}
     							break;
@@ -287,7 +306,7 @@ class Controller extends CRUDPageAbstract
     					case 'pro.ids':
     						{
     							$value = explode(',', $value);
-    							$query->eagerLoad("PurchaseOrder.items", 'inner join', 'po_item', 'po_item.purchaseOrderId = po.id and po_item.active = 1');
+    							$query->eagerLoad("PurchaseOrder.items", 'inner join', 'po_item', 'po_item.purchaseOrderId = po.id and po_item.active = 1 and po.storeId = po_item.storeId');
     							$where[] = 'po_item.productId in ('.implode(", ", array_fill(0, count($value), "?")).')';
     							$params = array_merge($params, $value);
     							break;
@@ -295,6 +314,8 @@ class Controller extends CRUDPageAbstract
     				}
     				$noSearch = false;
     		}
+    		$where[] = 'po.storeId = ?';
+    		$params[] = Core::getUser()->getStore()->getId();
     		$objects = PurchaseOrder::getAllByCriteria(implode(' AND ', $where), $params, false, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('po.id' => 'desc'), $stats);
     		if(count($objects) === 0)
     			throw new Exception('No result found!');
@@ -358,6 +379,44 @@ class Controller extends CRUDPageAbstract
     	$asset = Asset::registerAsset($fileName, file_get_contents($filePath), Asset::TYPE_TMP);
     	return $asset;
     }
-    
+    /**
+     * Save arrangePickup flag
+     *
+     * @param unknown $sender
+     * @param unknown $param
+     * @throws Exception
+     */
+    public function pickupSave($sender, $param)
+    {
+    	
+    	$results = $errors = array();
+    	
+    	try
+    	{
+    		Dao::beginTransaction();
+    		foreach ($param->CallbackParameter as $data){
+    			$id = isset($data->id) ? $data->id : '';
+    			if(!($po = PurchaseOrder::get($id)) instanceof PurchaseOrder)
+    				throw new Exception('Invalid Purchase Order!');
+    			$poItems = PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ? and storeId = ?', array($id, Core::getUser()->getStore()->getId()));
+    			foreach ($poItems as $poItem){
+    				$pickup = PickupDelivery::getAllByCriteria('itemId = ? and storeId = ?', array($poItem->getId(), Core::getUser()->getStore()->getId()));
+    				if (count($pickup) == 0){
+	    				$product = $poItem->getProduct();
+	    				PickupDelivery::create($product, $po, $poItem, PickupDelivery::TYPE_PICKUP);
+    				}
+    			}
+    			
+    			$results['items'][] = array();
+    		}
+    		Dao::commitTransaction();
+    	}
+    	catch(Exception $ex)
+    	{
+    		Dao::rollbackTransaction();
+    		$errors[] = $ex->getMessage();
+    	}
+    	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+    }
 }
 ?>

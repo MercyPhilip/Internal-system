@@ -24,7 +24,7 @@ abstract class DataFeedImporter
      * @var string
      */
     private static $_logFile = '';
-    private static $_api = array('URL' => "http://192.168.1.8/api/", "token" => '');
+    private static $_api = array('URL' => "https://192.168.1.8/api/", "token" => '');
 
     /**
      * The runner
@@ -120,6 +120,7 @@ abstract class DataFeedImporter
         $extraOptions = array( CURLOPT_CUSTOMREQUEST => "POST",
             CURLOPT_POSTFIELDS => $data,
             CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_SSL_VERIFYPEER => false,
             CURLOPT_HTTPHEADER => array(
                 'Content-Type: application/json',
                 'Content-Length: ' . strlen($data),

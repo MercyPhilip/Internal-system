@@ -7,6 +7,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	,suppliers: []
 	,productCategories: []
 	,productStatuses: []
+	,storeId: null
 	,_showRightPanel: false
 	,_getTitleRowData: function() {
 		return {'sku': 'SKU', 'name': 'Product Name', 'assetAccNo': 'Asset Acc #', 'revenueAccNo': 'Revenue Acc #', 'costAccNo': 'Cost Acc #', 'locations': 'Locations', 'invenAccNo': 'AccNo.', 'manufacturer' : {'name': 'Brand'}, 'supplierCodes': [{'supplier': {'name': 'Supplier'}, 'code': ''}],  'active': 'act?', 'stockOnOrder': 'OnOrder', 'stockOnHand': 'OnHand', 'stockOnPO': 'OnPO'};
@@ -96,7 +97,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					$$('#showSearch').first().click();
 				else {
 					tmp.me.deSelectProduct();
-					tmp.me.getSearchCriteria().getResults(true, tmp.me._pagination.pageSize);
+					tmp.me.getSearchCriteria().getResults(true, tmp.me._pagination.pageSize, tmp.me.storeId);
 				}
 			});
 		$('searchDiv').getElementsBySelector('[search_field]').each(function(item) {
@@ -246,11 +247,12 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.me._showRightPanel = false;
 		return tmp.me;
 	}
-	,getResults: function(reset, pageSize) {
+	,getResults: function(reset, pageSize, storeId) {
 		var tmp = {};
 		tmp.me = this;
 		tmp.reset = (reset || false);
 		tmp.resultDiv = $(tmp.me.resultDivId);
+		tmp.me.storeId = storeId ? storeId : tmp.me.storeId;
 		
 		if(tmp.reset === true)
 			tmp.me._pagination.pageNo = 1;
@@ -405,7 +407,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 						.insert({'bottom': new Element('div', {'class': 'col-xs-4'})
 							.insert({'bottom': new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.active}) })
 						})
-						.insert({'bottom': new Element('div', {'class': 'col-xs-8'})
+						.insert({'bottom': jQuery('#storeId').attr('value') != 1 ? '' : new Element('div', {'class': 'col-xs-8'})
 							.insert({'bottom': new Element('div', {'class': 'btn-group'})
 								.insert({'bottom': new Element('span', {'class': 'btn btn-primary btn-xs'})
 									.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-pencil'}) })
@@ -415,7 +417,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 									tmp.me._openProductDetails(row);
 								})
 								.insert({'bottom': (row.active === true ? 
-									new Element('span', {'class': 'btn btn-danger btn-xs'})
+									new Element('span', {'class': 'btn btn-danger btn-xs toggleActiveBtn'})
 										.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-trash'}) })
 										.observe('click', function(event) {
 											Event.stop(event);
@@ -424,7 +426,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 												tmp.me.toggleActive(false, row);
 										})
 									:
-									new Element('span', {'class': 'btn btn-success btn-xs'})
+									new Element('span', {'class': 'btn btn-success btn-xs toggleActiveBtn'})
 										.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-repeat'}) })
 										.observe('click', function(event) {
 											Event.stop(event);
@@ -437,13 +439,17 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 						})
 				) })
 			});
-		if(tmp.isTitle === false) {
-			tmp.me.observeClickNDbClick(tmp.row, function() {
-				tmp.me._displaySelectedProduct(row);
-			}, function(){
-				if(tmp.me._singleProduct !== true)
-					tmp.me._openProductDetails(row);
-			});
+//		if(tmp.isTitle === false) {
+//			tmp.me.observeClickNDbClick(tmp.row, function() {
+//				tmp.me._displaySelectedProduct(row);
+//			}, function(){
+//				if(tmp.me._singleProduct !== true)
+//					tmp.me._openProductDetails(row);
+//			});
+//		}
+		if (tmp.me.storeId !== 1)
+		{
+			jQuery('.toggleActiveBtn').hide();
 		}
 		return tmp.row;
 	}

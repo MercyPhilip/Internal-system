@@ -45,7 +45,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.isTitle = (isTitle || false);
 		tmp.row = new Element('tr', {'class': (tmp.isTitle === true ? '' : 'btn-hide-row')}).store('data', row)
 			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-2'}).update(row.name) })
-			.insert({'bottom': new Element(tmp.tag, {'class': 'text-right btns col-xs-2'}).update(
+			.insert({'bottom': jQuery('#storeId').attr('value') != 1 ? '' :
+				new Element(tmp.tag, {'class': 'text-right col-xs-2'}).update(
 				tmp.isTitle === true ?  
 				(new Element('span', {'class': 'btn btn-primary btn-xs', 'title': 'New'})
 					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-plus'}) })

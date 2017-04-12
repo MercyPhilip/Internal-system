@@ -55,7 +55,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'allowMultiple col-xs-1'})
 				.insert({'bottom': (tmp.isTitle === true ? row.allowMultiple : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.allowMultiple}) ) })
 			})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'text-right btns col-xs-2'}).update(
+			.insert({'bottom': jQuery('#storeId').attr('value') != 1 ? '' : new Element(tmp.tag, {'class': 'text-right btns col-xs-2'}).update(
 				tmp.isTitle === true ?  
 				(new Element('span', {'class': 'btn btn-primary btn-xs', 'title': 'New'})
 					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-plus'}) })

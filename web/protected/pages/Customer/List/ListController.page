@@ -3,16 +3,22 @@
 <com:Application.controls.chosen.Chosen />
 <com:Application.controls.select2.select2 />
 <com:TCallback ID="deactivateItemBtn" OnCallback = 'Page.deactivateItems' />
+<com:TCallback ID="mergeBtn" OnCallback = 'Page.mergeCustomers' />
+<com:TCallback ID="integrateActonBtn" OnCallback = 'Page.integrateActon' />
+<com:TCallback ID="updateActon" OnCallback = 'Page.updateActon' />
+<com:TCallback ID="checkActOnEnable" OnCallback = 'Page.checkActOnEnable' />
 	<div class="pagewrapper item-list-wrapper">
 		<div class="panel panel-default" id="searchPanel">
 			<div class="panel-heading">
 				<label for="showSearch">Show Search Criteria?</label>
-				<input id="showSearch" type="checkbox" onclick="$(this).up('#searchPanel').down('.panel-body').toggle();">
-				<span class="pull-right">
-			   		<span id="searchBtn" class="btn btn-primary form-control input-sm" data-loading-text="searching ..." >Search</span>
+				<input id="showSearch" type="checkbox" checked onclick="$(this).up('#searchPanel').down('.panel-body').toggle();">
+				<span class="pull-right btn-group">
+					<span id="integrateActonBtn"  class="btn btn-success btn-sm" data-loading-text="integrating ..."  onclick="pageJs.integrateActon(this);">Push list to Act-On</span>
+					<span id="mergeBtn" class="btn btn-info btn-sm" data-loading-text="merging ..." >Merge Customers</span>
+					<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span>
 				</span>
 			</div>
-			<div class="panel-body search-panel" id="searchDiv" style="display: none;">
+			<div class="panel-body search-panel" id="searchDiv">
 				<div class="row">
 					<div class="col-sm-3">
 						<div class="form-group form-group-sm input-group">
@@ -39,11 +45,58 @@
                        </div>
 					</div>
 				</div>
+		
+				<div class="row">
+					<div class="col-sm-2">
+						<div class="form-group form-group-sm input-group">
+                           <label id="labelGen" class="input-group-addon">General Group:</label>
+                           <div class="form-control input-sm">
+                           		<input id="groupGen" type="checkbox" search_field="cust.groupGen" style="margin-top:-6px" class="form-control input-sm groupGen">
+                           </div>
+                       </div>
+					</div>				
+					<div class="col-sm-2">
+						<div class="form-group form-group-sm input-group">
+                           <label id="labelCom" class="input-group-addon ">Commercial Group:</label>
+                           <div class="form-control input-sm">
+                           		<input id="groupCom" type="checkbox" search_field="cust.groupCom" style="margin-top:-6px" class="form-control input-sm groupCom">
+                           </div>
+                       </div>
+					</div>
+					<div class="col-sm-2">
+						<div class="form-group form-group-sm input-group">
+                           <label id="labelEdu" class="input-group-addon">Educational Group:</label>
+                           		<div class="form-control input-sm">
+                           <input id="groupEdu" type="checkbox" search_field="cust.groupEdu" style="margin-top:-6px" class="form-control input-sm groupCom">
+                           </div>
+                       </div>
+					</div>
+					<div class="col-sm-2">
+						<div class="form-group form-group-sm input-group">
+                           <label id="labelGame" class="input-group-addon">Gaming Group:</label>
+                           		<div class="form-control input-sm">
+	                            	<input id="groupGame" type="checkbox" search_field="cust.groupGame" style="margin-top:-6px" class="form-control input-sm groupCom">
+	                            </div>
+                       </div>
+					</div>
+                        <div id="respondingNum" class="col-sm-1">
+							<div class="form-group form-group-sm input-group">
+				                <label class="contorl-label input-group-addon" title="Opened And Clicked Number">Responding Num</label>
+				                <select search_field="cust.num" class="chosen form-control input-sm">
+				                	<option value="2">All</option>
+				                	<option value="0">=0</option>
+                               		<option value="1">>0</option>
+				                </select>
+	                        </div>
+                        </div>					
+					
+					
+				</div>				
 			</div>
 		</div>
 		<div class="panel panel-default list-panel">
 			<div class="panel-heading">
-				Found <label id="total-found-count">0</label> <%= $this->getFocusEntity() %>:
+				Found <label id="total-found-count">0</label> <%= $this->getFocusEntity() %>. <label id="total-selected-count">0</label> Selected
 			</div>
 			<small class="table-responsive">
                 <table class="table table-hover table-striped" id="item-list"></table>

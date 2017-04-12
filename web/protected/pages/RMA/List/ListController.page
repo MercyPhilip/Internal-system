@@ -15,42 +15,66 @@
 			</div>
 			<div class="panel-body search-panel" id="searchDiv" style="display: unset;">
 				<div class="row">
-					<div class="col-sm-4">
+					<div class="col-sm-2">
 						<div class="form-group form-group-sm input-group">
-                           <label class="input-group-addon">RMA No:</label>
-                           <input type="text" search_field="ra.raNo" placeholder="RMA Number" class="form-control input-sm">
+                           <label class="input-group-addon">BPC RMA No:</label>
+                           <input type="text" search_field="ra.raNo" placeholder="BPC RMA Number" class="form-control input-sm">
                        </div>
 					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-2">
+						<div class="form-group form-group-sm input-group">
+                           <label class="input-group-addon">Supplier RMA No:</label>
+                           <input type="text" search_field="ra.supplierRaNo" placeholder="Supplier RMA Number" class="form-control input-sm">
+                       </div>
+					</div>
+					<div class="col-sm-2">
 						<div class="form-group form-group-sm input-group">
                            <label class="input-group-addon">Status:</label>
                            <input type="text" search_field="ra.status" placeholder="Status" class="form-control input-sm">
                        </div>
 					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-3">
 						<div class="form-group form-group-sm input-group">
                            <label class="input-group-addon">Description:</label>
-                           <input type="text" search_field="ra.description" placeholder="The Description of credit note" class="form-control input-sm">
+                           <input type="text" search_field="ra.description" placeholder="The Description of RMA" class="form-control input-sm">
+                       </div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group form-group-sm input-group">
+                           <label class="input-group-addon">Order No:</label>
+                           <input type="text" search_field="ord.orderNo" placeholder="The Order Number for RMA" class="form-control input-sm">
                        </div>
 					</div>
 				</div>
 				<div class="row">
-					<div class="col-sm-4">
-						<div class="form-group form-group-sm input-group">
-                           <label class="input-group-addon">Order No:</label>
-                           <input type="text" search_field="ord.orderNo" placeholder="The Order Number for credit note" class="form-control input-sm">
-                       </div>
-					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-2">
 						<div class="form-group form-group-sm input-group">
                            <label class="input-group-addon">Customer:</label>
-                           <input type="text" search_field="cust.id" placeholder="The Customer for credit note" class="form-control input-sm">
+                           <input type="text" search_field="cust.id" placeholder="The Customer for RMA" class="form-control input-sm">
                        </div>
 					</div>
-					<div class="col-sm-4">
+					<div class="col-sm-3">
 						<div class="form-group form-group-sm input-group">
                            <label class="input-group-addon">Product:</label>
-                           <input type="text" search_field="pro.ids" placeholder="The Product for credit note" class="form-control input-sm">
+                           <input type="text" search_field="pro.ids" placeholder="The Product for RMA" class="form-control input-sm">
+                       </div>
+					</div>
+					<div class="col-sm-2">
+						<div class="form-group form-group-sm input-group">
+                           <label class="input-group-addon">Serial No:</label>
+                           <input type="text" search_field="recv.serialNo" placeholder="The Serial Number for RMA" class="form-control input-sm">
+                       </div>
+					</div>
+					<div class="col-sm-3">
+						<div class="form-group form-group-sm input-group">
+                           <label class="input-group-addon">Purchase Order No:</label>
+                           <input type="text" search_field="po.purchaseorderNo" placeholder="The Purchase Order Number for RMA" class="form-control input-sm">
+                       </div>
+					</div>
+					<div class="col-sm-2">
+						<div class="form-group form-group-sm input-group">
+                           <label class="input-group-addon">Supplier:</label>
+                           <input type="text" search_field="po.supplierId" placeholder="The Supplier for RMA" class="form-control input-sm">
                        </div>
 					</div>
 				</div>

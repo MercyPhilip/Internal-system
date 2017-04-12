@@ -31,8 +31,10 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		if(!window.parent)
 			return;
 		tmp.parentWindow = window.parent;
-		if(tmp.parentWindow.pageJs.refreshResultRow) {
-			tmp.parentWindow.pageJs.refreshResultRow(row);
+		if(tmp.parentWindow && tmp.parentWindow.pageJs) {
+			if(tmp.parentWindow.pageJs.refreshTaskRow && row) {
+				tmp.parentWindow.pageJs.refreshTaskRow(row)
+			}
 		}
 	}
 	,_preSubmit: function (btn) {
@@ -184,7 +186,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				,url: '/ajax/getAll'
 				,type: 'POST'
 				,data: function (params) {
-					return {"searchTxt": 'name like ?', 'searchParams': ['%' + params + '%'], 'entityName': 'Customer', 'pageNo': 1};
+					return {"searchTxt": 'name like ? and storeId = ?', 'searchParams': ['%' + params + '%', jQuery('#storeId').attr('value')], 'entityName': 'Customer', 'pageNo': 1, 'userId' : jQuery('#userId').attr('value')};
 				}
 				,results: function(data, page, query) {
 					tmp.result = [];
@@ -221,7 +223,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				 ,url: '/ajax/getAll'
 		         ,type: 'POST'
 	        	 ,data: function (params) {
-	        		 return {"searchTxt": 'orderNo like ?', 'searchParams': ['%' + params + '%'], 'entityName': 'Order', 'pageNo': 1};
+	        		 return {"searchTxt": 'orderNo like ? and storeId = ?', 'searchParams': ['%' + params + '%', jQuery('#storeId').attr('value')], 'entityName': 'Order', 'pageNo': 1, 'userId' : jQuery('#userId').attr('value')};
 	        	 }
 				 ,results: function(data, page, query) {
 					 tmp.result = [];
@@ -263,8 +265,8 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				,type: 'POST'
 				,data: function (params) {
 					return {
-						'searchTxt': 'personId in (select id from person p where concat(p.firstName, " ", p.lastName) like ?)',
-						'searchParams': ['%' + params + '%'],
+						'searchTxt': 'personId in (select id from person p where concat(p.firstName, " ", p.lastName) like ? and storeId = ?)',
+						'searchParams': ['%' + params + '%', jQuery('#storeId').attr('value')],
 						'entityName': 'UserAccount',
 						'pageNo': 1
 					};

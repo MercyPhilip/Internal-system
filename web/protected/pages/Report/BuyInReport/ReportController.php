@@ -117,16 +117,17 @@ class ReportController extends BPCPageAbstract
             $wheres[] = "rec.updated between '" . $from . "' and '" . $to . "'";
             
             $joins[] = 'inner join productprice pp on (pp.productId = pro.id and pp.active = 1 and pp.typeId = 1)';
-            $joins[] = 'inner join receivingitem rec on (rec.productId = pro.id and rec.active =1)';
-            $joins[] = 'inner join purchaseorder po on (po.id = rec.purchaseOrderId and po.active =1)';
+            $joins[] = 'inner join receivingitem rec on (rec.productId = pro.id and rec.active =1 and rec.storeId = :storeId)';
+            $joins[] = 'inner join purchaseorder po on (po.id = rec.purchaseOrderId and po.active =1 and po.storeId = :storeId)';
             $joins[] = 'left outer join supplier s on (po.supplierId = s.`id` and s.active =1)';
             $joins[] = 'left outer join manufacturer m on (pro.manufacturerId = m.`id` and m.active =1)';
+            $params['storeId'] = Core::getUser()->getStore()->getId();
             $sql = "select pro.id `productId`, pro.sku `sku`, pro.name `name`, 
             		ifnull(rec.unitPrice, '') buyinprice, ifnull(DATE_FORMAT(rec.updated, '%Y-%m-%d'), '') buyindate, 
             		s.`name` supplier, m.`name` brand, po.purchaseOrderNo purchaseOrderNo,
-            		sum(ifnull(rec.qty, 0)) qty
+            		sum(ifnull(rec.qty, 0)) qty, ifnull(rec.invoiceNo, '') invoiceNo
             		from product pro " . implode(' ', $joins) . (count($wheres) > 0 ? (" where " . implode(' AND ', $wheres)) : '');
-            $sql = $sql . " group by pro.id, pro.sku, pro.name, rec.unitPrice, DATE_FORMAT(rec.updated, '%Y-%m-%d'), s.`name`, m.`name`,po.purchaseOrderNo order by pro.sku, rec.updated desc";
+            $sql = $sql . " group by pro.id, pro.sku, pro.name, rec.unitPrice, DATE_FORMAT(rec.updated, '%Y-%m-%d'), s.`name`, m.`name`,po.purchaseOrderNo, rec.invoiceNo order by pro.sku, rec.updated desc";
             
             $result = Dao::getResultsNative($sql, $params, PDO::FETCH_ASSOC);
             if(count($result) === 0)
@@ -162,6 +163,7 @@ class ReportController extends BPCPageAbstract
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Supplier');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Brand');
 	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Purchase Order No');
+	    $activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, 'Supplier Invoice No');
 	    $rowNo++;
 	    // data row
 	    foreach($data as $rowNoData)
@@ -175,6 +177,7 @@ class ReportController extends BPCPageAbstract
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['supplier']);
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['brand']);
 	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['purchaseOrderNo']);
+	    	$activeSheet->setCellValueByColumnAndRow($columnNo++ , $rowNo, $rowNoData['invoiceNo']);
 	    	
 	    	$rowNo++;
 	    }

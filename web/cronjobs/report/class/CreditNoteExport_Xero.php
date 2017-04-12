@@ -59,19 +59,12 @@ class CreditNoteExport_Xero extends ExportAbstract
 			$fromDate = self::$_dateRange['start'];
 			$toDate = self::$_dateRange['end'];
 		}
-		$creditNotes = CreditNote::getAllByCriteria('applyDate >= :fromDate and applyDate < :toDate', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate)));
+		$creditNotes = CreditNote::getAllByCriteria('applyDate >= :fromDate and applyDate < :toDate and storeId = :storeId', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate), 'storeId' => Core::getUser()->getStore()->getId()));
 
 		$return = array();
 		foreach($creditNotes as $creditNote)
 		{
-// 			$orderStatus = $creditNote->getOrder()->getStatus()->getId();
-// 			$orderType = $creditNote->getOrder()->getType();
 
-// 			//file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ':' . $orderType .  ":" . $orderStatus . PHP_EOL, FILE_APPEND | LOCK_EX);
-// 			if (($orderType == Order::TYPE_INVOICE) && ($orderStatus == OrderStatus::ID_CANCELLED))
-// 			{
-// 				continue;
-// 			}
 			//common fields
 			$customer = $creditNote->getCustomer();
 			$row = array(
@@ -134,7 +127,7 @@ class CreditNoteExport_Xero extends ExportAbstract
 	}
 	protected static function _getMailTitle()
 	{
-		return 'CreditNote Export for Xero from last day';
+		return Core::getUser()->getStore()->getName() . ' : CreditNote Export for Xero from last day';
 	}
 	protected static function _getMailBody()
 	{

@@ -16,7 +16,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					type: 'POST',
 					data: function(params, page) {
 						if(jQuery(element).attr('entityName') === 'Product')
-							return {"searchTxt": 'sku like ? or name like ?', 'searchParams': ['%' + params + '%', '%' + params + '%'], 'entityName': jQuery(element).attr('entityName'), 'pageNo': page};
+							return {"searchTxt": 'sku like ? or name like ?', 'searchParams': ['%' + params + '%', '%' + params + '%'], 'entityName': jQuery(element).attr('entityName'), 'pageNo': page, 'userId' : jQuery('#userId').attr('value')};
 						else
 							return {"searchTxt": 'name like ?', 'searchParams': ['%' + params + '%'], 'entityName': jQuery(element).attr('entityName'), 'pageNo': page};
 					},

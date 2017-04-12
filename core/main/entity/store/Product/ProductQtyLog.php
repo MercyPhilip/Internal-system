@@ -119,7 +119,7 @@ class ProductQtyLog extends InfoEntityAbstract
 	 * entity id
 	 * @var int
 	 */
-	private $entityId = '';
+	private $entityId = 0;
 	/**
 	 * type
 	 * @var string
@@ -567,7 +567,7 @@ class ProductQtyLog extends InfoEntityAbstract
 	{
 		if(trim($this->getId()) !== '')
 			throw new EntityException('You can NOT change the details of a ' . get_class($this));
-		$lastRecords = self::getAllByCriteria('productId = ?', array($this->getproduct()->getId()), true, 1, 1, array('id' => 'desc'));
+		$lastRecords = self::getAllByCriteria('productId = ? and storeId = ?', array($this->getproduct()->getId(), Core::getUser()->getStore()->getId()), true, 1, 1, array('id' => 'desc'));
 		if(count($lastRecords) > 0 && ($lastRecord = $lastRecords[0]) instanceof self) {
 			$this->setStockOnPOVar($this->getStockOnPO() - $lastRecord->getStockOnPO())
 				->setStockOnHandVar($this->getStockOnHand() - $lastRecord->getStockOnHand())
@@ -615,8 +615,9 @@ class ProductQtyLog extends InfoEntityAbstract
 		DaoMap::setIntType('totalRMAValueVar', 'double', '10,4', false);
 		DaoMap::setStringType('comments', 'varchar', 255);
 		DaoMap::setStringType('entityName', 'varchar', 100);
-		DaoMap::setIntType('entityId', 'int', 10, true, 0);
+		DaoMap::setIntType('entityId', 'int', 10, false, 0);
 		DaoMap::setStringType('type', 'varchar', 2);
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createIndex('entityName');
@@ -634,6 +635,7 @@ class ProductQtyLog extends InfoEntityAbstract
 	{
 		$log = new ProductQtyLog();
 		$log->setProduct($product)
+			->setStore(Core::getUser()->getStore())
 			->setType($type)
 			->setStockOnHand($product->getStockOnHand())
 			->setTotalOnHandValue($product->getTotalOnHandValue())

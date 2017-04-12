@@ -16,7 +16,7 @@ class BillExport_Xero extends ExportAbstract
 			$toDate = self::$_dateRange['end'];
 		}
 		$dataType = 'created';
-		$receivingItems = ReceivingItem::getAllByCriteria($dataType . ' >= :fromDate and ' . $dataType . ' < :toDate', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate)));
+		$receivingItems = ReceivingItem::getAllByCriteria($dataType . ' >= :fromDate and ' . $dataType . ' < :toDate' . ' and storeId = :storeId', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate), 'storeId' => Core::getUser()->getStore()->getId()));
 
 		$now = new UDate();
 		$now->setTimeZone('Australia/Melbourne');
@@ -69,7 +69,7 @@ class BillExport_Xero extends ExportAbstract
 	}
 	protected static function _getMailTitle()
 	{
-		return 'Bills Export for Xero from last day';
+		return Core::getUser()->getStore()->getName() . ' : Bills Export for Xero from last day';
 	}
 	protected static function _getMailBody()
 	{

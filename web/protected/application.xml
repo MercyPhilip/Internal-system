@@ -173,6 +173,11 @@
       <!-- FrontEnd:: Stock Adjustment page -->
       <url ServiceParameter="StockAdjustment.List.ListController" pattern="stockadjustment.html" />
 
+      <!-- FrontEnd:: BudgetPC Van Pickup page -->
+      <url ServiceParameter="Pickup.List.PickupController" pattern="pickup.html" />
+      <!-- FrontEnd:: BudgetPC Van Delivery page -->
+      <url ServiceParameter="Delivery.List.DeliveryController" pattern="delivery.html" />
+      
       <!-- FrontEnd:: Log list page -->
       <url ServiceParameter="Log.List.ListController" pattern="logs.html" />
       <!-- FrontEnd:: Message list page -->
@@ -193,6 +198,9 @@
       <url ServiceParameter="Report.RunRate.ReportController" pattern="/report/runrate.html" />
       <url ServiceParameter="Report.BuyInReport.ReportController" pattern="/report/buyinreport.html" />
       <url ServiceParameter="Report.SellingReport.ReportController" pattern="/report/sellingreport.html" />
+      
+      <!-- FrontEnd:: ETA Report page -->
+      <url ServiceParameter="Report.Eta.Controller" pattern="etareport.html"/>
       
       <!-- FrontEnd:: Product Ageing Report page -->
       <url ServiceParameter="Report.ProductAgeing.ListController" pattern="productageing.html" />

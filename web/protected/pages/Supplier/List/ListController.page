@@ -6,7 +6,7 @@
 				<label for="showSearch">Show Search Criteria?</label>
 				<input id="showSearch" type="checkbox" onclick="$(this).up('#searchPanel').down('.panel-body').toggle();">
 				<div class="pull-right">
-					<span class="btn btn-success btn-sm" onclick="pageJs._getEditPanel({})" ><i class="glyphicon glyphicon-plus"></i> Add</span>
+					<span id="addBtn" class="btn btn-success btn-sm" onclick="pageJs._getEditPanel({})" ><i class="glyphicon glyphicon-plus"></i> Add</span>
 					<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." onclick="pageJs.getSearchCriteria().getResults(true, <%= $this->pageSize %>);" >Search</span>
 				</div>
 			</div>

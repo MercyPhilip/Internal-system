@@ -10,6 +10,7 @@
 <com:TCallback ID="toggleIsKitBtn" OnCallback = 'Page.toggleIsKit' />
 <com:TCallback ID="toggleManualFeedBtn" OnCallback = 'Page.toggleManualFeed' />
 <com:TCallback ID="newRuleBtn" OnCallback = 'Page.newRule' />
+<com:TCallback ID="checkPriceMatchEnable" OnCallback = 'Page.checkPriceMatchEnable' />
 	<div class="pagewrapper productlistwraper">
 		<div class="col-xs-12">
 			<div class="panel panel-default" id="searchPanel">
@@ -17,7 +18,7 @@
 					<label for="showSearch">Show Search Criteria?</label>
 					<input id="showSearch" type="checkbox" checked onclick="pageJs.toggleSearchPanel($(this).up('#searchPanel').down('.panel-body'));">
 					<span class="pull-right btn-group">
-						<a class="btn btn-success btn-sm" href="/product/new.html" target="_BLANK"><i class="fa fa-plus"></i> NEW</a>
+						<a id="newProductBtn" class="btn btn-success btn-sm" href="/product/new.html" target="_BLANK"><i class="fa fa-plus"></i> NEW</a>
 						<span id="newPriceMatchRuleBtn" class="btn btn-info btn-sm" data-loading-text="loading ..." >New Rule</span>
 						<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span>
 					</span>

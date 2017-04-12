@@ -10,8 +10,8 @@ class ProductTierPrice extends BaseEntityAbstract
 {
 	const PRIORITY_ID_PID = 1;
 	const PRIORITY_ID_BRANDCATEGORY = 2;
-	const PRIORITY_ID_CATEGORY = 3;
-	const PRIORITY_ID_BRAND = 4;
+	const PRIORITY_ID_BRAND = 3;
+	const PRIORITY_ID_CATEGORY = 4;
 	/**
 	 * The product
 	 *
@@ -305,10 +305,10 @@ class ProductTierPrice extends BaseEntityAbstract
     	$params = array($product->getId(), $tierLevel->getId());
     	$objs = ProductTierPrice::getAllByCriteria(implode(' AND ', $where), $params, $activeOnly, $pageNo , $pageSize, $orderBy, $stats);
     	$rets = array();
-		foreach($objs as $obj)
-		{
-			$rets[] = $obj->getJson();
-		}
+    	foreach($objs as $obj)
+    	{
+    		$rets[] = $obj->getJson();
+    	}
     	return $rets;
     }
     /**
@@ -343,6 +343,8 @@ class ProductTierPrice extends BaseEntityAbstract
     				,$supplierIds
     				,$brandIds
     				,$categoryIds
+    				,array()
+    				,true
     				);
     		foreach($products as $product)
     		{

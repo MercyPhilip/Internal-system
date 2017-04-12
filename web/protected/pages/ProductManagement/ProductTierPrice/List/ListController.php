@@ -23,6 +23,8 @@ class ListController extends CRUDPageAbstract
 		parent::__construct();
 		if(!AccessControl::canAccessProductsPage(Core::getRole()))
 			die('You do NOT have access to this page');
+		if(Core::getUser()->getStore()->getId() != 1)
+			die(BPCPageAbstract::show404Page('Access Denied', 'You do NOT have the access to this page!'));
 	}
 	/**
 	 * (non-PHPdoc)
@@ -154,6 +156,7 @@ class ListController extends CRUDPageAbstract
                	$tmpArray = $obj->getJson();
             	$tierPrices = ProductTierPrice::getTierPrices($obj);
             	$tmpArray['tierprices'] = $tierPrices;
+            	$tmpArray['buyinprice'] = ProductBuyinPrice::getBuyinPrice($obj->getId());
             	$results['items'][] = $tmpArray;
             }
         }
@@ -222,17 +225,20 @@ class ListController extends CRUDPageAbstract
     		$where[] = 'pro.manufacturerId in (' . implode(',', $keys) . ')';
     		$params = array_merge($params, $ps);
     	}
+    	Product::getQuery()->eagerLoad('Product.stocks', 'inner join', 'pro_stock_info', 'pro.id = pro_stock_info.productId and pro_stock_info.storeId = :storeId');
+    	$params['storeId'] = Core::getUser()->getStore()->getId();
+    	
     	if (count($statusIds) > 0) {
-    		$ps = array();
-    		$keys = array();
-    		foreach ($statusIds as $index => $value) {
-    			$key = 'stId_' . $index;
-    			$keys[] = ':' . $key;
-    			$ps[$key] = trim($value);
-    		}
-    		$where[] = 'pro.statusId in (' . implode(',', $keys) . ')';
-    		$params = array_merge($params, $ps);
-    	}
+			$ps = array();
+			$keys = array();
+			foreach ($statusIds as $index => $value) {
+				$key = 'stId_' . $index;
+				$keys[] = ':' . $key;
+				$ps[$key] = trim($value);
+			}
+ 			$where[] = 'pro_stock_info.statusId in (' . implode(',', $keys) . ')';
+ 			$params = array_merge($params, $ps);
+		}
     	if (count($supplierIds) > 0) {
     		$ps = array();
     		$keys = array();
@@ -241,7 +247,7 @@ class ListController extends CRUDPageAbstract
     			$keys[] = ':' . $key;
     			$ps[$key] = trim($value);
     		}
-    		Product::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
+    		Product::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.active =1 and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
     		$params = array_merge($params, $ps);
     	}
     	if (count($categoryIds) > 0) {
@@ -265,14 +271,16 @@ class ListController extends CRUDPageAbstract
     		Product::getQuery()->eagerLoad('Product.categories', 'inner join', 'pro_cate', 'pro.id = pro_cate.productId and pro_cate.categoryId in (' . implode(',', $keys) . ')');
     		$params = array_merge($params, $ps);
     	}
-    	if (($sh_from = trim($sh_from)) !== '') {
-    		$where[] = 'pro.stockOnHand >= :stockOnHand_from';
-    		$params['stockOnHand_from'] = intval($sh_from);
-    	}
-    	if (($sh_to = trim($sh_to)) !== '') {
-    		$where[] = 'pro.stockOnHand <= :stockOnHand_to';
-    		$params['stockOnHand_to'] = intval($sh_to);
-    	}
+		
+		if (($sh_from = trim($sh_from)) !== '') {
+			$where[] = 'pro_stock_info.stockOnHand >= :stockOnHand_from';
+			$params['stockOnHand_from'] = intval($sh_from);
+		}
+		if (($sh_to = trim($sh_to)) !== '') {
+			$where[] = 'pro_stock_info.stockOnHand <= :stockOnHand_to';
+			$params['stockOnHand_to'] = intval($sh_to);
+		}
+    	
     	$products = Product::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, $orderBy, $stats);
     	return $products;
     	
@@ -412,7 +420,7 @@ class ListController extends CRUDPageAbstract
     				continue;
     			$tierLevelId = trim($tierprice['tierId']);
     			$tierLevel = TierLevel::get($tierLevelId);
-    			$quantity = trim($tierprice['quantity']);
+    			$quantity = intval(trim($tierprice['quantity']));
     			$value = trim($tierprice['value']);
     			if(!isset($tierprice['id']) || ($id = trim($tierprice['id'])) === '')
     			{

@@ -34,7 +34,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'contactName col-xs-2'}).update(row.contactName) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'contactNo col-xs-2'}).update(row.contactNo) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'email col-xs-2'}).update(row.email) })
-			.insert({'bottom': new Element(tmp.tag, {'class': 'text-right btns col-xs-1'}).update(
+			.insert({'bottom': jQuery('#storeId').attr('value') != 1 ? '' : new Element(tmp.tag, {'class': 'text-right btns col-xs-1'}).update(
 				tmp.isTitle === true ? ''
 				: (new Element('span', {'class': 'btn-group btn-group-xs'})
 					.insert({'bottom': new Element('span', {'class': 'btn btn-default', 'title': 'Edit'})
@@ -53,6 +53,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					}) )
 			) })
 		;
+		if (jQuery('#storeId').attr('value') != 1) jQuery('#addBtn').hide();
 		return tmp.row;
 	}
 });

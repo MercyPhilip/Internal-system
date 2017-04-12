@@ -544,7 +544,7 @@ class OrderItem extends BaseEntityAbstract
 		DaoMap::setIntType('margin', 'double', '10,4');
 		DaoMap::setIntType('unitCost', 'double', '10,4');
 		DaoMap::setStringType('itemDescription', 'varchar', '255');
-
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createIndex('isPicked');
@@ -581,6 +581,7 @@ class OrderItem extends BaseEntityAbstract
 			->setTotalPrice($totalPrice === null ? $unitPrice * $qty : $totalPrice)
 			->setMageOrderId($mageOrderItemId)
 			->setEta($eta)
+			->setStore(Core::getUser()->getStore())
 			->save();
 		return $item;
 	}

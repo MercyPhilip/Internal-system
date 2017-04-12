@@ -12,4 +12,6 @@
 	<div class="pagewrapper orderdetails">
 		<div id="detailswrapper" class="contentDiv"></div>
 	</div>
+	<div class="col-md-3" id="storeId" value=<%=Core::getUser()->getStore()->getId()%> ></div>
+	<div class="col-md-3" id="userId" value=<%=Core::getUser()->getId()%> ></div>
 </com:TContent>

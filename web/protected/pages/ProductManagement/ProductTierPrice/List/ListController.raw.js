@@ -14,7 +14,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	,_selected: null // for new rule post, selected products
 	,newRuleResultContainerId: 'new_rule_result_container' // the element id for new rule post result container	
 	,_getTitleRowData: function() {
-		return {'sku': 'SKU', 'manufacturer' : {'name': 'Brand'}, 'category': {'name': 'Category'},  'tier': 'Tier Price'};
+		return {'sku': 'SKU', 'category': {'name': 'Category'}, 'manufacturer' : {'name': 'Brand'}, 'tier': 'Tier Price'};
 	}
 	/**
 	 * Set some pre defined data before javascript start
@@ -128,6 +128,10 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 							.insert({'bottom': new Element('i', {'class': 'btn btn-success btn-lg pull-right'}).update('Yes').setStyle(tmp.selected.length === 0 ? 'display: none;' : '') 
 								.observe('click', function(){
 									jQuery("#select2-drop-mask").select2("close"); // close all select2
+									jQuery('#' + tmp.me.modalId).on("hidden.bs.modal", function(){
+										if (jQuery('.tooltip'))
+											jQuery('.tooltip').remove();
+									});
 									$(this).up('.modal-body').update('')
 										.insert({'bottom': tmp.ruleContainer = tmp.me._getTierPriceRuleEl(null, tmp.selected) })
 										.insert({'bottom': new Element('div', {'class': 'row', 'id': tmp.me.newRuleResultContainerId}) });
@@ -164,6 +168,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.insert({'bottom': new Element('i', {'class': 'btn btn-sm btn-success btn-new-rule right-panel'}).update('Confirm') 
 					.observe('click', function(e){
 						tmp.me._tierPriceRule = tmp.me._collectFormData($(this).up('.modal-body'), 'list-panel-row', 'list-item');
+						if (tmp.me._tierPriceRule == null) return;
 						tmp.me._selected = tmp.product === null ? tmp.selected : tmp.product;
 						tmp.me._postIndex = 0;
 						tmp.me.postNewRule($(this));
@@ -357,7 +362,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.me = this;
 		tiers = row.tierprices;
 		//unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : 'N/A';
-		unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? row.totalOnHandValue/row.stockOnHand : 0;
+		unitCost = (row.totalOnHandValue != 0 && row.stockOnHand != 0) ? row.totalOnHandValue/row.stockOnHand : Number(row.buyinprice);
 		tmp.price = '';
 		tmp.specilaPrice = '';
 		tmp.srp = '';
@@ -485,7 +490,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.update(row.sku)
 				})
 			})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'manufacturer hidden-xs hide-when-info hidden-sm', 'style' : 'width:5%'}).addClassName('col-xs-1').update(row.manufacturer ? row.manufacturer.name : '') })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'category'}).addClassName('col-xs-2').update(
 					tmp.isTitle === true ?
 							new Element('div', {'class': 'row'})
@@ -495,6 +499,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 								.insert({'bottom': new Element('div', {'class': 'col-xs-12'}).update(tmp.categories) })
 								)
 			})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'manufacturer hidden-xs hide-when-info hidden-sm', 'style' : 'width:5%'}).addClassName('col-xs-1').update(row.manufacturer ? row.manufacturer.name : '') })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'prices'}).addClassName('col-xs-3').update(
 					tmp.isTitle === true ?
 							new Element('div', {'class': 'row'})
@@ -506,7 +511,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 							new Element('div', {'class': 'row'})
 								.insert({'bottom': new Element('div', {'class': 'col-xs-2'}).update(row.stockOnHand) })
 								.insert({'bottom': new Element('div', {'class': 'col-xs-3'}).update(tmp.srp? tmp.me.getCurrency(tmp.srp): tmp.me.getCurrency(tmp.price)) })
-								.insert({'bottom': new Element('div', {'class': 'col-xs-3'}).update((row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : 'N/A') })
+								.insert({'bottom': new Element('div', {'class': 'col-xs-3'}).update((row.totalOnHandValue != 0 && row.stockOnHand != 0) ? tmp.me.getCurrency(row.totalOnHandValue/row.stockOnHand) : row.buyinprice ? tmp.me.getCurrency(row.buyinprice) : 'N/A') })
 								.insert({'bottom': new Element('div', {'class': 'col-xs-4'}).update(tmp.me._getTierPrices(row)) })
 				)
 			})
@@ -587,14 +592,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.insert({'bottom': new Element('input', {'class': '', 'type': 'hidden','save-item-panel': 'id', 'value': row.id? row.id : ''})
 				})
 			})
-			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-1 hidden-xs hide-when-info hidden-sm '})
-				.insert({'bottom': new Element('span', {'class': 'brand'}).update(row.manufacturer ? row.manufacturer.name : '' )
-				})
-			})
 			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-2'})
 				.insert({'bottom': new Element('span', {'class': 'row category'}).update(tmp.categories)
 				})
-
+			})
+			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-1 hidden-xs hide-when-info hidden-sm '})
+				.insert({'bottom': new Element('span', {'class': 'brand'}).update(row.manufacturer ? row.manufacturer.name : '' )
+				})
 			})
 			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-3'})
 				.insert({'bottom': new Element('div', {'class': 'row prices'})
@@ -723,6 +727,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					} else {
 						$(this).up('.list-panel-row').remove();
 					}
+					if (jQuery('.tooltip'))
+						jQuery('.tooltip').remove();
 				})
 			});
 		tmp.newRow.insert({'bottom': new Element(tmp.tag).update( tmp.isTitle === true ? titleData.value : tmp.inputBoxDiv.wrap(new Element('div', {'class': 'form-group'})) ) });

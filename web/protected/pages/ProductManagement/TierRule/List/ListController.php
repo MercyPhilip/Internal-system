@@ -6,6 +6,8 @@
  * @subpackage Controller
  * @author     
  */
+ini_set('memory_limit','2048M');
+ini_set('max_execution_time', 600000);
 class ListController extends CRUDPageAbstract
 {
 	/**
@@ -23,6 +25,8 @@ class ListController extends CRUDPageAbstract
 		parent::__construct();
 		if(!AccessControl::canAccessProductsPage(Core::getRole()))
 			die('You do NOT have access to this page');
+		if(Core::getUser()->getStore()->getId() != 1)
+			die(BPCPageAbstract::show404Page('Access Denied', 'You do NOT have the access to this page!'));
 	}
 	/**
 	 * (non-PHPdoc)
@@ -82,7 +86,7 @@ class ListController extends CRUDPageAbstract
             		,$serachCriteria->categoryIds
             		,$pageNo
             		,$pageSize
-            		,array('tr_rl.id' => 'asc')
+            		,array('tr_rl.priorityId' => 'asc','tr_rl.updated' => 'desc')
             		,$stats
             		);
 
@@ -168,7 +172,7 @@ class ListController extends CRUDPageAbstract
     		$where[] = 'tr_rl.categoryId in (' . implode(',', $keys) . ')';
     		$params = array_merge($params, $ps);
     	}
-    	$objs = TierRule::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, $orderBy, $stats);
+    	$objs = TierRule::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, $orderBy, $stats);
     	return $objs;
     }
 	/**
@@ -228,7 +232,7 @@ class ListController extends CRUDPageAbstract
     		if (!$item instanceof $class)
     		{
     			// new rule
-    			// the priority is 1) sku 2) brand and category 3) category 4) brand
+    			// the priority is 1) sku 2) brand and category 3) brand 4) category
     			// if the sku is set, even if brand and category are set, they will be ignored
     			// check if the product has already been set in current rule
     			$item = new TierRule();
@@ -248,19 +252,18 @@ class ListController extends CRUDPageAbstract
     					throw new Exception("System Error: This combination of brand and category has alreay had tier price rule!");
     				$item->setCategory($category)->setManufacturer($brand)->setPriorityId(TierRule::PRIORITY_ID_BRANDCATEGORY);
     			}
-    			else if ($category instanceof ProductCategory)
-    			{
-    				$tierRule = TierRule::getAllByCriteria('categoryId = ? and manufacturerId is null', array($category->getId()));
-    				if (count($tierRule) > 0)
-    					throw new Exception("System Error: This category has alreay had tier price rule!");
-    				$item->setCategory($category)->setPriorityId(TierRule::PRIORITY_ID_CATEGORY);
-    			}
     			else if ($brand instanceof Manufacturer)
     			{
     				$tierRule = TierRule::getAllByCriteria('manufacturerId = ? and categoryId is null', array($brand->getId()));
     				if (count($tierRule) > 0)
     					throw new Exception("System Error: This brand has alreay had tier price rule!");
     				$item->setManufacturer($brand)->setPriorityId(TierRule::PRIORITY_ID_BRAND);
+    			}    			else if ($category instanceof ProductCategory)
+    			{
+    				$tierRule = TierRule::getAllByCriteria('categoryId = ? and manufacturerId is null', array($category->getId()));
+    				if (count($tierRule) > 0)
+    					throw new Exception("System Error: This category has alreay had tier price rule!");
+    				$item->setCategory($category)->setPriorityId(TierRule::PRIORITY_ID_CATEGORY);
     			}
     			$item->save();
     			$this->setTierPrices($item, $tierprices);
@@ -334,7 +337,7 @@ class ListController extends CRUDPageAbstract
     				continue;
     			$tierLevelId = trim($tierprice['tierId']);
     			$tierLevel = TierLevel::get($tierLevelId);
-    			$quantity = trim($tierprice['quantity']);
+    			$quantity = intval(trim($tierprice['quantity']));
     			$value = trim($tierprice['value']);
     			if(!isset($tierprice['id']) || ($id = trim($tierprice['id'])) === '')
     			{

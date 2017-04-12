@@ -5,9 +5,12 @@
 	<com:Application.controls.select2.select2 />
 	<com:TCallback ID="searchCustomerBtn" onCallback="searchCustomer" />
 	<com:TCallback ID="searchProductBtn" onCallback="searchProduct" />
+	<com:TCallback ID="searchSerialNoBtn" onCallback="searchSerialNo" />
 	<com:TCallback ID="saveOrderBtn" onCallback="saveOrder" />
 	<com:TCallback ID="addCommentsBtn" OnCallback="addComments" />
 	<div class="pagewrapper orderdetails">
 		<div id="detailswrapper" class="contentDiv"></div>
 	</div>
+	<div class="col-md-3" id="storeId" value=<%=Core::getUser()->getStore()->getId()%> ></div>
+	<div class="col-md-3" id="userId" value=<%=Core::getUser()->getId()%> ></div>
 </com:TContent>

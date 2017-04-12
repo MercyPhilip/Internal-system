@@ -70,9 +70,13 @@ class OrderPrintPosController extends BPCPageAbstract
 	 * Get the issued date of the invoice 
 	 * @return string
 	 */
+	public function getOrdDate()
+	{
+		return $this->order->getOrderDate() == UDate::zeroDate() ? '' : $this->order->getOrderDate()->setTimeZone(UDate::TIME_ZONE_MELB)->format('d/M/Y');
+	}
 	public function getInvDate()
 	{
-		return $this->order->getInvDate() == UDate::zeroDate() ? '' : $this->order->getInvDate()->format('d/M/Y');
+		return $this->order->getInvDate() == UDate::zeroDate() ? '' : $this->order->getInvDate()->setTimeZone(UDate::TIME_ZONE_MELB)->format('d/M/Y');
 	}
 	/**
 	 * Getting the tr for each row

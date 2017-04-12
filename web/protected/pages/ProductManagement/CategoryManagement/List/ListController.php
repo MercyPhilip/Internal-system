@@ -57,6 +57,8 @@ class ListController extends CRUDPageAbstract
 		$js .= ".setCallbackId('updateStockLevel', '" . $this->updateStockLevelBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('genReport', '" . $this->genReportBtn->getUniqueID() . "')";
 		$js .= ".getResults(true, " . $this->pageSize . ");";
+		if(Core::getUser()->getStore()->getId() != 1)
+			$js .= "pageJs.priceReadOnlyMode();";
 		return $js;
 	}
 	public function getRequestProductID()
@@ -135,7 +137,7 @@ class ListController extends CRUDPageAbstract
 	            		,$serachCriteria->active
 	            		,$pageNo
 	            		,$pageSize
-	            		,array('pro.sku' => 'asc')
+	            		,array('pro.manufacturerId' => 'asc', 'pro.sku' => 'asc')
 	            		,$stats
 	            		,$serachCriteria->sh_from
 	            		,$serachCriteria->sh_to
@@ -231,6 +233,8 @@ class ListController extends CRUDPageAbstract
     		$where[] = 'pro.sellOnWeb = :sellOnWeb';
     		$params['sellOnWeb'] = intval($sellOnWeb);
     	}
+    	Product::getQuery()->eagerLoad('Product.stocks', 'inner join', 'pro_stock_info', 'pro.id = pro_stock_info.productId and pro_stock_info.storeId = :storeId');
+    	$params['storeId'] = Core::getUser()->getStore()->getId();
     	if (count($manufacturerIds) > 0) {
     		$ps = array();
     		$keys = array();
@@ -250,7 +254,7 @@ class ListController extends CRUDPageAbstract
     			$keys[] = ':' . $key;
     			$ps[$key] = trim($value);
     		}
-    		$where[] = 'pro.statusId in (' . implode(',', $keys) . ')';
+    		$where[] = 'pro_stock_info.statusId in (' . implode(',', $keys) . ')';
     		$params = array_merge($params, $ps);
     	}
     	if (count($supplierIds) > 0) {
@@ -261,7 +265,7 @@ class ListController extends CRUDPageAbstract
     			$keys[] = ':' . $key;
     			$ps[$key] = trim($value);
     		}
-    		Product::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
+    		Product::getQuery()->eagerLoad('Product.supplierCodes', 'inner join', 'pro_sup_code', 'pro.id = pro_sup_code.productId and pro_sup_code.active = 1 and pro_sup_code.supplierId in (' . implode(',', $keys) . ')');
     		$params = array_merge($params, $ps);
     	}
     	if (count($categoryIds) > 0) {
@@ -286,11 +290,11 @@ class ListController extends CRUDPageAbstract
     		$params = array_merge($params, $ps);
     	}
     	if (($sh_from = trim($sh_from)) !== '') {
-    		$where[] = 'pro.stockOnHand >= :stockOnHand_from';
+    		$where[] = 'pro_stock_info.stockOnHand >= :stockOnHand_from';
     		$params['stockOnHand_from'] = intval($sh_from);
     	}
     	if (($sh_to = trim($sh_to)) !== '') {
-    		$where[] = 'pro.stockOnHand <= :stockOnHand_to';
+    		$where[] = 'pro_stock_info.stockOnHand <= :stockOnHand_to';
     		$params['stockOnHand_to'] = intval($sh_to);
     	}
     	$products = Product::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, $orderBy, $stats);
@@ -375,7 +379,7 @@ class ListController extends CRUDPageAbstract
 									max(rec2.updated) `updated`
 								FROM
 									receivingitem rec2
-								WHERE rec2.active = 1
+								WHERE rec2.active = 1  and rec2.storeId = :storeId
 								GROUP BY
 									rec2.productId
 							) rec3
@@ -384,7 +388,7 @@ class ListController extends CRUDPageAbstract
 						AND rec1.updated = rec3.updated
 					) LB
 		WHERE LB.productId in (" . implode(', ', $productIds) . ")";
-		return Dao::getResultsNative($sql, array(), PDO::FETCH_ASSOC);
+		return Dao::getResultsNative($sql, array('storeId' => Core::getUser()->getStore()->getId()), PDO::FETCH_ASSOC);
     }
     /**
      * get run rate data
@@ -402,10 +406,10 @@ class ListController extends CRUDPageAbstract
 	            sum(if(ord.orderDate >= '" . $_14DaysBefore . "', ord_item.qtyOrdered, 0)) `tw`,
 	            sum(if(ord.orderDate >= '" . $_1mthBefore . "', ord_item.qtyOrdered, 0)) `om`
 	            from `orderitem` ord_item
-	            inner join `order` ord on (ord.type = :type and ord.active = 1 and ord.id = ord_item.orderId)
-	            where ord_item.active = 1 and ord_item.productId in (" . implode(', ', $productIds) . ")
+	            inner join `order` ord on (ord.type = :type and ord.active = 1 and ord.id = ord_item.orderId  and ord.storeId = ord_item.storeId)
+	            where ord_item.active = 1 and ord_item.storeId = :storeId and ord_item.productId in (" . implode(', ', $productIds) . ")
 	            group by ord_item.productId";
-		return Dao::getResultsNative($sql, array('type' => Order::TYPE_INVOICE), PDO::FETCH_ASSOC);
+		return Dao::getResultsNative($sql, array('storeId' => Core::getUser()->getStore()->getId(),'type' => Order::TYPE_INVOICE), PDO::FETCH_ASSOC);
     }
     /**
      * update mini stock level

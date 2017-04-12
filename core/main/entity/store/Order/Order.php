@@ -681,9 +681,18 @@ class Order extends InfoEntityAbstract
 			$item->reCalMarginFromProduct()->save();
 			$totalMargin += $item->getMargin();
 		}
+		$storeId = Core::getUser()->getStore()->getId();
+		if ($storeId == 1)
+		{
+			$invNo = 'BPCINV' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
+		}
+		else
+		{
+			$invNo = '2BPCINV' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
+		}
 		return $this->setType(Order::TYPE_INVOICE)
 			->setMargin($totalMargin)
-			->setInvNo('BPCINV' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT))
+			->setInvNo($invNo)
 			->setInvDate(new UDate())
 			->save()
 			->addComment('Changed this order to be an INVOCE with invoice no: ' . $this->getInvNo(), Comments::TYPE_SYSTEM, 'Auto Log')
@@ -715,11 +724,14 @@ class Order extends InfoEntityAbstract
 		$array = $extra;
 	    if(!$this->isJsonLoaded($reset))
 	    {
-	    	$array['customer'] = $this->getCustomer() instanceof Customer ? $this->getCustomer()->getJson() : array();
+	    	$customer = $this->getCustomer();
+	    	$array['customer'] = $customer instanceof Customer ? $customer->getJson() : array();
 	    	$array['totalDue'] = $this->getTotalDue();
 	    	$array['infos'] = array();
-	    	$array['address']['shipping'] = $this->getShippingAddr() instanceof Address ? $this->getShippingAddr()->getJson() : array();
-	    	$array['address']['billing'] = $this->getBillingAddr() instanceof Address ? $this->getBillingAddr()->getJson() : array();
+	    	$address = $this->getShippingAddr();
+	    	$array['address']['shipping'] = $address instanceof Address ? $address->getJson() : array();
+	    	$address = $this->getBillingAddr();
+	    	$array['address']['billing'] = $address instanceof Address ? $address->getJson() : array();
 		    foreach($this->getInfos() as $info)
 		    {
 		    	if(!$info instanceof OrderInfo)
@@ -729,7 +741,8 @@ class Order extends InfoEntityAbstract
 		            $array['infos'][$typeId] = array();
 	            $array['infos'][$typeId][] = $info->getJson();
 		    }
-		    $array['status'] = $this->getStatus() instanceof OrderStatus ? $this->getStatus()->getJson() : array();
+		    $status = $this->getStatus();
+		    $array['status'] = $status instanceof OrderStatus ? $status->getJson() : array();
 
 		    $array['shippments'] = array();
 		    foreach($this->getShippments() as $shippment)
@@ -768,6 +781,7 @@ class Order extends InfoEntityAbstract
 		DaoMap::setOneToMany('shippments', 'Shippment', 'o_ship');
 		DaoMap::setOneToMany('payments', 'Payment', 'py');
 		DaoMap::setOneToMany('orderItems', 'OrderItem', 'o_items');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createUniqueIndex('orderNo');
@@ -818,9 +832,10 @@ class Order extends InfoEntityAbstract
 			->setShippingAddr($shipAddr instanceof Address ? $shipAddr : $customer->getShippingAddress())
 			->setBillingAddr($billAddr instanceof Address ? $billAddr : $customer->getBillingAddress())
 			->setPassPaymentCheck($passPaymentCheck)
-			->setPONo(trim($poNo));
+			->setPONo(trim($poNo))
+			->setStore(Core::getUser()->getStore());
 		if($cloneFrom instanceof Order) {
-			$counts = intval(OrderInfo::countByCriteria('value = ? and typeId = ?', array($cloneFrom->getOrderNo(), OrderInfoType::ID_CLONED_FROM_ORDER_NO)));
+			$counts = intval(OrderInfo::countByCriteria('value = ? and typeId = ? and storeId = ?', array($cloneFrom->getOrderNo(), OrderInfoType::ID_CLONED_FROM_ORDER_NO, Core::getUser()->getStore()->getId())));
 			$newOrderNo = $cloneFrom->getOrderNo() . '-' . ($counts + 1);
 			$order->setOrderNo($newOrderNo);
 			$cloneFrom->addComment(($msg = 'A new order has been clone from this order:' . $newOrderNo), Comments::TYPE_SYSTEM)

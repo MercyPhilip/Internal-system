@@ -402,7 +402,7 @@ class CreditNote extends BaseEntityAbstract
 			$this->addItemFromOrderItem($orderItem, $orderItem->getQtyOrdered(), $orderItem->getUnitPrice(), $orderItem->getItemDescription(), $orderItem->getUnitCost(), $orderItem->getTotalPrice());
 		}
 		$shippingCosts = $this->getOrder()->getInfo(OrderInfoType::ID_MAGE_ORDER_SHIPPING_COST);
-		$this->setShippingValue(count($shippingCosts) > 0 ? $shippingCosts[0] : 0)
+		$this->setShippingValue(count($shippingCosts) > 0 ? StringUtilsAbstract::getValueFromCurrency($shippingCosts[0]) : 0)
 			->setTotalValue($this->getOrder()->getTotalAmount())
 			->save();
 		return $this;
@@ -438,6 +438,7 @@ class CreditNote extends BaseEntityAbstract
 		DaoMap::setIntType('shippingValue', 'double', '10,4');
 		DaoMap::setStringType('description', 'varchar', 255);
 		DaoMap::setOneToMany('items', 'CreditNoteItem', 'cn_item');
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createUniqueIndex('creditNoteNo');
@@ -458,6 +459,7 @@ class CreditNote extends BaseEntityAbstract
 		$creditNote = new CreditNote();
 		return $creditNote->setCustomer($customer)
 			->setDescription(trim($description))
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 	/**
@@ -474,6 +476,7 @@ class CreditNote extends BaseEntityAbstract
 		$creditNote = $creditNote->setOrder($order)
 			->setCustomer($customer instanceof Customer ? $customer : $order->getCustomer())
 			->setDescription(trim($description))
+			->setStore(Core::getUser()->getStore())
 			->save();
 		return $creditNote;
 	}

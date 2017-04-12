@@ -5,4 +5,6 @@
 	<com:Application.controls.RichTextEditor.RichTextEditor />
 	<com:Application.controls.CommentsDiv.CommentsDiv />
 	<div class="pagewrapper detailswraper" id='item-div'></div>
+	<div class="col-md-3" id="storeId" value=<%=Core::getUser()->getStore()->getId()%> ></div>
+	<div class="col-md-3" id="userId" value=<%=Core::getUser()->getId()%> ></div>
 </com:TContent>

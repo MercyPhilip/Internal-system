@@ -306,7 +306,7 @@ class Address extends BaseEntityAbstract
 		DaoMap::setStringType('country','varchar', 20);
 		DaoMap::setStringType('postCode','varchar', 10);
 		DaoMap::setStringType('sKey','varchar', 32);
-
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 
 		DaoMap::createIndex('sKey');
@@ -348,6 +348,7 @@ class Address extends BaseEntityAbstract
 			->setContactName(trim($contactName))
 			->setContactNo(trim($contactNo))
 			->setCompanyName(trim($companyName))
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 	/**

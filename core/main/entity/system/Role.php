@@ -58,6 +58,12 @@ class Role extends BaseEntityAbstract
      */
     const ID_PRODUCT_MANAGER = 8;
     /**
+     * ID the TIERUSER role
+     *
+     * @var int
+     */
+    const ID_TIERS = 9;
+    /**
      * The name of the role
      * @var string
      */
@@ -130,6 +136,7 @@ class Role extends BaseEntityAbstract
     				return array_map(create_function('$a', 'return $a->getId();'), OrderStatus::getAll());
     			}
 	    		case Role::ID_SYSTEM_ADMIN:
+	    		case Role::ID_TIERS:
     			{
     				return array();
     			}

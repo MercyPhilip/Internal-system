@@ -83,7 +83,7 @@ class OrderItemController extends BPCPageAbstract
 				if((is_array($value) && count($value) === 0) || (is_string($value) && ($value = trim($value)) === ''))
 					continue;
 				
-				OrderItem::getQuery()->eagerLoad("OrderItem.order", 'inner join', 'ord', 'ord.id = ord_item.orderId');
+				OrderItem::getQuery()->eagerLoad("OrderItem.order", 'inner join', 'ord', 'ord.id = ord_item.orderId and ord.storeId = ord_item.storeId');
 				switch ($field)
 				{
 					case 'ord.orderNo': 
@@ -117,13 +117,15 @@ class OrderItemController extends BPCPageAbstract
 			if($noSearch === true)
 				throw new Exception("Nothing to search!");
 			$stats = array();
+			$where[] = 'ord_item.storeId = ?';
+			$params[] = Core::getUser()->getStore()->getId();
 			$orderItems = OrderItem::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('ord_item.eta' => 'asc', 'ord.orderNo' => 'asc'), $stats);
 			$results['pageStats'] = $stats;
 			$results['items'] = array();
 			foreach($orderItems as $item)
 			{
 				$orderItemArray = $item->getJson();
-				$comments = Comments::getAllByCriteria('entityName = ? and entityId = ?', array('OrderItem', $item->getId()), true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('created' => 'desc'));
+				$comments = Comments::getAllByCriteria('entityName = ? and entityId = ? and storeId = ?', array('OrderItem', $item->getId(), Core::getUser()->getStore()->getId()), true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('created' => 'desc'));
 				$orderItemArray['comments'] = array_map(create_function('$a', 'return $a->getJson();'), $comments); 
 				$results['items'][] = $orderItemArray;
 			}

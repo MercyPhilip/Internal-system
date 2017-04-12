@@ -1,0 +1,83 @@
+@media only screen and (max-width: 800px) {
+	
+	/* Force table to not be like tables anymore */
+	#item-list table, 
+	#item-list thead, 
+	#item-list tbody, 
+	#item-list th, 
+	#item-list td, 
+	#item-list tr { 
+		display: block; 
+	}
+ 
+	/* Hide table headers (but not display: none;, for accessibility) */
+	#item-list thead tr { 
+		position: absolute;
+		top: -9999px;
+		left: -9999px;
+	}
+ 
+	#item-list tr { border: 1px solid #ccc; }
+ 
+	#item-list td { 
+		/* Behave  like a "row" */
+		border: none;
+		border-bottom: 1px solid #eee; 
+		position: relative;
+		padding-left: 42%; 
+		white-space: normal;
+		text-align:left;
+		font-size: 16px;
+		min-height: 39px;
+	}
+ 
+	#item-list td:before { 
+		/* Now like a table header */
+		position: absolute;
+		/* Top/left values mimic padding */
+		top: 6px;
+		left: 6px;
+		width: 45%; 
+		padding-right: 10px; 
+		white-space: nowrap;
+		text-align:left;
+		font-weight: bold;
+	}
+ 
+	/*
+	Label the data
+	*/
+	#item-list td:before { content: attr(data-title); }
+	.glyphicon-ok-circle { width:80px;}
+}
+@media only screen and (min-width: 801px) {	
+	#item-list .name {
+		width: 20%;
+	}
+	#item-list .comment {
+		width: 12.6%;
+	}
+	#item-list .company {
+		width: 8.6%;
+	}
+}
+	
+	#signatureparent {
+		color:darkblue;
+		background-color:darkgrey;
+		/*max-width:600px;*/
+		padding:0 20px;
+		font-size: 15px;
+	}
+	
+	/*This is the div within which the signature canvas is fitted*/
+	#signature {
+		border: 2px dotted black;
+		background-color:lightgrey;
+	}
+
+	/* Drawing the 'gripper' for touch-enabled devices */ 
+	html.touch #content {
+		float:left;
+		width:92%;
+	}

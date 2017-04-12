@@ -1,6 +1,7 @@
 DROP TABLE IF EXISTS `stocktake`;
 CREATE TABLE `stocktake` (
   `id` int(10) unsigned NOT NULL AUTO_INCREMENT,
+  `storeId` int(10) NOT NULL DEFAULT '1',
   `preferredLocationId` int(10) unsigned NOT NULL DEFAULT '0',
   `qty` int(10) unsigned NOT NULL DEFAULT '0',
   `active` tinyint(1) NOT NULL DEFAULT '1',
@@ -10,6 +11,7 @@ CREATE TABLE `stocktake` (
   `updatedById` int(10) unsigned NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
   KEY `preferredLocationId` (`preferredLocationId`),
+  KEY `storeId` (`storeId`),
   KEY `createdById` (`createdById`),
   KEY `updatedById` (`updatedById`)
 ) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8;

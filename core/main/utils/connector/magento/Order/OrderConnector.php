@@ -1,6 +1,8 @@
 <?php
 class OrderConnector extends B2BConnector
 {
+	const PICKUP_STORE1 = 'In-Store Pickup (Mount Waverley, VIC) - Pickup - Mount Waverley, VIC';
+	const PICKUP_STORE2 = 'In-Store Pickup (Heatherton, VIC) - Pickup - Heatherton, VIC';
 	/**
 	 * Import Orders
 	 *
@@ -30,9 +32,18 @@ class OrderConnector extends B2BConnector
 				try {Dao::beginTransaction();} catch(Exception $e) {$transStarted = true;}
 
 				foreach($orders as $index => $order)
-				{
+				{	
+					//var_dump($order);
+					Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT_STORE1));
 					$this->_log(0, get_class($this), 'Found order from Magento with orderNo = ' . trim($order->increment_id) . '.', self::LOG_TYPE, '', __FUNCTION__);
-
+					if (trim($order->shipping_description) == OrderConnector::PICKUP_STORE1)
+					{						
+						Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT_STORE1));
+					}
+					else if (trim($order->shipping_description) == OrderConnector::PICKUP_STORE2)
+					{
+						Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT_STORE2));
+					}
 					$order = $this->getOrderInfo(trim($order->increment_id));
 					if(!is_object($order))
 					{
@@ -46,8 +57,9 @@ class OrderConnector extends B2BConnector
 					}
 
 					//saving the order
-					$orderDate = new UDate(trim($order->created_at), SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_TIMEZONE));
-					$orderDate->setTimeZone('UTC');
+					//$orderDate = new UDate(trim($order->created_at), SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_TIMEZONE));
+					//$orderDate->setTimeZone('UTC');
+					$orderDate = new UDate(trim($order->created_at));
 	// 				$totalPaid = (!isset($order->total_paid) ? 0 : trim($order->total_paid));
 
 					$shippingAddr = $billingAddr = null;
@@ -74,7 +86,7 @@ class OrderConnector extends B2BConnector
 							isset($order->customer_id) ? trim($order->customer_id) : 0,
 							0,
 							false,
-							trim($order->customer_group_id)
+							trim($order->customer_group_id) ? trim($order->customer_group_id) : 1
 					);
 
 					$o->setOrderNo(trim($order->increment_id))
@@ -86,6 +98,7 @@ class OrderConnector extends B2BConnector
 						->setShippingAddr($customer->getShippingAddress())
 						->setBillingAddr($customer->getBillingAddress())
 						->setCustomer($customer)
+						->setStore(Core::getUser()->getStore())
 						->save();
 					$this->_log(0, get_class($this), 'Saved the order, ID = ' . $o->getId(), self::LOG_TYPE, '$index = ' . $index, __FUNCTION__);
 					$totalShippingCost = StringUtilsAbstract::getValueFromCurrency(trim($order->shipping_amount)) * 1.1;
@@ -104,6 +117,7 @@ class OrderConnector extends B2BConnector
 
 					//saving the order item
 					$totalItemCost = 0;
+					var_dump($order->items);
 					foreach($order->items as $item)	{
 						$this->_createItem($o, $item);
 						$totalItemCost = $totalItemCost * 1 + StringUtilsAbstract::getValueFromCurrency($item->row_total) * 1.1;
@@ -202,11 +216,13 @@ class OrderConnector extends B2BConnector
 				$updateOptions = '';
 			}
 		}
+		$discount = $itemObj->discount_amount >= 0? $itemObj->discount_amount : 0;
+		$row_total = trim($itemObj->row_total) * 1.1 - $discount;
 		return OrderItem::create($order,
 			$product,
 			trim($itemObj->price) * 1.1,
 			trim($itemObj->qty_ordered),
-			trim($itemObj->row_total) * 1.1,
+			$row_total,
 			trim($itemObj->item_id),
 			null,
 			$product->getName() . $updateOptions

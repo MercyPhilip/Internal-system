@@ -221,6 +221,7 @@ class Log extends BaseEntityAbstract
 			->setType($type)
 			->setComments($comments)
 			->setFuncName($funcName)
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 	/**
@@ -263,7 +264,7 @@ class Log extends BaseEntityAbstract
 		DaoMap::setStringType('funcName','varchar', 100);
 		DaoMap::setStringType('msg','LONGTEXT');
 		DaoMap::setStringType('comments','varchar', 255);
-		
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 		
 		DaoMap::createIndex('transId');

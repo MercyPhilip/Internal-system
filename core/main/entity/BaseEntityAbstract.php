@@ -20,6 +20,11 @@ abstract class BaseEntityAbstract
      */
     protected $id = null;
     /**
+     * Store
+     * @var  Store
+     */
+    protected $store;
+    /**
      * @var bool
      */
     protected $active;
@@ -78,6 +83,28 @@ abstract class BaseEntityAbstract
     public function getId()
     {
         return $this->id;
+    }
+    /**
+     * Set the store
+     *
+     * @param Store $store
+     *
+     * @return BaseEntityAbstract
+     */
+    public function setStore($store)
+    {
+    	$this->store = $store;
+    	return $this;
+    }
+    /**
+     * Get the store for this entity
+     *
+     * @return Store
+     */
+    public function getStore()
+    {
+    	$this->loadManyToOne('store');
+    	return $this->store;
     }
     /**
      * Set when this entity was created

@@ -66,6 +66,8 @@ class ListController extends CRUDPageAbstract
 				$where[] = 'msg.to like ?';
 				$params[] = '%' . $type . '%';
 			}
+			$where[] = 'msg.storeId = ?';
+			$params[] = Core::getUser()->getStore()->getId();
 			$stats = array();
 			$objects = $class::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('msg.id' => 'desc'), $stats);
 			$results['pageStats'] = $stats;

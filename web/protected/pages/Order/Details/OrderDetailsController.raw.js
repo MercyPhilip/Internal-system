@@ -14,6 +14,13 @@ PageJs.ROLE = {
 	SALES: 6,
 	WORKSHOP: 7
 };
+/**
+ * order attetion status
+ */
+PageJs.ORDERATTENTION = {
+		NEW: 1,
+		CANCEL: 0
+};
 PageJs.prototype = Object.extend(new BPCPageJs(), {
 	_order: null //the order object
 	,_orderStatuses: [] //the order statuses object
@@ -394,7 +401,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			new Element('select', {'class': 'form-control input-sm', 'update_order_item_purchase': 'hasStock', 'required': true, 'order_item_id': orderItem.id})
 				.insert({'bottom': new Element('option', {'value': ' '}).update('Not Checked')})
 				.insert({'bottom': new Element('option', {'value': '1'}).update('Yes').writeAttribute('selected', tmp.hasStock === true) })
-				.insert({'bottom': new Element('option', {'value': '0'}).update('No').writeAttribute('selected', tmp.hasStock === false)})
+				.insert({'bottom': new Element('option', {'value': '0'}).update('No').writeAttribute('selected', (tmp.hasStock === false) && (orderItem.eta !== '9999-12-31 23:59:59'))})
+				.insert({'bottom': new Element('option', {'value': '2'}).update('NO ETA').writeAttribute('selected', (tmp.hasStock === false) && (orderItem.eta === '9999-12-31 23:59:59')) })
 				.observe('change', function() {
 					tmp.editPanel = $(this).up('.update_order_item_purchase_div');
 					tmp.editPanel.getElementsBySelector('.no-stock-div').each(function(item) { item.remove(); });
@@ -404,7 +412,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				})
 			).addClassName('dl-horizontal form-group')
 		})
-		if(tmp.hasStock === false)
+		if ((tmp.hasStock === false) && (orderItem.eta !== '9999-12-31 23:59:59'))
 			tmp.me._getPurchasingEditCelPanel(orderItem, tmp.editCellPanel);
 		return tmp.editCellPanel;
 	}
@@ -456,28 +464,40 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				})
 			});
 			if(tmp.hasStock === false) {
-				tmp.newDiv.insert({'bottom': new Element('span').update('&nbsp;&nbsp;') })
-				.insert({'bottom': new Element('span')
-					.insert({'bottom': new Element('strong').update('ETA: ') })
+				if (orderItem.eta === '9999-12-31 23:59:59')
+				{
+					// no eta
+					tmp.newDiv.insert({'bottom': new Element('span').update('&nbsp;&nbsp;') })
 					.insert({'bottom': new Element('span')
-						.insert({'bottom': new Element('small').update(orderItem.eta + ' ') })
-						.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'text-danger', 'title': 'clear ETA'})
-							.update(new Element('span', {'class': 'glyphicon glyphicon-remove'}))
-							.observe('click', function() {
-								tmp.me._clearETA(this, orderItem);
+						.insert({'bottom': new Element('strong').update('NO ETA ') })
+					});
+				}
+				else
+				{
+					tmp.newDiv.insert({'bottom': new Element('span').update('&nbsp;&nbsp;') })
+					.insert({'bottom': new Element('span')
+						.insert({'bottom': new Element('strong').update('ETA: ') })
+						.insert({'bottom': new Element('span')
+							.insert({'bottom': new Element('small').update(orderItem.eta + ' ') })
+							.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'text-danger', 'title': 'clear ETA'})
+								.update(new Element('span', {'class': 'glyphicon glyphicon-remove'}))
+								.observe('click', function() {
+									tmp.me._clearETA(this, orderItem);
+								})
 							})
 						})
 					})
-				})
-				.insert({'bottom': new Element('span').update('&nbsp;&nbsp;') })
-				.insert({'bottom': new Element('span')
-					.insert({'bottom': new Element('strong').update('Is Ordered: ') })
-					.insert({'bottom': new Element('input', {'type': 'checkbox', 'checked': tmp.isOrdered})
-						.observe('change', function(event) {
-							return tmp.me._changeIsOrdered(this, orderItem);
+					.insert({'bottom': new Element('span').update('&nbsp;&nbsp;') })
+					.insert({'bottom': new Element('span')
+						.insert({'bottom': new Element('strong').update('Is Ordered: ') })
+						.insert({'bottom': new Element('input', {'type': 'checkbox', 'checked': tmp.isOrdered})
+							.observe('change', function(event) {
+								return tmp.me._changeIsOrdered(this, orderItem);
+							})
 						})
-					})
-				});
+					});
+				}
+
 			}
 			return tmp.newDiv;
 		}
@@ -1011,9 +1031,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			,'onSuccess': function(sende, param) {
 				try {
 					tmp.result = tmp.me.getResp(param, false, true);
-					if(!tmp.result || !tmp.me.item)
+					if(!tmp.result || !tmp.result.item)
 						return;
-					tmp.me._order.pONo = tmp.me.item;
+					tmp.me._order.pONo = tmp.result.item;
 				} catch (e) {
 					tmp.me.showModalBox('<strong class="text-danger">Error</strong>', e);
 				}
@@ -1047,6 +1067,17 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					.observe('change', function() {
 						tmp.me._updatePONo(this);
 					})
+				})
+				.insert({'bottom': new Element('span').update('&nbsp;') })
+				.insert({'bottom': tmp.me._order.attentionStatus == '' ? new Element('span', {'class': 'btn btn-danger btn-xs'}).update('Need Attention')
+					.observe('click', function(){
+						tmp.me._updateAttentionStatus(tmp.me._order.id, PageJs.ORDERATTENTION.NEW);
+					})
+					:
+					new Element('span', {'class': 'btn btn-info btn-xs'}).update('Cancel Attention')
+						.observe('click', function(){
+							tmp.me._updateAttentionStatus(tmp.me._order.id, PageJs.ORDERATTENTION.CANCEL);
+						})
 				})
 				.insert({'bottom': new Element('span', {'class': 'pull-right'})
 					.update('Status: ')
@@ -1115,7 +1146,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me = this;
 		tmp.resultDiv = $(tmp.me._resultDivId);
 		tmp.me._order.customer = customer;
-		tmp.me._order.address = customer.address;
+		if (!tmp.me._order.address) tmp.me._order.address = customer.address;
 		tmp.resultListDiv = tmp.resultDiv.down('.panel-default');
 		if(tmp.resultListDiv && tmp.resultListDiv.getElementsBySelector('.row').size() > 0) {
 			tmp.resultDiv.down('.panel-default').replace(tmp.me._getAddressPanel())
@@ -1391,7 +1422,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					type: 'GET',
 					dataType: "json",
 					url: '/ajax/getComments',
-					data: {'entity': tmp.item.attr('comments-entity'), 'entityId': tmp.item.attr('comments-entity-Id'), 'type': tmp.item.attr('comments-type') },
+					data: {'entity': tmp.item.attr('comments-entity'), 'entityId': tmp.item.attr('comments-entity-Id'), 'type': tmp.item.attr('comments-type'), 'storeId' : jQuery('#storeId').attr('value'), 'userId' : jQuery('#userId').attr('value')  },
 					success: function(result) {
 						tmp.newDiv = 'N/A';
 						if(result.resultData && result.resultData.items && result.resultData.items.length > 0) {
@@ -1420,6 +1451,43 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			jQuery('.panel').removeClass('panel-default').addClass('panel-warning');
 		if(tmp.me._order.type === 'ORDER')
 			jQuery('.panel').removeClass('panel-default').addClass('panel-success');
+		return tmp.me;
+	}
+	,_updateAttentionStatus: function(orderId, status) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.data = {};
+		tmp.data.status = status;
+		tmp.data.orderId = orderId;
+		tmp.me.postAjax(tmp.me.getCallbackId('updateAttentionStatus'), tmp.data, {
+			'onLoading': function() {
+			}
+			,'onSuccess': function(sender, param) {
+				try {
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result)
+						return;
+					else
+					{
+						if (status == PageJs.ORDERATTENTION.NEW)
+							tmp.me.showModalBox('<strong class="text-danger">Information</strong>','This order has been escalated to attention list!');
+						else
+							tmp.me.showModalBox('<strong class="text-danger">Information</strong>','This order has been deleted from attention list!');
+						tmp.resultDiv = $(tmp.me._resultDivId);
+						tmp.resultListDiv = tmp.resultDiv.down('.panel-default');
+						tmp.me._order.attentionStatus = tmp.result.attentionStatus;
+						if(tmp.resultListDiv && tmp.resultListDiv.getElementsBySelector('.row').size() > 0) {
+							tmp.resultDiv.down('.panel-default').replace(tmp.me._getAddressPanel())
+						} 
+					}
+						
+				} catch (e) {
+					tmp.me.showModalBox('<strong class="text-danger">Error</strong>', e);
+				}
+			}
+			,'onComplete': function() {
+			}
+		})
 		return tmp.me;
 	}
 });

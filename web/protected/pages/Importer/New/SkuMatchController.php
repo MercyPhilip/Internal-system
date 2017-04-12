@@ -31,8 +31,11 @@ class SkuMatchController extends BPCPageAbstract
 	 */
 	protected function _getEndJs()
 	{
-		$importDataTypes = array('myob_ean'=> 'MYOB EAN', 'myob_upc'=> 'MYOB UPC', 'stockAdjustment' => 'Stock Adjustment', 'accounting' => 'Accounting Code for Products', 'accountingCode' => 'Accounting Code for Categories');
-
+		if (Core::getUser()->getStore()->getId() == 1)
+			$importDataTypes = array('myob_ean'=> 'MYOB EAN', 'myob_upc'=> 'MYOB UPC', 'stockAdjustment' => 'Stock Adjustment', 'accounting' => 'Accounting Code for Products', 'accountingCode' => 'Accounting Code for Categories');
+		else
+			$importDataTypes = array('stockAdjustment' => 'Stock Adjustment');
+				
 		$js = parent::_getEndJs();
 		$js .= 'pageJs';
 		$js .= ".setHTMLID('importerDiv', 'importer_div')";
@@ -195,9 +198,6 @@ class SkuMatchController extends BPCPageAbstract
 			if(!empty($stockOnPO))
 				$product->addLog('Product (ID=' . $product->getId() . ') now stockOnPO = ' . $stockOnPO, Log::TYPE_SYSTEM)
 					->setStockOnPO($stockOnPO);
-			if(!empty($stockOnHand))
-				$product->addLog('Product (ID=' . $product->getId() . ') now stockOnHand = ' . $stockOnHand, Log::TYPE_SYSTEM)
-					->setStockOnHand($stockOnHand);
 			if(!empty($stockInRMA))
 				$product->addLog('Product (ID=' . $product->getId() . ') now stockInRMA = ' . $stockInRMA, Log::TYPE_SYSTEM)
 					->setStockInRMA($stockInRMA);
@@ -210,7 +210,9 @@ class SkuMatchController extends BPCPageAbstract
 			if(!empty($totalOnHandValue))
 				$product->addLog('Product (ID=' . $product->getId() . ') now totalOnHandValue = ' . $totalOnHandValue, Log::TYPE_SYSTEM)
 					->setTotalOnHandValue($totalOnHandValue);
-
+			if(!empty($stockOnHand))
+				$product->addLog('Product (ID=' . $product->getId() . ') now stockOnHand = ' . $stockOnHand, Log::TYPE_SYSTEM)
+				->setStockOnHand($stockOnHand);
 			$active = ($active === 0 || $active === '0' || $active === false || $active === 'false' || $active === 'no') ? false : true;
 			$product->addLog('Product (ID=' . $product->getId() . ') now active = ' . $active, Log::TYPE_SYSTEM)
 				->setActive($active);

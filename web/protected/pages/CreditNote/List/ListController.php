@@ -96,7 +96,7 @@ class ListController extends CRUDPageAbstract
 					}
 					case 'ord.orderNo':
 					{
-						$query->eagerLoad("CreditNote.order", 'inner join', 'ord', '');
+						$query->eagerLoad("CreditNote.order", 'inner join', 'ord', 'ord.id = cn.orderId and ord.storeId = cn.storeId');
 						$where[] = 'ord.orderNo = ?';
 						$params[] = trim($value);
 						$innerJoinStrings[] = 'inner join `order` ord on (ord.id = cn.orderId)';
@@ -112,15 +112,16 @@ class ListController extends CRUDPageAbstract
 					case 'pro.ids':
 					{
 						$value = explode(',', $value);
-						$query->eagerLoad("CreditNote.items", 'inner join', 'cn_item', 'cn_item.creditNoteId = cn.id and cn_item.active = 1');
+						$query->eagerLoad("CreditNote.items", 'inner join', 'cn_item', 'cn_item.creditNoteId = cn.id and cn_item.active = 1 and cn.storeId = cn_item.storeId');
 						$where[] = 'cn_item.productId in ('.implode(", ", array_fill(0, count($value), "?")).')';
-						$innerJoinStrings[] = 'inner join `creditnoteitem` cn_item on (cn_item.creditNoteId = cn.id and cn_item.active = 1)';
+						$innerJoinStrings[] = 'inner join `creditnoteitem` cn_item on (cn_item.creditNoteId = cn.id and cn_item.active = 1 and cn.storeId = cn_item.storeId)';
 						$params = array_merge($params, $value);
 						break;
 					}
             	}
             }
-
+            $where[] = 'cn.storeId = ?';
+            $params[] = Core::getUser()->getStore()->getId();
             $stats = array();
             $objects = $class::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('cn.creditNoteNo' => 'desc'), $stats);
             $results['pageStats'] = $stats;

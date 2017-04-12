@@ -22,7 +22,7 @@ BEGIN
     end;
   else
      begin
-     select IFNULL(sum(canSupplyQty),0) into $supplier_quantity from suppliercode where productId = old.id;
+     select IFNULL(sum(canSupplyQty),0) into $supplier_quantity from suppliercode where productId = old.id and active = 1;
      set $mel_quantity  = substr(LPAD(cast($supplier_quantity as char(10)),10,'0'),1,5);
      set $other_quantity = substr(LPAD(cast($supplier_quantity as char(10)),10,'0'),6,5);
      set $mel_quantity = new.stockOnHand + $mel_quantity;

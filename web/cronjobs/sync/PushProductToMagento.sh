@@ -6,6 +6,8 @@ FILE_DIR=/tmp/
 FILE_NAME=productUpdate.tar.gz
 DESTINATION=/var/pushdata/archive/
 RECIPIENTS="larry@budgetpc.com.au"
+SYNCFILE_DIR=/home/philip/bitbucket/magento-b2b/web/cronjobs/sync/
+PEMFILE_PATH=/home/philip/.ssh/BPC_EC2_keyPair01.pem
 
 ## generate a MAGENTO product file ########################################
 if ps ax | grep -v grep | grep "ProductToMagento.php" > /dev/null; then
@@ -15,14 +17,14 @@ if ps ax | grep -v grep | grep "ProductToMagento.php" > /dev/null; then
 else
 	echo -n '== Generating the file ... ::'
 	date
-	/usr/bin/php /var/www/magentob2b/web/cronjobs/sync/ProductToMagento.php $FILE_DIR
+	/usr/bin/php ${SYNCFILE_DIR}ProductToMagento.php $FILE_DIR
 	FILE_PATH=${FILE_DIR}/${FILE_NAME}
 	if [ -e "$FILE_PATH" ]
 	then
 		SERVER_FILE=${SERVER}:${SERVER_PATH}productUpdate_`date "+%Y_%m_%d_%H_%M_%S"`.tar.gz
 		echo -n "== coping ${FILE_PATH} TO ${SERVER_FILE} :: "
 		date
-		scp $FILE_PATH ec2-user@${SERVER_FILE}
+		scp -i ${PEMFILE_PATH} $FILE_PATH ec2-user@${SERVER_FILE}
 		ret=$?
 		if [ "${ret}" -ne "0" ] 
 		then

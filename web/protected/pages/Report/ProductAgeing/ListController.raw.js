@@ -27,7 +27,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					return {
 						searchTxt: params, // search term
 						pageNo: 1,
-						pageSize: 10
+						pageSize: 10,
+						'userId' : jQuery('#userId').attr('value')
 					};
 				},
 				results: function (data) {
@@ -130,11 +131,12 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				delay: 10,
 				data: function (params) {
 					return {
-						searchTxt: 'purchaseOrderNo like ?', // search term
+						searchTxt: 'purchaseOrderNo like ? and storeId = ?', // search term
 						entityName: 'PurchaseOrder',
-						searchParams: ['%' + params + '%'],
+						searchParams: ['%' + params + '%', jQuery('#storeId').attr('value')],
 						pageNo: 1,
-						pageSize: 10
+						pageSize: 10,
+						'userId' : jQuery('#userId').attr('value')
 					};
 				},
 				results: function (data) {
@@ -256,13 +258,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.me = this;
 		tmp.tag = (tmp.isTitle === true ? 'th' : 'td');
 		tmp.isTitle = (isTitle || false);
-		
+
 		tmp.row = new Element('tr', {'class': (tmp.isTitle === true ? 'item_top_row' : 'btn-hide-row item_row') + (row.active == 0 ? ' danger' : ''), 'item_id': (tmp.isTitle === true ? '' : row.id)})
 			.store('data', row)
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle === true ? 'Product SKU' : tmp.me._getLink('product', row.product.id, row.product.sku) ) })
 			.insert({'bottom': new Element(tmp.tag).update(tmp.isTitle === true ? 'Product Name' : tmp.me._getLink('product', row.product.id, row.product.name)) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-2'}).update(tmp.isTitle === true ? 'Last Purchase Date' : moment(tmp.me.loadUTCTime(row.lastPurchaseTime)).format('ll') ) })
-			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle === true ? 'Qty' : tmp.me._getLink('productqtylog', null, row.product.stockOnHand, null, [{'productid': row.product.id}])) })
+			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle === true ? 'Qty' : (row.receivingItem.id ? tmp.me._getLink('productqtylog', null, row.product.stockOnHand, null, [{'productid': row.product.id}]) : 'N/A')) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-2'}).update(tmp.isTitle === true ? 'Aged Days' : moment().diff(moment(tmp.me.loadUTCTime(row.lastPurchaseTime)), 'days') ) })
 			;
 		return tmp.row;

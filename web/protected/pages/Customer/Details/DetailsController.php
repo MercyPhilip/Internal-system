@@ -72,6 +72,22 @@ class DetailsController extends DetailsPageAbstract
 			$terms = intval(trim($param->CallbackParameter->terms));
 			$tierLevel = intval(trim($param->CallbackParameter->tier));
 			$isBlocked = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->isBlocked);
+			// Add for grouping customers by philip
+			$groupCom = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->groupCom);
+			$groupEdu = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->groupEdu);
+			$groupGame = !is_numeric($param->CallbackParameter->id) ? '' : trim($param->CallbackParameter->groupGame);
+			if ($groupCom == 1 || $groupEdu == 1 || $groupGame == 1) {
+				$groupGen = !is_numeric($param->CallbackParameter->id) ? '' : '0';
+			} else {
+				$groupGen = !is_numeric($param->CallbackParameter->id) ? '' : 0;
+			}
+			// end add
+			$creditLeft = !intval($param->CallbackParameter->credit) ? '' : trim($param->CallbackParameter->credit);
+			if(($creditLeft = StringUtilsAbstract::getValueFromCurrency(trim($param->CallbackParameter->credit))) === '' || !is_numeric($creditLeft))
+			{
+				$creditLeft = 0;
+			}
+					
 			$contactNo = trim($param->CallbackParameter->contactNo);
 			$billingCompanyName = trim($param->CallbackParameter->billingCompanyName);
 			$billingName = trim($param->CallbackParameter->billingName);
@@ -92,7 +108,6 @@ class DetailsController extends DetailsPageAbstract
 			$tier = TierLevel::get(trim($tierLevel));
 			if (!$tier instanceof TierLevel)
 				throw new Exception('Invalid Tier Level passed in!');
-			
 			if(is_numeric($param->CallbackParameter->id)) {
 				$customer = Customer::get(trim($param->CallbackParameter->id));
 				if(!$customer instanceof Customer)
@@ -106,15 +121,50 @@ class DetailsController extends DetailsPageAbstract
 				{
 					throw new Exception('You do not have privileges to change isBlocked attribute, please inquire Administrator for support!');
 				}
+				// only admin and accounting can update credit
+				if ((Core::getRole()->getId() != Role::ID_SYSTEM_ADMIN && Core::getRole()->getId() != Role::ID_ACCOUNTING))
+				{
+					$creditPool = $customer->getCreditPool();
+					if (((!$creditPool instanceof CreditPool) && ($creditLeft != 0)) 
+							|| (($creditPool instanceof CreditPool) && (doubleval($creditLeft) != doubleval($creditPool->getTotalCreditLeft()))))
+					{
+						throw new Exception('You do not have privileges to change credit attribute, please inquire Administrator for support!');
+					}
+				}
+				else
+				{
+					$creditPool = $customer->getCreditPool();
+					if ((!$creditPool instanceof CreditPool) && $creditLeft != 0)
+					{
+						$creditPool = new CreditPool();
+						$creditPool->setCustomer($customer)
+							->setStore(Core::getUser()->getStore())
+							->updateTotalCreditLeft($creditLeft)
+							->save()
+							->addLog('credit created by ' . Core::getUser()->getUserName() . '($0.00' . ' => ' . StringUtilsAbstract::getCurrency($creditPool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
+					}
+					else if ($creditPool instanceof CreditPool && $creditLeft != $creditPool->getTotalCreditLeft())
+					{
+						$origCredt = $creditPool->getTotalCreditLeft();
+						$creditPool->updateTotalCreditLeft($creditLeft)
+							->save()
+							->addLog('credit changed by ' . Core::getUser()->getUserName() . '(' . StringUtilsAbstract::getCurrency($origCredt) . ' => ' . StringUtilsAbstract::getCurrency($creditPool->getTotalCreditLeft()) . ')', Log::TYPE_SYSTEM, 'CREDIT_CHG', __CLASS__ . '::' . __FUNCTION__);
+					}
+				}
 				$oldTierId = $customer->getTier()->getId();
-				
 				$customer->setName($name)
 					->setEmail($email)
 					->setTerms($terms)
 					->setTier($tier)
 					->setIsBlocked($isBlocked)
 					->setContactNo($contactNo)
-					->setActive($active);
+					->setActive($active)
+					// Add for grouping customers by philip
+					->setGroupGen($groupGen)
+					->setGroupCom($groupCom)
+					->setGroupEdu($groupEdu)
+					->setGroupGame($groupGame);
+					// end add
 				$billingAddress = $customer->getBillingAddress();
 				if($billingAddress instanceof Address) {
 					$billingAddress->setStreet($billingStreet)
@@ -146,14 +196,14 @@ class DetailsController extends DetailsPageAbstract
 				$customer->save();
 				if ($oldTierId != $tierLevel)
 				{
-					//need to update magento customer info
-					$connector = CustomerConnector::getConnector(B2BConnector::CONNECTOR_TYPE_CUSTOMER,
-							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_WSDL),
-							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_USER),
-							SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_KEY));
 					$custInfo = array();
 					if (($customer->getMageId() > 0) && $tierLevel != 0)
 					{
+						//need to update magento customer info
+						$connector = CustomerConnector::getConnector(B2BConnector::CONNECTOR_TYPE_CUSTOMER,
+								SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_WSDL),
+								SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_USER),
+								SystemSettings::getSettings(SystemSettings::TYPE_B2B_SOAP_KEY));
 						// update
 						$custInfo = array('group_id' => $tierLevel);
 						$result = $connector->updateCustomer($customer->getMageId(), $custInfo);
@@ -175,12 +225,26 @@ class DetailsController extends DetailsPageAbstract
 					$shippingAdressFull = null;
 				else
 					$shippingAdressFull = Address::create($shippingStreet, $shippingCity, $shippingState, $shippingCountry, $shippingPosecode, $shippingName, $shippingContactNo, $shippingCompanyName);
-				$customer = Customer::create($name, $contactNo, $email, $billingAdressFull, false, '', $shippingAdressFull, 0, $terms, $isBlocked, $tierLevel);
+				$customer = Customer::create($name, $contactNo, $email, $billingAdressFull, false, '', $shippingAdressFull, 0, $terms, $isBlocked, $tierLevel, $groupCom, $groupEdu, $groupGame. $groupGen);
 				if(!$customer instanceof Customer)
 					throw new Exception('Error creating customer!');
 			}
+
 			$results['url'] = '/customer/' . $customer->getId() . '.html';
 			$results['item'] = $customer->getJson();
+			
+			$acton = new ActOnConnector();
+			$actONEnable = $acton->getEnable();
+			
+			if($actONEnable == 1){
+				$msgLists = MessageList::getAll();
+				if(count($msgLists) !== 0){
+					$data['items'][] = $customer->getJson();
+					$data['items'] = $this->getMessageInfo($data['items'], 2, $msgLists);
+					$results['item'] = $data['items'][0];
+				}
+			}			
+			
 			Dao::commitTransaction();
 		}
 		catch(Exception $ex)

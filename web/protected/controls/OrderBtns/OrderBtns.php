@@ -53,6 +53,8 @@ class OrderBtns extends TTemplateControl
 				throw new Exception('System Error: invalid order provided!');
 			if(!isset($param->CallbackParameter->emailAddress) || ($emailAddress = trim($param->CallbackParameter->emailAddress)) === '')
 				throw new Exception('System Error: invalid emaill address provided!');
+			if(!isset($param->CallbackParameter->replyEmailAddress) || ($replyEmailAddress = trim($param->CallbackParameter->replyEmailAddress)) === '')
+				throw new Exception('System Error: invalid reply emaill address provided!');
 			$emailBody = '';
 			if(isset($param->CallbackParameter->emailBody) && ($emailBody = trim($param->CallbackParameter->emailBody)) !== '')
 				$emailBody = str_replace("\n", "<br />", $emailBody);
@@ -60,7 +62,14 @@ class OrderBtns extends TTemplateControl
 			$pdfFile = EntityToPDF::getPDF($order);
 			$asset = Asset::registerAsset($order->getOrderNo() . '.pdf', file_get_contents($pdfFile), Asset::TYPE_TMP);
 			$type = $order->getType();
-			EmailSender::addEmail('sales@budgetpc.com.au', $emailAddress, 'BudgetPC ' . $type. ':' . $order->getOrderNo() , (trim($emailBody) === '' ? '' : $emailBody . "<br /><br />") .'Please find attached ' . $type. ' (' . $order->getOrderNo() . '.pdf) from Budget PC Pty Ltd.', array($asset));
+			$emailList = str_replace(',', ';', $emailAddress);
+			$emailLists = explode(';', $emailList);
+			foreach($emailLists as $emailAddress)
+			{
+				$emailAddress = trim($emailAddress);
+				if ($emailAddress == '') continue;
+				EmailSender::addEmail($replyEmailAddress, $emailAddress, 'BudgetPC ' . $type. ':' . $order->getOrderNo() , (trim($emailBody) === '' ? '' : $emailBody . "<br /><br />") .'Please find attached ' . $type. ' (' . $order->getOrderNo() . '.pdf) from Budget PC Pty Ltd.', array($asset));
+			}
 			$order->addComment('An email sent to "' . $emailAddress . '" with the attachment: ' . $asset->getAssetId(), Comments::TYPE_SYSTEM);
 			$results['item'] = $order->getJson();
 

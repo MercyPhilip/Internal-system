@@ -18,6 +18,7 @@ class Menu extends TTemplateControl
 	public function getMenuItems()
 	{
 		$pageItem = trim($this->getPage()->menuItem);
+		
 		$array = array(
 			'' => array('url' => '/', 'name' => 'Home', 'icon' => '<span class="glyphicon glyphicon-home"></span>')
 			,'Orders' => array(
@@ -27,12 +28,11 @@ class Menu extends TTemplateControl
 		);
 		/*if(AccessControl::canAccessPriceMatchPage(Core::getRole()) )
 			$array['priceMatch'] = array('url' => '/pricematch.html', 'name' => 'Price Match', 'icon' => '<span class="glyphicon glyphicon-usd"></span>' );*/
-
 		if(AccessControl::canAccessCreateOrderPage(Core::getRole()) )
 			$array['Orders']['neworder'] = array('url' => '/order/new.html', 'name' => 'New Order', 'icon' => '<span class="glyphicon glyphicon-plus"></span>');
 		if(AccessControl::canAccessOrderItemsPage(Core::getRole()) )
 			$array['Orders']['orderitems'] = array('url' => '/orderitems.html', 'name' => 'OrderItems');
-		if(AccessControl::canAccessOrderItemsPage(Core::getRole()) )
+		if(AccessControl::canAccessOrderItemsPage(Core::getRole()) && (Core::getUser()->getStore()->getId() == 1) ) 
 			$array['Orders']['priceMatch'] = array('url' => '/pricematch.html', 'name' => 'Price Match', 'icon' => '<span class="glyphicon glyphicon-usd"></span>');
 		if(AccessControl::canAccessProductsPage(Core::getRole()) ) {
 			$array['Products'] = array(
@@ -51,8 +51,10 @@ class Menu extends TTemplateControl
 			$array['Products']['importer']  = array('url' => '/importer/new.html', 'name' => 'Importer', 'icon'=> '<span class="fa fa-bars"></span>');
 			$array['Products']['ageingreport']  = array('url' => '/productageing.html', 'name' => 'Ageing Report (beta)', 'icon'=> '<span class="glyphicon glyphicon-eye-open"></span>');
 			$array['Products']['systembuilds'] = array('url' => '/build.html', 'name' => 'System Builds');
+
 		}
 		if(AccessControl::canAccessPurcahseOrdersPage(Core::getRole()) )
+		{
 			$array['Purchase'] = array(
 				'icon' => '<span class="glyphicon glyphicon-shopping-cart"></span>',
 				'PurchaseOrder' =>array('url' => '/purchase.html', 'name' => 'Purchase Orders', 'icon' => '<span class="glyphicon glyphicon-shopping-cart"></span>'),
@@ -60,8 +62,12 @@ class Menu extends TTemplateControl
 				'NEW PO Credit' =>array('url' => '/purchase/credit/new.html', 'name' => 'NEW PO Credit', 'icon' => '<span class="glyphicon glyphicon-plus"></span>'),
 				'Receiving' =>array('url' => '/receiving.html', 'name' => 'Receiving PO', 'icon' => '<span class="fa fa-home"></span>'),
 				'serialNumbers' => array('url' => '/serialnumbers.html', 'name' => 'Serial Numbers', 'icon' => '<span class="glyphicon glyphicon-search"></span>'),
-				'priceMatch' => array('url' => '/pricematch.html', 'name' => 'Price Match', 'icon' => '<span class="glyphicon glyphicon-usd"></span>' )
 			);
+			if (Core::getUser()->getStore()->getId() == 1)
+			{
+				$array['Purchase']['priceMatch'] = array('url' => '/pricematch.html', 'name' => 'Price Match', 'icon' => '<span class="glyphicon glyphicon-usd"></span>' );
+			}
+		}
 		if(AccessControl::canAccessOrderItemsPage(Core::getRole()) )
 			$array['Customers'] = array('url' => '/customer.html', 'name' => 'Customers', 'icon' => '<span class="glyphicon glyphicon-user"></span>' );
 		if(AccessControl::canAccessAccountsPage(Core::getRole()) )
@@ -82,7 +88,10 @@ class Menu extends TTemplateControl
 					'Receiving' =>array('url' => '/receiving.html', 'name' => 'Receiving Products', 'icon' => '<span class="fa fa-home"></span>'),
 					'serialNumbers' => array('url' => '/serialnumbers.html', 'name' => 'Serial Numbers', 'icon' => '<span class="glyphicon glyphicon-search"></span>'),
 					'Locations' =>array('url' => '/locations.html', 'name' => 'Locations', 'icon' => '<span class="fa fa-arrows"></span>'),
-					'PreferLocationTypes' =>array('url' => '/locationtypes.html', 'name' => 'Prefer Location Types', 'icon' => '<span class="glyphicon glyphicon-tasks"></span>')
+					'PreferLocationTypes' =>array('url' => '/locationtypes.html', 'name' => 'Prefer Location Types', 'icon' => '<span class="glyphicon glyphicon-tasks"></span>'),
+					'Pickup' =>array('url' => '/pickup.html', 'name' => 'Van Pickup', 'icon' => '<span class="fa fa-truck"></span>'),
+					'Delivery' =>array('url' => '/delivery.html', 'name' => 'Van Delivery', 'icon' => '<span class="fa fa-plane"></span>')
+					
 			);
 			if(AccessControl::canAccessStockAdjustPage(Core::getRole()))
 				$array['Logistics']['stockadjustment'] = array('url' => '/stockadjustment.html', 'name' => 'Stock Adjustment', 'icon'=> '<span class=""></span>');
@@ -103,31 +112,58 @@ class Menu extends TTemplateControl
 					'icon' => '<span class="fa fa-area-chart"></span>',
 					'RunRates' =>array('url' => '/report/runrate.html', 'name' => 'Run Rate', 'icon' => '<span class="glyphicon glyphicon-plus"></span>'),
 					'BuyInReport' =>array('url' => '/report/buyinreport.html', 'name' => 'Buy In Report', 'icon' => '<span class="glyphicon glyphicon-log-in"></span>'),
-					'SellingReport' =>array('url' => '/report/sellingreport.html', 'name' => 'Selling Report', 'icon' => '<span class="glyphicon glyphicon-log-out"></span>')
+					'SellingReport' =>array('url' => '/report/sellingreport.html', 'name' => 'Selling Report', 'icon' => '<span class="glyphicon glyphicon-log-out"></span>'),
+					'eta' => array('url' => '/etareport.html', 'name' => 'ETA', 'icon' => '<span class="glyphicon glyphicon-eye-open"></span>')
 			);
 		}
 		if(AccessControl::canAccessCreateProductPage(Core::getRole())) {
-			$array['Management'] = array(
-					'icon' => '<span class="glyphicon glyphicon-list"></span>',
-					'newProducts' => array('url' => '/management/products.html', 'name' => 'New Products', 'icon' => '<span class="glyphicon glyphicon-plus-sign"></span>'),
-					'import' => array('url' => '/management/import.html', 'name' => 'Import(csv)', 'icon' => '<span class="glyphicon glyphicon-upload"></span>'),
-					'msl' => array('url' => '/management/ministocklevel.html', 'name' => 'Minimum Stock Level', 'icon' => '<span class="glyphicon glyphicon-object-align-bottom"></span>'),
-					'categorymanagement' => array('url' => '/management/categorymanagement.html', 'name' => 'Category Management', 'icon' => '<span class="glyphicon glyphicon-folder-open"></span>'),
+			if (Core::getUser()->getStore()->getId() != 1)
+			{
+				$array['Management'] = array(
+						'icon' => '<span class="glyphicon glyphicon-list"></span>',
+						'msl' => array('url' => '/management/ministocklevel.html', 'name' => 'Minimum Stock Level', 'icon' => '<span class="glyphicon glyphicon-object-align-bottom"></span>'),
+						'categorymanagement' => array('url' => '/management/categorymanagement.html', 'name' => 'Category Management', 'icon' => '<span class="glyphicon glyphicon-folder-open"></span>'),
+						'stocktake' => array('url' => '/management/stocktake.html', 'name' => 'Stock Take', 'icon' => '<span class="glyphicon glyphicon-transfer"></span>')
+				);
+			}
+			else
+			{
+				$array['Management'] = array(
+						'icon' => '<span class="glyphicon glyphicon-list"></span>',
+						'newProducts' => array('url' => '/management/products.html', 'name' => 'New Products', 'icon' => '<span class="glyphicon glyphicon-plus-sign"></span>'),
+						'import' => array('url' => '/management/import.html', 'name' => 'Import(csv)', 'icon' => '<span class="glyphicon glyphicon-upload"></span>'),
+						'msl' => array('url' => '/management/ministocklevel.html', 'name' => 'Minimum Stock Level', 'icon' => '<span class="glyphicon glyphicon-object-align-bottom"></span>'),
+						'categorymanagement' => array('url' => '/management/categorymanagement.html', 'name' => 'Category Management', 'icon' => '<span class="glyphicon glyphicon-folder-open"></span>'),
 					'stocktake' => array('url' => '/management/stocktake.html', 'name' => 'Stock Take', 'icon' => '<span class="glyphicon glyphicon-transfer"></span>'),
 					'tierrule' => array('url' => '/management/tierrule.html', 'name' => 'Tier Rule Setting', 'icon' => '<span class="glyphicon glyphicon-cog"></span>'),
 					'producttierprice' => array('url' => '/management/producttierprice.html', 'name' => 'Product Tier Price', 'icon' => '<span class="glyphicon glyphicon-usd"></span>')
-			);
+				);
+			}
 		}
 		if(AccessControl::canAccessUsersPage(Core::getRole()) ) {
-			$array['Systems'] = array(
-					'icon' => '<span class="glyphicon glyphicon-cog"></span>',
-					'users' => array('url' => '/users.html', 'name' => 'Users', 'icon' => '<span class="glyphicon glyphicon-user"></span>'),
-					'tierlevels' => array('url' => '/tierlevels.html', 'name' => 'TierLevels', 'icon' => '<span class="glyphicon glyphicon-cog"></span>'),
-					'salestarget' => array('url' => '/salestarget.html', 'name' => 'SalesTarget', 'icon' => '<span class="glyphicon glyphicon-usd"></span>'),
-					'messages' => array('url' => '/messages.html', 'name' => 'Messages', 'icon' => '<span class="glyphicon glyphicon-envelope"></span>'),
-					'logs' => array('url' => '/logs.html', 'name' => 'Logs', 'icon' => '<span class="fa fa-book"></span>'),
-					'systemsettings' => array('url' => '/systemsettings.html', 'name' => 'Settings', 'icon' => '<span class="glyphicon glyphicon-cog"></span>')
-			);
+			if (Core::getUser()->getStore()->getId() != 1)
+			{
+				$array['Systems'] = array(
+						'icon' => '<span class="glyphicon glyphicon-cog"></span>',
+						'users' => array('url' => '/users.html', 'name' => 'Users', 'icon' => '<span class="glyphicon glyphicon-user"></span>'),
+						'salestarget' => array('url' => '/salestarget.html', 'name' => 'SalesTarget', 'icon' => '<span class="glyphicon glyphicon-usd"></span>'),
+						'messages' => array('url' => '/messages.html', 'name' => 'Messages', 'icon' => '<span class="glyphicon glyphicon-envelope"></span>'),
+						'logs' => array('url' => '/logs.html', 'name' => 'Logs', 'icon' => '<span class="fa fa-book"></span>'),
+				);
+			}
+			else 
+			{
+				$array['Systems'] = array(
+						'icon' => '<span class="glyphicon glyphicon-cog"></span>',
+						'users' => array('url' => '/users.html', 'name' => 'Users', 'icon' => '<span class="glyphicon glyphicon-user"></span>'),
+						'tierlevels' => array('url' => '/tierlevels.html', 'name' => 'TierLevels', 'icon' => '<span class="glyphicon glyphicon-cog"></span>'),
+						'salestarget' => array('url' => '/salestarget.html', 'name' => 'SalesTarget', 'icon' => '<span class="glyphicon glyphicon-usd"></span>'),
+						'messages' => array('url' => '/messages.html', 'name' => 'Messages', 'icon' => '<span class="glyphicon glyphicon-envelope"></span>'),
+						'logs' => array('url' => '/logs.html', 'name' => 'Logs', 'icon' => '<span class="fa fa-book"></span>'),
+						'systemsettings' => array('url' => '/systemsettings.html', 'name' => 'Settings', 'icon' => '<span class="glyphicon glyphicon-cog"></span>')
+				);
+			}
+
 		}
 		$html = "<ul class='nav navbar-nav'>";
 			foreach($array as $key => $item)

@@ -156,6 +156,8 @@ class Controller extends CRUDPageAbstract
 				$where[] = 'dueDate <= :dueDateTo';
 				$params['dueDateTo'] = $dueDate_from->format('Y-m-d') . ' 23:59:59';
 			}
+			$where[] = 'storeId = :storeId';
+			$params['storeId'] = Core::getUser()->getStore()->getId();
 			$stats = array();
 			$objects = $class::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('dueDate' => 'asc'), $stats);
 			$results['pageStats'] = $stats;

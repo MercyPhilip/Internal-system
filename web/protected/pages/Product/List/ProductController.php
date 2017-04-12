@@ -14,7 +14,12 @@ class ProductController extends CRUDPageAbstract
 	 */
 	public $menuItem = 'products';
 	protected $_focusEntity = 'Product';
-	
+	/**
+	 * The switch for priceMatch functions
+	 *
+	 * @var string
+	 */
+	private  $enable;	
 	/**
 	 * constructor
 	 */
@@ -23,6 +28,17 @@ class ProductController extends CRUDPageAbstract
 		parent::__construct();
 		if(!AccessControl::canAccessProductsPage(Core::getRole()))
 			die('You do NOT have access to this page');
+		
+		$this->enable = Config::get('PriceMatch','Enable');
+	}
+	
+	/**
+	 * Getting the enable
+	 *
+	 * @return string
+	 */
+	public function getEnable() {
+		return trim($this->enable);
 	}
 	/**
 	 * (non-PHPdoc)
@@ -54,6 +70,7 @@ class ProductController extends CRUDPageAbstract
 		$js .= "._loadChosen()";
 		$js .= "._bindSearchKey()";
 		$js .= "._bindNewRuleBtn()";
+		$js .= ".setCallbackId('checkPriceMatchEnable', '" . $this->checkPriceMatchEnable->getUniqueID() . "')";
 		$js .= ".setCallbackId('priceMatching', '" . $this->priceMatchingBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('toggleActive', '" . $this->toggleActiveBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('toggleSellOnWeb', '" . $this->toggleSellOnWebBtn->getUniqueID() . "')";
@@ -61,8 +78,12 @@ class ProductController extends CRUDPageAbstract
 		$js .= ".setCallbackId('updateStockLevel', '" . $this->updateStockLevelBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('toggleIsKit', '" . $this->toggleIsKitBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('toggleManualFeed', '" . $this->toggleManualFeedBtn->getUniqueID() . "')";
-		$js .= ".setCallbackId('newRule', '" . $this->newRuleBtn->getUniqueID() . "')";
-		$js .= ".getResults(true, " . $this->pageSize . ");";
+		$js .= ".setCallbackId('newRule', '" . $this->newRuleBtn->getUniqueID() . "');";
+		//$js .= ".getResults(true, " . $this->pageSize . ");";
+// 		if(!AccessControl::canEditPrice())
+// 			$js .= "pageJs.readOnlyMode();";
+		$mode = AccessControl::canEditPrice();
+		$js .= "pageJs.readOnlyMode(" . intval($mode) .  "," . Core::getUser()->getStore()->getId() . "," . Core::getRole()->getId() . ");";
 		return $js;
 	}
 	public function newRule($sender, $param)
@@ -93,14 +114,10 @@ class ProductController extends CRUDPageAbstract
 			{
 				
 				$rule = ProductPriceMatchRule::create($product, $company, trim($param->CallbackParameter->rule->price_from), trim($param->CallbackParameter->rule->price_to), trim($param->CallbackParameter->rule->offset));
-				//file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ': run' . date('Y-m-d\TH:i:sP') . PHP_EOL, FILE_APPEND | LOCK_EX);
 				PriceMatchConnector::run($product->getSku(), true);
-				//file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ': getMinRecord' . date('Y-m-d\TH:i:sP'). PHP_EOL, FILE_APPEND | LOCK_EX);
 				
 				PriceMatchConnector::getMinRecord($product->getSku(), true);
-				//file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ': getNewPrice' . date('Y-m-d\TH:i:sP') . PHP_EOL, FILE_APPEND | LOCK_EX);
 				PriceMatchConnector::getNewPrice($product->getSku(), true, true);
-				//file_put_contents('/tmp/datafeed/web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ': end' . date('Y-m-d\TH:i:sP'). PHP_EOL, FILE_APPEND | LOCK_EX);
 				$results = $rule->getJson();
 			}
 			
@@ -194,10 +211,32 @@ class ProductController extends CRUDPageAbstract
             $results['pageStats'] = $stats;
             $results['items'] = array();
             foreach($objects as $obj)
-                $results['items'][] = $obj->getJson();
+            {
+                $tmpArray = $obj->getJson();
+                $tier0Prices = ProductTierPrice::getAllByCriteria('productId = ? and tierLevelId = 0', array($obj->getId()));
+                $objsOfStore1 = ProductStockInfo::getAllByCriteria('productId = ? and storeId = 1', array($obj->getId()));
+                $unitCostOfStore1 = 0;
+                if (count($objsOfStore1) > 0)
+                {
+                	$objsOfStore1 = $objsOfStore1[0];
+                	$unitCostOfStore1 = intval($objsOfStore1->getStockOnHand()) === 0 ? 0 : round(abs($objsOfStore1->getTotalOnHandValue()) / abs(intval($objsOfStore1->getStockOnHand())), 2);
+                }
+                $rets = array();
+                foreach($tier0Prices as $tier0Price)
+                {
+                	$ret = array();
+                	$ret = $tier0Price->getJson();
+                	$ret['unitCost'] = $unitCostOfStore1;
+                	$rets[] = $ret;
+                }
+                //get cost trend
+                $costTrends = $this->getCostTrend($obj->getId());
+                $tmpArray['costtrends'] = $costTrends;
+                $tmpArray['tierprices'] = $rets;
+                $results['items'][] = $tmpArray;
+            }
             $results['totalStockOnHand'] = isset($sumArray['totalStockOnHand']) ? trim($sumArray['totalStockOnHand']) : 0;
             $results['totalOnHandValue'] = isset($sumArray['totalOnHandValue']) ? trim($sumArray['totalOnHandValue']) : 0;
-
         }
         catch(Exception $ex)
         {
@@ -305,8 +344,14 @@ class ProductController extends CRUDPageAbstract
     		$id = isset($param->CallbackParameter->productId) ? $param->CallbackParameter->productId : '';
     		if(!($product = Product::get($id)) instanceof Product)
     			throw new Exception('Invalid product!');
+    		$sellOnWeb = intval($param->CallbackParameter->isSellOnWeb);
+    		if (($product->getStockOnHand() > 0) && !$sellOnWeb)
+    		{
+    			throw new Exception("Can't take off this product from online because SOH is not zero.");
+    		}
     		$product->setSellOnWeb(intval($param->CallbackParameter->isSellOnWeb))
-    		->save();
+    		->save()
+    		->addLog('SellOnWeb changed by ' . Core::getUser()->getUserName() . '(' . intval(!$sellOnWeb) . ' => ' . intval($sellOnWeb) . ')', Log::TYPE_SYSTEM, 'SELLONWEB_CHG', __CLASS__ . '::' . __FUNCTION__);
     		$results['item'] = $product->getJson();
     		Dao::commitTransaction();
     	}
@@ -499,5 +544,133 @@ class ProductController extends CRUDPageAbstract
     	}
     	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
     }
+    /**
+     * 
+     * @param unknown $sender
+     * @param unknown $param
+     * @throws Exception
+     */
+    private function getCostTrend($productId)
+    {
+    	$results = $errors = array();
+    	try
+    	{
+    		$id = isset($productId) ? $productId : '';
+    		if(!($product = Product::get($id)) instanceof Product)
+    			throw new Exception('Invalid product!');
+    		$storeId = Core::getUser()->getStore()->getId();
+    		$sql = "select DISTINCT r.updated, r.purchaseOrderId, r.unitPrice, po.purchaseOrderNo  from receivingitem r, purchaseorder po 
+    				where po.id = r.purchaseOrderId and r.storeId = po.storeId and po.active = 1 and 
+    				r.productId = ? and r.storeId = ? order by r.updated desc limit 10";
+    		$rets = Dao::getResultsNative($sql, array($id, $storeId), PDO::FETCH_ASSOC);
+    		if (count($rets) > 0)
+    		{
+    			$date = array();
+    			foreach ($rets as $key => $row)
+    			{
+    				$date[$key] = $row['updated'];
+    			}
+    			array_multisort($date, SORT_ASC, $rets);
+    			$results['trends'] = $rets;
+    			// array_column is only supported since php5.5
+    			// so need to use other function to replace it
+    			$results['order'] = $this->getOrder(self::arraycolumn($rets, 'unitPrice'));
+    		}
+    	}
+    	catch(Exception $ex)
+    	{
+    		$errors[] = $ex->getMessage() . $ex->getTraceAsString();
+    	}
+    	return $results;
+    }
+    /**
+     * get the order 
+     * 1: asc
+     * 0: mixed
+     * -1: desc
+     * @param unknown $rgData
+     * @return NULL|number
+     */
+    private function getOrder($rgData)
+    {
+    	if(!count($rgData) || count($rgData)==1)
+    	{
+    		return null;
+    	}
+    	$sCurrent = doubleval(array_shift($rgData));
+    	//$iOrder   = doubleval(current($rgData)) >= $sCurrent ? 1 : -1;
+    	if (doubleval(current($rgData)) > $sCurrent)
+    	{
+    		$iOrder = 1;
+    	}
+    	else if (doubleval(current($rgData)) < $sCurrent)
+    	{
+    		$iOrder = -1;
+    	}
+    	else
+    		$iOrder = 2;
+    	foreach($rgData as $mValue)
+    	{
+    		if(($sCurrent>doubleval($mValue) && $iOrder == 1) ||
+    				($sCurrent < doubleval($mValue) && $iOrder == -1))
+    		{
+    			return 0;
+    		}
+    		else if ($sCurrent>doubleval($mValue) && $iOrder == 2)
+    		{
+    			$iOrder = -1;
+    		}
+    		else if ($sCurrent<doubleval($mValue) && $iOrder == 2)
+    		{
+    			$iOrder = 1;
+    		}
+    		$sCurrent = doubleval($mValue);
+    	}
+    	return $iOrder;
+    }
+    private static function arraycolumn(array $input, $columnKey, $indexKey = null) {
+    	$array = array();
+    	foreach ($input as $value) {
+    		if ( ! isset($value[$columnKey])) {
+    			trigger_error("Key \"$columnKey\" does not exist in array");
+    			return false;
+    		}
+    		if (is_null($indexKey)) {
+    			$array[] = $value[$columnKey];
+    		}
+    		else {
+    			if ( ! isset($value[$indexKey])) {
+    				trigger_error("Key \"$indexKey\" does not exist in array");
+    				return false;
+    			}
+    			if ( ! is_scalar($value[$indexKey])) {
+    				trigger_error("Key \"$indexKey\" does not contain scalar value");
+    				return false;
+    			}
+    			$array[$value[$indexKey]] = $value[$columnKey];
+    		}
+    	}
+    	return $array;
+    }
+    
+    /**
+     * Check PriceMatch function enable or not
+     *
+     * @param unknown $sender
+     * @param unknown $param
+     * @throws Exception
+     *
+     */
+    public function checkPriceMatchEnable($sender, $param) {
+    	$results = $errors = array();
+    	try {
+    		$results['enable'] = $this->getEnable();
+    	}
+    	catch(Exception $ex)
+    	{
+    		$errors[] = $ex->getMessage();
+    	}
+    	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+    }    
 }
 ?>

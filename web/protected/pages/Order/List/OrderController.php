@@ -143,24 +143,24 @@ class OrderController extends BPCPageAbstract
 					}
 					case 'ord.infos.' . OrderInfoType::ID_CUS_NAME:
 					{
-						$query->eagerLoad("Order.customer", 'inner join', 'x', 'x.id = ord.customerId and x.active = 1');
-						$innerJoinStrings[] = 'inner join customer x on (x.id = ord.customerId and x.active = 1)';
+						$query->eagerLoad("Order.customer", 'inner join', 'x', 'x.id = ord.customerId and x.active = 1 and x.storeId = ord.storeId');
+						$innerJoinStrings[] = 'inner join customer x on (x.id = ord.customerId and x.active = 1 and x.storeId = ord.storeId)';
 						$where[] = 'x.name like ?';
 						$params[] = '%' . $value.'%';
 						break;
 					}
 					case 'delivery_method':
 					{
-						$values = explode('{|}', $value);
+						$values = explode('{},', $value);
 						$vs = array();
 						foreach($values as $v) {
 							if(($v = trim($v)) === '')
 								continue;
-							$vs[] = preg_replace('/,/', '', $v, 1);
+							$vs[] = preg_replace('/{}/', '', $v, 1);
 						}
 						if(count($vs) > 0) {
-							$query->eagerLoad("Order.infos", 'inner join', 'x1', 'x1.orderId = ord.id and x1.active = 1');
-							$innerJoinStrings[] = 'inner join orderinfo x1 on (x1.orderId = ord.id and x1.active = 1)';
+							$query->eagerLoad("Order.infos", 'inner join', 'x1', 'x1.orderId = ord.id and x1.active = 1  and x1.storeId = ord.storeId');
+							$innerJoinStrings[] = 'inner join orderinfo x1 on (x1.orderId = ord.id and x1.active = 1  and x1.storeId = ord.storeId)';
 							$where[] = 'x1.value in (' . implode(', ', array_fill(0, count($vs), '?')) . ')';
 							$params = array_merge($params, $vs);
 						}
@@ -168,7 +168,38 @@ class OrderController extends BPCPageAbstract
 					}
 					case 'extraSearchCriteria':
 					{
-						$where[] = $value;
+						if ($value == 'attention')
+						{
+							$ordAtns = OrderAttention::getAllByCriteria('storeId = ?', array(Core::getUser()->getStore()->getId()));
+							$ordAtnIds = array(0);
+							foreach($ordAtns as $ordAtn)
+							{
+								$ordAtnIds[] = $ordAtn->getOrder()->getId();
+							}
+							if(count($ordAtnIds) > 0) {
+								$where[] = 'ord.id in (' . implode(', ', array_fill(0, count($ordAtnIds), '?')) . ')';
+								$params = array_merge($params, $ordAtnIds);
+							}
+							$innerJoinStrings[] = 'inner join orderattention atn on (atn.orderId = ord.id and atn.active = 1 and atn.storeId = ord.storeId)';
+						}
+						else 
+							$where[] = $value;
+						break;
+					}
+					case 'productId':
+					{
+						$productId = trim($value);
+						if ($productId !== '')
+						{
+							$product = Product::get($productId);
+							if ($product instanceof Product)
+							{
+								$query->eagerLoad("Order.orderItems", 'inner join', 'x2', 'x2.orderId = ord.id and x2.active = 1  and x2.storeId = ord.storeId');
+								$innerJoinStrings[] = 'inner join orderitem x2 on (x2.orderId = ord.id and x2.active = 1  and x2.storeId = ord.storeId)';
+								$where[] = 'x2.productId = ?';
+								$params[] = $productId;
+							}
+						}
 						break;
 					}
 				}
@@ -177,6 +208,9 @@ class OrderController extends BPCPageAbstract
 			if($noSearch === true)
 				throw new Exception("Nothing to search!");
 			$stats = array();
+			$where[] = 'ord.storeId = ?';
+			$params[] = Core::getUser()->getStore()->getId();
+			
 			$orders = Order::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('ord.id' => $sort), $stats);
 			$results['pageStats'] = $stats;
 			$results['items'] = array();
@@ -184,7 +218,7 @@ class OrderController extends BPCPageAbstract
 			{
 				$results['items'][] = $order->getJson();
 			}
-			$sql = 'select sum(`ord`.totalAmount) `totalAmount`, sum(`ord`.totalPaid) `totalPaid`, sum(`ord`.totalCreditNoteValue) `totalCreditNoteValue`, sum(pay.value) `paidViaCredit` from `order` ord ' . implode(' ', $innerJoinStrings) . ' left join payment pay on (pay.active = 1 and pay.orderId = ord.id and methodId = ' . PaymentMethod::ID_STORE_CREDIT. ')  where ord.active = 1 AND (' . implode(' AND ', $where) . ')';
+			$sql = 'select sum(`ord`.totalAmount) `totalAmount`, sum(`ord`.totalPaid) `totalPaid`, sum(`ord`.totalCreditNoteValue) `totalCreditNoteValue`, sum(pay.value) `paidViaCredit` from `order` ord ' . implode(' ', $innerJoinStrings) . ' left join payment pay on (pay.storeId = ord.storeId = pay.active = 1 and pay.orderId = ord.id and methodId = ' . PaymentMethod::ID_STORE_CREDIT. ')  where ord.active = 1 AND (' . implode(' AND ', $where) . ')';
 			$sumResult = Dao::getResultsNative($sql, $params);
 			$results['totalAmount'] = count($sumResult) > 0 ? $sumResult[0]['totalAmount'] : 0;
 			$results['totalPaid'] = count($sumResult) > 0 ? $sumResult[0]['totalPaid'] : 0;

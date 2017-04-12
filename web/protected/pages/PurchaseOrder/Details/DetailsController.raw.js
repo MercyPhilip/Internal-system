@@ -124,7 +124,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				.insert({'bottom': new Element('strong').update('Editing PO ' + tmp.purchaseOrder.purchaseOrderNo + ' for ' + tmp.supplier.name + ' ') })
 				.insert({'bottom': new Element('div', {'class': 'pull-right'})
 					.insert({'bottom': new Element('strong', {'style': 'padding-left: 10px'}).update('ETA: ') })
-					.insert({'bottom': new Element('input', {'style': 'max-height:19px', 'class': 'datepicker', 'save-order': 'ETA', 'type': 'date', 'value': tmp.purchaseOrder.eta ? tmp.purchaseOrder.eta : ''}) })
+					.insert({'bottom': new Element('input', {'style': 'max-height:19px', 'class': 'datepicker', 'save-order': 'ETA', 'value': tmp.purchaseOrder.eta ? tmp.purchaseOrder.eta : ''}) })
 				})
 				.insert({'bottom': new Element('div', {'class': 'pull-right'})
 					.insert({'bottom': new Element('strong').update('Status: ') })
@@ -143,7 +143,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 	}
 	,_loadDataPicker: function () {
 		$$('.datepicker').each(function(item){
-			new Prado.WebUI.TDatePicker({'ID': item, 'InputMode':"TextBox",'Format':"yyyy-MM-dd 00:00:00",'FirstDayOfWeek':1,'CalendarStyle':"default",'FromYear':2009,'UpToYear':2024,'PositionMode':"Bottom", "ClassName": 'datepicker-layer-fixer'});
+			new Prado.WebUI.TDatePicker({'ID': item, 'InputMode':"TextBox",'Format':"yyyy-MM-dd",'FirstDayOfWeek':1,'CalendarStyle':"default",'FromYear':2009,'UpToYear':2024,'PositionMode':"Bottom", "ClassName": 'datepicker-layer-fixer'});
 		});
 		return this;
 	}
@@ -341,7 +341,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		tmp.me = this;
 		//header row
 		tmp.productListDiv = new Element('table', {'class': 'table table-hover table-condensed order_change_details_table'})
-			.insert({'bottom': tmp.me._getProductRow({'product': {'sku': 'SKU', 'name': 'Description'}, 'unitPrice': 'Unit Price (Ex)', 'qtyOrdered': 'Qty', 'totalPrice': 'Total Price'}, true)
+			.insert({'bottom': tmp.me._getProductRow({'product': {'sku': 'SKU', 'name': 'Description'}, 'unitPrice': 'Unit Price (Ex)', 'qtyOrdered': 'Qty', 'totalPrice': 'Total Price', 'eta': 'ETA'}, true)
 				.wrap( new Element('thead') )
 			});
 		// tbody
@@ -386,7 +386,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'productName'})
 				.insert({'bottom': orderItem.product.name })
 			})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'uprice col-xs-2'})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'uprice col-xs-1'})
 				.insert({'bottom': (orderItem.unitPrice) })
 				.observe('keydown', function(event){
 					tmp.txtBox = this;
@@ -409,6 +409,16 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'tprice col-xs-1'})
 				.insert({'bottom': (orderItem.totalPrice) })
+				.observe('keydown', function(event){
+					tmp.txtBox = this;
+					tmp.me.keydown(event, function() {
+						$(tmp.txtBox).up('.item_row').down('.glyphicon.glyphicon-floppy-saved').click();
+					});
+					return false;
+				})
+			})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'eta col-xs-1'})
+				.insert({'bottom': (orderItem.eta) })
 				.observe('keydown', function(event){
 					tmp.txtBox = this;
 					tmp.me.keydown(event, function() {
@@ -473,11 +483,21 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					$(this).select();
 				})
 			)
+			,'eta': tmp.me._getFormGroup( null, new Element('input', {'class': 'input-sm datepicker', 'new-order-item': 'eta', 'save-order': 'ETA', 'value': ''})
+				.observe('keyup', function(){
+					tmp.row =$(this).up('.item_row');
+					tmp.eta = $F(this);
+				})
+				.observe('click', function(event){
+					$(this).select();
+				})
+			)
 			, 'btns': new Element('span', {'class': 'btn-group btn-group-sm pull-right'})
 					.insert({'bottom': new Element('span', {'class': 'btn btn-primary'})
 					.insert({'bottom': new Element('span', {'class': ' glyphicon glyphicon-floppy-saved'}) })
 					.observe('click', function() {
 						tmp.me._addNewProductRow(this);
+						tmp.me._loadDataPicker();
 					})
 				})
 				.insert({'bottom': new Element('span', {'class': 'btn btn-default'})
@@ -630,6 +650,13 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			tmp.me._markFormGroupError(tmp.totalPriceBox, 'Invalid value provided!');
 			return ;
 		}
+		
+		tmp.etaBox = tmp.currentRow.down('[new-order-item=eta]');
+		tmp.eta = (typeof poItem === 'undefined') ? $F(tmp.etaBox) : poItem.eta;
+		if(tmp.eta === '' && window.location.pathname == 'purchase/new.html') {
+			tmp.me._markFormGroupError(tmp.etaBox, 'Invalid value provided!');
+			return ;
+		}	
 		//clear all error msg
 		tmp.currentRow.getElementsBySelector('.form-group.has-error .form-control').each(function(control){
 			$(control).retrieve('clearErrFunc')();
@@ -642,6 +669,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			'qtyOrdered': tmp.qtyOrdered,
 			'receievedQty': tmp.receievedQty,
 			'totalPrice': tmp.me.getCurrency(tmp.totalPrice),
+			'eta'		: tmp.eta,
 			'btns': new Element('span', {'class': 'pull-right', 'style': tmp.me._purchaseorder.status!=='NEW' ? 'display:none' : ''})
 				.insert({'bottom': new Element('span', {'class': 'btn btn-danger btn-xs'})
 				.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-trash'}) })
@@ -891,6 +919,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				'qtyOrdered': tmp.item.qtyOrdered,
 				'totalPrice': (tmp.item.totalPrice ? tmp.me.getValueFromCurrency(tmp.item.totalPrice) : ''),
 				'unitPrice' : (tmp.item.unitPrice ? tmp.me.getValueFromCurrency(tmp.item.unitPrice) : ''),
+				'eta' : tmp.item.eta,
 				'active': (!item.hasClassName('order-item-row-old-removed'))
 			});
 		});

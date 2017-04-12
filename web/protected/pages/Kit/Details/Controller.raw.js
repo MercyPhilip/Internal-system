@@ -772,7 +772,8 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 						 'searchTxt': term,
 						 'isKit': tmp.select2.attr('isKit'),
 						 'pageNo': page, // page number
-						 'pageSize': tmp.pageSize
+						 'pageSize': tmp.pageSize,
+						 'userId' : jQuery('#userId').attr('value')
 					 };
 				 },
 				 results: function (data, page) {
@@ -840,10 +841,11 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				 data: function (term, page) { // page is the one-based page number tracked by Select2
 					 return {
 						 'entityName': 'Task',
-						 'searchTxt': '(id like :searchTxt)', //search term
-						 'searchParams': {'searchTxt': '%' + term + '%'},
+						 'searchTxt': '(id like :searchTxt and storeId = :storeId)', //search term
+						 'searchParams': {'searchTxt': '%' + term + '%', 'storeId' : jQuery('#storeId').attr('value')},
 						 'pageNo': page, // page number
-						 'pageSize': tmp.pageSize
+						 'pageSize': tmp.pageSize,
+						 'userId' : jQuery('#userId').attr('value')
 					 };
 				 },
 				 results: function (data, page) {

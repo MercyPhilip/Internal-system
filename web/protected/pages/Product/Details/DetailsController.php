@@ -36,10 +36,11 @@ class DetailsController extends DetailsPageAbstract
 	{
 		$btnIdnewPO = (isset($_REQUEST['btnidnewpo']) && (trim($_REQUEST['btnidnewpo']) !== '')) ? trim($_REQUEST['btnidnewpo']) : null;
 		$manufacturers = array_map(create_function('$a', 'return $a->getJson();'), Manufacturer::getAll());
-		$suppliers = array_map(create_function('$a', 'return $a->getJson();'), Supplier::getAll());
+		$suppliers = array_map(create_function('$a', 'return $a->getJson();'), Supplier::getAll(true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('name' => 'asc')));
 		$statuses = array_map(create_function('$a', 'return $a->getJson();'), ProductStatus::getAll());
 		$priceTypes = array_map(create_function('$a', 'return $a->getJson();'), ProductPriceType::getAll());
 		$codeTypes = array_map(create_function('$a', 'return $a->getJson();'), ProductCodeType::getAll());
+		//$locationTypes = array_map(create_function('$a', 'return $a->getJson();'), PreferredLocationType::getAllByCriteria('storeId = ?', array(Core::getUser()->getStore()->getId())));
 		$locationTypes = array_map(create_function('$a', 'return $a->getJson();'), PreferredLocationType::getAll());
 		$accountingCodes = array_map(create_function('$a', 'return array("id"=> $a->getId(), "code"=> $a->getCode(), "description"=> $a->getDescription(), "type"=> $a->getTypeId());'), AccountingCode::getAll());
 
@@ -51,8 +52,8 @@ class DetailsController extends DetailsPageAbstract
 		$js .= ".load()";
 		$js .= ".bindAllEventNObjects()";
 		$js .= "._loadChosen();";
-		if(!AccessControl::canEditProduct(Core::getRole()))
-			$js .= "pageJs.readOnlyMode();";
+		$mode = AccessControl::canEditProduct(Core::getRole());
+		$js .= "pageJs.readOnlyMode(" . intval($mode) .  "," . Core::getUser()->getStore()->getId() . "," . Core::getRole()->getId() . ");";
 		return $js;
 	}
 	public function validateSKU($sender, $param)
@@ -152,21 +153,21 @@ class DetailsController extends DetailsPageAbstract
 	{
 		if (!is_array($categoryIds))
 			throw new Exception('must passin category ids as an array');
-		$result = null;
-		foreach ($categoryIds as $categoryId)
-		{
-			$categoryId = trim($categoryId);
-			if($categoryId !== '')
+			$result = null;
+			foreach ($categoryIds as $categoryId)
 			{
-				$categoryAttribute = CategoryAttribute::getByCategoryId($categoryId);
-				if ($categoryAttribute instanceof CategoryAttribute)
+				$categoryId = trim($categoryId);
+				if($categoryId !== '')
 				{
-					$result = $categoryAttribute;
-					break;
+					$categoryAttribute = CategoryAttribute::getByCategoryId($categoryId);
+					if ($categoryAttribute instanceof CategoryAttribute)
+					{
+						$result = $categoryAttribute;
+						break;
+					}
 				}
 			}
-		}
-		return $result;
+			return $result;
 	}
 	private function _updateCategories(Product &$product, $param)
 	{
@@ -280,7 +281,7 @@ class DetailsController extends DetailsPageAbstract
 					continue;
 
 				$locationName = trim($location->value);
-				$locs = Location::getAllByCriteria('name = ?', array($locationName), true, 1, 1);
+				$locs = Location::getAllByCriteria('name = ? and storeId = ?', array($locationName, Core::getUser()->getStore()->getId()), true, 1, 1);
 				$loc = (count($locs) > 0 ? $locs[0] : Location::create($locationName, $locationName));
 				if(!isset($location->id) || ($id = trim($location->id)) === '')
 				{
@@ -353,6 +354,35 @@ class DetailsController extends DetailsPageAbstract
 		}
 		return $this;
 	}
+	private function _setStock(Product &$product, $param)
+	{
+		if(isset($param->CallbackParameter->statusId) && ($status = ProductStatus::get(trim($param->CallbackParameter->statusId))) instanceof ProductStatus)
+		{
+			$stock = $product->getStock();
+			if ($stock instanceof ProductStockInfo)
+			{
+				$stock->setStatus($status);
+				$stock->save();
+				//file_put_contents('E:\tmp\web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ':' . 'over======' . PHP_EOL, FILE_APPEND | LOCK_EX);
+			}
+			else
+			{
+				// new product and only store 1 can do this
+				if (!isset($param->CallbackParameter->id) && (Core::getUser()->getStore()->getId() == 1))
+				{
+					$stores = Store::getAll();
+					foreach($stores as $store)
+						$stock = ProductStockInfo::create($product, null, $store);
+					if ($status != null) $product->setStatus($status);
+				}
+				else
+				{
+					$stock = ProductStockInfo::create($product, $status);
+				}
+			}
+		}
+		return $this;
+	}
 	/**
 	 * (non-PHPdoc)
 	 * @see DetailsPageAbstract::saveItem()
@@ -363,55 +393,77 @@ class DetailsController extends DetailsPageAbstract
 		try
 		{
 			Dao::beginTransaction();
+			$storeId = Core::getUser()->getStore()->getId();
 			$product = !isset($param->CallbackParameter->id) ? new Product() : Product::get(trim($param->CallbackParameter->id));
 			if(!$product instanceof Product)
 				throw new Exception('Invalid Product passed in!');
-			if (!($manufacturer = Manufacturer::get(trim($param->CallbackParameter->manufacturerId))) instanceof Manufacturer)
-				throw new Exception('Invalid Manufacturer/Brand!');
-			if (!($status = ProductStatus::get(trim($param->CallbackParameter->statusId))) instanceof ProductStatus)
-				throw new Exception('Invalid Status!');
-			$sku = trim($param->CallbackParameter->sku);
-			if(!isset($param->CallbackParameter->id) && ($sku === '' || Product::getBySku($sku) instanceof Product))
-				throw new Exception('Invalid SKU (' . $sku . ') passed in OR already exist.');
-			$name = trim($param->CallbackParameter->name);
-			$shortDescription = trim($param->CallbackParameter->shortDescription);
-			$sellOnWeb = (trim($param->CallbackParameter->sellOnWeb) === '1');
-			$weight = doubleval(trim($param->CallbackParameter->weight));
-
-			$product->setName($name)
-				->setSku($sku)
-				->setShortDescription($shortDescription)
-				->setStatus($status)
-				->setManufacturer($manufacturer)
-				->setSellOnWeb($sellOnWeb)
-				->setAsNewFromDate(trim($param->CallbackParameter->asNewFromDate))
-				->setAsNewToDate(trim($param->CallbackParameter->asNewToDate))
-				->setAssetAccNo(trim($param->CallbackParameter->assetAccNo))
-				->setRevenueAccNo(trim($param->CallbackParameter->revenueAccNo))
-				->setCostAccNo(trim($param->CallbackParameter->costAccNo))
-				->setWeight($weight)
-				;
-			if(trim($product->getId()) === '')
-				$product->setIsFromB2B(false);
-			$product->save();
-
-			$this->_updateFullDescription($product, $param)
-				->_updateCustomTab($product, $param)
-				->_updateCategories($product, $param)
-				->_uploadImages($product, $param)
-				->_setSupplierCodes($product, $param)
-				->_setBarcodes($product, $param)
-				->_setPrices($product, $param)
-				->_setLocation($product, $param);
-			$categoryIds = isset($param->CallbackParameter->categoryIds) ? $param->CallbackParameter->categoryIds : array();
-			$categoryAttribute = $this->getDefaultAttribute($categoryIds);
-			if ($categoryAttribute instanceof CategoryAttribute)
+			if ($storeId != 1)
 			{
-				$attributesetId = $categoryAttribute->getAttributesetId();
-				if($attributesetId !== null && is_string($attributesetId))
-					$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
+				// except store 1,
+				// other stores cannot update product info except its own stock info
+				if (Core::getRole()->getId() === Role::ID_WAREHOUSE)
+				{
+					$this->_setLocation($product, $param);
+				}
+				else 
+				{
+					$this->_setStock($product, $param)
+					->_setLocation($product, $param);
+				}
+
 			}
-			$product->save();
+			else
+			{
+				if (!($manufacturer = Manufacturer::get(trim($param->CallbackParameter->manufacturerId))) instanceof Manufacturer)
+					throw new Exception('Invalid Manufacturer/Brand!');
+				if (!($status = ProductStatus::get(trim($param->CallbackParameter->statusId))) instanceof ProductStatus)
+					throw new Exception('Invalid Status!');
+				$sku = trim($param->CallbackParameter->sku);
+				if(!isset($param->CallbackParameter->id) && ($sku === '' || Product::getBySku($sku) instanceof Product))
+					throw new Exception('Invalid SKU (' . $sku . ') passed in OR already exist.');
+				$name = trim($param->CallbackParameter->name);
+				$shortDescription = trim($param->CallbackParameter->shortDescription);
+				$sellOnWeb = (trim($param->CallbackParameter->sellOnWeb) === '1');
+				$weight = doubleval(trim($param->CallbackParameter->weight));
+				if (($product->getStock() instanceof ProductStockInfo) && ($product->getStockOnHand() > 0) && !$sellOnWeb)
+				{
+					throw new Exception("Can't take off this product from online because SOH is not zero.");
+				}
+				$product->setName($name)
+					->setSku($sku)
+					->setShortDescription($shortDescription)
+				//	->setStatus($status)
+					->setManufacturer($manufacturer)
+					->setSellOnWeb($sellOnWeb)
+					->setAsNewFromDate(trim($param->CallbackParameter->asNewFromDate))
+					->setAsNewToDate(trim($param->CallbackParameter->asNewToDate))
+					->setAssetAccNo(trim($param->CallbackParameter->assetAccNo))
+					->setRevenueAccNo(trim($param->CallbackParameter->revenueAccNo))
+					->setCostAccNo(trim($param->CallbackParameter->costAccNo))
+					->setWeight($weight)
+					;
+				if(trim($product->getId()) === '')
+					$product->setIsFromB2B(false);
+				$product->save();
+				$this->_updateFullDescription($product, $param)
+					->_updateCustomTab($product, $param)
+					->_updateCategories($product, $param)
+					->_uploadImages($product, $param)
+					->_setSupplierCodes($product, $param)
+					->_setBarcodes($product, $param)
+					->_setPrices($product, $param)
+					->_setLocation($product, $param)
+					->_setStock($product, $param);
+				$categoryIds = isset($param->CallbackParameter->categoryIds) ? $param->CallbackParameter->categoryIds : array();
+				$categoryAttribute = $this->getDefaultAttribute($categoryIds);
+				if ($categoryAttribute instanceof CategoryAttribute)
+				{
+					$attributesetId = $categoryAttribute->getAttributesetId();
+					if($attributesetId !== null && is_string($attributesetId))
+						$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
+				}
+				$product->save();
+			}
 			$results['url'] = '/product/' . $product->getId() . '.html';
 			$results['item'] = $product->getJson();
 			Dao::commitTransaction();

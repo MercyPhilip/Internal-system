@@ -203,9 +203,9 @@ class SellingItem extends BaseEntityAbstract
 		if(trim($this->getSerialNo()) === '')
 			throw new Exception('You can NOT save a selling Item without a serial number.');
 		if(trim($this->getId()) !== '') {
-			if(intval($this->getActive()) === 0 && self::countByCriteria('id = ? and active != ?', array($this->getId(), $this->getActive())) > 0) { //trying to deactivated
+			if(intval($this->getActive()) === 0 && self::countByCriteria('id = ? and active != ? and storeId = ?', array($this->getId(), $this->getActive(), Core::getUser()->getStore()->getId())) > 0) { //trying to deactivated
 				$this->_clearKit();
-			} else if(intval($this->getActive()) === 1 && self::countByCriteria('id = ? and serialNo != ?', array($this->getId(), trim($this->getSerialNo()))) > 0) { //trying to changed serialno
+			} else if(intval($this->getActive()) === 1 && self::countByCriteria('id = ? and serialNo != ? and storeId = ?', array($this->getId(), trim($this->getSerialNo()), Core::getUser()->getStore()->getId())) > 0) { //trying to changed serialno
 				$this->_clearKit()->setKit(null);
 			}
 		}
@@ -231,8 +231,8 @@ class SellingItem extends BaseEntityAbstract
 			if(!$this->getKit() instanceof Kit)
 				throw new Exception('The Product(SKU: ' . $this->getProduct()->getSku() . ') is a KIT, but no valid Kit barcode provided(Provided: ' . $this->getSerialNo() . ').');
 			if($this->getOrderItem()->getOrder() instanceof Order) {
-				$where = array('kitId = :kitId and orderId = :orderId and active = 1');
-				$params = array('kitId' => $this->getKit()->getId(), 'orderId' => $this->getOrderItem()->getOrder()->getId());
+				$where = array('kitId = :kitId and orderId = :orderId and active = 1 and storeId = :storeId');
+				$params = array('kitId' => $this->getKit()->getId(), 'orderId' => $this->getOrderItem()->getOrder()->getId(), 'storeId' => Core::getUser()->getStore()->getId());
 				if(($id = trim($this->getId())) !== '') {
 					$where[] = 'id != :id';
 					$params['id'] = $id;
@@ -249,7 +249,7 @@ class SellingItem extends BaseEntityAbstract
 	public function postSave()
 	{
 		if($this->getOrderItem() instanceof OrderItem) {
-			if(count($serialItems = self::getAllByCriteria('orderItemId = ?', array($this->getOrderItem()->getId()))) > 0) {
+			if(count($serialItems = self::getAllByCriteria('orderItemId = ? and storeId = ?', array($this->getOrderItem()->getId(), Core::getUser()->getStore()->getId()))) > 0) {
 				$totalUnitCostForOrderItem = 0;
 				$totalNoOfKits = 0;
 				foreach($serialItems as $serialItem) {
@@ -299,7 +299,7 @@ class SellingItem extends BaseEntityAbstract
 		DaoMap::setManyToOne('kit', 'Kit', 'sell_item_kit', true);
 		DaoMap::setStringType('serialNo', 'varchar', '100');
 		DaoMap::setStringType('description', 'varchar', '255');
-
+		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
 		DaoMap::createIndex('serialNo');
 		DaoMap::createIndex('description');
@@ -322,6 +322,7 @@ class SellingItem extends BaseEntityAbstract
 			->setSerialNo(trim($serialNo))
 			->setDescription(trim($description))
 			->setKit($kit)
+			->setStore(Core::getUser()->getStore())
 			->save();
 	}
 	/**
@@ -362,6 +363,8 @@ class SellingItem extends BaseEntityAbstract
 			$where[] = 'productId = ?';
 			$params[] = $product->getId();
 		}
+		$where[] = 'storeid = ?';
+		$params[] = Core::getUser()->getStore()->getId();
 		if(count($where) === 0)
 			return SellingItem::getAll($activeOnly, $pageNo, $pageSize, $orderBy, $stats);
 		$results =  SellingItem::getAllByCriteria(implode(' AND ', $where), $params, $activeOnly, $pageNo, $pageSize, $orderBy, $stats);

@@ -40,6 +40,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					 data: function (params) {
 						 return {
 							 searchTxt: params, // search term
+							 storeId: jQuery('#storeId').attr('value'),
+							 'userId' : jQuery('#userId').attr('value')
 						 };
 					 },
 					 results: function (data) {
@@ -75,6 +77,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 						searchTxt: params, // search term
 						pageNo: 1,
 						pageSize: 10,
+						'userId' : jQuery('#userId').attr('value')
 					};
 				},
 				results: function (data) {
@@ -153,7 +156,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 						if($(tmp.me.resultDivId).down('.item_row[item_id=' + row.id + ']'))
 							$(tmp.me.resultDivId).down('.item_row[item_id=' + row.id + ']').replace(tmp.newRow);
 					} else {
-						$(tmp.me.resultDivId).insert({'top': tmp.newRow });
+						$(tmp.me.resultDivId).down('tbody').insert({'top': tmp.newRow });
 					}
 				}
 			}

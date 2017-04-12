@@ -41,18 +41,25 @@ class DetailsController extends BPCPageAbstract
 		if(isset($_REQUEST['orderid']) && ($order = Order::get(trim($_REQUEST['orderid']))) instanceof Order && $rma instanceof RMA)
 			die('You can ONLY create NEW Credit Note from an existing ORDER');
 		$statusOptions = RMA::getAllStatuses();
+		$bstatusOptions = RMAItem::getAllBStatuses();
+		$sstatusOptions = RMAItem::getAllSStatuses();
 
 		if(isset($_REQUEST['orderid']) && ($order = Order::get(trim($_REQUEST['orderid']))) instanceof Order)
 			$js .= "pageJs._order=" . json_encode($order->getJson(array('customer'=> $order->getCustomer()->getJson(), 'items'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson()));'), $order->getOrderItems())))) . ";";
 		else $js .= "pageJs._customer=" . json_encode($customer) . ";";
 		if($rma instanceof RMA)
-			$js .= "pageJs._RMA=" . json_encode($rma->getJson(array('customer'=> $rma->getCustomer()->getJson(), 'items'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson()));'), $rma->getRMAItems())))) . ";";
+			$js .= "pageJs._RMA=" . json_encode($rma->getJson(array('customer'=> $rma->getCustomer()->getJson(), 'raItems'=> array_map(create_function('$a', 'return $a->getJson(array("product"=>$a->getProduct()->getJson(), 
+												"receivingItem"=>$a->getReceivingItem() instanceof ReceivingItem ? $a->getReceivingItem()->getJson() : array(),
+												"orderItem"=>$a->getOrderItem() instanceof OrderItem ? $a->getOrderItem()->getJson() : array()));'), $rma->getRMAItems())))) . ";";
 		$js .= "pageJs._statusOptions=" . json_encode($statusOptions) . ";";
+		$js .= "pageJs._bstatusOptions=" . json_encode($bstatusOptions) . ";";
+		$js .= "pageJs._sstatusOptions=" . json_encode($sstatusOptions) . ";";
 		$js .= "pageJs";
 			$js .= ".setHTMLID('itemDiv', 'detailswrapper')";
 			$js .= ".setHTMLID('searchPanel', 'search_panel')";
 			$js .= ".setCallbackId('searchCustomer', '" . $this->searchCustomerBtn->getUniqueID() . "')";
 			$js .= ".setCallbackId('searchProduct', '" . $this->searchProductBtn->getUniqueID() . "')";
+			$js .= ".setCallbackId('searchSerialNo', '" . $this->searchSerialNoBtn->getUniqueID() . "')";
 			$js .= ".setCallbackId('saveOrder', '" . $this->saveOrderBtn->getUniqueID() . "')";
 			$js .= '.setCallbackId("addComments", "' . $this->addCommentsBtn->getUniqueID() . '")';
 			$js .= ".init();";
@@ -74,11 +81,46 @@ class DetailsController extends BPCPageAbstract
 		{
 			$items = array();
 			$searchTxt = isset($param->CallbackParameter->searchTxt) ? trim($param->CallbackParameter->searchTxt) : '';
-			foreach(Customer::getAllByCriteria('name like :searchTxt or contactNo = :searchTxtExact or 	email = :searchTxtExact', array('searchTxt' => $searchTxt . '%', 'searchTxtExact' => $searchTxt)) as $customer)
+			foreach(Customer::getAllByCriteria('(name like :searchTxt or contactNo = :searchTxtExact or email = :searchTxtExact) and storeId = :storeId', array('searchTxt' => '%' . $searchTxt . '%', 'searchTxtExact' => $searchTxt, 'storeId' => Core::getUser()->getStore()->getId())) as $customer)
 			{
 				$items[] = $customer->getJson();
 			}
 			$results['items'] = $items;
+		}
+		catch(Exception $ex)
+		{
+			$errors[] = $ex->getMessage();
+		}
+		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	}
+	/**
+	 * Searching serial no
+	 * 
+	 * @param unknown $sender
+	 * @param unknown $param
+	 */
+	public function searchSerialNo($sender, $param)
+	{
+		$results = $errors = array();
+		try
+		{
+			$where = $params = $stats = array();
+			$serialno = isset($param->CallbackParameter->searchTxt) ? trim($param->CallbackParameter->searchTxt) : '';
+			$pageNo = isset($param->CallbackParameter->pageNo) ? trim($param->CallbackParameter->pageNo) : '1';
+			$pageSize = DaoQuery::DEFAUTL_PAGE_SIZE;
+			
+			$where[] = 'serialNo like ?';
+			$params[] = '%' . trim($serialno) . '%';
+			
+			$where[] = 'storeId = ?';
+			$params[] = Core::getUser()->getStore()->getId();
+			$objects = array();
+			$objects = ReceivingItem::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('rec_item.productId' => 'desc'), $stats);
+			//$results['pageStats'] = $stats;
+			$results['items'] = array();
+			foreach($objects as $obj)
+				$results['items'][] = $obj->getJson();
+			$results['pagination'] = $stats;
 		}
 		catch(Exception $ex)
 		{
@@ -128,17 +170,17 @@ class DetailsController extends BPCPageAbstract
 				$array['lastSupplierPrice'] = 0;
 				$array['minSupplierPrice'] = 0;
 
-				$minProductPriceProduct = PurchaseOrderItem::getAllByCriteria('productId = ?', array($product->getId()), true, 1, 1, array('unitPrice'=> 'asc'));
+				$minProductPriceProduct = PurchaseOrderItem::getAllByCriteria('productId = ? and storeId = ?', array($product->getId(), Core::getUser()->getStore()->getId()), true, 1, 1, array('unitPrice'=> 'asc'));
 				$minProductPrice = sizeof($minProductPriceProduct) ? $minProductPriceProduct[0]->getUnitPrice() : 0;
 				$minProductPriceId = sizeof($minProductPriceProduct) ? $minProductPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
 				PurchaseOrderItem::getQuery()->eagerLoad('PurchaseOrderItem.purchaseOrder');
-				$lastSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ?', array($product->getId(), $supplierID), true, 1, 1, array('po_item.id'=> 'desc'));
+				$lastSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ? and po_item.storeId = ?', array($product->getId(), $supplierID, Core::getUser()->getStore()->getId()), true, 1, 1, array('po_item.id'=> 'desc'));
 				$lastSupplierPrice = sizeof($lastSupplierPriceProduct) ? $lastSupplierPriceProduct[0]->getUnitPrice() : 0;
 				$lastSupplierPriceId = sizeof($lastSupplierPriceProduct) ? $lastSupplierPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
 				PurchaseOrderItem::getQuery()->eagerLoad('PurchaseOrderItem.purchaseOrder');
-				$minSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ?', array($product->getId(), $supplierID), true, 1, 1, array('po_item.unitPrice'=> 'asc'));
+				$minSupplierPriceProduct = PurchaseOrderItem::getAllByCriteria('po_item.productId = ? and po_item_po.supplierId = ? and po_item.storeId = ?', array($product->getId(), $supplierID, Core::getUser()->getStore()->getId()), true, 1, 1, array('po_item.unitPrice'=> 'asc'));
 				$minSupplierPrice = sizeof($minSupplierPriceProduct) ? $minSupplierPriceProduct[0]->getUnitPrice() : 0;
 				$minSupplierPriceId = sizeof($minSupplierPriceProduct) ? $minSupplierPriceProduct[0]->getPurchaseOrder()->getId() : '';
 
@@ -214,6 +256,7 @@ public function saveOrder($sender, $param)
 			}
 
 			$totalPaymentDue = 0;
+			$totalQty = 0;
 			foreach ($param->CallbackParameter->items as $item)
 			{
 				$product = Product::get(trim($item->product->id));
@@ -226,23 +269,43 @@ public function saveOrder($sender, $param)
 				$active = trim($item->valid);
 
 				$totalPaymentDue += $totalPrice;
+				$totalQty += $qtyOrdered;
+				$bstatus = trim($item->bstatus);
+				$sstatus = trim($item->sstatus);
+				$serialNo = trim($item->serialNo);
+				$purchaseOrderNo = trim($item->purchaseOrderNo);
+				$supplierName = trim($item->supplier);
+				$supplierRMANo = trim($item->supplierRMANo);
+				$newSerialNo = trim($item->newSerialNo);
+				$receivingItemId = isset($item->receivingItemId) ? trim($item->receivingItemId) : '';
+				$receivingItem = ReceivingItem::get($receivingItemId);
+				if (!$receivingItem instanceof ReceivingItem) $receivingItem = null;
 				if(is_numeric($item->RMAItemId) && !RMAItem::get(trim($item->RMAItemId)) instanceof RMAItem)
 					throw new Exception('Invalid RMA Item passed in');
-				$RMAItem = is_numeric($item->RMAItemId) ?
-					RMAItem::get(trim($item->RMAItemId))->setActive($active)->setProduct($product)->setQty($qtyOrdered)->setItemDescription($itemDescription)
-					:
-					RMAItem::create($RMA, $product, $qtyOrdered, $itemDescription);
+				if (is_numeric($item->RMAItemId))
+				{
+					$rmitem= RMAItem::get(trim($item->RMAItemId));
+					$rmitem->setActive($active)->setProduct($product)
+					->setQty($qtyOrdered)->setItemDescription($itemDescription)
+					->setBStatus($bstatus)->setSStatus($sstatus)->setReceivingItem($receivingItem)
+					->setSerialNo($serialNo)
+					->setPurchaseOrderNo($purchaseOrderNo)
+					->setSupplier($supplierName)
+					->setSupplierRMANo($supplierRMANo)
+					->setNewSerialNo($newSerialNo);
+				}
+				else
+				{
+					$rmitem = RMAItem::create($RMA, $product, $qtyOrdered, $itemDescription, null, $receivingItem, $bstatus, $sstatus, $serialNo, $supplierName, $supplierRMANo, $purchaseOrderNo, $newSerialNo);
+				}
 				if(isset($item->orderItemId) && ($orderItem = OrderItem::get(trim($item->orderItemId))) instanceof OrderItem)
-					$RMAItem->setOrderItem($orderItem)->setUnitCost($orderItem->getUnitCost());
-				if(isset($item->RMAItemId) && ($RMAItem = RMAItem::get(trim($item->RMAItemId))) instanceof RMAItem && $product->getUnitCost() != 0)
-					$RMAItem->setUnitCost($RMAItem->getUnitCost())->save();
-				else $RMAItem->setUnitCost($product->getUnitCost())->save();
-				$RMAItem->save();
+					$rmitem->setOrderItem($orderItem)->setUnitCost($orderItem->getUnitCost());
+				if(isset($item->RMAItemId) && $rmitem instanceof RMAItem && $product->getUnitCost() != 0)
+					$rmitem->setUnitCost($rmitem->getUnitCost())->save();
+				else $rmitem->setUnitCost($product->getUnitCost())->save();
 			}
 			$RMA->setTotalValue($totalPaymentDue)->setStatus($status)->save();
 			$results['item'] = $RMA->getJson();
-// 			if($printItAfterSave === true)
-// 				$results['printURL'] = '/print/rma/' . $RMA->getId() . '.html?pdf=1';
 			Dao::commitTransaction();
 		}
 		catch(Exception $ex)

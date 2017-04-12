@@ -380,7 +380,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				 ,url: '/ajax/getAll'
 		         ,type: 'POST'
 	        	 ,data: function (params) {
-	        		 return {"searchTxt": 'orderNo like ?', 'searchParams': ['%' + params + '%'], 'entityName': 'Order', 'pageNo': 1};
+	        		 return {"searchTxt": 'orderNo like ? and storeId = ?', 'searchParams': ['%' + params + '%', jQuery('#storeId').attr('value')], 'entityName': 'Order', 'pageNo': 1, 'userId' : jQuery('#userId').attr('value')};
 	        	 }
 				 ,results: function(data, page, query) {
 					 tmp.result = [];
@@ -417,8 +417,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				,type: 'POST'
 				,data: function (params) {
 					return {
-						'searchTxt': 'personId in (select id from person p where concat(p.firstName, " ", p.lastName) like ?)',
-						'searchParams': ['%' + params + '%'],
+						'searchTxt': 'personId in (select id from person p where concat(p.firstName, " ", p.lastName) like ? and storeId = ?)',
+						'searchParams': ['%' + params + '%', jQuery('#storeId').attr('value')],
 						'entityName': 'UserAccount',
 						'pageNo': 1
 					};
@@ -453,10 +453,11 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					,type: 'POST'
 						,data: function (params) {
 							return {
-								'searchTxt': 'name like ?',
-								'searchParams': ['%' + params + '%'],
+								'searchTxt': 'name like ? and storeId = ?',
+								'searchParams': ['%' + params + '%', jQuery('#storeId').attr('value')],
 								'entityName': 'Customer',
-								'pageNo': 1
+								'pageNo': 1,
+								'userId' : jQuery('#userId').attr('value')
 							};
 						}
 		,results: function(data, page, query) {

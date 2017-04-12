@@ -302,12 +302,10 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.insert({'bottom': new Element('span', {'class': 'brand'})
 					.insert({'bottom': new Element('input', {'disabled': row.id ? true: false,'class': 'chosen form-control input-sm', 'entityName' : 'Manufacturer', 'placeholder': 'The Brand','save-item-panel': 'brand', 'rowid': row.id ? row.id : '', 'value': row.manufacturer ? row.manufacturer.name : ''}) })
 				})
-			})
-			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-2'})
+			})			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-2'})
 				.insert({'bottom': new Element('span', {'class': 'category'})
 					.insert({'bottom': new Element('input', {'disabled': row.id ? true: false,'class': 'chosen form-control input-sm', 'entityName' : 'ProductCategory', 'placeholder': 'The Category','save-item-panel': 'category', 'rowid': row.id ? row.id : '', 'value': row.category ? row.category.name : ''}) })
 				})
-
 			})
 			.insert({'bottom': new Element('td', {'class': 'form-group col-xs-6'})
 				.insert({'bottom': new Element('span', {'class': 'tierrule'})
@@ -611,7 +609,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				delay: 10,
 				type: 'POST',
 				data: function(params, page) {
-					return {"searchTxt": 'sku like ? and active = 1', 'searchParams': ['%' + params + '%'], 'entityName': 'Product', 'pageNo': page};
+					return {"searchTxt": 'sku like ? and active = 1', 'searchParams': ['%' + params + '%'], 'entityName': 'Product', 'pageNo': page, 'userId' : jQuery('#userId').attr('value')};
 				},
 				results: function (data, page, query) {
 					 tmp.result = [];

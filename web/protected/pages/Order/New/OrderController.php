@@ -61,30 +61,36 @@ class OrderController extends BPCPageAbstract
 			$js .= ".setOrderTypes(" . json_encode(Order::getAllTypes()) . ")";
 		if($cloneOrder instanceof Order) {
 			$clonOrderArray = $cloneOrder->getJson();
+			//$clonOrderArray['items'] = array_map(create_function('$a', 'return $a->getJson();'), OrderItem::getAllByCriteria('orderId = ?', array($cloneOrder->getId())));
 			$items = OrderItem::getAllByCriteria('orderId = ?', array($cloneOrder->getId()));
 			$clonOrderArray['items'] = array();
 			foreach($items as $item)
 			{
 				$itemArray = $item->getJson();
 				$productArray = $itemArray['product'];
-				$productArray['tierPrice'] = ProductTierPrice::getTierPrice($item->getProduct(), $cloneOrder->getCustomer()->getTier());
+				$productArray['tierPrice'] = Core::getUser()->getStore()->getId() == 1 ? ProductTierPrice::getTierPrice($item->getProduct(), $cloneOrder->getCustomer()->getTier()) : array();
+				$productArray['buyinprice'] = ProductBuyinPrice::getBuyinPrice($item->getId());
 				$itemArray['product'] = $productArray;
 				$clonOrderArray['items'][] = $itemArray;
 			}
+				
 			$js .= ".setOriginalOrder(" . json_encode($clonOrderArray) . ")";
 		}
 		if($order instanceof Order && trim($order->getId()) !== '') {
 			$orderArray = $order->getJson();
+			//$orderArray['items'] = array_map(create_function('$a', 'return $a->getJson();'), OrderItem::getAllByCriteria('orderId = ?', array($order->getId())));
 			$items = OrderItem::getAllByCriteria('orderId = ?', array($order->getId()));
 			$orderArray['items'] = array();
 			foreach($items as $item)
 			{
 				$itemArray = $item->getJson();
 				$productArray = $itemArray['product'];
-				$productArray['tierPrice'] = ProductTierPrice::getTierPrice($item->getProduct(), $order->getCustomer()->getTier());
+				$productArray['tierPrice'] = Core::getUser()->getStore()->getId() == 1 ? ProductTierPrice::getTierPrice($item->getProduct(), $order->getCustomer()->getTier()) : array();
+				$productArray['buyinprice'] = ProductBuyinPrice::getBuyinPrice($item->getId());
 				$itemArray['product'] = $productArray;
 				$orderArray['items'][] = $itemArray;
 			}
+				
 			$js .= ".setOrder(" . json_encode($orderArray) . ")";
 		}
 		$js .= ".init(" . json_encode($customer) . ")";
@@ -115,7 +121,7 @@ class OrderController extends BPCPageAbstract
 			$pageNo = isset($param->CallbackParameter->pageNo) ? trim($param->CallbackParameter->pageNo) : 1;
 			$searchTxt = isset($param->CallbackParameter->searchTxt) ? trim($param->CallbackParameter->searchTxt) : '';
 			$stats = array();
-			foreach(Customer::getAllByCriteria('name like :searchTxt', array('searchTxt' => $searchTxt . '%'), true, $pageNo, DaoQuery::DEFAUTL_PAGE_SIZE, array('cust.name' => 'asc'), $stats) as $customer)
+			foreach(Customer::getAllByCriteria('(name like :searchTxt or email like :searchTxt) and storeId = :storeId', array('searchTxt' => $searchTxt . '%', 'storeId' => Core::getUser()->getStore()->getId()), true, $pageNo, DaoQuery::DEFAUTL_PAGE_SIZE, array('cust.name' => 'asc'), $stats) as $customer)
 			{
 				$items[] = $customer->getJson();
 			}
@@ -169,9 +175,10 @@ class OrderController extends BPCPageAbstract
 				$jsonArray['lastOrderItemFromCustomer'] = array();
 				if($customer instanceof Customer) {
 					$jsonArray['customer'] = $customer->getJson();
-					$jsonArray['tierPrice'] = ProductTierPrice::getTierPrice($product, $customer->getTier());
-					$query = OrderItem::getQuery()->eagerLoad('OrderItem.order', 'inner join', 'ord', 'ord_item.orderId = ord.id and ord_item.active = 1 and ord.customerId = :custId and ord.type = :ordType');
-					$orderItems = OrderItem::getAllByCriteria('productId = :prodId', array('custId' => $customer->getId(), 'prodId' => $product->getId(), 'ordType' => Order::TYPE_INVOICE), true, 1, 1, array('ord_item.id' => 'desc'));
+					$jsonArray['tierPrice'] = Core::getUser()->getStore()->getId() == 1 ? ProductTierPrice::getTierPrice($product, $customer->getTier()) : array();
+					$jsonArray['buyinprice'] = ProductBuyinPrice::getBuyinPrice($product->getId());
+					$query = OrderItem::getQuery()->eagerLoad('OrderItem.order', 'inner join', 'ord', 'ord_item.orderId = ord.id and ord_item.active = 1 and ord.customerId = :custId and ord.type = :ordType and ord.storeId = ord_item.storeId and ord.storeId = :storeId');
+					$orderItems = OrderItem::getAllByCriteria('productId = :prodId', array('custId' => $customer->getId(), 'prodId' => $product->getId(), 'ordType' => Order::TYPE_INVOICE, 'storeId' => Core::getUser()->getStore()->getId()), true, 1, 1, array('ord_item.id' => 'desc'));
 					$jsonArray['lastOrderItemFromCustomer'] = count($orderItems) > 0 ? $orderItems[0]->getJson() : array();
 				}
 				$items[] = $jsonArray;
@@ -223,7 +230,6 @@ class OrderController extends BPCPageAbstract
 					throw new Exception('Invalid Order to clone from!');
 			}
 			$shipped = ((isset($param->CallbackParameter->shipped) && (intval($param->CallbackParameter->shipped)) === 1));
-
 			$poNo = (isset($param->CallbackParameter->poNo) && (trim($param->CallbackParameter->poNo) !== '') ? trim($param->CallbackParameter->poNo) : '');
 			if(isset($param->CallbackParameter->shippingAddr)) {
 				$shippAddress = ($order instanceof Order ? $order->getShippingAddr() : null);
@@ -253,34 +259,6 @@ class OrderController extends BPCPageAbstract
 					->save();
 			}
 			$totalPaymentDue = 0;
-			if (trim($param->CallbackParameter->paymentMethodId))
-			{
-				$paymentMethod = PaymentMethod::get(trim($param->CallbackParameter->paymentMethodId));
-				if(!$paymentMethod instanceof PaymentMethod)
-					throw new Exception('Invalid PaymentMethod passed in!');
-				$totalPaidAmount = trim($param->CallbackParameter->totalPaidAmount);
-				//check if the payment is offset credit
-				$paymentMethodId = $paymentMethod->getId();
-				if ($paymentMethodId == PaymentMethod::ID_STORE_CREDIT)
-				{
-					$creditAvailable = $customer->getCreditPool() instanceof CreditPool ? doubleval($customer->getCreditPool()->getTotalCreditLeft()) : 0;
-					if ($creditAvailable == 0 || $creditAvailable < $totalPaidAmount)
-					{
-						throw new Exception('The customer has not enough credit for this payment. The amount of credit left is : ' .  StringUtilsAbstract::getCurrency($creditAvailable));
-					}
-				}
-				$order->addPayment($paymentMethod, $totalPaidAmount);
-				$order = Order::get($order->getId());
-				$order->addInfo(OrderInfoType::ID_MAGE_ORDER_PAYMENT_METHOD, $paymentMethod->getName(), true);
-				if($shipped === true)
-					$order->setType(Order::TYPE_INVOICE);
-			}
-			else
-			{
-				$paymentMethod = '';
-				$totalPaidAmount = 0;
-			}
-
 			foreach ($param->CallbackParameter->items as $item)
 			{
 				$product = Product::get(trim($item->product->id));
@@ -308,8 +286,9 @@ class OrderController extends BPCPageAbstract
 							->setQtyOrdered($qtyOrdered)
 							->setTotalPrice($totalPrice)
 							->setItemDescription($itemDescription)
+							->setStore(Core::getUser()->getStore())
 							->save();
-						$existingSellingItems = SellingItem::getAllByCriteria('orderItemId = ?', array($orderItem->getId()));
+						$existingSellingItems = SellingItem::getAllByCriteria('orderItemId = ? and storeId = ?', array($orderItem->getId(), Core::getUser()->getStore()->getId()));
 						foreach($existingSellingItems as $sellingItem) { //DELETING ALL SERIAL NUMBER BEFORE ADDING
 							$sellingItem->setActive(false)
 								->save();
@@ -324,7 +303,7 @@ class OrderController extends BPCPageAbstract
 						$orderItem->setActive(false)->save();
 					}
 				}
-
+				
 				if(isset($item->serials) && count($item->serials) > 0){
 					foreach($item->serials as $serialNo)
 						$orderItem->addSellingItem($serialNo)
@@ -355,7 +334,8 @@ class OrderController extends BPCPageAbstract
 				if($shipped === true) {
 					if(!$courier instanceof Courier)
 						$courier = Courier::get(Courier::ID_LOCAL_PICKUP);
-					Shippment::create($shippAddress, $courier, '', new UDate(), $order, '');
+					if ($shippAddress instanceof Address)
+						Shippment::create($shippAddress, $courier, '', new UDate(), $order, '');
 				}
 			}
 			else
@@ -363,20 +343,47 @@ class OrderController extends BPCPageAbstract
 				$courier = '';
 				$totalShippingCost = 0;
 			}
+			
 			$totalPaymentDue += $totalShippingCost;
+			$order->setTotalAmount($totalPaymentDue)->save();
+			if (trim($param->CallbackParameter->paymentMethodId))
+			{
+				$paymentMethod = PaymentMethod::get(trim($param->CallbackParameter->paymentMethodId));
+				if(!$paymentMethod instanceof PaymentMethod)
+					throw new Exception('Invalid PaymentMethod passed in!');
+				$totalPaidAmount = trim($param->CallbackParameter->totalPaidAmount);
+				//check if the payment is offset credit
+				$paymentMethodId = $paymentMethod->getId();
+				if ($paymentMethodId == PaymentMethod::ID_STORE_CREDIT)
+				{
+					$creditAvailable = $customer->getCreditPool() instanceof CreditPool ? doubleval($customer->getCreditPool()->getTotalCreditLeft()) : 0;
+					if ($creditAvailable == 0 || $creditAvailable < $totalPaidAmount)
+					{
+						throw new Exception('The customer has not enough credit for this payment. The amount of credit left is : ' .  StringUtilsAbstract::getCurrency($creditAvailable));
+					}
+				}
+				$order->addPayment($paymentMethod, $totalPaidAmount);
+				$order = Order::get($order->getId());
+				$order->addInfo(OrderInfoType::ID_MAGE_ORDER_PAYMENT_METHOD, $paymentMethod->getName(), true);
+				$order->setPassPaymentCheck(1)->save();
+				if($shipped === true)
+					$order->setType(Order::TYPE_INVOICE);
+			}
+			else
+			{
+				$paymentMethod = '';
+				$totalPaidAmount = 0;
+			}
 			$comments = (isset($param->CallbackParameter->comments) ? trim($param->CallbackParameter->comments) : '');
 			$order = $order->addComment($comments, Comments::TYPE_SALES)
 				->setTotalPaid($totalPaidAmount);
-
 			if($shipped === true) {
 				$order->setStatus(OrderStatus::get(OrderStatus::ID_SHIPPED));
 			}
-			$order->setTotalAmount($totalPaymentDue)
-				->save();
 
 			if(isset($param->CallbackParameter->newMemo) && ($newMemo = trim($param->CallbackParameter->newMemo)) !== '')
 				$order->addComment($newMemo, Comments::TYPE_MEMO);
-
+			$order->save();
 			$results['item'] = $order->getJson();
 			if($printItAfterSave === true)
 				$results['printURL'] = '/print/order/' . $order->getId() . '.html?pdf=1';
@@ -454,7 +461,6 @@ class OrderController extends BPCPageAbstract
 				$params[] = $orderId;
 			}
 			$items = Order::getAllByCriteria($where, $params, true, $pageNo, $pageSize, array(), $stats);
-			
 			$results = array();
 			$results['items'] = array_map(create_function('$a', 'return $a->getJson();'), $items);
 			$results['pagination'] = $stats;

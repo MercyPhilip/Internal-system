@@ -40,6 +40,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					 data: function (params) {
 						 return {
 							 searchTxt: params, // search term
+							 storeId: jQuery('#storeId').attr('value'),
+							 'userId' : jQuery('#userId').attr('value')
 						 };
 					 },
 					 results: function (data) {
@@ -75,6 +77,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 						searchTxt: params, // search term
 						pageNo: 1,
 						pageSize: 10,
+						'userId' : jQuery('#userId').attr('value')
 					};
 				},
 				results: function (data) {
@@ -104,6 +107,41 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		jQuery('.select2[search_field="ra.status"]').select2({
 			allowClear: true,
 		});
+		tmp.selectEl = new Element('input', {'class': 'select2 form-control', 'data-placeholder': 'search for Suplliers', 'search_field': 'po.supplierId'}).insert({'bottom': new Element('option').update('')});
+		$('searchDiv').down('[search_field="po.supplierId"]').replace(tmp.selectEl);
+		jQuery('.select2[search_field="po.supplierId"]').select2({
+			allowClear: true,
+			hidden: true,
+			multiple: true,
+			 ajax: { url: "/ajax/getSuppliers",
+					 dataType: 'json',
+					 delay: 10,
+					 data: function (params) {
+						 return {
+							 searchTxt: params, // search term
+							 storeId: jQuery('#storeId').attr('value'),
+							 'userId' : jQuery('#userId').attr('value')
+						 };
+					 },
+					 results: function (data) {
+						 tmp.result = [];
+						 data.resultData.items.each(function(item){
+							 tmp.result.push({"id": item.id, 'text': item.name, 'data': item});
+						 })
+		                return {
+		                    results:  tmp.result 
+		                };
+		             },
+					 cache: true
+				 },
+				 formatResult : function(result) {
+					 if(!result)
+						 return '';
+					 return '<div value=' + result.data.id + '>' + result.data.name + '</div >';
+				 },
+				 escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+				 minimumInputLength: 1,
+		});
 		return this;
 	}
 	/**
@@ -132,7 +170,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 						if($(tmp.me.resultDivId).down('.item_row[item_id=' + row.id + ']'))
 							$(tmp.me.resultDivId).down('.item_row[item_id=' + row.id + ']').replace(tmp.newRow);
 					} else {
-						$(tmp.me.resultDivId).insert({'top': tmp.newRow });
+						$(tmp.me.resultDivId).down('tbody').insert({'top': tmp.newRow });
 					}
 				}
 			}
@@ -192,6 +230,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	,_getResultRow: function(row, isTitle) {
 		var tmp = {};
 		tmp.me = this;
+		countItems = 0;
+		if (row.raItems)
+		{
+			row.raItems.each(function(item){
+				countItems = Number(countItems) + Number(item.qty);
+			});
+		}
 		tmp.tag = (tmp.isTitle === true ? 'th' : 'td');
 		tmp.isTitle = (isTitle || false);
 		tmp.row = new Element('tr', {'class': (tmp.isTitle === true ? 'item_top_row' : 'btn-hide-row item_row') + (row.active == 0 ? ' danger' : ''), 'item_id': (tmp.isTitle === true ? '' : row.id)}).store('data', row)
@@ -205,7 +250,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(row.status)})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(row.customer.name)})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(row.order.orderNo ? row.order.orderNo : '')})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle ? 'No of RMA NoteItems' : row.raItems ? row.raItems.length : '')})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).update(tmp.isTitle ? 'No of RMA NoteItems' : row.raItems ? countItems : '')})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'col-xs-1'}).setStyle('display: none;')
 				.insert({'bottom': (tmp.isTitle === true ? row.active : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.active}) ) })
 			})

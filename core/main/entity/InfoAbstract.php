@@ -107,6 +107,7 @@ class InfoAbstract extends BaseEntityAbstract
 		$info->setEntity($entity)
 			->setType($type)
 			->setValue($value)
+			->setStore(Core::getUser()->getStore())
 			->save();
 		return $info;
 	}

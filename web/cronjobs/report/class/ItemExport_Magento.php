@@ -37,7 +37,7 @@ class ItemExport_Magento extends ExportAbstract
 	}
 	protected static function _getMailTitle()
 	{
-		return 'Product Exported for Magento on ' . trim(new UDate());
+		return Core::getUser()->getStore()->getName() . ' : Product Exported for Magento on ' . trim(new UDate());
 	}
 	protected static function _getMailBody()
 	{

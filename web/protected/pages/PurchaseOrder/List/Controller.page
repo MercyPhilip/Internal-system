@@ -5,6 +5,7 @@
 <com:Application.controls.select2.select2 />
 <com:TCallback ID="deactivateItemBtn" OnCallback = 'Page.deactivateItems' />
 <com:TCallback ID="genReportmBtn" OnCallback = 'Page.genReport' />
+<com:TCallback ID="pickupSaveBtn" OnCallback = 'Page.pickupSave' />
 	<div class="pagewrapper productlistwraper">
 		<div class="col-xs-12">
 			<div class="panel panel-default" id="searchPanel">
@@ -12,6 +13,7 @@
 					<label for="showSearch">Show Search Criteria?</label>
 					<input id="showSearch" type="checkbox" checked onclick="$(this).up('#searchPanel').down('.panel-body').toggle();">
 					<span class="pull-right">
+						<span id="pickupBtn"  class="btn btn-warning btn-sm" data-loading-text="saving ..." onclick="pageJs.pickupSave(this);">Pickup</span> &nbsp;
 						<span id="excelBtn"  class="btn btn-info btn-sm" data-loading-text="exporting ..." onclick="pageJs.genReport(this);">Excel</span> &nbsp;
 						<a href="/purchase/new.html" class="btn btn-success btn-sm" target="_BLANK">New</a> &nbsp;
 						<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span> 
@@ -84,6 +86,8 @@
 			<div class="panel panel-default list-panel">
 				<div class="panel-heading">
 					Found <label id="total-found-count">0</label> <%= $this->getFocusEntity() %>:
+					<label id="total-selected-count" style="display:none"></label>
+					<label id="pre-selected-count" style="display:none"></label>
 				</div>
 				<div class="table-responsive">
 	                <table class="table" id="item-list"></table>

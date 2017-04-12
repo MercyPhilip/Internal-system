@@ -88,6 +88,8 @@ class ListController extends CRUDPageAbstract
 				$where[] = 'pql.created <= ?';
 				$params[] = str_replace(' 00:00:00', ' 23:59:59', $to);
 			}
+			$where[] = 'pql.storeId = ?';
+			$params[] = Core::getUser()->getStore()->getId();
 			$stats = array();
 			$objects = $class::getAllByCriteria(implode(' AND ', $where), $params, false, $pageNo, $pageSize, array('pql.id' => 'desc'), $stats);
 			$results['pageStats'] = $stats;

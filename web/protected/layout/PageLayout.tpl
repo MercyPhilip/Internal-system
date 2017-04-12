@@ -8,7 +8,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 </com:THead>
-<body>
+<body <%= Core::getUser()->getStore()->getId() == 1 ? "":  "style='background-color:#d8f1db;'"%> >
     <com:TForm Attributes.class="main-form ">
         <nav class="navbar navbar-default navbar-inverse navbar-static-top header" role="navigation">
             <com:Application.layout.Header.Header ID="Header" />

@@ -103,6 +103,7 @@ class APIProductService extends APIServiceAbstract
 	       $showOnWeb = $this->_getPram($params, 'showonweb', true);
 	       $attributesetId = $this->_getPram($params, 'attributesetId', null);
 	       $this->log_product("UPDATE", "=== updating === sku=$sku, supplierCode= $supplierCode, canSupplyQty=$canSupplyQty",  '', APIService::TAB);
+	       
 	       // check whether the product belongs to categories that are manually managed
 	       // if yes then only update stock level
 	       $sql = "select id from manualmanage where supplierId = ? and manufactureId = ? and active = 1";
@@ -110,39 +111,39 @@ class APIProductService extends APIServiceAbstract
 	       $rets = Dao::getResultsNative($sql, array($supplier->getId(), $manufacturerId));
 	       if (count($rets) > 0)
 	       {
-	       	$json = array();
-	       	$product = Product::getBySku($sku);
-	       	if ($product instanceof Product)
-	       	{
-	       		$existingSupplierCodes = $product->getSupplierCodes();
-	       		$existingSupplierQty = 0;
-	       		foreach ($existingSupplierCodes as $existingSupplierCode)
-	       		{
-	       			if ($existingSupplierCode->getCode() == $supplierCode)
-	       			{
-	       				$existingSupplierQty = intval($existingSupplierCode->getCanSupplyQty());
-	       				break;
-	       			}
-	       		}
-	       		$existingStatus = $product->getStatus()->getName();
-	       		$newStatus = $status->getName();
-	       		if (trim($existingStatus) != trim($newStatus))
-	       		{
-	       			$this->log_product("UPDATE", "=== updating manualmanage === sku=$sku, existingStatus= $existingStatus, newStatus=$newStatus",  '', APIService::TAB);
-	       			$product->setStatus($status)->save();
-	       		}
-	       
-	       		if ($existingSupplierQty != $canSupplyQty)
-	       		{
-	       			$this->log_product("UPDATE", "=== updating manualmanage === sku=$sku, existingSupplierQty=$existingSupplierQty, canSupplyQty=$canSupplyQty, ",  '', APIService::TAB);
-	       			$product->addSupplier($supplier, $supplierCode, $canSupplyQty);
-	       		}
-	       		$json = $product->getJson();
-	       		Dao::commitTransaction();
-	       	}
-	       	return $json;
+	           $json = array();
+	           $product = Product::getBySku($sku);
+	           if ($product instanceof Product)
+	           {
+	               $existingSupplierCodes = $product->getSupplierCodes();
+	               $existingSupplierQty = 0;
+	               foreach ($existingSupplierCodes as $existingSupplierCode)
+	               {
+	                   if ($existingSupplierCode->getCode() == $supplierCode)
+	                   {
+	                       $existingSupplierQty = intval($existingSupplierCode->getCanSupplyQty());
+	                       break;
+	                   }
+	               }
+	               $existingStatus = $product->getStatus()->getName();
+	               $newStatus = $status->getName();
+	               if (trim($existingStatus) != trim($newStatus))
+	               {
+	                   $this->log_product("UPDATE", "=== updating manualmanage === sku=$sku, existingStatus= $existingStatus, newStatus=$newStatus",  '', APIService::TAB);
+	                   $product->setStatus($status)->save();
+	               }
+	               
+	               if ($existingSupplierQty != $canSupplyQty)
+	               {
+	                   $this->log_product("UPDATE", "=== updating manualmanage === sku=$sku, existingSupplierQty=$existingSupplierQty, canSupplyQty=$canSupplyQty, ",  '', APIService::TAB);
+	                   $product->addSupplier($supplier, $supplierCode, $canSupplyQty);
+	               }
+	               $json = $product->getJson();
+	               Dao::commitTransaction();
+	           }
+	           // no need to import new product belong to these categories
+	           return $json;
 	       }
-	       
 	       $canUpdate = false;
 	       $isUpdated = false;
 
@@ -349,6 +350,7 @@ class APIProductService extends APIServiceAbstract
         	               $this->_runner->log('Same Image Exists[' . $newImgKey . '], SKIP!', '', APIService::TAB . APIService::TAB . APIService::TAB);
 		                   continue;
 		               }
+		               
 		               $asset = Asset::registerAsset($image['name'], $newImageContent, Asset::TYPE_PRODUCT_IMG);
 		               $this->_runner->log('Registered a new Asset [AssetID=' . $asset->getAssetId() . '].', '', APIService::TAB . APIService::TAB . APIService::TAB);
 		               $product->addImage($asset);
@@ -410,7 +412,8 @@ class APIProductService extends APIServiceAbstract
    		$results=$results['items'][0];
    	}
    	$stockOnHand = $results['stockOnHand'];
-   	return array('stockOnHand' => $stockOnHand);
+   	$statusId = $results['status']['id'];
+   	return array('stockOnHand' => $stockOnHand, 'statusId' => $statusId);
    }
    
    /**

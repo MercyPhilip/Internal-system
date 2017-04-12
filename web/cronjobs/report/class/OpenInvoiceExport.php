@@ -53,7 +53,9 @@ class OpenInvoiceExport extends ExportAbstract
 		if(count(self::$_dateRange) === 0) {
 			$yesterdayLocal = new UDate('now', 'Australia/Melbourne');
 			$yesterdayLocal->modify('-1 day');
-			$fromDate = new UDate($yesterdayLocal->format('Y-m-d') . ' 00:00:00', 'Australia/Melbourne');
+			//requested from Aiden
+			//$fromDate = new UDate($yesterdayLocal->format('Y-m-d') . ' 00:00:00', 'Australia/Melbourne');
+			$fromDate = new UDate("2015-07-01" . ' 00:00:00', 'Australia/Melbourne');
 			$fromDate->setTimeZone('UTC');
 			$toDate = new UDate($yesterdayLocal->format('Y-m-d') . ' 23:59:59', 'Australia/Melbourne');
 			$toDate->setTimeZone('UTC');
@@ -63,14 +65,16 @@ class OpenInvoiceExport extends ExportAbstract
 		}
 		self::$_fromDate = $fromDate;
 		self::$_toDate= $toDate;
-		$orders = Order::getAllByCriteria('invDate >= :fromDate and invDate <= :toDate', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate)));
+		$orders = Order::getAllByCriteria('invDate >= :fromDate and invDate <= :toDate and storeId = :storeId', array('fromDate' => trim($fromDate), 'toDate' => trim($toDate), 'storeId' => Core::getUser()->getStore()->getId()));
 
 		$return = array();
 		foreach($orders as $order)
 		{
 			//common fields
 			$customer = $order->getCustomer();
-			$creditNotes = CreditNote::getAllByCriteria('orderId = ?', array($order->getId()));
+			$creditNotes = CreditNote::getAllByCriteria('orderId = ? and storeId = ?', array($order->getId(), Core::getUser()->getStore()->getId()));
+			$totalDue = $order->getTotalAmount() - $order->getTotalPaid() - $order->getTotalCreditNoteValue();
+			if ($totalDue <= 0.01) continue;
 			$row = array(
 				'Invoice No.' => $order->getInvNo()
 				,'Invoice Date' => $order->getInvDate()->setTimeZone('Australia/Melbourne')->__toString()
@@ -93,7 +97,7 @@ class OpenInvoiceExport extends ExportAbstract
 	}
 	protected static function _getMailTitle()
 	{
-		return 'Open Invoice from "' . self::$_fromDate->setTimeZone('Australia/Melbourne')->__toString() . '" to "' . self::$_toDate->setTimeZone('Australia/Melbourne')->__toString()  . '"';
+		return Core::getUser()->getStore()->getName() . ' : Open Invoice from "' . self::$_fromDate->setTimeZone('Australia/Melbourne')->__toString() . '" to "' . self::$_toDate->setTimeZone('Australia/Melbourne')->__toString()  . '"';
 	}
 	protected static function _getMailBody()
 	{
