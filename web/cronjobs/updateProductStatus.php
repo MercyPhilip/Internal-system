@@ -5,7 +5,7 @@ set_time_limit(0);
 Core::setUser(UserAccount::get(UserAccount::ID_SYSTEM_ACCOUNT_STORE2));
 try
 {
-	$sqlNoStock= 'select pro.id from product pro ' . 'inner join productstockinfo sto on pro.id = sto.productId' . ' where pro.active = 1 and sto.active = 1 and sto.stockOnHand = 0 and sto.storeId = 1 and sto.statusId <> 1 and sto.statusId <> 6';
+	$sqlNoStock= 'select pro.id from product pro ' . 'inner join productstockinfo sto on pro.id = sto.productId' . ' where pro.active = 1 and sto.active = 1 and sto.stockOnHand = 0 and sto.storeId = 1 and sto.statusId <> 1 and sto.statusId <> 6 and sto.statusId <> 8 and sto.statusId <> 9 and sto.statusId <> 10';
 	$productNoStocks = Dao::getResultsNative($sqlNoStock);
 
 	foreach ($productNoStocks as $product){
