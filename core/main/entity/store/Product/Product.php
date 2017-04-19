@@ -1387,9 +1387,18 @@ class Product extends InfoEntityAbstract
 		$newStockOnOrder = ($originStockOnOrder = $this->getStockOnOrder()) + $qty;
 		if($newStockOnOrder < 0  && intval(SystemSettings::getSettings(SystemSettings::TYPE_ALLOW_NEGTIVE_STOCK)) !== 1)
 			throw new Exception('Product (SKU:' . $this->getSKU() . ') can NOT be ' . $action . ' , as there is not enough stock: new stock on order will fall below zero');
+		
+		if ($newQty >= 5){
+			$status = ProductStatus::get(2);
+		}elseif ($newQty == 0){
+			$status = ProductStatus::get(8);
+		}else {
+			$status = ProductStatus::get(3);
+		}
 		return $this->setStockOnOrder($newStockOnOrder)
 		->setTotalOnHandValue(($origTotalOnHandValue = $this->getTotalOnHandValue()) - $totalCost)
 		->setStockOnHand($newQty)
+		->setStatus($status)
 		->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_SALES_ORDER, $action . ': ' . ($order instanceof Order ? '[' . $order->getOrderNo() . ']' : '') . $comments)
 		->save()
 		->addLog('StockOnHand(' . $originStockOnHand . ' => ' . $this->getStockOnHand() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)

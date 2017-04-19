@@ -34,7 +34,7 @@
                     </tr>
                     <tr class="">
                         <td colspan=12>
-                        	<div class="comments_details inlineblock box">
+                        	<div class="comments_details inlineblock box" style="width:100%">
                                 <b class="print-row" style="color:black !important;">Comments: </b>
                                 <%= $this->getComments() %>
                             </div>
