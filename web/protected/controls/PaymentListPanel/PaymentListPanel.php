@@ -180,16 +180,50 @@ class PaymentListPanel extends TTemplateControl
 		try
 		{
 			Dao::beginTransaction();
-			if(!isset($param->CallbackParameter->paymentId) || !($payment = Payment::get($param->CallbackParameter->paymentId)) instanceof Payment)
+			if(!isset($param->CallbackParameter->againstEntity) || !isset($param->CallbackParameter->againstEntity->entity) || !isset($param->CallbackParameter->againstEntity->entityId) || ($entityName = trim($param->CallbackParameter->againstEntity->entity)) === '' || !($entity = $entityName::get(trim($param->CallbackParameter->againstEntity->entityId))) instanceof $entityName)
+				throw new Exception('System Error: invalid Order or CreditNote provided. Can NOT get any payments at all.');
+				if(!isset($param->CallbackParameter->payment->paymentId) || !($payment = Payment::get($param->CallbackParameter->payment->paymentId)) instanceof Payment)
 				throw new Exception('System Error: invalid payment provided!');
 
-			if(!isset($param->CallbackParameter->reason) || ($reason = trim($param->CallbackParameter->reason)) === '')
+				if(!isset($param->CallbackParameter->payment->reason) || ($reason = trim($param->CallbackParameter->payment->reason)) === '')
 				throw new Exception('The reason for the deletion is needed!');
 
 			$comments = 'A payment [Value: ' .  StringUtilsAbstract::getCurrency($payment->getValue()) . ', Method: ' . $payment->getMethod()->getName() . '] is DELETED: ' . $reason;
 			$payment->setActive(false)
 				->addComment($comments, Comments::TYPE_ACCOUNTING)
 				->save();
+			
+			if ($entity instanceof Order)
+			{
+				$customerId = $entity->getCustomer()->getId();
+				$creditPool = CreditPool::getAllByCriteria('customerId = ? and storeId = ? and totalCreditLeft <> 0',array($customerId, Core::getUser()->getStore()->getId()));
+				if(count($creditPool) > 0){
+
+					$totalPaid = doubleval($entity->getTotalPaid());
+					$totalAmt = doubleval($entity->getTotalAmount());
+					$payAmt = doubleval($payment->getValue());
+					if ($payment->getMethod()->getId() != PaymentMethod::ID_STORE_CREDIT)
+					{
+						// the payment method is not offset credit ( id= 11)
+						// check if the customer overpaid
+						// if yes, then need to create credit pool for the customer
+						if ($totalPaid > $totalAmt)
+						{
+							$diff = $totalPaid - $totalAmt;
+							if ($payAmt >= $diff){
+								$creditAmt = -$diff;
+							} else {
+								$creditAmt = -$payAmt;
+							}
+							
+						}
+					} else {
+						$creditAmt = $payAmt;
+					}
+					CreditPool::createByOrder($entity, $creditAmt);
+				}
+			}
+
 			$entityFor = $payment->getOrder() instanceof Order ? $payment->getOrder() : $payment->getCreditNote();
 			if($entityFor instanceof Order || $entityFor instanceof CreditNote)
 				$entityFor->addComment($comments, Comments::TYPE_ACCOUNTING);

@@ -52,7 +52,10 @@ PaymentListPanelJs.prototype = {
 		if(tmp.data === null)
 			return;
 		tmp.data.paymentId = payment.id;
-		tmp.me._pageJs.postAjax(PaymentListPanelJs.callbackIds.delPayment, tmp.data, {
+		tmp.againstEntity = null;
+		if (tmp.me._order && tmp.me._order.id)
+			tmp.againstEntity = {'entity' : 'Order', 'entityId' : tmp.me._order.id};
+		tmp.me._pageJs.postAjax(tmp.me._paymentListPanelJs.callbackIds.delPayment, {'payment': tmp.data, 'againstEntity': tmp.againstEntity}, {
 			'onLoading': function() {
 				tmp.me._signRandID(btn);
 				jQuery('#' + btn.id).button('loading');
@@ -188,6 +191,7 @@ PaymentListPanelJs.prototype = {
 	,_submitPayment: function(btn) {
 		var tmp = {};
 		tmp.me = this;
+		tmp.exceedFlag = 0;
 		tmp.newPaymentDiv = $(btn).up('.new-payment-div');
 		tmp.newPaymentDiv.getElementsBySelector('.msg').each(function(el) {el.remove();});
 		tmp.data = tmp.me._pageJs._collectFormData(tmp.newPaymentDiv, 'payment_field');
@@ -205,9 +209,17 @@ PaymentListPanelJs.prototype = {
 			tmp.againstEntity = {'entity' : 'Order', 'entityId' : tmp.me._order.id};
 		else if (tmp.me._creditNote && tmp.me._creditNote.id)
 			tmp.againstEntity = {'entity' : 'CreditNote', 'entityId' : tmp.me._creditNote.id};
-
-		if (tmp.againstEntity !== null) {
-			tmp.me._pageJs.postAjax(PaymentListPanelJs.callbackIds.addPayment, {'payment': tmp.data, 'againstEntity': tmp.againstEntity}, {
+		
+		if((parseFloat(tmp.me._order.totalPaid) + parseFloat(tmp.data.paidAmount.slice(1))) > parseFloat(tmp.me._order.totalAmount)){
+			if(confirm('The total paid amount is greater than total amount.\n' + ' Would you like to continue?')){
+				tmp.exceedFlag = 1;
+			}
+		} else {
+			tmp.exceedFlag = 1;
+		}
+		
+		if (tmp.againstEntity !== null && tmp.exceedFlag == 1) {
+			tmp.me._pageJs.postAjax(tmp.me._paymentListPanelJs.callbackIds.addPayment, {'payment': tmp.data, 'againstEntity': tmp.againstEntity}, {
 				'onLoading': function (sender, param) {
 					tmp.me._pageJs._signRandID(btn);
 					jQuery('#' + btn.id).button('loading');
@@ -350,6 +362,7 @@ PaymentListPanelJs.prototype = {
 		if (tmp.data !== null) {
 			tmp.data.pagination = {'pageNo': tmp.pageNo};
 			tmp.loadingImg = tmp.me._pageJs.getLoadingImg();
+			
 			tmp.me._pageJs.postAjax(PaymentListPanelJs.callbackIds.getPayments, tmp.data, {
 				'onLoading' : function() {
 					if(tmp.pageNo === 1) {
@@ -431,6 +444,7 @@ PaymentListPanelJs.prototype = {
 		 if($(tmp.me._panelHTMLID)) {
 			 tmp.me._showPayments();
 		 }
+		 tmp.me._paymentListPanelJs = PaymentListPanelJs;
 		 return tmp.me;
 	}
 };

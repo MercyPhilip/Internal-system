@@ -636,10 +636,16 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			tmp.me.showModalBox('Notice', '<span class="text-warning">You <b>MUST</b> enter a valid <b>price</b>');
 			return;
 		}
+		
 		//get all suppliercode
 		tmp.data.supplierCodes = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')).down('.suppliers-panel'), 'list-panel-row', 'list-item');
+		if(jQuery.isEmptyObject(tmp.data.supplierCodes)){
+			tmp.me.showModalBox('Notice', '<span class="text-warning">You <b>MUST</b> enter a supplier code');
+			return;
+		}
 		if(tmp.data.supplierCodes === null)
 			return tmp.me;
+
 		//get all suppliercode
 		tmp.data.productCodes = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')).down('.codes-panel'), 'list-panel-row', 'list-item');
 		if(tmp.data.productCodes === null)
