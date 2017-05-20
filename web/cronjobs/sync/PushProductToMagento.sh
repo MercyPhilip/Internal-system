@@ -1,13 +1,13 @@
 #!/bin/bash
 
-SERVER=backup.budgetpc.com.au
+SERVER=hobbymaster.com.au
 SERVER_PATH=/var/www/html/var/import/
 FILE_DIR=/tmp/
 FILE_NAME=productUpdate.tar.gz
 DESTINATION=/var/pushdata/archive/
 RECIPIENTS="larry@budgetpc.com.au"
-SYNCFILE_DIR=/home/philip/bitbucket/magento-b2b/web/cronjobs/sync/
-PEMFILE_PATH=/home/philip/.ssh/BPC_EC2_keyPair01.pem
+SYNCFILE_DIR=/var/www/hobbymaster/web/cronjobs/sync/
+PEMFILE_PATH=/home/ubuntu/.ssh/BPC_EC2_keyPair01.pem
 
 ## generate a MAGENTO product file ########################################
 if ps ax | grep -v grep | grep "ProductToMagento.php" > /dev/null; then

@@ -1,5 +1,5 @@
 #!/bin/bash
-BASEDIR=$(dirname $0)
+BASEDIR=/var/www/hobbymaster/web/cronjobs
 
 # Product Attribute Set Pull
 /usr/bin/php $BASEDIR/ProductAttributeSetPull.php
