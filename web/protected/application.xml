@@ -240,7 +240,7 @@
   </services>
   <!-- application parameters -->
   <parameters>
-    <parameter id="AppTitle" value="Budget PC Internal Management System" />
+    <parameter id="AppTitle" value="Hobby Master Management System" />
     <parameter id="AppVersion" value="1.0.0" />
   </parameters>
 

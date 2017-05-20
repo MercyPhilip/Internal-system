@@ -262,3 +262,6 @@ table.table thead td {
 .priceMatchRule {
 	font-size: 13px;
 }
+.navbar-inverse {
+	background-color: #050e63e6;
+}

@@ -1,5 +1,5 @@
 <div class="container">
-	<a href="/">Budget PC Pty Ltd</a>
+	<a href="/">Hobby Master</a>
 	 <span class="footerlogo navbar-right">
 		 <span class="copyright">&copy; 
 			<script language="JavaScript" type="text/javascript">
