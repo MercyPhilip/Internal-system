@@ -437,9 +437,9 @@ class DetailsController extends DetailsPageAbstract
 					->setSellOnWeb($sellOnWeb)
 					->setAsNewFromDate(trim($param->CallbackParameter->asNewFromDate))
 					->setAsNewToDate(trim($param->CallbackParameter->asNewToDate))
-					->setAssetAccNo(trim($param->CallbackParameter->assetAccNo))
+/* 					->setAssetAccNo(trim($param->CallbackParameter->assetAccNo))
 					->setRevenueAccNo(trim($param->CallbackParameter->revenueAccNo))
-					->setCostAccNo(trim($param->CallbackParameter->costAccNo))
+					->setCostAccNo(trim($param->CallbackParameter->costAccNo)) */
 					->setWeight($weight)
 					;
 				if(trim($product->getId()) === '')

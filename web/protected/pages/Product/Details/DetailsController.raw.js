@@ -636,7 +636,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			tmp.me.showModalBox('Notice', '<span class="text-warning">You <b>MUST</b> enter a valid <b>price</b>');
 			return;
 		}
-		//get all suppliercode
+/*		//get all suppliercode
 		tmp.data.supplierCodes = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')).down('.suppliers-panel'), 'list-panel-row', 'list-item');
 		if(tmp.data.supplierCodes === null)
 			return tmp.me;
@@ -647,7 +647,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		//get all locations
 		tmp.data.locations = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')).down('.locations-panel'), 'list-panel-row', 'list-item');
 		if(tmp.data.locations === null)
-			return tmp.me;
+			return tmp.me;*/
 
 		tmp.data.id = tmp.me._item.id;
 		//tricks for fullDescription's editor
@@ -679,7 +679,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			tmp.data.images.push(tmp.img);
 		});
 		// validate accounting codes
-		if(tmp.me._validateAccountingCode(tmp.data.assetAccNo) !== true) {
+/*		if(tmp.me._validateAccountingCode(tmp.data.assetAccNo) !== true) {
 			tmp.me.showModalBox('Notice', '<span class="text-warning">You <b>MUST</b> enter a valid <b>Asset Account Number</b>');
 			return;
 		}
@@ -690,7 +690,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		if(tmp.me._validateAccountingCode(tmp.data.costAccNo) !== true) {
 			tmp.me.showModalBox('Notice', '<span class="text-warning">You <b>MUST</b> enter a valid <b>Cost Account Number</b>');
 			return;
-		}
+		}*/
 		//submit all data
 		tmp.me.saveItem(btn, tmp.data, function(data){
 			if(!data.url)
@@ -727,12 +727,12 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			no_results_text: "No code type found!",
 			width: "100%"
 		});
-		jQuery('.chosen[save-item="assetAccNo"]')
+/*		jQuery('.chosen[save-item="assetAccNo"]')
 			.change(function(data){
 				tmp.data = $(this).down('[value="' + $F($(this)) + '"]').retrieve('data')
 				tmp.revenueEl = $$('.chosen[save-item="revenueAccNo"]').first();
 				tmp.costEl = $$('.chosen[save-item="costAccNo"]').first();
-				if(/*$F(tmp.revenueEl) === tmp.me._selectTypeTxt && */$F($(this)) !== tmp.me._selectTypeTxt) {
+				if($F(tmp.revenueEl) === tmp.me._selectTypeTxt && $F($(this)) !== tmp.me._selectTypeTxt) {
 					tmp.revenueEl.getElementsBySelector('option[selected="selected"]').each(function(item){item.removeAttribute('selected')});
 					tmp.revenueEl.down('option[description="' + tmp.data.description + '"]').writeAttribute('selected', true);
 					jQuery('.chosen[save-item="revenueAccNo"]').trigger("chosen:updated");
@@ -740,7 +740,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					tmp.costEl.down('option[description="' + tmp.data.description + '"]').writeAttribute('selected', true);
 					jQuery('.chosen[save-item="costAccNo"]').trigger("chosen:updated");
 				}
-			});
+			});*/
 		return this;
 	}
 	,_getAccCodeSelectEl: function(type) {
@@ -905,10 +905,10 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 								tmp.startBox.writeAttribute('disabled', false).writeAttribute('value', '').select();
 							}
 						}).wrap(new Element('div', {'class': 'col-sm-12 prices-panel'})) })				
-						.insert({'bottom': tmp.me._getAccInfoDiv(tmp.me._item).wrap(new Element('div', {'class': 'col-sm-12'})) })
+						/*.insert({'bottom': tmp.me._getAccInfoDiv(tmp.me._item).wrap(new Element('div', {'class': 'col-sm-12'})) })
 						.insert({'bottom': tmp.me._getListPanel('Suppliers:', tmp.me._item.supplierCodes, {'type': 'Supplier', 'value': 'Code'}, tmp.me._suppliers).wrap(new Element('div', {'class': 'col-sm-4 suppliers-panel'})) })
 						.insert({'bottom': tmp.me._getListPanel('Codes:', tmp.me._item.productCodes, {'type': 'Type', 'value': 'Code'}, tmp.me._codeTypes).wrap(new Element('div', {'class': 'col-sm-4 codes-panel'})) })
-						.insert({'bottom': tmp.me._getListPanel('Locations:', tmp.me._item.locations, {'type': 'Type', 'value': 'value'}, tmp.me._locationTypes).wrap(new Element('div', {'class': 'col-sm-4 locations-panel'})) })
+						.insert({'bottom': tmp.me._getListPanel('Locations:', tmp.me._item.locations, {'type': 'Type', 'value': 'value'}, tmp.me._locationTypes).wrap(new Element('div', {'class': 'col-sm-4 locations-panel'})) })*/
 					})
 					.insert({'bottom': new Element('div', {'class': 'row'})
 						.insert({'bottom': new Element('span', {'class': 'btn btn-del Locations btn-primary pull-right col-sm-4', 'data-loading-text': 'saving ...'}).update('Save')

@@ -48,9 +48,13 @@ class InfoEntityAbstract extends BaseEntityAbstract
 		{
 			if(!isset(DaoMap::$map[strtolower(get_class($this))]['infos']) || ($class = trim(DaoMap::$map[strtolower(get_class($this))]['infos']['class'])) === '')
 				throw new EntityException('You can NOT get information from a entity' . get_class($this) . ', setup the relationship first!');
-
-			$sql = 'select value from ' . strtolower($class) . ' `info` where `info`.active = 1 and `info`.' . strtolower(get_class($this)) . 'Id = ? and `info`.TypeId = ? and `info`.storeId = ? ';
-			$result = Dao::getResultsNative($sql, array($this->getId(), $typeId, Core::getUser()->getStore()->getId()), PDO::FETCH_NUM);
+			if ($class == 'ProductInfo'){
+				$sql = 'select value from ' . strtolower($class) . ' `info` where `info`.active = 1 and `info`.' . strtolower(get_class($this)) . 'Id = ? and `info`.TypeId = ? ';
+				$result = Dao::getResultsNative($sql, array($this->getId(), $typeId), PDO::FETCH_NUM);
+			}else{
+				$sql = 'select value from ' . strtolower($class) . ' `info` where `info`.active = 1 and `info`.' . strtolower(get_class($this)) . 'Id = ? and `info`.TypeId = ? and `info`.storeId = ? ';
+				$result = Dao::getResultsNative($sql, array($this->getId(), $typeId, Core::getUser()->getStore()->getId()), PDO::FETCH_NUM);
+			}
 			$this->_cache[$typeId] = array_map(create_function('$row', 'return $row[0];'), $result);
 		}
 		return $this->_cache[$typeId];
@@ -82,7 +86,10 @@ class InfoEntityAbstract extends BaseEntityAbstract
 		else
 		{
 			//check whether we have one already
-			$infos = $class::getAllByCriteria(strtolower(get_class($this)).'Id = ? and value = ? and typeId = ? and storeId = ?', array($this->getId(), trim($typeId), trim($value), Core::getUser()->getStore()->getId()), true, 1 , 1);
+			if ($class == 'ProductInfo')
+				$infos = $class::getAllByCriteria(strtolower(get_class($this)).'Id = ? and value = ? and typeId = ?', array($this->getId(), trim($typeId), trim($value)), true, 1 , 1);
+			else
+				$infos = $class::getAllByCriteria(strtolower(get_class($this)).'Id = ? and value = ? and typeId = ? and storeId = ?', array($this->getId(), trim($typeId), trim($value), Core::getUser()->getStore()->getId()), true, 1 , 1);
 			if(count($infos) > 0)
 				return $this;
 			//create new

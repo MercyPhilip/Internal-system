@@ -304,7 +304,7 @@ class CatelogConnector extends B2BConnector
 				}
 				$productCategory->setActive(trim($category->is_active) === '1')
 					->setIncludeInMenu(isset($category->include_in_menu) && trim($category->include_in_menu) === '1')
-					->setIsAnchor(trim($category->is_anchor) === '1')
+					->setIsAnchor(trim(isset($category->is_anchor) ? $category->is_anchor : '0' ) === '1')
 					->setUrlKey(trim($category->url_key))
 					->save();
 
@@ -544,7 +544,6 @@ class CatelogConnector extends B2BConnector
 						->clearAllPrice()
 						->addPrice(ProductPriceType::get(ProductPriceType::ID_RRP), $price)
 						->addInfo(ProductInfoType::ID_WEIGHT, $weight);
-			
 					if($specialPrice !== '')
 						$product->addPrice(ProductPriceType::get(ProductPriceType::ID_CASUAL_SPECIAL), $specialPrice, $specialPrice_From, $specialPrice_To);
 			
@@ -554,7 +553,7 @@ class CatelogConnector extends B2BConnector
 					if(isset($pro['categories']) && count($pro['categories']) > 0)
 					{
 						$product->clearAllCategory();
-						foreach($pro['category_ids'] as $cateMageId)
+						foreach($pro['categories'] as $cateMageId)
 						{
 							if(!($category = ProductCategory::getByMageId($cateMageId)) instanceof ProductCategory)
 							{
@@ -674,6 +673,7 @@ class CatelogConnector extends B2BConnector
 					->setIsFromB2B(true)
 					->setStatus(ProductStatus::get($statusId))
 					->setSellOnWeb(true)
+					->setWeight($weight)
 					->setManufacturer($this->getManufacturerName(trim($additionAttrs['manufacturer'])))
 					->save()
 					->clearAllPrice()
