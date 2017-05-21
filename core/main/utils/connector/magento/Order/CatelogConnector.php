@@ -439,6 +439,7 @@ class CatelogConnector extends B2BConnector
 			{
 				try
 				{
+					$transStarted = false;
 					if($rowCount === 0 || $rowCount % $sessionRotation == 0)
 					{
 						$connector = CatelogConnector::getConnector(B2BConnector::CONNECTOR_TYPE_CATELOG,
@@ -502,15 +503,16 @@ class CatelogConnector extends B2BConnector
 					$description = trim($pro['description']);
 					if($description === '')
 						$description = $short_description;
-					$weight = doubleval(trim($pro['weight']));
+					if (trim($pro['type']) == 'virtual')
+						$weight = 0;
+					else
+						$weight = doubleval(trim($pro['weight']));
 					$statusId = trim($pro['status']);
 					$systemStatusId = (intval($statusId) === 2 ? ProductStatus::ID_DISABLED : ProductStatus::ID_ENABLED); 
 					$price = doubleval(trim($pro['price']));
 					$specialPrice = isset($pro['special_price']) ? trim($pro['special_price']) : '';
 					$specialPrice_From = isset($pro['special_from_date']) ? trim($pro['special_from_date']) : null;
 					$specialPrice_To = isset($pro['special_to_date']) ? trim($pro['special_to_date']) : null;
-					
-					$transStarted = false;
 					try {Dao::beginTransaction();} catch(Exception $e) {$transStarted = true;}
 					if(!($product = Product::getBySku($sku)) instanceof Product)
 					{
