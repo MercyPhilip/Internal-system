@@ -265,3 +265,9 @@ table.table thead td {
 .navbar-inverse {
 	background-color: #050e63e6;
 }
+.navbar-inverse .navbar-nav > li > a {
+	color: #fff;
+}
+.navbar-inverse .navbar-brand {
+	color: #fff;
+}
