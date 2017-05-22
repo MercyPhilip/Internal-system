@@ -425,7 +425,8 @@ class CatelogConnector extends B2BConnector
 		$contents = file($cacheFile);
 		// handle extra long sku from magento, exceeding mysql sku length limit
 		DaoMap::loadMap('Product');
-		$skuSizeLimit = DaoMap::$map['product']['sku']['size'];
+// 		$skuSizeLimit = DaoMap::$map['product']['sku']['size'];
+		$skuSizeLimit = 80;
 		$totalCount = count($contents);
 		if($totalCount === 0)
 		{
