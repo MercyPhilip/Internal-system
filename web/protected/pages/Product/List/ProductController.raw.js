@@ -286,6 +286,68 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		});
 		return tmp.found;
 	}
+	,_bindMultiDeactivateBtn: function(btn,product) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.product = (product || null);
+		tmp.btn = (btn || $('multiDeactivateBtn'));
+		
+		tmp.me.observeClickNDbClick(
+				tmp.btn
+				,function(){
+					tmp.selected = tmp.me._getSelection();
+					tmp.totalQty = $('total-found-count').innerHTML;
+					
+					if(tmp.product === null && tmp.selected !== null && tmp.selected.length > 0) {
+						tmp.warningMsg = new Element('div')
+						.insert({'bottom': new Element('h3', {'class': 'col-lg-12'}).update('only <b>' + tmp.selected.length + '</b> out of <b>' + tmp.totalQty + '</b> is selected, Contrinue?') })
+						.insert({'bottom': new Element('i', {'class': 'btn btn-danger btn-lg'}).update('No')
+							.observe('click', function(){tmp.me.hideModalBox();})
+						})
+						.insert({'bottom': new Element('i', {'class': 'btn btn-success btn-lg pull-right'}).update('Yes').setStyle(tmp.selected.length === 0 ? 'display: none;' : '') 
+							.observe('click', function(){
+								tmp.me.toggleActive(tmp.selected);
+								tmp.me.hideModalBox();
+							})
+						});
+						tmp.me.showModalBox('Warning', tmp.warningMsg, false, null, null, true);
+					}
+				}
+				,null
+		);
+		return tmp.me;
+	}
+	,_bindMultiSowBtn: function(btn,product) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.product = (product || null);
+		tmp.btn = (btn || $('multiSowBtn'));
+		
+		tmp.me.observeClickNDbClick(
+				tmp.btn
+				,function(){
+					tmp.selected = tmp.me._getSelection();
+					tmp.totalQty = $('total-found-count').innerHTML;
+					
+					if(tmp.product === null && tmp.selected !== null && tmp.selected.length > 0) {
+						tmp.warningMsg = new Element('div')
+						.insert({'bottom': new Element('h3', {'class': 'col-lg-12'}).update('only <b>' + tmp.selected.length + '</b> out of <b>' + tmp.totalQty + '</b> is selected, Contrinue?') })
+						.insert({'bottom': new Element('i', {'class': 'btn btn-danger btn-lg'}).update('No')
+							.observe('click', function(){tmp.me.hideModalBox();})
+						})
+						.insert({'bottom': new Element('i', {'class': 'btn btn-success btn-lg pull-right'}).update('Yes').setStyle(tmp.selected.length === 0 ? 'display: none;' : '') 
+							.observe('click', function(){
+								tmp.me.toggleSellOnWeb(tmp.selected);
+								tmp.me.hideModalBox();
+							})
+						});
+						tmp.me.showModalBox('Warning', tmp.warningMsg, false, null, null, true);
+					}
+				}
+				,null
+		);
+		return tmp.me;
+	}
 	/**
 	 * Getting the locations for a product
 	 */
@@ -681,40 +743,58 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		return tmp.me;
 	}
 	
-	,toggleSellOnWeb: function(isSellOnWeb, product, btn) {
+	,toggleSellOnWeb: function(products, isSellOnWeb, btn) {
 		var tmp = {};
+		tmp.productIds = [];
 		tmp.me = this;
-		tmp.me.postAjax(tmp.me.getCallbackId('toggleSellOnWeb'), {'productId': product.id, 'isSellOnWeb': isSellOnWeb}, {
+		products.each(function(product){
+			tmp.productIds.push(product.id); 
+		})
+		tmp.me.postAjax(tmp.me.getCallbackId('toggleSellOnWeb'), {'productIds': tmp.productIds, 'isSellOnWeb': isSellOnWeb}, {
 			'onSuccess': function(sender, param) {
 				try{
 					tmp.result = tmp.me.getResp(param, false, true);
-					if(!tmp.result || !tmp.result.item)
+					if(!tmp.result || !tmp.result.items)
 						return;
-					if($$('.product_item[product_id=' + product.id +']').size() >0) {
-						$$('.product_item[product_id=' + product.id +']').first().replace(tmp.me._getResultRow(tmp.result.item, false));
-					}
-					tmp.me._bindPriceInput();
+					tmp.productIds.each(function(productId){
+						if($$('.product_item[product_id=' + productId +']').size() >0) {
+							tmp.result.items.each(function(item){
+								if(item.id == productId)
+									$$('.product_item[product_id=' + productId +']').first().replace(tmp.me._getResultRow(item, false).addClassName('item_row').writeAttribute('item_id', item.id));
+							})
+						}
+						tmp.me._bindPriceInput();
+					})
 				} catch (e) {
-					$(btn).checked = !isSellOnWeb;
 					tmp.me.showModalBox('ERROR', e, true);
+					$(btn).checked = !isSellOnWeb;
 				}
 			}
 		})
 		return tmp.me;
 	}	
-	,toggleActive: function(active, product) {
+	,toggleActive: function(products, active) {
 		var tmp = {};
+		tmp.productIds = [];
 		tmp.me = this;
-		tmp.me.postAjax(tmp.me.getCallbackId('toggleActive'), {'productId': product.id, 'active': active}, {
+		products.each(function(product){
+			tmp.productIds.push(product.id); 
+		})
+		tmp.me.postAjax(tmp.me.getCallbackId('toggleActive'), {'productIds': tmp.productIds, 'active': active}, {
 			'onSuccess': function(sender, param) {
 				try{
 					tmp.result = tmp.me.getResp(param, false, true);
-					if(!tmp.result || !tmp.result.item)
+					if(!tmp.result || !tmp.result.items)
 						return;
-					if($$('.product_item[product_id=' + product.id +']').size() >0) {
-						$$('.product_item[product_id=' + product.id +']').first().replace(tmp.me._getResultRow(tmp.result.item, false));
-					}
-					tmp.me._bindPriceInput();
+					tmp.productIds.each(function(productId){
+						if($$('.product_item[product_id=' + productId +']').size() >0) {
+							tmp.result.items.each(function(item){
+								if(item.id == productId)
+									$$('.product_item[product_id=' + productId +']').first().replace(tmp.me._getResultRow(item, false).addClassName('item_row').writeAttribute('item_id', item.id));
+							})
+						}
+						tmp.me._bindPriceInput();
+					})
 				} catch (e) {
 					tmp.me.showModalBox('ERROR', e, true);
 				}
@@ -945,6 +1025,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.price = '';
 		tmp.specilaPrice = '';
 		tmp.srp = '';
+		tmp.products = [];
 		if(row.prices) {
 			row.prices.each(function(price) {
 				if(price.type && parseInt(price.type.id) === 1) {
@@ -1130,7 +1211,8 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 									tmp.checked = $(tmp.btn).checked;
 									if(confirm(tmp.checked === true ? 'You are about to sell this product on web again.\n Continue?' : 'You are NOT about to sell this product on web.\n Continue?'))
 									{
-										tmp.me.toggleSellOnWeb(tmp.checked, row, tmp.btn);
+										tmp.products.push(row);
+										tmp.me.toggleSellOnWeb(tmp.products, tmp.checked, tmp.btn);
 									}
 									else $(tmp.btn).checked = !tmp.checked;
 								})
@@ -1178,8 +1260,11 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 								.observe('click', function(event) {
 									tmp.btn = this;
 									tmp.checked = $(tmp.btn).checked;
-									if(confirm(tmp.checked === true ? 'You are about to ReACTIVATE this product.\n Continue?' : 'You are about to deactivate this product.\n Continue?'))
-										tmp.me.toggleActive(tmp.checked, row);
+									if(confirm(tmp.checked === true ? 'You are about to ReACTIVATE this product.\n Continue?' : 'You are about to deactivate this product.\n Continue?')){
+										tmp.products.push(row);
+										tmp.me.toggleActive(tmp.products, tmp.checked);
+									}
+										
 								})
 							})
 						})
