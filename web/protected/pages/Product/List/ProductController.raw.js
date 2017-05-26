@@ -1124,7 +1124,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				.insert({'bottom': (
 					new Element('div', {'class': 'row'})
 						.insert({'bottom': new Element('div', {'class': 'col-sm-3 text-right'})
-							.insert({'bottom': tmp.isTitle === true ? 'SOW?' : tmp.sowcbx = new Element('input', {'type': 'checkbox', 'checked': row.sellOnWeb})
+							.insert({'bottom': tmp.isTitle === true ? 'SOW?' : tmp.sowcbx = new Element('input', {'type': 'checkbox', 'checked': row.sellOnWeb, 'disabled': row.localOnly == true ? true: false})
 								.observe('click', function(event) {
 									tmp.btn = this;
 									tmp.checked = $(tmp.btn).checked;

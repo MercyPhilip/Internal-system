@@ -7,7 +7,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 	 * get title of the row
 	 */
 	_getTitleRowData: function() {
-		return {'id' : 'ID', 'sku': 'Sku', 'name': 'Name', 'category': 'Category', 'price': 'Price', 'stock' : 'Stock Level',  'status': 'Processing Status'};
+		return {'id' : 'ID', 'sku': 'Sku', 'name': 'Name', 'category': 'Category', 'price': 'Price', 'stock' : 'Stock Level',  'status': 'Processing Status', 'localOnly': 'Local Only'};
 	}
 	/**
 	 * Load the _loadProductStatuses
@@ -149,6 +149,9 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element('td', {'class': 'form-group'})
 				.insert({'bottom': new Element('input', {'disabled': row.id ? false: true,'class': 'chosen form-control input-sm', 'entityName' : 'NewProductStatus', 'placeholder': 'The Status', 'save-item-panel': 'status', 'value': row.status && row.status.name ? row.status.name : ''}) })
 			})
+			.insert({'bottom': new Element('td', {'class': 'form-group'})
+				.insert({'bottom': new Element('input', {'type': 'checkbox', 'disabled': row.id ? false: true, 'class': 'chosen form-control input-sm', 'save-item-panel': 'localOnly', 'checked': false }) })
+			})
 			.insert({'bottom': new Element('td', {'class': 'text-right'})
 				.insert({'bottom':  new Element('span', {'class': 'btn-group btn-group-sm'})
 					.insert({'bottom': new Element('span', {'class': 'btn btn-success', 'title': 'Save'})
@@ -204,13 +207,14 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			});
 		}
 		tmp.row = new Element('tr', {'class': (tmp.isTitle === true ? '' : 'btn-hide-row')}).store('data', row)
-			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-1'}).update(tmp.isTitle === true ? row.id : row.id) })
+			.insert({'bottom': new Element(tmp.tag, {'class': 'name'}).update(tmp.isTitle === true ? row.id : row.id) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-1'}).update(tmp.isTitle === true ? row.sku : row.product.sku) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-3'}).update(tmp.isTitle === true ? row.name : row.product.name) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-3'}).update(tmp.isTitle === true ? row.category : tmp.categories) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-1'}).update(tmp.isTitle === true ? row.price : tmp.me._getCurrency(tmp.price)) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-1'}).update(tmp.isTitle === true ? row.stock : row.product.status? row.product.status.name : '') })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-1'}).update(tmp.isTitle === true ? row.status : row.status.name) })
+			.insert({'bottom': new Element(tmp.tag, {'class': 'name'}).update(tmp.isTitle === true ? row.localOnly : new Element('input', {'disabled': true, 'class': 'localOnly', 'type': 'checkbox', 'checked': row.product.localOnly})) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'text-right col-xs-1 '}).update(
 				tmp.isTitle === true ?  
 				(new Element('span', {'class': 'btn btn-primary btn-xs', 'title': 'New'})

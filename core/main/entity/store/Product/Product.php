@@ -129,6 +129,12 @@ class Product extends InfoEntityAbstract
 	 */
 	private $sellOnWeb = false;
 	/**
+	 * Whether this product local only
+	 *
+	 * @var bool
+	 */
+	private $localOnly = false;
+	/**
 	 * Product status
 	 *
 	 * @var ProductStatus
@@ -153,7 +159,7 @@ class Product extends InfoEntityAbstract
 	 */
 	protected $categories = array();
 	/**
-	/**
+	 /**
 	 * The productCodes
 	 *
 	 * @var array
@@ -161,7 +167,7 @@ class Product extends InfoEntityAbstract
 	protected $codes = array();
 	/**
 	 * The stock info of the product
-	 * 
+	 *
 	 * @var ProductStockInfo array
 	 */
 	protected $stocks = array();
@@ -219,7 +225,7 @@ class Product extends InfoEntityAbstract
 	public function getCategories()
 	{
 		$this->loadOneToMany('categories');
-	    return $this->categories;
+		return $this->categories;
 	}
 	/**
 	 * Setter for categories
@@ -230,8 +236,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setCategories($value)
 	{
-	    $this->categories = $value;
-	    return $this;
+		$this->categories = $value;
+		return $this;
 	}
 	/**
 	 * Getter for codes
@@ -241,7 +247,7 @@ class Product extends InfoEntityAbstract
 	public function getCodes()
 	{
 		$this->loadOneToMany('codes');
-	    return $this->codes;
+		return $this->codes;
 	}
 	/**
 	 * Setter for codes
@@ -252,8 +258,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setCodes($value)
 	{
-	    $this->codes = $value;
-	    return $this;
+		$this->codes = $value;
+		return $this;
 	}
 	/**
 	 * Getter for codes
@@ -264,16 +270,16 @@ class Product extends InfoEntityAbstract
 	{
 		if (count($this->stocks) === 0)
 			$this->loadOneToMany('stocks');
-		return $this->stocks;
+			return $this->stocks;
 	}
 	public function getStock()
 	{
- 		if (!$this->stock instanceof ProductStockInfo)
-	 	{
-	 		$stocks = ProductStockInfo::getAllByCriteria('productId = ? and storeId = ?', array($this->getId(), Core::getUser()->getStore()->getId()));
-	 		//file_put_contents('E:\tmp\web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ': count==' . Core::getUser()->getStore()->getId() . PHP_EOL, FILE_APPEND | LOCK_EX);
-	 		$this->stock = count($stocks) > 0 ? $stocks[0] : null;
-	 	}
+		if (!$this->stock instanceof ProductStockInfo)
+		{
+			$stocks = ProductStockInfo::getAllByCriteria('productId = ? and storeId = ?', array($this->getId(), Core::getUser()->getStore()->getId()));
+			//file_put_contents('E:\tmp\web.log', __FILE__ .':' . __FUNCTION__ . ':' . __LINE__ . ': count==' . Core::getUser()->getStore()->getId() . PHP_EOL, FILE_APPEND | LOCK_EX);
+			$this->stock = count($stocks) > 0 ? $stocks[0] : null;
+		}
 		return $this->stock;
 	}
 	public function setStock()
@@ -302,7 +308,7 @@ class Product extends InfoEntityAbstract
 	public function getSupplierCodes()
 	{
 		$this->loadOneToMany('supplierCodes');
-	    return $this->supplierCodes;
+		return $this->supplierCodes;
 	}
 	/**
 	 * Setter for supplierCodes
@@ -313,8 +319,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setSupplierCodes($value)
 	{
-	    $this->supplierCodes = $value;
-	    return $this;
+		$this->supplierCodes = $value;
+		return $this;
 	}
 	/**
 	 * Getter for asNewFromDate
@@ -323,9 +329,9 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getAsNewFromDate()
 	{
-	    if($this->asNewFromDate !== null)
-	        return new UDate(trim($this->asNewFromDate));
-		return $this->asNewFromDate;
+		if($this->asNewFromDate !== null)
+			return new UDate(trim($this->asNewFromDate));
+			return $this->asNewFromDate;
 	}
 	/**
 	 * Setter for asNewFromDate
@@ -346,9 +352,9 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getAsNewToDate()
 	{
-	    if($this->asNewToDate !== null)
-	        return new UDate(trim($this->asNewToDate));
-		return $this->asNewToDate;
+		if($this->asNewToDate !== null)
+			return new UDate(trim($this->asNewToDate));
+			return $this->asNewToDate;
 	}
 	/**
 	 * Setter for asNewToDate
@@ -384,13 +390,34 @@ class Product extends InfoEntityAbstract
 		return $this;
 	}
 	/**
+	 * Getter for localOnly
+	 *
+	 * @return boolean
+	 */
+	public function getLocalOnly()
+	{
+		return $this->localOnly;
+	}
+	/**
+	 * Setter for localOnly
+	 *
+	 * @param bool $value
+	 *
+	 * @return Product
+	 */
+	public function setLocalOnly($value)
+	{
+		$this->localOnly = $value;
+		return $this;
+	}
+	/**
 	 * Getter for sku
 	 *
 	 * @return string
 	 */
 	public function getSku()
 	{
-	    return $this->sku;
+		return $this->sku;
 	}
 	/**
 	 * Setter for sku
@@ -401,8 +428,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setSku($value)
 	{
-	    $this->sku = $value;
-	    return $this;
+		$this->sku = $value;
+		return $this;
 	}
 	/**
 	 * Getter for name
@@ -411,7 +438,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getName()
 	{
-	    return $this->name;
+		return $this->name;
 	}
 	/**
 	 * Setter for name
@@ -422,8 +449,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setName($value)
 	{
-	    $this->name = $value;
-	    return $this;
+		$this->name = $value;
+		return $this;
 	}
 	/**
 	 * Getter for mageId
@@ -432,7 +459,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getMageId()
 	{
-	    return $this->mageId;
+		return $this->mageId;
 	}
 	/**
 	 * Setter for mageId
@@ -443,8 +470,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setMageId($value)
 	{
-	    $this->mageId = $value;
-	    return $this;
+		$this->mageId = $value;
+		return $this;
 	}
 	/**
 	 * Getter for stockOnOrder
@@ -453,7 +480,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockOnOrder()
 	{
-	    return $this->getStock()->getStockOnOrder();
+		return $this->getStock()->getStockOnOrder();
 	}
 	/**
 	 * Setter for stockOnOrder
@@ -464,8 +491,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockOnOrder($value)
 	{
-	   $this->getStock()->setStockOnOrder($value)->save();
-	    return $this;
+		$this->getStock()->setStockOnOrder($value)->save();
+		return $this;
 	}
 	/**
 	 * Getter for stockOnHand
@@ -474,7 +501,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockOnHand()
 	{
-	    return $this->getStock()->getStockOnHand();
+		return $this->getStock()->getStockOnHand();
 	}
 	/**
 	 * Setter for stockOnHand
@@ -485,12 +512,12 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockOnHand($value)
 	{
-	    $productStockInfo = $this->getStock();
-	    if ($productStockInfo instanceof ProductStockInfo)
-	    {
-	    	$productStockInfo->setStockOnHand($value)->save();
-	    }
-	    return $this;
+		$productStockInfo = $this->getStock();
+		if ($productStockInfo instanceof ProductStockInfo)
+		{
+			$productStockInfo->setStockOnHand($value)->save();
+		}
+		return $this;
 	}
 	/**
 	 * Getter for stockOnPO
@@ -499,7 +526,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockOnPO()
 	{
-	    return  $this->getStock()->getStockOnPO();
+		return  $this->getStock()->getStockOnPO();
 	}
 	/**
 	 * Setter for stockOnPO
@@ -510,8 +537,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockOnPO($value)
 	{
-	     $this->getStock()->setStockOnPO($value)->save();
-	    return $this;
+		$this->getStock()->setStockOnPO($value)->save();
+		return $this;
 	}
 	/**
 	 * Getter for stockInParts
@@ -520,7 +547,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockInParts()
 	{
-	    return $this->getStock()->getStockInParts();
+		return $this->getStock()->getStockInParts();
 	}
 	/**
 	 * Setter for stockInParts
@@ -531,8 +558,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockInParts($value)
 	{
-	    $this->getStock()->setStockInParts($value)->save();
-	    return $this;
+		$this->getStock()->setStockInParts($value)->save();
+		return $this;
 	}
 	/**
 	 * Getter for stockInRMA
@@ -541,7 +568,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getStockInRMA()
 	{
-	    return $this->getStock()->getStockInRMA();
+		return $this->getStock()->getStockInRMA();
 	}
 	/**
 	 * Setter for stockInRMA
@@ -552,8 +579,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setStockInRMA($value)
 	{
-	    $this->getStock()->setStockInRMA($value)->save();
-	    return $this;
+		$this->getStock()->setStockInRMA($value)->save();
+		return $this;
 	}
 	/**
 	 * getter for stockMinLevel
@@ -621,7 +648,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getShortDescription()
 	{
-	    return $this->shortDescription;
+		return $this->shortDescription;
 	}
 	/**
 	 * Setter for shortDescription
@@ -632,8 +659,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setShortDescription($value)
 	{
-	    $this->shortDescription = $value;
-	    return $this;
+		$this->shortDescription = $value;
+		return $this;
 	}
 	/**
 	 * Getter for fullDescAssetId
@@ -642,7 +669,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getFullDescAssetId()
 	{
-	    return $this->fullDescAssetId;
+		return $this->fullDescAssetId;
 	}
 	/**
 	 * Setter for fullDescAssetId
@@ -653,8 +680,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setFullDescAssetId($value)
 	{
-	    $this->fullDescAssetId = $value;
-	    return $this;
+		$this->fullDescAssetId = $value;
+		return $this;
 	}
 	/**
 	 * Getter for customTabAssetId
@@ -742,7 +769,7 @@ class Product extends InfoEntityAbstract
 		$productStockInfo = $this->getStock();
 		if ($productStockInfo instanceof ProductStockInfo)
 			$productStockInfo->setTotalOnHandValue($value)->save();
-		return $this;
+			return $this;
 	}
 	/**
 	 * Getter for totalInPartsValue
@@ -835,7 +862,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getTotalRMAValue()
 	{
-	    return $this->getStock()->getTotalRMAValue();
+		return $this->getStock()->getTotalRMAValue();
 	}
 	/**
 	 * Setter for totalRMAValue
@@ -846,8 +873,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setTotalRMAValue($value)
 	{
-	    $this->getStock()->setTotalRMAValue($value)->save();
-	    return $this;
+		$this->getStock()->setTotalRMAValue($value)->save();
+		return $this;
 	}
 	/**
 	 * Getter for attributeSet
@@ -866,7 +893,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function getWeight()
 	{
-	    return $this->weight;
+		return $this->weight;
 	}
 	/**
 	 * Setter for weight
@@ -877,8 +904,8 @@ class Product extends InfoEntityAbstract
 	 */
 	public function setWeight($value)
 	{
-	    $this->weight = $value;
-	    return $this;
+		$this->weight = $value;
+		return $this;
 	}
 	/**
 	 * Getter for ETA
@@ -888,8 +915,8 @@ class Product extends InfoEntityAbstract
 	public function getProductEta()
 	{
 		if (!$this->eta instanceof ProductEta)
-		{	
-			$etas = ProductEta::getAllByCriteria('storeId = ? and productId = ? and received = 0', array(Core::getUser()->getStore()->getId(), $this->getId(), ),true);
+		{
+			$etas = ProductEta::getAllByCriteria('productId = ? and received = 0', array($this->getId()),true);
 			if(count($etas) > 0) {
 				foreach ($etas as $key => $value) {
 					$dataEta[] = ['key' => $key, 'eta' => $value->getEta()];
@@ -1159,20 +1186,20 @@ class Product extends InfoEntityAbstract
 	{
 		if($this->getIsKit() !== true || trim($this->getId()) === '')
 			return $this;
-		$sql = 'select sum(kit.cost) `totalValue`, count(distinct kit.id) `totalCount` from kit kit where kit.active = 1 and kit.soldDate = ? and kit.productId = ?';
-		$result = Dao::getResultsNative($sql, array(trim(UDate::zeroDate()), $this->getId()));
-		if(count($result) > 0) {
-			$totalValue = (trim($result[0]['totalValue']) === '' ? '0.0000' : trim($result[0]['totalValue']));
-			$totalCount = (trim($result[0]['totalCount']) === '' ? '0' : trim($result[0]['totalCount']));
-			if(($originalTotalOnHandValue = trim($this->getTotalInPartsValue())) !== $totalValue || ($originalStockOnHand = trim($this->getStockOnHand())) !== $totalCount) { //if not matched, then we need to adjust the qty
-				$this->setTotalOnHandValue($totalValue)
-				->setStockOnHand($totalCount)
-				->snapshotQty($this, ProductQtyLog::TYPE_STOCK_ADJ, 'Realigning the TotalInPartsValue to ' . StringUtilsAbstract::getCurrency($totalValue) . ' and StockOnHand to ' . $totalCount)
-				->save()
-				->addLog('StockOnHand(' . $originalStockOnHand . ' => ' . $this->getStockOnHand() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
-				->addLog('TotalOnHandValue(' . $originalTotalOnHandValue . ' => ' .$this->getTotalOnHandValue() . ')', Log::TYPE_SYSTEM, 'STOCK_VALUE_CHG', __CLASS__ . '::' . __FUNCTION__);
+			$sql = 'select sum(kit.cost) `totalValue`, count(distinct kit.id) `totalCount` from kit kit where kit.active = 1 and kit.soldDate = ? and kit.productId = ?';
+			$result = Dao::getResultsNative($sql, array(trim(UDate::zeroDate()), $this->getId()));
+			if(count($result) > 0) {
+				$totalValue = (trim($result[0]['totalValue']) === '' ? '0.0000' : trim($result[0]['totalValue']));
+				$totalCount = (trim($result[0]['totalCount']) === '' ? '0' : trim($result[0]['totalCount']));
+				if(($originalTotalOnHandValue = trim($this->getTotalInPartsValue())) !== $totalValue || ($originalStockOnHand = trim($this->getStockOnHand())) !== $totalCount) { //if not matched, then we need to adjust the qty
+					$this->setTotalOnHandValue($totalValue)
+					->setStockOnHand($totalCount)
+					->snapshotQty($this, ProductQtyLog::TYPE_STOCK_ADJ, 'Realigning the TotalInPartsValue to ' . StringUtilsAbstract::getCurrency($totalValue) . ' and StockOnHand to ' . $totalCount)
+					->save()
+					->addLog('StockOnHand(' . $originalStockOnHand . ' => ' . $this->getStockOnHand() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
+					->addLog('TotalOnHandValue(' . $originalTotalOnHandValue . ' => ' .$this->getTotalOnHandValue() . ')', Log::TYPE_SYSTEM, 'STOCK_VALUE_CHG', __CLASS__ . '::' . __FUNCTION__);
+				}
 			}
-		}
 	}
 	/**
 	 * (non-PHPdoc)
@@ -1186,57 +1213,57 @@ class Product extends InfoEntityAbstract
 			{
 				$prices = $this->getPrices();
 				$array['prices'] = array();
-				foreach($prices as $price) 
+				foreach($prices as $price)
 					$array['prices'][] = $price->getJson();
-				$array['manufacturer'] = $this->getManufacturer() instanceof Manufacturer ? $this->getManufacturer()->getJson() : null;
-				$supplierCodes = SupplierCode::getAllByCriteria('productId = ?', array($this->getId()));
-				$array['supplierCodes'] = array();
-				foreach($supplierCodes as $supplierCode) 
-					$array['supplierCodes'][] = $supplierCode->getJson();
-				$productCodes = ProductCode::getAllByCriteria('productId = ?', array($this->getId()));
-				$array['productCodes'] = array();
-				foreach($productCodes as $productCode) 
-					$array['productCodes'][] = $productCode->getJson();
-				$images = $this->getImages();
-				$array['images'] = array();
-				foreach($images as $image) 
-					$array['images'][] = $image->getJson();
-				$categories = Product_Category::getCategories($this);
-				$array['categories'] = array();
-				foreach($categories as $category) 
-				{
-					$json = $category->getJson();
-					$array['categories'][] = $json["category"];
-				}	
-				$array['fullDescriptionAsset'] = (($asset = Asset::getAsset($this->getFullDescAssetId())) instanceof Asset ? $asset->getJson() : null) ;
-				$array['customTabAsset'] = (($asset = Asset::getAsset($this->getCustomTabAssetId())) instanceof Asset ? $asset->getJson() : null) ;
-				$locations = PreferredLocation::getPreferredLocations($this);
-				$array['locations'] = array();
-				foreach($locations as $location)
-					$array['locations'][] = $location->getJson();
-				$array['unitCost'] = $this->getUnitCost();
-				$array['priceMatchRule'] = ($i=ProductPriceMatchRule::getByProduct($this)) instanceof ProductPriceMatchRule ? $i->getJson() : null;
-				$array['attributeSet'] = ($i=$this->getAttributeSet()) instanceof ProductAttributeSet ? $i->getJson() : null;
-				$array['status'] = ($i=$this->getStatus()) instanceof ProductStatus ? $i->getJson() : null;
-				$stocks = $this->getStocks();
-				$array['stocks'] = array();
-				foreach($stocks as $stock)
-					$array['stocks'][] = $stock->getJson();
-				$array['stock'] = ($this->getStock()) instanceof ProductStockInfo ? $this->getStock()->getJson() : null;
-				$array['stockOnOrder'] = $this->getstock()->getStockOnOrder();
-				$array['stockOnHand'] = $this->getstock()->getStockOnHand();
-				$array['stockOnPO'] = $this->getstock()->getStockOnPO();
-				$array['stockInParts'] = $this->getstock()->getStockInParts();
-				$array['stockInRMA'] = $this->getstock()->getStockInRMA();
-				$array['stockMinLevel'] = $this->getstock()->getStockMinLevel();
-				$array['stockReorderLevel'] = $this->getstock()->getStockReorderLevel();
-				$array['totalRMAValue'] = $this->getstock()->getTotalRMAValue();
-				$array['totalOnHandValue'] = $this->getstock()->getTotalOnHandValue();
-				$array['totalInPartsValue'] = $this->getstock()->getTotalInPartsValue();
-				if($this->getProductEta() instanceof ProductEta){
-					$array['eta'] = $this->getProductEta()->getEta();
-				}
-				
+					$array['manufacturer'] = $this->getManufacturer() instanceof Manufacturer ? $this->getManufacturer()->getJson() : null;
+					$supplierCodes = SupplierCode::getAllByCriteria('productId = ?', array($this->getId()));
+					$array['supplierCodes'] = array();
+					foreach($supplierCodes as $supplierCode)
+						$array['supplierCodes'][] = $supplierCode->getJson();
+						$productCodes = ProductCode::getAllByCriteria('productId = ?', array($this->getId()));
+						$array['productCodes'] = array();
+						foreach($productCodes as $productCode)
+							$array['productCodes'][] = $productCode->getJson();
+							$images = $this->getImages();
+							$array['images'] = array();
+							foreach($images as $image)
+								$array['images'][] = $image->getJson();
+								$categories = Product_Category::getCategories($this);
+								$array['categories'] = array();
+								foreach($categories as $category)
+								{
+									$json = $category->getJson();
+									$array['categories'][] = $json["category"];
+								}
+								$array['fullDescriptionAsset'] = (($asset = Asset::getAsset($this->getFullDescAssetId())) instanceof Asset ? $asset->getJson() : null) ;
+								$array['customTabAsset'] = (($asset = Asset::getAsset($this->getCustomTabAssetId())) instanceof Asset ? $asset->getJson() : null) ;
+								$locations = PreferredLocation::getPreferredLocations($this);
+								$array['locations'] = array();
+								foreach($locations as $location)
+									$array['locations'][] = $location->getJson();
+									$array['unitCost'] = $this->getUnitCost();
+									$array['priceMatchRule'] = ($i=ProductPriceMatchRule::getByProduct($this)) instanceof ProductPriceMatchRule ? $i->getJson() : null;
+									$array['attributeSet'] = ($i=$this->getAttributeSet()) instanceof ProductAttributeSet ? $i->getJson() : null;
+									$array['status'] = ($i=$this->getStatus()) instanceof ProductStatus ? $i->getJson() : null;
+									$stocks = $this->getStocks();
+									$array['stocks'] = array();
+									foreach($stocks as $stock)
+										$array['stocks'][] = $stock->getJson();
+										$array['stock'] = ($this->getStock()) instanceof ProductStockInfo ? $this->getStock()->getJson() : null;
+										$array['stockOnOrder'] = $this->getstock()->getStockOnOrder();
+										$array['stockOnHand'] = $this->getstock()->getStockOnHand();
+										$array['stockOnPO'] = $this->getstock()->getStockOnPO();
+										$array['stockInParts'] = $this->getstock()->getStockInParts();
+										$array['stockInRMA'] = $this->getstock()->getStockInRMA();
+										$array['stockMinLevel'] = $this->getstock()->getStockMinLevel();
+										$array['stockReorderLevel'] = $this->getstock()->getStockReorderLevel();
+										$array['totalRMAValue'] = $this->getstock()->getTotalRMAValue();
+										$array['totalOnHandValue'] = $this->getstock()->getTotalOnHandValue();
+										$array['totalInPartsValue'] = $this->getstock()->getTotalInPartsValue();
+										if($this->getProductEta() instanceof ProductEta){
+											$array['eta'] = $this->getProductEta()->getEta();
+										}
+										
 			}
 		}
 		catch (Exception $ex)
@@ -1263,8 +1290,8 @@ class Product extends InfoEntityAbstract
 			$exsitingSKU = self::countByCriteria(implode(' AND ', $where), $params);
 			if($exsitingSKU > 0)
 				throw new EntityException('The SKU(=' . $sku . ') is already exists!' );
-			if(($this->attributeSet instanceof ProductAttributeSet && $this->attributeSet->getId() === '') || !$this->attributeSet instanceof ProductAttributeSet)
-				$this->setAttributeSet(ProductAttributeSet::get(ProductAttributeSet::ID_DEFAULT_ATTR_SET));
+				if(($this->attributeSet instanceof ProductAttributeSet && $this->attributeSet->getId() === '') || !$this->attributeSet instanceof ProductAttributeSet)
+					$this->setAttributeSet(ProductAttributeSet::get(ProductAttributeSet::ID_DEFAULT_ATTR_SET));
 		}
 		if(($id = trim($this->getId())) !== '') {
 			if(self::countByCriteria('id = ? and isKit = 1 and isKit != ?', array($id, $this->getIsKit())) > 0) {//changing isKit flag to be not a KIT
@@ -1371,39 +1398,39 @@ class Product extends InfoEntityAbstract
 		$newQty = (($originStockOnHand = $this->getStockOnHand()) - $qty);
 		if($newQty < 0 && intval($qty) > 0 && intval(SystemSettings::getSettings(SystemSettings::TYPE_ALLOW_NEGTIVE_STOCK)) !== 1)
 			throw new Exception('Product (SKU:' . $this->getSKU() . ') can NOT be ' . $action . ' , as there is not enough stock: stock on hand will fall below zero');
-		if($entity instanceof OrderItem) {
-			$kits = array_map(create_function('$a', 'return $a->getKit();'), SellingItem::getAllByCriteria('orderItemId = ? and kitId is not null', array($entity->getId())));
-			$kits = array_unique($kits);
-			if(count($kits) > 0) {
-				$totalCost = 0;
-				$barcodes = array();
-				foreach($kits as $kit) {
-					$totalCost = $kit->getCost();
-					$barcodes[] = $kit->getBarcode();
+			if($entity instanceof OrderItem) {
+				$kits = array_map(create_function('$a', 'return $a->getKit();'), SellingItem::getAllByCriteria('orderItemId = ? and kitId is not null', array($entity->getId())));
+				$kits = array_unique($kits);
+				if(count($kits) > 0) {
+					$totalCost = 0;
+					$barcodes = array();
+					foreach($kits as $kit) {
+						$totalCost = $kit->getCost();
+						$barcodes[] = $kit->getBarcode();
+					}
+					$comments .= ' ' . $action . ' KITS[' . implode(',', $barcodes) . '] with total cost value:' . StringUtilsAbstract::getCurrency($totalCost);
 				}
-				$comments .= ' ' . $action . ' KITS[' . implode(',', $barcodes) . '] with total cost value:' . StringUtilsAbstract::getCurrency($totalCost);
 			}
-		}
-		$newStockOnOrder = ($originStockOnOrder = $this->getStockOnOrder()) + $qty;
-		if($newStockOnOrder < 0  && intval(SystemSettings::getSettings(SystemSettings::TYPE_ALLOW_NEGTIVE_STOCK)) !== 1)
-			throw new Exception('Product (SKU:' . $this->getSKU() . ') can NOT be ' . $action . ' , as there is not enough stock: new stock on order will fall below zero');
-		
-		if ($newQty >= 5){
-			$status = ProductStatus::get(2);
-		}elseif ($newQty == 0){
-			$status = ProductStatus::get(8);
-		}else {
-			$status = ProductStatus::get(3);
-		}
-		return $this->setStockOnOrder($newStockOnOrder)
-		->setTotalOnHandValue(($origTotalOnHandValue = $this->getTotalOnHandValue()) - $totalCost)
-		->setStockOnHand($newQty)
-		->setStatus($status)
-		->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_SALES_ORDER, $action . ': ' . ($order instanceof Order ? '[' . $order->getOrderNo() . ']' : '') . $comments)
-		->save()
-		->addLog('StockOnHand(' . $originStockOnHand . ' => ' . $this->getStockOnHand() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
-		->addLog('StockOnOrder(' . $originStockOnOrder . ' => ' . $this->getStockOnOrder() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
-		->addLog('TotalOnHandValue(' . $origTotalOnHandValue . ' => ' .$this->getTotalOnHandValue() . ')', Log::TYPE_SYSTEM, 'STOCK_VALUE_CHG', __CLASS__ . '::' . __FUNCTION__);
+			$newStockOnOrder = ($originStockOnOrder = $this->getStockOnOrder()) + $qty;
+			if($newStockOnOrder < 0  && intval(SystemSettings::getSettings(SystemSettings::TYPE_ALLOW_NEGTIVE_STOCK)) !== 1)
+				throw new Exception('Product (SKU:' . $this->getSKU() . ') can NOT be ' . $action . ' , as there is not enough stock: new stock on order will fall below zero');
+				
+				if ($newQty >= 5){
+					$status = ProductStatus::get(2);
+				}elseif ($newQty == 0){
+					$status = ProductStatus::get(8);
+				}else {
+					$status = ProductStatus::get(3);
+				}
+				return $this->setStockOnOrder($newStockOnOrder)
+				->setTotalOnHandValue(($origTotalOnHandValue = $this->getTotalOnHandValue()) - $totalCost)
+				->setStockOnHand($newQty)
+				->setStatus($status)
+				->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_SALES_ORDER, $action . ': ' . ($order instanceof Order ? '[' . $order->getOrderNo() . ']' : '') . $comments)
+				->save()
+				->addLog('StockOnHand(' . $originStockOnHand . ' => ' . $this->getStockOnHand() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
+				->addLog('StockOnOrder(' . $originStockOnOrder . ' => ' . $this->getStockOnOrder() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
+				->addLog('TotalOnHandValue(' . $origTotalOnHandValue . ' => ' .$this->getTotalOnHandValue() . ')', Log::TYPE_SYSTEM, 'STOCK_VALUE_CHG', __CLASS__ . '::' . __FUNCTION__);
 	}
 	/**
 	 * A product is received
@@ -1420,24 +1447,24 @@ class Product extends InfoEntityAbstract
 	{
 		if(!is_numeric($unitCost))
 			throw new EntityException('Unitcost of receiving product(SKU=' . $this->getSku() . ') is not a number!');
-	
-		$origStockOnHand = $this->getStockOnHand();
-		$newStockOnHand = ($origStockOnHand + $qty);
-		$origTotalOnHandValue = $this->getTotalOnHandValue();
-		if($origStockOnHand < 0) {
-			$newStockOnHandValue = $newStockOnHand * $unitCost;
-		} else {
-			$newStockOnHandValue = ($origTotalOnHandValue + $qty * $unitCost);
-		}
-	
-		return $this->setStockOnPO(($origStockOnPO = $this->getStockOnPO()) - $qty)
-		->setTotalOnHandValue($newStockOnHandValue)
-		->setStockOnHand($newStockOnHand)
-		->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_PO, 'Stock received: ' . $comments)
-		->save()
-		->addLog('StockOnPO(' . $origStockOnPO . ' => ' .$this->getStockOnPO() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
-		->addLog('StockOnHand(' . $origStockOnHand . ' => ' .$this->getStockOnHand() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
-		->addLog('TotalOnHandValue(' . $origTotalOnHandValue . ' => ' .$this->getTotalOnHandValue() . ')', Log::TYPE_SYSTEM, 'STOCK_VALUE_CHG', __CLASS__ . '::' . __FUNCTION__);
+			
+			$origStockOnHand = $this->getStockOnHand();
+			$newStockOnHand = ($origStockOnHand + $qty);
+			$origTotalOnHandValue = $this->getTotalOnHandValue();
+			if($origStockOnHand < 0) {
+				$newStockOnHandValue = $newStockOnHand * $unitCost;
+			} else {
+				$newStockOnHandValue = ($origTotalOnHandValue + $qty * $unitCost);
+			}
+			
+			return $this->setStockOnPO(($origStockOnPO = $this->getStockOnPO()) - $qty)
+			->setTotalOnHandValue($newStockOnHandValue)
+			->setStockOnHand($newStockOnHand)
+			->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_PO, 'Stock received: ' . $comments)
+			->save()
+			->addLog('StockOnPO(' . $origStockOnPO . ' => ' .$this->getStockOnPO() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
+			->addLog('StockOnHand(' . $origStockOnHand . ' => ' .$this->getStockOnHand() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
+			->addLog('TotalOnHandValue(' . $origTotalOnHandValue . ' => ' .$this->getTotalOnHandValue() . ')', Log::TYPE_SYSTEM, 'STOCK_VALUE_CHG', __CLASS__ . '::' . __FUNCTION__);
 	}
 	/**
 	 * A product is ordered from supplier
@@ -1471,10 +1498,10 @@ class Product extends InfoEntityAbstract
 		$newQty = (($originStockOnOrder = $this->getStockOnOrder()) - $qty);
 		if($newQty < 0 && intval($qty) >0  && intval(SystemSettings::getSettings(SystemSettings::TYPE_ALLOW_NEGTIVE_STOCK)) !== 1)
 			throw new Exception('Product (SKU:' . $this->getSKU() . ') can NOT be pick, as there is not enough stock.');
-		return $this->setStockOnOrder($newQty)
-		->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_STOCK_MOVE_INTERNAL, 'Stock shipped. ' . ($order instanceof Order ? '[' . $order->getOrderNo() . ']' : ''))
-		->save()
-		->addLog('StockOnOrder(' . $originStockOnOrder . ' => ' . $this->getStockOnOrder() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__);
+			return $this->setStockOnOrder($newQty)
+			->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_STOCK_MOVE_INTERNAL, 'Stock shipped. ' . ($order instanceof Order ? '[' . $order->getOrderNo() . ']' : ''))
+			->save()
+			->addLog('StockOnOrder(' . $originStockOnOrder . ' => ' . $this->getStockOnOrder() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__);
 	}
 	/**
 	 * a product is returned for RMA
@@ -1597,34 +1624,34 @@ class Product extends InfoEntityAbstract
 	{
 		if(is_numeric($stockOnHand) || is_numeric($stockOnOrder) || is_numeric($stockInParts) || is_numeric($stockInRMA))
 			throw new Exception('At least one of these quuanties needed: stockOnHand, stockOnOrder, stockInParts or stockInRMA');
-		$unitCost = $this->getUnitCost();
-		$originalProduct = self::get($this->getId());
-		if ($stockOnOrder != null && ($stockOnOrder = trim($stockOnOrder)) !== trim($origStockOnOrder = $originalProduct->getStockOnOrder())) {
-			$this->setStockOnOrder($stockOnOrder);
-		}
-		if ($stockInParts != null && ($stockInParts = trim($stockInParts)) !== trim($origStockInParts = $originalProduct->getStockInParts())) {
-			$this->setTotalInPartsValue($stockInParts * $unitCost)
-			->setStockInParts($stockInParts);
-		}
-		if ($stockInRMA != null && ($stockInRMA = trim($stockInRMA)) !== trim($origStockInRMA = $originalProduct->getStockInRMA())) {
-			$this->setStockInRMA($stockInRMA);
-		}
-		if ($stockOnPO != null && ($stockOnPO = trim($stockOnPO)) !== trim($origStockOnPO = $originalProduct->getStockOnPO())) {
-			$this->setStockOnPO($stockOnPO);
-		}
-		if ($stockOnHand != null && ($stockOnHand = trim($stockOnHand)) !== trim($origStockOnHand = $originalProduct->getStockOnHand())) {
-			$this->setTotalOnHandValue($stockOnHand * $unitCost)
-			->setStockOnHand($stockOnHand);
-		}
-		$msg = 'Stock changed: StockOnHand [' . $origStockOnHand . ' => ' . $this->getStockOnHand() . '], '
-				. 'StockOnOrder [' . $origStockOnOrder . ' => ' . $this->getStockOnOrder() . '], '
-						. 'StockInParts [' . $origStockInParts . ' => ' . $this->getStockInParts() . '], '
-								. 'StockInRMA [' . $origStockInRMA . ' => ' . $this->getStockInRMA() . '], '
-										. 'StockOnPO [' . $origStockOnPO . ' => ' . $this->getStockOnPO() . ']';
-		return $this->snapshotQty($this,  ProductQtyLog::TYPE_STOCK_ADJ, 'Stock Changed')
-		->save()
-		->addComment($msg, Comments::TYPE_SYSTEM)
-		->addLog($msg, Log::TYPE_SYSTEM, 'STOCK_CHANGED', __CLASS__ . "::" . __FUNCTION__);
+			$unitCost = $this->getUnitCost();
+			$originalProduct = self::get($this->getId());
+			if ($stockOnOrder != null && ($stockOnOrder = trim($stockOnOrder)) !== trim($origStockOnOrder = $originalProduct->getStockOnOrder())) {
+				$this->setStockOnOrder($stockOnOrder);
+			}
+			if ($stockInParts != null && ($stockInParts = trim($stockInParts)) !== trim($origStockInParts = $originalProduct->getStockInParts())) {
+				$this->setTotalInPartsValue($stockInParts * $unitCost)
+				->setStockInParts($stockInParts);
+			}
+			if ($stockInRMA != null && ($stockInRMA = trim($stockInRMA)) !== trim($origStockInRMA = $originalProduct->getStockInRMA())) {
+				$this->setStockInRMA($stockInRMA);
+			}
+			if ($stockOnPO != null && ($stockOnPO = trim($stockOnPO)) !== trim($origStockOnPO = $originalProduct->getStockOnPO())) {
+				$this->setStockOnPO($stockOnPO);
+			}
+			if ($stockOnHand != null && ($stockOnHand = trim($stockOnHand)) !== trim($origStockOnHand = $originalProduct->getStockOnHand())) {
+				$this->setTotalOnHandValue($stockOnHand * $unitCost)
+				->setStockOnHand($stockOnHand);
+			}
+			$msg = 'Stock changed: StockOnHand [' . $origStockOnHand . ' => ' . $this->getStockOnHand() . '], '
+					. 'StockOnOrder [' . $origStockOnOrder . ' => ' . $this->getStockOnOrder() . '], '
+							. 'StockInParts [' . $origStockInParts . ' => ' . $this->getStockInParts() . '], '
+									. 'StockInRMA [' . $origStockInRMA . ' => ' . $this->getStockInRMA() . '], '
+											. 'StockOnPO [' . $origStockOnPO . ' => ' . $this->getStockOnPO() . ']';
+											return $this->snapshotQty($this,  ProductQtyLog::TYPE_STOCK_ADJ, 'Stock Changed')
+											->save()
+											->addComment($msg, Comments::TYPE_SYSTEM)
+											->addLog($msg, Log::TYPE_SYSTEM, 'STOCK_CHANGED', __CLASS__ . "::" . __FUNCTION__);
 	}
 	/**
 	 * Getting the RRP for this product
@@ -1634,7 +1661,7 @@ class Product extends InfoEntityAbstract
 	{
 		if(count($prices = ProductPrice::getPrices($this, ProductPriceType::get(ProductPriceType::ID_RRP), '', '', '', '', 1, 1)) > 0)
 			return $prices[0];
-		return null;
+			return null;
 	}
 	/**
 	 * Getting the SRP for this product
@@ -1644,7 +1671,7 @@ class Product extends InfoEntityAbstract
 	{
 		if(count($prices = ProductPrice::getPrices($this, ProductPriceType::get(ProductPriceType::ID_SRP), '', '', '', '', 1, 1)) > 0)
 			return $prices[0];
-		return null;
+			return null;
 	}
 	/**
 	 * Getting the RRP for this product
@@ -1655,7 +1682,7 @@ class Product extends InfoEntityAbstract
 		$now = UDate::now();
 		if(count($prices = ProductPrice::getPrices($this, ProductPriceType::get(ProductPriceType::ID_CASUAL_SPECIAL), '', trim($now), trim($now), '', 1, 1, array('created' => 'asc'))) > 0)
 			return $prices[0];
-		return null;
+			return null;
 	}
 	/**
 	 * Getting the Daily special price for this product
@@ -1665,7 +1692,7 @@ class Product extends InfoEntityAbstract
 	{
 		if(count($prices = ProductPrice::getPrices($this, ProductPriceType::get(ProductPriceType::ID_DAILY_SPECIAL), '', '', '', '', 1, 1)) > 0)
 			return $prices[0];
-		return null;
+			return null;
 	}
 	/**
 	 * Getting the weekend special price for this product
@@ -1675,7 +1702,7 @@ class Product extends InfoEntityAbstract
 	{
 		if(count($prices = ProductPrice::getPrices($this, ProductPriceType::get(ProductPriceType::ID_WEEKEND_SPECIAL), '', '', '', '', 1, 1)) > 0)
 			return $prices[0];
-		return null;
+			return null;
 	}
 	/**
 	 * (non-PHPdoc)
@@ -1687,22 +1714,23 @@ class Product extends InfoEntityAbstract
 		DaoMap::setStringType('sku', 'varchar', 50);
 		DaoMap::setStringType('name', 'varchar', 100);
 		DaoMap::setStringType('mageId', 'varchar', 10);
-// 		DaoMap::setIntType('totalOnHandValue', 'double', '10,4', false);
-// 		DaoMap::setIntType('totalInPartsValue', 'double', '10,4', false);
-// 		DaoMap::setIntType('stockOnHand', 'int', 10, false);
-// 		DaoMap::setIntType('stockOnOrder', 'int', 10, false);
-// 		DaoMap::setIntType('stockOnPO', 'int', 10, false);
-// 		DaoMap::setIntType('stockInParts', 'int', 10, false);
-// 		DaoMap::setIntType('stockInRMA', 'int', 10, false);
-// 		DaoMap::setIntType('stockMinLevel', 'int', 10, true, true);
-// 		DaoMap::setIntType('stockReorderLevel', 'int', 10, true, true);
-// 		DaoMap::setIntType('totalRMAValue', 'double', '10,4', false);
+		// 		DaoMap::setIntType('totalOnHandValue', 'double', '10,4', false);
+		// 		DaoMap::setIntType('totalInPartsValue', 'double', '10,4', false);
+		// 		DaoMap::setIntType('stockOnHand', 'int', 10, false);
+		// 		DaoMap::setIntType('stockOnOrder', 'int', 10, false);
+		// 		DaoMap::setIntType('stockOnPO', 'int', 10, false);
+		// 		DaoMap::setIntType('stockInParts', 'int', 10, false);
+		// 		DaoMap::setIntType('stockInRMA', 'int', 10, false);
+		// 		DaoMap::setIntType('stockMinLevel', 'int', 10, true, true);
+		// 		DaoMap::setIntType('stockReorderLevel', 'int', 10, true, true);
+		// 		DaoMap::setIntType('totalRMAValue', 'double', '10,4', false);
 		DaoMap::setStringType('assetAccNo', 'varchar', 10);
 		DaoMap::setStringType('revenueAccNo', 'varchar', 10);
 		DaoMap::setStringType('costAccNo', 'varchar', 10);
 		DaoMap::setBoolType('isFromB2B');
 		DaoMap::setBoolType('sellOnWeb');
-// 		DaoMap::setManyToOne('status', 'ProductStatus', 'pro_status', true);
+		DaoMap::setBoolType('localOnly');
+		// 		DaoMap::setManyToOne('status', 'ProductStatus', 'pro_status', true);
 		DaoMap::setManyToOne('manufacturer', 'Manufacturer', 'pro_man', true);
 		DaoMap::setDateType('asNewFromDate', 'datetime', true);
 		DaoMap::setDateType('asNewToDate', 'datetime', true);
@@ -1718,20 +1746,21 @@ class Product extends InfoEntityAbstract
 		DaoMap::setBoolType('manualDatafeed');
 		DaoMap::setIntType('weight', 'double', '10,4');
 		parent::__loadDaoMap();
-	
+		
 		DaoMap::createUniqueIndex('sku');
 		DaoMap::createIndex('name');
 		DaoMap::createIndex('mageId');
-// 		DaoMap::createIndex('stockOnHand');
-// 		DaoMap::createIndex('stockOnOrder');
-// 		DaoMap::createIndex('stockOnPO');
-// 		DaoMap::createIndex('stockInParts');
-// 		DaoMap::createIndex('stockInRMA');
+		// 		DaoMap::createIndex('stockOnHand');
+		// 		DaoMap::createIndex('stockOnOrder');
+		// 		DaoMap::createIndex('stockOnPO');
+		// 		DaoMap::createIndex('stockInParts');
+		// 		DaoMap::createIndex('stockInRMA');
 		DaoMap::createIndex('isFromB2B');
 		DaoMap::createIndex('shortDescription');
 		DaoMap::createIndex('fullDescAssetId');
 		DaoMap::createIndex('customTabAssetId');
 		DaoMap::createIndex('sellOnWeb');
+		DaoMap::createIndex('localOnly');
 		DaoMap::createIndex('asNewFromDate');
 		DaoMap::createIndex('asNewToDate');
 		DaoMap::createIndex('assetAccNo');
@@ -1775,51 +1804,51 @@ class Product extends InfoEntityAbstract
 	{
 		if(!($product = self::getBySku($sku)) instanceof Product)
 			$product = new Product();
-		$product->setSku(trim($sku))
-		->setName($name)
-		->setManualDatafeed(intval($manualDatafeed) === 1);
-		if(($mageProductId = trim($mageProductId)) !== "")
-			$product->setMageId($mageProductId);
-	
-		if (trim($product->getId()) === '') {
-			$product->setIsFromB2B($isFromB2B)
-			->setShortDescription($shortDescr);
-			$product->save();
-			$stores = Store::getAll();
-			foreach($stores as $store)
-				$stock = ProductStockInfo::create($product, null, $store);
-			if($stockOnOrder !== null && is_numeric($stockOnOrder))
-				$product->setStockOnOrder(intval($stockOnOrder));
-			if($stockMinLevel !== null && is_numeric($stockMinLevel))
-				$product->setStockMinLevel(intval($stockMinLevel));
-			if($stockReorderLevel !== null && is_numeric($stockReorderLevel))
-				$product->setStockReorderLevel(intval($stockReorderLevel));
-			if($stockOnHand !== null && is_numeric($stockOnHand))
-				$product->setStockOnHand(intval($stockOnHand));
-			if($assetAccNo !== null && is_string($assetAccNo))
-				$product->setAssetAccNo(trim($assetAccNo));
-			if($revenueAccNo !== null && is_string($revenueAccNo))
-				$product->setRevenueAccNo(trim($revenueAccNo));
-			if($costAccNo !== null && is_string($costAccNo))
-				$product->setCostAccNo(trim($costAccNo));
-			if (($fullDescr = trim($fullDescr)) !== '') {
-				$asset = Asset::registerAsset('full_desc_' . $sku, $fullDescr, Asset::TYPE_PRODUCT_DEC);
-				$product->setFullDescAssetId(trim($asset->getAssetId()));
-			}
-			if (($customTab = trim($customTab)) !== '') {
-				$asset = Asset::registerAsset('customtab_' . $sku, $customTab, Asset::TYPE_PRODUCT_DEC);
-				$product->setCustomTabAssetId(trim($asset->getAssetId()));
-			}
-			if ($manufacturer instanceof Manufacturer) {
-				$product->setManufacturer($manufacturer);
-			}
-			if($weight !== null) {
-				$product->setWeight($weight);
-			}
-			if($attributesetId !== null && is_string($attributesetId))
-				$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
-		}
-		return $product->save();
+			$product->setSku(trim($sku))
+			->setName($name)
+			->setManualDatafeed(intval($manualDatafeed) === 1);
+			if(($mageProductId = trim($mageProductId)) !== "")
+				$product->setMageId($mageProductId);
+				
+				if (trim($product->getId()) === '') {
+					$product->setIsFromB2B($isFromB2B)
+					->setShortDescription($shortDescr);
+					$product->save();
+					$stores = Store::getAll();
+					foreach($stores as $store)
+						$stock = ProductStockInfo::create($product, null, $store);
+						if($stockOnOrder !== null && is_numeric($stockOnOrder))
+							$product->setStockOnOrder(intval($stockOnOrder));
+							if($stockMinLevel !== null && is_numeric($stockMinLevel))
+								$product->setStockMinLevel(intval($stockMinLevel));
+								if($stockReorderLevel !== null && is_numeric($stockReorderLevel))
+									$product->setStockReorderLevel(intval($stockReorderLevel));
+									if($stockOnHand !== null && is_numeric($stockOnHand))
+										$product->setStockOnHand(intval($stockOnHand));
+										if($assetAccNo !== null && is_string($assetAccNo))
+											$product->setAssetAccNo(trim($assetAccNo));
+											if($revenueAccNo !== null && is_string($revenueAccNo))
+												$product->setRevenueAccNo(trim($revenueAccNo));
+												if($costAccNo !== null && is_string($costAccNo))
+													$product->setCostAccNo(trim($costAccNo));
+													if (($fullDescr = trim($fullDescr)) !== '') {
+														$asset = Asset::registerAsset('full_desc_' . $sku, $fullDescr, Asset::TYPE_PRODUCT_DEC);
+														$product->setFullDescAssetId(trim($asset->getAssetId()));
+													}
+													if (($customTab = trim($customTab)) !== '') {
+														$asset = Asset::registerAsset('customtab_' . $sku, $customTab, Asset::TYPE_PRODUCT_DEC);
+														$product->setCustomTabAssetId(trim($asset->getAssetId()));
+													}
+													if ($manufacturer instanceof Manufacturer) {
+														$product->setManufacturer($manufacturer);
+													}
+													if($weight !== null) {
+														$product->setWeight($weight);
+													}
+													if($attributesetId !== null && is_string($attributesetId))
+														$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
+				}
+				return $product->save();
 	}
 	/**
 	 * Finding the products with different params
@@ -1842,7 +1871,7 @@ class Product extends InfoEntityAbstract
 	{
 		$where = array(1);
 		$params = array();
-	
+		
 		if (is_array($sumValues)) {
 			$innerJoins = array();
 		}
@@ -1905,8 +1934,8 @@ class Product extends InfoEntityAbstract
 				$keys[] = ':' . $key;
 				$ps[$key] = trim($value);
 			}
- 			$where[] = 'pro_stock_info.statusId in (' . implode(',', $keys) . ')';
- 			$params = array_merge($params, $ps);
+			$where[] = 'pro_stock_info.statusId in (' . implode(',', $keys) . ')';
+			$params = array_merge($params, $ps);
 		}
 		if (count($supplierIds) > 0) {
 			$ps = array();
@@ -1972,5 +2001,3 @@ class Product extends InfoEntityAbstract
 		return $products;
 	}
 }
-	
-	

@@ -47,7 +47,8 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 	,_getSelBox: function(options, selectedValue) {
 		var tmp = {};
 		tmp.me = this;
-		tmp.selBox = new Element('select');
+//		tmp.selBox = new Element('select');
+		tmp.selBox = new Element('select').insert({'bottom': new Element('option', {'value': tmp.me._selectTypeTxt}).update(tmp.me._selectTypeTxt) });
 		options.each(function(opt){
 			tmp.selBox.insert({'bottom': new Element('option', {'value': opt.id, 'selected' : (selectedValue && opt.id === selectedValue ? true : false)}).update(opt.name) })
 		});
@@ -388,9 +389,10 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 						$(this).up('.panel').down('.panel-body').toggle();
 					})
 				})
-				.insert({'bottom': new Element('small', {'class': 'pull-right'})
-					.insert({'bottom': new Element('label', {'for': 'showOnWeb_' + tmp.item.id}).update('Show on Web?') })
-					.insert({'bottom': new Element('input', {'id': 'showOnWeb_' + tmp.item.id, 'save-item': 'sellOnWeb', 'type': 'checkbox', 'checked': tmp.item.sellOnWeb}) })
+				.insert({'bottom': item.localOnly == true ? new Element('small', {'class': 'pull-right'}).insert({'bottom': new Element('label').update('This Product for Local Only') })
+						: new Element('small', {'class': 'pull-right'})
+						.insert({'bottom': new Element('label', {'for': 'showOnWeb_' + tmp.item.id}).update('Show on Web?') })
+						.insert({'bottom': new Element('input', {'id': 'showOnWeb_' + tmp.item.id, 'save-item': 'sellOnWeb', 'type': 'checkbox', 'checked': tmp.item.sellOnWeb}) })
 				})
 
 			})
@@ -398,12 +400,12 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 				.insert({'bottom': new Element('div', {'class': ''})
 					.insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update(tmp.me._getFormGroup('Name', new Element('input', {'save-item': 'name', 'type': 'text', 'required': true, 'value': tmp.item.name ? tmp.item.name : ''}) ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update(tmp.me._getFormGroup('sku', tmp.skuInputEl = new Element('input', {'save-item': 'sku', 'type': 'text', 'required': true, 'value': tmp.item.sku ? tmp.item.sku : ''}) ) ) })
-					.insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update(tmp.me._getFormGroup('Status',
+					.insert({'bottom': new Element('div', {'class': 'col-sm-4 status'}).update(tmp.me._getFormGroup('Status',
 							tmp.me._getSelBox(tmp.me._statuses, tmp.item.status ? tmp.item.status.id : null).writeAttribute('save-item', 'statusId').addClassName('chosen')
 					) ) })
 				})
 				.insert({'bottom': new Element('div', {'class': ''})
-					.insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update(tmp.me._getFormGroup('Brand/Manf.',
+					.insert({'bottom': new Element('div', {'class': 'col-sm-4 brand'}).update(tmp.me._getFormGroup('Brand/Manf.',
 							tmp.me._getSelBox(tmp.me._manufacturers, tmp.item.manufacturer ? tmp.item.manufacturer.id : null).writeAttribute('save-item', 'manufacturerId').addClassName('chosen')
 					) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update(tmp.me._getFormGroup('Web As New Start:',

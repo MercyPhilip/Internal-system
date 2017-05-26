@@ -245,15 +245,15 @@ class APIProductService extends APIServiceAbstract
 	               else 
 	               {
 	                   $this->log_product("SKIP", "=== SKIP updating === sku=$sku for full description not null, existigPrice=$existigPrice, newprice=$price, existingStatus=$existingStatus, newstatus=$status",  '', APIService::TAB);
-	                   // need to update price and stock info                 
-	                   if (doubleval($existigPrice) != doubleval($price))
+	                   // need to update price and stock info
+	                   if (doubleval($existigPrice) != doubleval($price) && $price != 0)
 	                   {
 		                   	$product->removePrice(ProductPriceType::get(ProductPriceType::ID_RRP))
 		                   	->addPrice(ProductPriceType::get(ProductPriceType::ID_RRP), $price);
 		                   	$isUpdated = true;
 	                   }
 					  
-					   if (trim($existingStatus) != trim($status))
+					   if (trim($existingStatus) != trim($status->getName()))
 					   {
 	                   		$product->setStatus($status);
 	                   		$isUpdated = true;
@@ -303,12 +303,18 @@ class APIProductService extends APIServiceAbstract
 	       if ($canUpdate === true) {
 	       	//short description, name, manufacturer
 	       	$this->_runner->log('Updating the price to: ' . StringUtilsAbstract::getCurrency($price), '', APIService::TAB . APIService::TAB);
-	       	$product->setShortDescription($shortDesc)
+	       	if($price == 0 ){
+	       		$prices = $product->getPrices();
+	       		if (count($prices) > 0){
+	       			$price = $prices[0]->getPrice();
+	       		}
+	       	}
+	       	$product->setShortDescription($shortDesc == '' ? $product->getShortDescription(): $shortDesc)
 	       		->setName($name)
 	       		->setManufacturer($manufacturer)
-	       		->setWeight($weight)
+	       		->setWeight($weight == 0 ? $product->getWeight() : $weight)
 				->removePrice(ProductPriceType::get(ProductPriceType::ID_RRP))
-	       		->addPrice(ProductPriceType::get(ProductPriceType::ID_RRP), $price);
+				->addPrice(ProductPriceType::get(ProductPriceType::ID_RRP), $price);
 		       if (is_array($categoryIds) && count($categoryIds) > 0) {
 		       		$this->_runner->log('Updating the categories: ' . implode(', ', $categoryIds), '', APIService::TAB . APIService::TAB);
 		       		foreach ($categoryIds as $categoryId) {

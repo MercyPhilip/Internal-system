@@ -3,7 +3,7 @@
  *
  * @package    Core
  * @subpackage Entity
- * @author     
+ * @author
  */
 class SalesTarget extends BaseEntityAbstract
 {
@@ -45,7 +45,7 @@ class SalesTarget extends BaseEntityAbstract
 	/**
 	 * The user id that the sales target for
 	 * for future use
-	 * 
+	 *
 	 * @var int
 	 */
 	private $uid;
@@ -83,7 +83,7 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function getDto()
 	{
-	    return $this->dto;
+		return $this->dto;
 	}
 	/**
 	 * Setter for contactName
@@ -94,8 +94,8 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function setDto($value)
 	{
-	    $this->dto = $value;
-	    return $this;
+		$this->dto = $value;
+		return $this;
 	}
 	/**
 	 * Getter for dperiod
@@ -104,7 +104,7 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function getDPeriod()
 	{
-	    return $this->dperiod;
+		return $this->dperiod;
 	}
 	/**
 	 * Setter for sKey
@@ -115,8 +115,8 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function setDPeriod($value)
 	{
-	    $this->dperiod = $value;
-	    return $this;
+		$this->dperiod = $value;
+		return $this;
 	}
 	/**
 	 * Getter for targetrevenue
@@ -125,7 +125,7 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function getTargetRevenue()
 	{
-	    return $this->targetRevenue;
+		return $this->targetRevenue;
 	}
 	/**
 	 * Setter for targetrevenue
@@ -136,8 +136,8 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function setTargetRevenue($value)
 	{
-	    $this->targetRevenue = $value;
-	    return $this;
+		$this->targetRevenue = $value;
+		return $this;
 	}
 	/**
 	 * Getter for targetProfit
@@ -146,7 +146,7 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function getTargetProfit()
 	{
-	    return $this->targetProfit;
+		return $this->targetProfit;
 	}
 	/**
 	 * Setter for targetProfit
@@ -157,8 +157,8 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function setTargetProfit($value)
 	{
-	    $this->targetProfit = $value;
-	    return $this;
+		$this->targetProfit = $value;
+		return $this;
 	}
 	/**
 	 * Getter for status
@@ -167,7 +167,7 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function getStatus()
 	{
-	    return $this->status;
+		return $this->status;
 	}
 	/**
 	 * Setter for status
@@ -178,8 +178,8 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function setStatus($value)
 	{
-	    $this->status = $value;
-	    return $this;
+		$this->status = $value;
+		return $this;
 	}
 	/**
 	 * Getter for uid
@@ -188,7 +188,7 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function getUid()
 	{
-	    return $this->uid;
+		return $this->uid;
 	}
 	/**
 	 * Setter for uid
@@ -199,8 +199,8 @@ class SalesTarget extends BaseEntityAbstract
 	 */
 	public function setUid($value)
 	{
-	    $this->uid = $value;
-	    return $this;
+		$this->uid = $value;
+		return $this;
 	}
 	/**
 	 * (non-PHPdoc)
@@ -222,7 +222,7 @@ class SalesTarget extends BaseEntityAbstract
 	public function __loadDaoMap()
 	{
 		DaoMap::begin($this, 'stgt');
-
+		
 		DaoMap::setDateType('dfrom','datetime');
 		DaoMap::setDateType('dto','datetime');
 		DaoMap::setIntType('dperiod','int', 10);
@@ -232,13 +232,13 @@ class SalesTarget extends BaseEntityAbstract
 		DaoMap::setStringType('status','varchar', 50);
 		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
-
+		
 		DaoMap::createIndex('dfrom');
 		DaoMap::createIndex('dto');
 		DaoMap::createIndex('dperiod');
 		DaoMap::createIndex('uid');
 		DaoMap::createIndex('status');
-
+		
 		DaoMap::commit();
 	}
 	/**
@@ -255,13 +255,13 @@ class SalesTarget extends BaseEntityAbstract
 	{
 		if(trim($dfrom) === '' && trim($dto) === '' && trim($targetrevenue) === '' && trim($targetprofit) === '' )
 			return null;
-		$dateFrom = date_create($dfrom);
-		$dateTo = date_create($dto);
-		$diff = date_diff($dateTo,$dateFrom);
-		$days = $diff->days + 1;
-		
-		$obj = new SalesTarget();
-		return $obj->setDfrom(trim($dfrom))
+			$dateFrom = date_create($dfrom);
+			$dateTo = date_create($dto);
+			$diff = date_diff($dateTo,$dateFrom);
+			$days = $diff->days + 1;
+			
+			$obj = new SalesTarget();
+			return $obj->setDfrom(trim($dfrom))
 			->setDto(trim($dto))
 			->setDPeriod($days)
 			->setTargetRevenue(doubleval(trim($targetrevenue)))
@@ -273,7 +273,7 @@ class SalesTarget extends BaseEntityAbstract
 	}
 	/**
 	 * Get current info of sales target
-	 * 
+	 *
 	 * @return SalesTarget
 	 */
 	public static function getCurrentSalesTarget($storeId = 0)
@@ -301,47 +301,48 @@ class SalesTarget extends BaseEntityAbstract
 		try {
 			if ($storeId == 0)
 				$storeId = Core::getUser()->getStore()->getId();
-			if ($type === SalesTarget::TYPE_REVENUE_TODAY)
-			{
-				$sql = "Select * from salesdailylog Where YYYYMMDD = DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') and storeId = ?";
-				$result = Dao::getResultsNative($sql, array($storeId), PDO::FETCH_ASSOC);
-			}
-			else if ($type === SalesTarget::TYPE_REVENUE_UPTODATE)
-			{
-				$salestarget = self::getCurrentSalesTarget($storeId);
-				if ($salestarget instanceof SalesTarget)
+				if ($type === SalesTarget::TYPE_REVENUE_TODAY)
 				{
-					$startDate = $salestarget->getDfrom();
-					$sql = "select  DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m') YYYYMM, SUM(totalAmount) totalAmount,
+					$sql = "select * from salesdailylog Where YYYYMMDD = DATE_FORMAT(NOW(), '%Y-%m-%d') and storeId = ?";
+					$result = Dao::getResultsNative($sql, array($storeId), PDO::FETCH_ASSOC);
+					Config::dd($result);
+				}
+				else if ($type === SalesTarget::TYPE_REVENUE_UPTODATE)
+				{
+					$salestarget = self::getCurrentSalesTarget($storeId);
+					if ($salestarget instanceof SalesTarget)
+					{
+						$startDate = $salestarget->getDfrom();
+						$sql = "select  DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m') YYYYMM, SUM(totalAmount) totalAmount,
 							SUM(totalPaid) totalPaid, SUM(totalCreditNoteValue) totalCreditNoteValue,
 							SUM(totalMargin) totalMargin, SUM(totalActualMargin) totalActualMargin
 							From salesdailylog Where YYYYMMDD between ? and DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') and storeId = ?";
-					$result = Dao::getResultsNative($sql, array($startDate, $storeId), PDO::FETCH_ASSOC);
+						$result = Dao::getResultsNative($sql, array($startDate, $storeId), PDO::FETCH_ASSOC);
+					}
+					else
+					{
+						$sql = "select  DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m') YYYYMM, SUM(totalAmount) totalAmount,
+							SUM(totalPaid) totalPaid, SUM(totalCreditNoteValue) totalCreditNoteValue,
+							SUM(totalMargin) totalMargin, SUM(totalActualMargin) totalActualMargin
+							From salesdailylog Where YYYYMMDD between CONCAT(DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'),'%Y-%m'),'-01') and DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') and storeId = ?";
+						$result = Dao::getResultsNative($sql, array($storeId), PDO::FETCH_ASSOC);
+					}
 				}
 				else
 				{
-					$sql = "select  DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m') YYYYMM, SUM(totalAmount) totalAmount,
-							SUM(totalPaid) totalPaid, SUM(totalCreditNoteValue) totalCreditNoteValue, 
-							SUM(totalMargin) totalMargin, SUM(totalActualMargin) totalActualMargin 
-							From salesdailylog Where YYYYMMDD between CONCAT(DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'),'%Y-%m'),'-01') and DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') and storeId = ?";
-					$result = Dao::getResultsNative($sql, array($storeId), PDO::FETCH_ASSOC);
+					return array();
 				}
-			}
-			else
-			{
-				return array();
-			}
-			
-			if(count($result) === 0)
-				return array();
-			return $result[0];
+				
+				if(count($result) === 0)
+					return array();
+					return $result[0];
 		} catch (Exception $e) {
 			return array();
 		}
 	}
 	/**
 	 * validate the data range
-	 * 
+	 *
 	 * @param date $dFrom
 	 * @param date $dTo
 	 */
@@ -376,7 +377,7 @@ class SalesTarget extends BaseEntityAbstract
 		{
 			return false;
 		}
-
+		
 	}
-
+	
 }
