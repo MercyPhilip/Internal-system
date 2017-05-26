@@ -100,6 +100,11 @@ class OrderConnector extends B2BConnector
 						->setCustomer($customer)
 						->setStore(Core::getUser()->getStore())
 						->save();
+					foreach ($order->status_history  as $comment){
+						if ($comment->is_customer_notified == 1 && $comment->status == 'pending' && isset($comment->comment)){
+							$o->addComment($comment->comment, Comments::TYPE_CUSTOMER);
+						}
+					}
 					$this->_log(0, get_class($this), 'Saved the order, ID = ' . $o->getId(), self::LOG_TYPE, '$index = ' . $index, __FUNCTION__);
 					$totalShippingCost = StringUtilsAbstract::getValueFromCurrency(trim($order->shipping_amount)) * 1.1;
 					//create order info
@@ -117,7 +122,7 @@ class OrderConnector extends B2BConnector
 
 					//saving the order item
 					$totalItemCost = 0;
-					var_dump($order->items);
+// 					var_dump($order->items);
 					foreach($order->items as $item)	{
 						$this->_createItem($o, $item);
 						$totalItemCost = $totalItemCost * 1 + StringUtilsAbstract::getValueFromCurrency($item->row_total) * 1.1;

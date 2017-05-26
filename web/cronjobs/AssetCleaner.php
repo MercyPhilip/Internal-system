@@ -2,7 +2,7 @@
 require_once dirname(__FILE__) . '/../bootstrap.php';
 class AssetCleaner
 {
-    const ASSET_OVERDUE_TIME = "-2 day";
+    const ASSET_OVERDUE_TIME = "-3 day";
     const NEW_LINE = "\n";
     private static $_debug = false;
     /**
@@ -48,8 +48,10 @@ class AssetCleaner
 	private  static function _findAllOverdueAssets()
 	{
 	    $start = self::_debug("Start to run " . __FUNCTION__ . ' =================== ', self::NEW_LINE, "\t");
-	    $overDueDate = UDate::now()->format(self::ASSET_OVERDUE_TIME);
-	    $result = Dao::getResultsNative("select assetId from asset where created > ? and type = ?", array(trim($overDueDate), trim(Asset::TYPE_TMP)));
+// 	    $overDueDate = UDate::now()->format(self::ASSET_OVERDUE_TIME);
+	    $overDueDate = date('Y-m-d H:m:s',strtotime(self::ASSET_OVERDUE_TIME, strtotime(UDate::now()->__toString())));
+	    $result = Dao::getResultsNative("select assetId from asset where created < ? and type = ?", array(trim($overDueDate), trim(Asset::TYPE_TMP)));
+// 	    $result = Dao::getResultsNative("select assetId from asset where created > ? and type = ?", array(trim($overDueDate), trim(Asset::TYPE_TMP)));
 	    $resultCount = count($result);
 	    self::_debug("Found " . $resultCount . ': ', " ", "\t\t");
 	    $assetIds = array();

@@ -71,7 +71,8 @@ class ComScriptSoap
 		try
 		{
 			$result = $this->_client->__soapCall($funcName, $params);
-			$result = new SimpleXMLElement($result);
+			if (!is_array($result) && !is_object($result))
+				$result = new SimpleXMLElement($result);
 		}
 		catch (Exception $ex)
 		{
