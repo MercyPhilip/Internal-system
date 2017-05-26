@@ -262,6 +262,132 @@ class PurchaseOrder extends BaseEntityAbstract
 		return $this;
 	}
 	/**
+	 * getter for fromPO
+	 *
+	 * @return PurchaseOrder
+	 */
+	public function getFromPO()
+	{
+		$this->loadManyToOne('fromPO');
+		return $this->fromPO;
+	}
+	/**
+	 * Setter for fromPO
+	 *
+	 * @return PurchaseOrder
+	 */
+	public function setFromPO(PurchaseOrder $fromPO = null)
+	{
+		$this->fromPO = $fromPO;
+		return $this;
+	}
+	/**
+	 * Getter for supplier
+	 *
+	 * @return Supplier
+	 */
+	public function getSupplier()
+	{
+		$this->loadManyToOne('supplier');
+		return $this->supplier;
+	}
+	/**
+	 * Setter for supplier
+	 *
+	 * @param Supplier $value The supplier
+	 *
+	 * @return PurchaseOrder
+	 */
+	public function setSupplier(Supplier $value)
+	{
+		$this->supplier = $value;
+		return $this;
+	}
+	/**
+	 * Getter for supplierRefNo
+	 *
+	 * @return string
+	 */
+	public function getSupplierRefNo()
+	{
+		return $this->supplierRefNo;
+	}
+	/**
+	 * Setter for supplierRefNo
+	 *
+	 * @param string $value The supplierRefNo
+	 *
+	 * @return PurchaseOrder
+	 */
+	public function setSupplierRefNo($value)
+	{
+		$this->supplierRefNo = $value;
+		return $this;
+	}
+	/**
+	 * Getter for status
+	 *
+	 * @return string
+	 */
+	public function getStatus()
+	{
+		return $this->status;
+	}
+	/**
+	 * Setter for status
+	 *
+	 * @param string $value The status
+	 *
+	 * @return PurchaseOrder
+	 */
+	public function setStatus($value)
+	{
+		$this->status = trim($value);
+		return $this;
+	}
+	/**
+	 * Getter for supplierContact
+	 *
+	 * @return string
+	 */
+	public function getSupplierContact()
+	{
+		return $this->supplierContact;
+	}
+	/**
+	 * Setter for supplierContact
+	 *
+	 * @param string $value The supplierContact
+	 *
+	 * @return PurchaseOrder
+	 */
+	public function setSupplierContact($value)
+	{
+		$this->supplierContact = $value;
+		return $this;
+	}
+	/**
+	 * Getter for supplierContactNumber
+	 *
+	 * @return string
+	 */
+	public function getSupplierContactNumber()
+	{
+		return $this->supplierContactNumber;
+	}
+	/**
+	 * Setter for supplierContactNumber
+	 *
+	 * @param string $value The supplierContactNumber
+	 *
+	 * @return PurchaseOrder
+	 */
+	public function setSupplierContactNumber($value)
+	{
+		$this->supplierContactNumber = $value;
+		return $this;
+	}
+	/**
 	 * Getter for PO shipping cost
 	 *
 	 * @return string
@@ -473,7 +599,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function getSupplierInvoices()
 	{
-		$result = Dao::getResultsNative('select distinct invoiceNo `invoiceNo` from receivingitem where purchaseOrderId = ?', array($this->getId()), PDO::FETCH_ASSOC);
+		$result = Dao::getResultsNative('select distinct invoiceNo `invoiceNo` from receivingitem where purchaseOrderId = ? and active = 1', array($this->getId()), PDO::FETCH_ASSOC);
 		return array_map(create_function('$a', 'return $a["invoiceNo"];'), $result);
 	}
 	/**
@@ -496,7 +622,7 @@ class PurchaseOrder extends BaseEntityAbstract
 				->addLog('UNMarked this item for StockOnPO and stockCalculated', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__);
 			}
 			$this->addComment(count($items) . ' POItem(s) are reverted, as this PO is now deactivated or CANCELLED');
-
+			
 			$receivedItems = ReceivingItem::getAllByCriteria('purchaseOrderId = ?', array($this->getId()));
 			foreach($receivedItems as $item) {
 				$item->setActive(false)
@@ -555,7 +681,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	public function __loadDaoMap()
 	{
 		DaoMap::begin($this, 'po');
-
+		
 		DaoMap::setStringType('purchaseOrderNo', 'varchar', 100);
 		DaoMap::setManyToOne('supplier', 'Supplier', 'po_sup');
 		DaoMap::setStringType('supplierRefNo', 'varchar', 100);
@@ -573,7 +699,7 @@ class PurchaseOrder extends BaseEntityAbstract
 		DaoMap::setOneToMany('items', 'PurchaseOrderItem', 'po_item');
 		DaoMap::setManyToOne('store', 'Store', 'si');
 		parent::__loadDaoMap();
-
+		
 		DaoMap::createUniqueIndex('purchaseOrderNo');
 		DaoMap::createIndex('supplierRefNo');
 		DaoMap::createIndex('status');
@@ -586,7 +712,7 @@ class PurchaseOrder extends BaseEntityAbstract
 		DaoMap::createIndex('supplierContactNumber');
 		DaoMap::createIndex('shippingCost');
 		DaoMap::createIndex('handlingCost');
-
+		
 		DaoMap::commit();
 	}
 	/**
@@ -629,7 +755,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 * @param string   $supplierContactNumber
 	 * @param string   $shippingCost
 	 * @param string   $handlingCost
-	 * @param bool	   $isCredit
+	 * @param bool     $isCredit
 	 *
 	 * @return PurchaseOrder
 	 */
