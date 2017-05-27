@@ -473,7 +473,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 */
 	public function getSupplierInvoices()
 	{
-		$result = Dao::getResultsNative('select distinct invoiceNo `invoiceNo` from receivingitem where purchaseOrderId = ?', array($this->getId()), PDO::FETCH_ASSOC);
+		$result = Dao::getResultsNative('select distinct invoiceNo `invoiceNo` from receivingitem where purchaseOrderId = ? and active = 1', array($this->getId()), PDO::FETCH_ASSOC);
 		return array_map(create_function('$a', 'return $a["invoiceNo"];'), $result);
 	}
 	/**

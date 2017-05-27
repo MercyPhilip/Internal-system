@@ -68,7 +68,7 @@ class AssetController extends TService
      * @param unknown $params
      * 
      * @throws Exception
-     */
+     */ 
     private function _renderBarcode($params)
     {
     	if(!isset($params['text']) || ($text = trim($params['text'])) === '')

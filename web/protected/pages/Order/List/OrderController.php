@@ -218,7 +218,8 @@ class OrderController extends BPCPageAbstract
 			{
 				$results['items'][] = $order->getJson();
 			}
-			$sql = 'select sum(`ord`.totalAmount) `totalAmount`, sum(`ord`.totalPaid) `totalPaid`, sum(`ord`.totalCreditNoteValue) `totalCreditNoteValue`, sum(pay.value) `paidViaCredit` from `order` ord ' . implode(' ', $innerJoinStrings) . ' left join payment pay on (pay.storeId = ord.storeId = pay.active = 1 and pay.orderId = ord.id and methodId = ' . PaymentMethod::ID_STORE_CREDIT. ')  where ord.active = 1 AND (' . implode(' AND ', $where) . ')';
+// 			$sql = 'select sum(`ord`.totalAmount) `totalAmount`, sum(`ord`.totalPaid) `totalPaid`, sum(`ord`.totalCreditNoteValue) `totalCreditNoteValue`, sum(pay.value) `paidViaCredit` from `order` ord ' . implode(' ', $innerJoinStrings) . ' left join payment pay on (pay.storeId = ord.storeId = pay.active = 1 and pay.orderId = ord.id and methodId = ' . PaymentMethod::ID_STORE_CREDIT. ')  where ord.active = 1 AND (' . implode(' AND ', $where) . ')';
+			$sql = 'select sum(`ord`.totalAmount) `totalAmount`, sum(`ord`.totalPaid) `totalPaid`, sum(`ord`.totalCreditNoteValue) `totalCreditNoteValue`, sum(pay.value) `paidViaCredit` from `order` ord ' . implode(' ', $innerJoinStrings) . ' left join creditnote crd on(crd.storeId = ord.storeId and crd.active = 1 and crd.orderId = ord.id) left join payment pay on (pay.storeId = ord.storeId and pay.active = 1 and pay.creditNoteId = crd.id)  where ord.active = 1 AND (' . implode(' AND ', $where) . ')';
 			$sumResult = Dao::getResultsNative($sql, $params);
 			$results['totalAmount'] = count($sumResult) > 0 ? $sumResult[0]['totalAmount'] : 0;
 			$results['totalPaid'] = count($sumResult) > 0 ? $sumResult[0]['totalPaid'] : 0;
