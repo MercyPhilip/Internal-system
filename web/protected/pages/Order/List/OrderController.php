@@ -33,19 +33,19 @@ class OrderController extends BPCPageAbstract
 		foreach((OrderStatus::findAll()) as $os)
 			$orderStatusArray[] = $os->getJson();
 			
-			$js = parent::_getEndJs();
-			$js .= 'pageJs.resultDivId = "resultDiv";';
-			$js .= 'pageJs.searchDivId = "searchDiv";';
-			$js .= 'pageJs._loadStatuses('.json_encode($orderStatusArray).');';
-			$js .= 'pageJs.totalNoOfItemsId = "total_no_of_items";';
-			$js .= 'pageJs.totalSumId = "total_amount";';
-			$js .= 'pageJs.totalDueId = "total_due";';
-			$js .= 'pageJs._infoTypes = {"custName": ' . OrderInfoType::ID_CUS_NAME. ', "custEmail" : ' . OrderInfoType::ID_CUS_EMAIL . ', "qty": ' . OrderInfoType::ID_QTY_ORDERED . '};';
-			$js .= 'pageJs.setCallbackId("getOrders", "' . $this->getOrdersBtn->getUniqueID(). '")';
-			$js .= '.init()';
-			$js .= '.setSearchCriteria(' . json_encode($this->getViewPreference()) . ');';
-			$js .= '$("searchBtn").click();';
-			return $js;
+		$js = parent::_getEndJs();
+		$js .= 'pageJs.resultDivId = "resultDiv";';
+		$js .= 'pageJs.searchDivId = "searchDiv";';
+		$js .= 'pageJs._loadStatuses('.json_encode($orderStatusArray).');';
+		$js .= 'pageJs.totalNoOfItemsId = "total_no_of_items";';
+		$js .= 'pageJs.totalSumId = "total_amount";';
+		$js .= 'pageJs.totalDueId = "total_due";';
+		$js .= 'pageJs._infoTypes = {"custName": ' . OrderInfoType::ID_CUS_NAME. ', "custEmail" : ' . OrderInfoType::ID_CUS_EMAIL . ', "qty": ' . OrderInfoType::ID_QTY_ORDERED . '};';
+		$js .= 'pageJs.setCallbackId("getOrders", "' . $this->getOrdersBtn->getUniqueID(). '")';
+		$js .= '.init()';
+		$js .= '.setSearchCriteria(' . json_encode($this->getViewPreference()) . ');';
+		$js .= '$("searchBtn").click();';
+		return $js;
 	}
 	public function getViewPreference()
 	{
@@ -59,7 +59,7 @@ class OrderController extends BPCPageAbstract
 			array_splice($preferences['ord.status'], $index, 1);
 			if(($index = array_search(OrderStatus::ID_SHIPPED, $preferences['ord.status'])) !== false)
 				array_splice($preferences['ord.status'], $index, 1);
-				return $preferences;
+			return $preferences;
 	}
 	
 	/**
@@ -85,7 +85,7 @@ class OrderController extends BPCPageAbstract
 				$pageNo = $param->CallbackParameter->pagination->pageNo;
 				$pageSize = $param->CallbackParameter->pagination->pageSize;
 			}
-			
+				
 			$noSearch = true;
 			$where = array(1);
 			$params = array();
@@ -202,32 +202,29 @@ class OrderController extends BPCPageAbstract
 							}
 							break;
 						}
+					}
+					$noSearch = false;
 				}
-				$noSearch = false;
-			}
-			if($noSearch === true)
-				throw new Exception("Nothing to search!");
-			$stats = array();
-			$where[] = 'ord.storeId = ?';
-			$params[] = Core::getUser()->getStore()->getId();
-			
-			$orders = Order::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('ord.id' => $sort), $stats);
-			$results['pageStats'] = $stats;
-			$results['items'] = array();
-			foreach($orders as $order)
-			{
-				$results['items'][] = $order->getJson();
-			}
-<<<<<<< HEAD
-// 			$sql = 'select sum(`ord`.totalAmount) `totalAmount`, sum(`ord`.totalPaid) `totalPaid`, sum(`ord`.totalCreditNoteValue) `totalCreditNoteValue`, sum(pay.value) `paidViaCredit` from `order` ord ' . implode(' ', $innerJoinStrings) . ' left join payment pay on (pay.storeId = ord.storeId = pay.active = 1 and pay.orderId = ord.id and methodId = ' . PaymentMethod::ID_STORE_CREDIT. ')  where ord.active = 1 AND (' . implode(' AND ', $where) . ')';
-=======
->>>>>>> d116940f77382bd05549f3615169adc194bc4b1e
-			$sql = 'select sum(`ord`.totalAmount) `totalAmount`, sum(`ord`.totalPaid) `totalPaid`, sum(`ord`.totalCreditNoteValue) `totalCreditNoteValue`, sum(pay.value) `paidViaCredit` from `order` ord ' . implode(' ', $innerJoinStrings) . ' left join creditnote crd on(crd.storeId = ord.storeId and crd.active = 1 and crd.orderId = ord.id) left join payment pay on (pay.storeId = ord.storeId and pay.active = 1 and pay.creditNoteId = crd.id)  where ord.active = 1 AND (' . implode(' AND ', $where) . ')';
-			$sumResult = Dao::getResultsNative($sql, $params);
-			$results['totalAmount'] = count($sumResult) > 0 ? $sumResult[0]['totalAmount'] : 0;
-			$results['totalPaid'] = count($sumResult) > 0 ? $sumResult[0]['totalPaid'] : 0;
-			$results['totalCreditNoteValue'] = count($sumResult) > 0 ? $sumResult[0]['totalCreditNoteValue'] : 0;
-			$results['paidViaCredit'] = count($sumResult) > 0 ? $sumResult[0]['paidViaCredit'] : 0;
+				if($noSearch === true)
+					throw new Exception("Nothing to search!");
+				$stats = array();
+				$where[] = 'ord.storeId = ?';
+				$params[] = Core::getUser()->getStore()->getId();
+				
+				$orders = Order::getAllByCriteria(implode(' AND ', $where), $params, true, $pageNo, $pageSize, array('ord.id' => $sort), $stats);
+				$results['pageStats'] = $stats;
+				$results['items'] = array();
+				foreach($orders as $order)
+				{
+					$results['items'][] = $order->getJson();
+				}
+				// 			$sql = 'select sum(`ord`.totalAmount) `totalAmount`, sum(`ord`.totalPaid) `totalPaid`, sum(`ord`.totalCreditNoteValue) `totalCreditNoteValue`, sum(pay.value) `paidViaCredit` from `order` ord ' . implode(' ', $innerJoinStrings) . ' left join payment pay on (pay.storeId = ord.storeId = pay.active = 1 and pay.orderId = ord.id and methodId = ' . PaymentMethod::ID_STORE_CREDIT. ')  where ord.active = 1 AND (' . implode(' AND ', $where) . ')';
+				$sql = 'select sum(`ord`.totalAmount) `totalAmount`, sum(`ord`.totalPaid) `totalPaid`, sum(`ord`.totalCreditNoteValue) `totalCreditNoteValue`, sum(pay.value) `paidViaCredit` from `order` ord ' . implode(' ', $innerJoinStrings) . ' left join creditnote crd on(crd.storeId = ord.storeId and crd.active = 1 and crd.orderId = ord.id) left join payment pay on (pay.storeId = ord.storeId and pay.active = 1 and pay.creditNoteId = crd.id)  where ord.active = 1 AND (' . implode(' AND ', $where) . ')';
+				$sumResult = Dao::getResultsNative($sql, $params);
+				$results['totalAmount'] = count($sumResult) > 0 ? $sumResult[0]['totalAmount'] : 0;
+				$results['totalPaid'] = count($sumResult) > 0 ? $sumResult[0]['totalPaid'] : 0;
+				$results['totalCreditNoteValue'] = count($sumResult) > 0 ? $sumResult[0]['totalCreditNoteValue'] : 0;
+				$results['paidViaCredit'] = count($sumResult) > 0 ? $sumResult[0]['paidViaCredit'] : 0;
 		}
 		catch(Exception $ex)
 		{

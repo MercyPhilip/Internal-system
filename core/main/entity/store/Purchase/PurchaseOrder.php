@@ -1,11 +1,11 @@
 <?php
 /**
  * Entity for PurchaseOrder
-*
-* @package    Core
-* @subpackage Entity
-* @author     lhe<helin16@gmail.com>
-*/
+ *
+ * @package    Core
+ * @subpackage Entity
+ * @author     lhe<helin16@gmail.com>
+ */
 class PurchaseOrder extends BaseEntityAbstract
 {
 	const PO_NO_PRE = 'BPO_';
@@ -92,7 +92,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 * @var array
 	 */
 	protected $items;
-
+	
 	private $totalAmount = 0;
 	private $totalPaid = 0;
 	/**
@@ -133,132 +133,6 @@ class PurchaseOrder extends BaseEntityAbstract
 	public function setIsCredit($isCredit)
 	{
 		$this->isCredit = $isCredit;
-		return $this;
-	}
-	/**
-	 * getter for fromPO
-	 *
-	 * @return PurchaseOrder
-	 */
-	public function getFromPO()
-	{
-		$this->loadManyToOne('fromPO');
-		return $this->fromPO;
-	}
-	/**
-	 * Setter for fromPO
-	 *
-	 * @return PurchaseOrder
-	 */
-	public function setFromPO(PurchaseOrder $fromPO = null)
-	{
-		$this->fromPO = $fromPO;
-		return $this;
-	}
-	/**
-	 * Getter for supplier
-	 *
-	 * @return Supplier
-	 */
-	public function getSupplier()
-	{
-		$this->loadManyToOne('supplier');
-		return $this->supplier;
-	}
-	/**
-	 * Setter for supplier
-	 *
-	 * @param Supplier $value The supplier
-	 *
-	 * @return PurchaseOrder
-	 */
-	public function setSupplier(Supplier $value)
-	{
-		$this->supplier = $value;
-		return $this;
-	}
-	/**
-	 * Getter for supplierRefNo
-	 *
-	 * @return string
-	 */
-	public function getSupplierRefNo()
-	{
-		return $this->supplierRefNo;
-	}
-	/**
-	 * Setter for supplierRefNo
-	 *
-	 * @param string $value The supplierRefNo
-	 *
-	 * @return PurchaseOrder
-	 */
-	public function setSupplierRefNo($value)
-	{
-		$this->supplierRefNo = $value;
-		return $this;
-	}
-	/**
-	 * Getter for status
-	 *
-	 * @return string
-	 */
-	public function getStatus()
-	{
-		return $this->status;
-	}
-	/**
-	 * Setter for status
-	 *
-	 * @param string $value The status
-	 *
-	 * @return PurchaseOrder
-	 */
-	public function setStatus($value)
-	{
-		$this->status = trim($value);
-		return $this;
-	}
-	/**
-	 * Getter for supplierContact
-	 *
-	 * @return string
-	 */
-	public function getSupplierContact()
-	{
-		return $this->supplierContact;
-	}
-	/**
-	 * Setter for supplierContact
-	 *
-	 * @param string $value The supplierContact
-	 *
-	 * @return PurchaseOrder
-	 */
-	public function setSupplierContact($value)
-	{
-		$this->supplierContact = $value;
-		return $this;
-	}
-	/**
-	 * Getter for supplierContactNumber
-	 *
-	 * @return string
-	 */
-	public function getSupplierContactNumber()
-	{
-		return $this->supplierContactNumber;
-	}
-	/**
-	 * Setter for supplierContactNumber
-	 *
-	 * @param string $value The supplierContactNumber
-	 *
-	 * @return PurchaseOrder
-	 */
-	public function setSupplierContactNumber($value)
-	{
-		$this->supplierContactNumber = $value;
 		return $this;
 	}
 	/**
@@ -585,12 +459,12 @@ class PurchaseOrder extends BaseEntityAbstract
 		$receivedItems = ReceivingItem::getAllByCriteria('purchaseOrderId = ?', array($this->getId()));
 		if(count($receivedItems) === 0)
 			return 0;
-			$totalValue = 0;
-			foreach($receivedItems as $item)
-			{
-				$totalValue = $totalValue + ($item->getUnitPrice() * $item->getQty());
-			}
-			return $totalValue;
+		$totalValue = 0;
+		foreach($receivedItems as $item)
+		{
+			$totalValue = $totalValue + ($item->getUnitPrice() * $item->getQty());
+		}
+		return $totalValue;
 	}
 	/**
 	 * Getting the supplier invoices
@@ -755,7 +629,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	 * @param string   $supplierContactNumber
 	 * @param string   $shippingCost
 	 * @param string   $handlingCost
-	 * @param bool     $isCredit
+	 * @param bool	   $isCredit
 	 *
 	 * @return PurchaseOrder
 	 */
