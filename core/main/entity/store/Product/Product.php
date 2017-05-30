@@ -1414,23 +1414,32 @@ class Product extends InfoEntityAbstract
 			$newStockOnOrder = ($originStockOnOrder = $this->getStockOnOrder()) + $qty;
 			if($newStockOnOrder < 0  && intval(SystemSettings::getSettings(SystemSettings::TYPE_ALLOW_NEGTIVE_STOCK)) !== 1)
 				throw new Exception('Product (SKU:' . $this->getSKU() . ') can NOT be ' . $action . ' , as there is not enough stock: new stock on order will fall below zero');
-				
-				if ($newQty >= 5){
-					$status = ProductStatus::get(2);
-				}elseif ($newQty == 0){
-					$status = ProductStatus::get(8);
-				}else {
-					$status = ProductStatus::get(3);
-				}
-				return $this->setStockOnOrder($newStockOnOrder)
-				->setTotalOnHandValue(($origTotalOnHandValue = $this->getTotalOnHandValue()) - $totalCost)
-				->setStockOnHand($newQty)
-				->setStatus($status)
-				->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_SALES_ORDER, $action . ': ' . ($order instanceof Order ? '[' . $order->getOrderNo() . ']' : '') . $comments)
-				->save()
-				->addLog('StockOnHand(' . $originStockOnHand . ' => ' . $this->getStockOnHand() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
-				->addLog('StockOnOrder(' . $originStockOnOrder . ' => ' . $this->getStockOnOrder() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
-				->addLog('TotalOnHandValue(' . $origTotalOnHandValue . ' => ' .$this->getTotalOnHandValue() . ')', Log::TYPE_SYSTEM, 'STOCK_VALUE_CHG', __CLASS__ . '::' . __FUNCTION__);
+			
+			$nowLocal = new UDate('now', 'Australia/Melbourne');
+			$fromDate = new UDate($nowLocal->format('Y-m-d') . ' 00:00:00', 'Australia/Melbourne');
+			$statusLog = Log::getAllByCriteria('comments = ? and entityId = ? and entityName = ? and created > ?', array('ORIGINAL_STOCK_STATUS', $this->getId(), 'Product', $fromDate), true, null, DaoQuery::DEFAUTL_PAGE_SIZE, array('id' => 'asc'));
+			$originStatus = 0;
+			if (count($statusLog) > 0)
+				$originStatus = $statusLog[0]->getMsg();
+			
+			if ($newQty >= 5){
+				$status = ProductStatus::get(2);
+			}elseif ($newQty == 0 && !in_array($originStatus, array(4,5))){
+				$status = ProductStatus::get(8);
+			}elseif($newQty < 5 && $newQty > 0) {
+				$status = ProductStatus::get(3);
+			}elseif ($newQty == 0 && in_array($originStatus, array(4,5))){
+				$status = ProductStatus::get($originStatus);
+			}
+			return $this->setStockOnOrder($newStockOnOrder)
+			->setTotalOnHandValue(($origTotalOnHandValue = $this->getTotalOnHandValue()) - $totalCost)
+			->setStockOnHand($newQty)
+			->setStatus($status)
+			->snapshotQty($entity instanceof BaseEntityAbstract ? $entity : $this, ProductQtyLog::TYPE_SALES_ORDER, $action . ': ' . ($order instanceof Order ? '[' . $order->getOrderNo() . ']' : '') . $comments)
+			->save()
+			->addLog('StockOnHand(' . $originStockOnHand . ' => ' . $this->getStockOnHand() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
+			->addLog('StockOnOrder(' . $originStockOnOrder . ' => ' . $this->getStockOnOrder() . ')', Log::TYPE_SYSTEM, 'STOCK_QTY_CHG', __CLASS__ . '::' . __FUNCTION__)
+			->addLog('TotalOnHandValue(' . $origTotalOnHandValue . ' => ' .$this->getTotalOnHandValue() . ')', Log::TYPE_SYSTEM, 'STOCK_VALUE_CHG', __CLASS__ . '::' . __FUNCTION__);
 	}
 	/**
 	 * A product is received

@@ -224,6 +224,7 @@ class ReceivingController extends BPCPageAbstract
 			$invoiceNos = array();
 			foreach ($products->matched as $item) {
 				$product = Product::get(trim($item->product->id));
+				$product->addLog($product->getStock()->getStatus()->getId(), Log::TYPE_SYSTEM, 'ORIGINAL_STOCK_STATUS', __CLASS__ . '::' . __FUNCTION__);
 				$purchaseOrderItem = PurchaseOrderItem::get(trim($item->product->poItemId));
 				if(!$product instanceof Product)
 					throw new Exception('Invalid Product passed in!');
@@ -296,7 +297,7 @@ class ReceivingController extends BPCPageAbstract
 				}
 			}
 				
-			$stock = $product->getStock();
+/* 			$stock = $product->getStock();
 			if ($stock instanceof ProductStockInfo)
 			{
 				if($stock->getStockOnHand() > 5){
@@ -306,7 +307,7 @@ class ReceivingController extends BPCPageAbstract
 				}
 					$stock->setStatus($status);
 					$stock->save();				
-			}
+			} */
 			
 			$results['outStandingOrders'] = count($outStandingOrders) > 0 ? array_values($outStandingOrders) : array();
 			$results['item'] = PurchaseOrder::get($purchaseOrder->getId())->getJson();
