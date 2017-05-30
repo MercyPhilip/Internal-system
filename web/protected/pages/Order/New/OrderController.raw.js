@@ -130,6 +130,8 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 
 		tmp.data.items.each(function(item){
 			item.totalPrice = tmp.me.getValueFromCurrency(item.totalPrice);
+			if(item.totalPrice == '')
+				item.totalPrice = 0;
 			item.unitPrice = tmp.me.getValueFromCurrency(item.unitPrice);
 		});
 		tmp.newDiv = new Element('div')
