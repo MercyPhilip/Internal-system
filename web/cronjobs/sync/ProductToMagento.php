@@ -398,6 +398,7 @@ abstract class ProductToMagento
    	    $tierPrices = array();
    	    $tierLevels = TierLevel::getAllByCriteria('id > 1');
    	    $eta = '';
+   	    $qtyOnline = 0;
    	    foreach ($tierLevels as $tierLevel)
    	    {
    	    	$keyGroup = 'group_price:' . $tierLevel->getName();
