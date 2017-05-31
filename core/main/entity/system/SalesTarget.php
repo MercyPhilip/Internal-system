@@ -283,7 +283,8 @@ class SalesTarget extends BaseEntityAbstract
 			{
 				$storeId = Core::getUser()->getStore()->getId();
 			}
-			$objs = self::getAllByCriteria("DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') between dfrom and dto and storeId = ?", array($storeId), true, 1, 1);
+// 			$objs = self::getAllByCriteria("DATE_FORMAT(CONVERT_TZ(NOW(), 'UTC', 'Australia/Victoria'), '%Y-%m-%d') between dfrom and dto and storeId = ?", array($storeId), true, 1, 1);
+			$objs = self::getAllByCriteria("DATE_FORMAT(NOW(), '%Y-%m-%d') between dfrom and dto and storeId = ?", array($storeId), true, 1, 1);
 			$salesTarget = ( count($objs) > 0 ? $objs[0] : null );
 			return $salesTarget;
 		} catch (Exception $e) {
