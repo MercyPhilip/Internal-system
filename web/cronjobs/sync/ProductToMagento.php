@@ -635,8 +635,8 @@ abstract class ProductToMagento
    				"msrp" => 'Use config', //
    				"gift_wrapping_price" => '',
    				"qty" => $qtyOnline, 
-   				"min_qty" => 5,  //99
-   				"use_config_min_qty" => 5,  //99
+   				"min_qty" => 3,  //99
+   				"use_config_min_qty" => 3,  //99
    				"is_qty_decimal"  => '',
    				"backorders" => '',
    				"use_config_backorders" => '',
