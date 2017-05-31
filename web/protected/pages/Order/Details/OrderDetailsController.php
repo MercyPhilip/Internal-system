@@ -298,7 +298,7 @@ class OrderDetailsController extends BPCPageAbstract
 		$html .= '<div>' . $emailBody['productUpdate'] . '</div><br/>';
 		$html .= '<p style="font-size:12px; line-height:16px; margin:0;">';
 		$html .= 'If you have any questions, please feel free to contact us at ';
-		$html .= '<a href="mailto:sales@budgetpc.com.au" style="color:#1E7EC8;">sales@budgetpc.com.au</a>';
+		$html .= '<a href="mailto:sales@hobbymaster.com.au" style="color:#1E7EC8;">sales@hobbymaster.com.au</a>';
 		$html .= ' or by phone at +61 3 9541 9000.';
 		$html .= '</p></td></tr>';
 		$html .= '<tr><td style="background:#EAEAEA; text-align:center;" align="center" bgcolor="#EAEAEA"><center><p style="font-size:12px; margin:0;">Thank you again, <strong></strong></p></center></td></tr>';
