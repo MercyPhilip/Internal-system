@@ -100,8 +100,13 @@ class OrderConnector extends B2BConnector
 						->setCustomer($customer)
 						->setStore(Core::getUser()->getStore())
 						->save();
+					foreach ($order->status_history  as $comment){
+						if ($comment->is_customer_notified == 1 && $comment->status == 'pending' && isset($comment->comment)){
+							$o->addComment($comment->comment, Comments::TYPE_CUSTOMER);
+						}
+					}
 					$this->_log(0, get_class($this), 'Saved the order, ID = ' . $o->getId(), self::LOG_TYPE, '$index = ' . $index, __FUNCTION__);
-					$totalShippingCost = StringUtilsAbstract::getValueFromCurrency(trim($order->shipping_amount)) * 1.1;
+					$totalShippingCost = StringUtilsAbstract::getValueFromCurrency(trim($order->shipping_amount));
 					//create order info
 					$this->_createOrderInfo($o, OrderInfoType::get(OrderInfoType::ID_CUS_NAME), trim($customer->getName()))
 						->_createOrderInfo($o, OrderInfoType::get(OrderInfoType::ID_CUS_EMAIL), trim($customer->getEmail()))
@@ -116,15 +121,14 @@ class OrderConnector extends B2BConnector
 					$this->_log(0, get_class($this), 'Updated order info', self::LOG_TYPE, '$index = ' . $index, __FUNCTION__);
 
 					//saving the order item
-					$totalItemCost = 0;
-					var_dump($order->items);
+// 					$totalItemCost = 0;
 					foreach($order->items as $item)	{
 						$this->_createItem($o, $item);
-						$totalItemCost = $totalItemCost * 1 + StringUtilsAbstract::getValueFromCurrency($item->row_total) * 1.1;
+// 						$totalItemCost = $totalItemCost * 1 + StringUtilsAbstract::getValueFromCurrency($item->row_total) * 1.1;
 					}
-					if(($possibleSurchargeAmount = ($o->getTotalAmount() - $totalShippingCost - $totalItemCost)) > 0 && ($product = Product::getBySku('surcharge')) instanceof Product) {
+/* 					if(($possibleSurchargeAmount = ($o->getTotalAmount() - $totalShippingCost - $totalItemCost)) > 0 && ($product = Product::getBySku('surcharge')) instanceof Product) {
 						OrderItem::create($o, $product,	$possibleSurchargeAmount, 1, $possibleSurchargeAmount);
-					}
+					} */
 					//record the last imported time for this import process
 					SystemSettings::addSettings(SystemSettings::TYPE_B2B_SOAP_LAST_IMPORT_TIME, trim($order->created_at));
 					$this->_log(0, get_class($this), 'Updating the last updated time :' . trim($order->created_at), self::LOG_TYPE, '', __FUNCTION__);
@@ -217,10 +221,10 @@ class OrderConnector extends B2BConnector
 			}
 		}
 		$discount = $itemObj->discount_amount >= 0? $itemObj->discount_amount : 0;
-		$row_total = trim($itemObj->row_total) * 1.1 - $discount;
+		$row_total = trim($itemObj->row_total) - $discount;
 		return OrderItem::create($order,
 			$product,
-			trim($itemObj->price) * 1.1,
+			trim($itemObj->price),
 			trim($itemObj->qty_ordered),
 			$row_total,
 			trim($itemObj->item_id),

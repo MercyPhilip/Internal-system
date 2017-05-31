@@ -574,20 +574,7 @@ abstract class ProductToMagento
    	        }
    	        $totalStockOnHand = $stock2 . $stock1;
    	        
-   	        $qty = $product->getStock()->getStockOnHand();
-   	        if ($qty >= 100){
-   	        	$qtyOnline = 99;
-   	        }elseif ($qty >= 50 && $qty < 99){
-   	        	$qtyOnline = 49;
-   	        }elseif ($qty >= 20 && $qty < 49){
-   	        	$qtyOnline = 19;
-   	        }elseif ($qty >= 10 && $qty < 19){
-   	        	$qtyOnline = 9;
-   	        }elseif ($qty >= 6 && $qty < 9){
-   	        	$qtyOnline = 5;
-   	        }else {
-   	        	$qtyOnline = $qty;
-   	        }
+   	        $qtyOnline = $product->getStock()->getStockOnHand();
    	        
    	        //Product ETA
    	        if($product->getProductEta() instanceof ProductEta) {
@@ -636,8 +623,8 @@ abstract class ProductToMagento
    				"msrp" => 'Use config', //
    				"gift_wrapping_price" => '',
    				"qty" => $qtyOnline, 
-   				"min_qty" => 3,  //99
-   				"use_config_min_qty" => 3,  //99
+   				"min_qty" => 1,  //99
+   				"use_config_min_qty" => 1,  //99
    				"is_qty_decimal"  => '',
    				"backorders" => '',
    				"use_config_backorders" => '',
