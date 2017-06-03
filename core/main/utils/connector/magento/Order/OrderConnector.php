@@ -101,7 +101,7 @@ class OrderConnector extends B2BConnector
 						->setStore(Core::getUser()->getStore())
 						->save();
 					foreach ($order->status_history  as $comment){
-						if ($comment->is_customer_notified == 1 && $comment->status == 'pending' && isset($comment->comment)){
+						if ($comment->status == 'pending' && isset($comment->comment)){
 							$o->addComment($comment->comment, Comments::TYPE_CUSTOMER);
 						}
 					}
