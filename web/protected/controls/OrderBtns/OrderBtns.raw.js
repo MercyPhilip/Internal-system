@@ -122,7 +122,7 @@ OrderBtnsJs.prototype = {
 			})
 			.insert({'bottom': new Element('div')
 				.insert({'bottom': tmp.me._getFormGroup('Something you want to say:',
-						new Element('textarea', {'confirm-email': 'emailBody'})
+						new Element('textarea', {'confirm-email': 'emailBody', 'style': 'height:300px'})
 				) })
 			})
 			.insert({'bottom': new Element('div', {'class': 'text-right'})
