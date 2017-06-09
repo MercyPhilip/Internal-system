@@ -230,7 +230,7 @@ class UserAccount extends BaseEntityAbstract
     	else if(count($userAccounts) > 1)
     		throw new AuthenticationException("Multiple Users Found!Contact you administrator!");
     	else
-    		throw new AuthenticationException("No User Found!");
+    		throw new AuthenticationException("Invalid username and password!");
     }
     /**
      * Getting UserAccount by username

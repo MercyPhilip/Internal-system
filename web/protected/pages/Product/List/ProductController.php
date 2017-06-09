@@ -424,19 +424,30 @@ class ProductController extends CRUDPageAbstract
 			if (isset($param->CallbackParameter->active)){
 				if(!($product = Product::get($ids[0])) instanceof Product)
 					throw new Exception('Invalid product!');
-					
-				$product->setActive(intval($param->CallbackParameter->active))->save();
+				
+				if ($product->getSellOnWeb() == 1){
+					throw new Exception("Can't deactivate this product because SOW is enable.");
+				}
+				$product->setActive(intval($param->CallbackParameter->active))->save()
+				->addLog('Active changed by ' . Core::getUser()->getUserName() . '(' . intval(!$param->CallbackParameter->active). ' => ' . intval($param->CallbackParameter->active). ')', Log::TYPE_SYSTEM, 'ACTIVE_CHG', __CLASS__ . '::' . __FUNCTION__);
 				$results['items'][] = $product->getJson();
 			}
 			else{
 				foreach ($ids as $id){
 					if(!($product = Product::get($id)) instanceof Product)
 						throw new Exception('Invalid product!');
-					if ($product->getActive() == 1)
-						$product->setActive(0)->save();
-					else
-						$product->setActive(1)->save();
+				
+					if ($product->getActive() == 1){
+						if ($product->getSellOnWeb() == 1){
+							throw new Exception("Can't deactivate SKU: ". $product->getSku() . " because SOW is enable.");
+						}
+						$product->setActive(0)->save()
+						->addLog('Active changed by ' . Core::getUser()->getUserName() . '(' . 1 . ' => ' . 0 . ')', Log::TYPE_SYSTEM, 'ACTIVE_CHG', __CLASS__ . '::' . __FUNCTION__);
+					}else{
+						$product->setActive(1)->save()
+						->addLog('Active changed by ' . Core::getUser()->getUserName() . '(' . 0 . ' => ' . 1 . ')', Log::TYPE_SYSTEM, 'ACTIVE_CHG', __CLASS__ . '::' . __FUNCTION__);
 						
+					}	
 					$results['items'][] = $product->getJson();
 				}
 			}
