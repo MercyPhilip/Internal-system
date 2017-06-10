@@ -503,7 +503,7 @@ class PurchaseOrder extends BaseEntityAbstract
 				->save();
 			}
 		}
-		else if(trim($this->getStatus()) === PurchaseOrder::STATUS_ORDERED) {
+		else if(trim($this->getStatus()) === PurchaseOrder::STATUS_ORDERED || trim($this->getStatus()) === PurchaseOrder::STATUS_NEW) {
 			$items = PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ? and stockCalculated = 0', array($this->getId()));
 			foreach($items as $item) {
 				$item->getProduct()->ordered($item->getQty(), 'PO(' . $this->getPurchaseOrderNo() . ') is ordered now.', $item);
