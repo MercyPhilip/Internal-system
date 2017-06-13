@@ -69,8 +69,8 @@ class OrderBtns extends TTemplateControl
 				$emailAddress = trim($emailAddress);
 				if ($emailAddress == '') continue;
 				EmailSender::addEmail($replyEmailAddress, $emailAddress, 'BudgetPC ' . $type. ':' . $order->getOrderNo() , (trim($emailBody) === '' ? '' : $emailBody . "<br /><br />") .'Please find attached ' . $type. ' (' . $order->getOrderNo() . '.pdf) from Budget PC Pty Ltd.', array($asset));
+				$order->addComment('An email sent to "' . $emailAddress . '" with the attachment: ' . $asset->getAssetId(), Comments::TYPE_SYSTEM);
 			}
-			$order->addComment('An email sent to "' . $emailAddress . '" with the attachment: ' . $asset->getAssetId(), Comments::TYPE_SYSTEM);
 			$results['item'] = $order->getJson();
 
 			Dao::commitTransaction();
