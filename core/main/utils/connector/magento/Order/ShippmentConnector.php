@@ -46,8 +46,20 @@ class ShippmentConnector extends B2BConnector
 		{
 			$itemsQty[$item->getMageItemId()] = $item->getQtyOrdered();
 		}
+		
+		$orderInfo = $this->_connect()->salesOrderInfo($this->_session, $order->getOrderNo());
+		$filter = array(
+				'complex_filter' => array(
+						array('key' => 'order_id', 'value' => array('key' => 'in', 'value' => $orderInfo->order_id))
+				)
+		);
+		$shippmentsMagento = $this->_connect()->salesOrderShipmentList($this->_session, $filter);
+		if (count($shippmentsMagento) > 0) {
+			$shipmentId = $shippmentsMagento[0]->increment_id;
+		} else {
 		//now create a shippment for this order
-		$shipmentId = ($shippmentId = trim($shippment->getMageShipmentId())) !== '' ? $shippmentId : $this->_connect()->salesOrderShipmentCreate($this->_session, $order->getOrderNo(), $itemsQty, $comments);
+			$shipmentId = ($shippmentId = trim($shippment->getMageShipmentId())) !== '' ? $shippmentId : $this->_connect()->salesOrderShipmentCreate($this->_session, $order->getOrderNo(), $itemsQty, $comments);
+		}
 		if(trim($shipmentId) === '')
 			throw new ConnectorException('System Error: failed to create a shipment in Magento!');
 		
