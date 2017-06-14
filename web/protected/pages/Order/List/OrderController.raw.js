@@ -121,10 +121,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					$(tmp.me.totalDueId)
 					.update(
 						new Element('span', {'title': 'Total Amt: ' + tmp.me.getCurrency(tmp.result.totalAmount) + '\nTotal Paid: ' + tmp.me.getCurrency(tmp.result.totalPaid) + '\nTotal Credited: ' + tmp.me.getCurrency(tmp.result.totalCreditNoteValue) + '\nTotal PaidViaCrdit: ' + tmp.me.getCurrency(tmp.result.paidViaCredit) }).update(
-							tmp.me.getCurrency(tmp.result.totalAmount - tmp.result.totalPaid - tmp.result.totalCreditNoteValue + (tmp.result.paidViaCredit * 1))
+							tmp.me.getCurrency(tmp.result.totalAmount - tmp.result.totalPaid - tmp.result.totalCreditNoteValue + (tmp.result.paidViaCredit * 1) + (tmp.result.totalRefund * 1) )
 						)
 					);
-					
 					tmp.resultDiv = $(tmp.me.resultDivId);
 					//reset div
 					if(tmp.reset === true) {

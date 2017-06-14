@@ -220,10 +220,15 @@ class OrderController extends BPCPageAbstract
 			}
 			$sql = 'select sum(`ord`.totalAmount) `totalAmount`, sum(`ord`.totalPaid) `totalPaid`, sum(`ord`.totalCreditNoteValue) `totalCreditNoteValue`, sum(pay.value) `paidViaCredit` from `order` ord ' . implode(' ', $innerJoinStrings) . ' left join payment pay on (pay.storeId = ord.storeId = pay.active = 1 and pay.orderId = ord.id and methodId = ' . PaymentMethod::ID_STORE_CREDIT. ')  where ord.active = 1 AND (' . implode(' AND ', $where) . ')';
 			$sumResult = Dao::getResultsNative($sql, $params);
+			$sqlRefund = 'select sum(pay.value) `totalRefund` from `order` ord ' . implode(' ', $innerJoinStrings) . ' left join creditnote cre on (cre.storeId = ord.storeId = cre.active = 1 and cre.orderId = ord.id ) left join payment pay on (pay.storeId = ord.storeId = pay.active = 1 and pay.creditNoteId = cre.id)  where ord.active = 1 AND (' . implode(' AND ', $where) . ')';
+			$sumResultRefund = Dao::getResultsNative($sqlRefund, $params);
+			
 			$results['totalAmount'] = count($sumResult) > 0 ? $sumResult[0]['totalAmount'] : 0;
 			$results['totalPaid'] = count($sumResult) > 0 ? $sumResult[0]['totalPaid'] : 0;
 			$results['totalCreditNoteValue'] = count($sumResult) > 0 ? $sumResult[0]['totalCreditNoteValue'] : 0;
 			$results['paidViaCredit'] = count($sumResult) > 0 ? $sumResult[0]['paidViaCredit'] : 0;
+			$results['totalRefund'] = count($sumResultRefund) > 0 ? $sumResultRefund[0]['totalRefund'] : 0;
+			
 		}
 		catch(Exception $ex)
 		{

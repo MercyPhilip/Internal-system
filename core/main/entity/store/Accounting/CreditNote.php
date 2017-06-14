@@ -325,7 +325,7 @@ class CreditNote extends BaseEntityAbstract
 	public function postSave()
 	{
 		if(trim($this->getCreditNoteNo()) === '') {
-			$this->setCreditNoteNo('BPCC' . str_pad($this->getId(), 8, '0', STR_PAD_LEFT))
+			$this->setCreditNoteNo('HBMC' . str_pad($this->getId(), 8, '0', STR_PAD_LEFT))
 				->save();
 			if($this->getOrder() instanceof Order) {
 				$msg = "An Credit Note(" . $this->getCreditNoteNo() . ") has created for this order";

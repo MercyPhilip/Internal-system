@@ -346,7 +346,7 @@ class Order extends InfoEntityAbstract
 	 */
 	public function getTotalDue()
 	{
-		return round($this->getTotalAmount() - $this->getTotalPaid() - $this->getTotalCreditNoteValue(), 4);
+		return round($this->getTotalAmount() - $this->getTotalPaid(), 4);
 	}
 	/**
 	 * Getter for shippingAddr
@@ -629,7 +629,7 @@ class Order extends InfoEntityAbstract
 	public function postSave()
 	{
 		if(trim($this->getOrderNo()) === '') {
-			$this->setOrderNo('BPCM' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT))
+			$this->setOrderNo('HBMM' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT))
 				->setMargin($this->getCalculatedTotalMargin())
 				->save();
 		}

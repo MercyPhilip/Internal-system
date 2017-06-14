@@ -149,6 +149,7 @@ class CreditNotePrintController extends BPCPageAbstract
 		$html .= $address->getContactName() . '<br />';
 		$html .= $address->getStreet() . '<br />';
 		$html .= $address->getCity() . ' ' . $address->getRegion() . ' ' . $address->getPostCode() . '<br />';
+		$html .= locale_get_display_region('-'.$address->getCountry(), 'en'). '<br />';
 		$html .= 'Tel: ' . ($this->getContact() === '' ? trim($address->getContactNo()) : $this->getContact());
 		return $html;
 	}
@@ -168,10 +169,10 @@ class CreditNotePrintController extends BPCPageAbstract
 		$html .= $this->_getPaymentSummaryRow('Sub Total Incl. GST:', '$' . number_format($totalWithOutShipping, 2, '.', ','), 'grandTotal');
 		$html .= $this->_getPaymentSummaryRow('Shipping Incl. GST:', '$' . number_format((double)$shippingCostIncGST, 2, '.', ','), 'grandTotal');
 		$html .= $this->_getPaymentSummaryRow('<strong>Grand Total Incl. GST:</strong>', '<strong>$' . number_format((double)$total, 2, '.', ',') . '</strong>', 'grandTotal');
-		$html .= $this->_getPaymentSummaryRow('Paid to Date:', '$' . number_format($this->creditNote->getTotalPaid(), 2, '.', ','), 'paidTotal');
-		$overDue = $total - $this->creditNote->getTotalPaid();
+		$html .= $this->_getPaymentSummaryRow('Refund:', '$' . number_format($this->getRefund(), 2, '.', ','), 'paidTotal');
+		$overDue = $total - $this->getRefund();
 		$overDueClass = $overDue > 0 ? 'overdue' : '';
-		$html .= $this->_getPaymentSummaryRow('<strong class="text-danger">Balance Due:</strong>', '<strong class="text-danger">-$' . number_format($overDue, 2, '.', ',') . '</strong>', 'dueTotal ' . $overDueClass);
+		$html .= $this->_getPaymentSummaryRow('<strong class="text-danger">Balance Due:</strong>', '<strong class="text-danger">$' . number_format($overDue, 2, '.', ',') . '</strong>', 'dueTotal ' . $overDueClass);
 		return $html;
 	}
 	/**
@@ -199,6 +200,20 @@ class CreditNotePrintController extends BPCPageAbstract
 	{
 		$comments = Comments::getAllByCriteria('entityId = ? and entityName = ? and type = ?', array($this->creditNote->getId(), get_class($this->creditNote), Comments::TYPE_SALES), true, 1, 1, array('id' => 'desc'));
 		return count($comments) === 0 ? '' : $comments[0]->getComments();
+	}
+	/**
+	 * get refund amount
+	 */
+	public function getRefund()
+	{
+		$totalRefund = 0;
+		$payments = Payment::getAllByCriteria('creditNoteId = ?', array($this->creditNote->getId()));
+		if (count($payments) > 0){
+			foreach ($payments as $payment){
+				$totalRefund += $payment->getValue();
+			}
+		}
+		return $totalRefund;
 	}
 }
 ?>
