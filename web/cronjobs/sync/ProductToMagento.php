@@ -623,21 +623,21 @@ abstract class ProductToMagento
    				"msrp" => 'Use config', //
    				"gift_wrapping_price" => '',
    				"qty" => $qtyOnline, 
-   				"min_qty" => 1,  //99
-   				"use_config_min_qty" => 1,  //99
+   				"min_qty" => 0,  //99
+   				"use_config_min_qty" => '',  //99
    				"is_qty_decimal"  => '',
    				"backorders" => '',
    				"use_config_backorders" => '',
-   				"min_sale_qty" => '',
+   				"min_sale_qty" => '1',
    				"use_config_min_sale_qty" => $totalStockOnHand,
    				"max_sale_qty" => '',
    				"use_config_max_sale_qty" => '',
    				"all_ln_stock" => $statusId,
-   				"is_in_stock" => $statusId == ProductStatus::get(8)->getName()? 0: 1, //1 - in-stock, 0 - out of stock
+   				"is_in_stock" => $statusId == ProductStatus::get(8)->getName()? '0': '1', //1 - in-stock, 0 - out of stock
    				"low_stock_date" => '',
    				"notify_stock_qty" => '',
    				"use_config_notify_stock_qty" => '',
-   				"manage_stock" => '',
+   				"manage_stock" => '1',
    				"use_config_manage_stock" => '',
    				"stock_status_changed_auto" => '',
    				"use_config_qty_increments" => '',
