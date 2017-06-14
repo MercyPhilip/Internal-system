@@ -684,11 +684,11 @@ class Order extends InfoEntityAbstract
 		$storeId = Core::getUser()->getStore()->getId();
 		if ($storeId == 1)
 		{
-			$invNo = 'BPCINV' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
+			$invNo = 'HBMNV' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
 		}
 		else
 		{
-			$invNo = '2BPCINV' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
+			$invNo = '2HBMINV' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
 		}
 		return $this->setType(Order::TYPE_INVOICE)
 			->setMargin($totalMargin)
