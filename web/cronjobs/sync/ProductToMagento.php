@@ -633,7 +633,7 @@ abstract class ProductToMagento
    				"max_sale_qty" => '',
    				"use_config_max_sale_qty" => '',
    				"all_ln_stock" => $statusId,
-   				"is_in_stock" => 1, //1 - in-stock, 0 - out of stock
+   				"is_in_stock" => $statusId == ProductStatus::get(8)->getName()? 0: 1, //1 - in-stock, 0 - out of stock
    				"low_stock_date" => '',
    				"notify_stock_qty" => '',
    				"use_config_notify_stock_qty" => '',
