@@ -153,7 +153,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		if(!category.position)
 			return tmp.newDiv;
 		
-		tmp.levels = category.position.split('|').size();
+		tmp.levels = category.position.split('/').size();
 		tmp.newDiv = new Element('small');
 		for(tmp.i = 1; tmp.i < tmp.levels; tmp.i = (tmp.i * 1 + 1)) {
 			tmp.newDiv.insert({'bottom': new Element('span', {'class': 'treegrid-indent'}) });

@@ -1,5 +1,5 @@
 <div class="container">
-	<a href="/">Hobby Master</a>
+	<a href="/"><%= Config::get('PDFInvoice','CompanyDetail')['Name'] %></a>
 	 <span class="footerlogo navbar-right">
 		 <span class="copyright">&copy; 
 			<script language="JavaScript" type="text/javascript">
