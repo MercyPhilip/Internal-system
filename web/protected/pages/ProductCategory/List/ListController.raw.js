@@ -135,6 +135,9 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 						tmp.row = $(btn).up('.item_row');
 						tmp.result.items.each(function(item) {
 							tmp.row.insert({'after': tmp.me._getResultRow(item).addClassName('item_row').writeAttribute('item_id', item.id)})
+							if(item.noOfChildren > 0) {
+								jQuery('[item_id='+item.id+'] .icon').removeClass('glyphicon-minus-sign').addClass('glyphicon-plus-sign');
+                            }
 						})
 					
 					} catch (e) {
@@ -160,9 +163,10 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		}
 		if(category.noOfChildren > 0) {
 			tmp.newDiv.insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'class': 'treegrid-explander'})
-				.update( new Element('span', {'class': 'icon glyphicon glyphicon-plus-sign'}) ) 
+				.update( new Element('span', {'class': 'icon glyphicon glyphicon-minus-sign'}) ) 
 				.observe('click', function(){
 					tmp.me._getChildrenRows(this, category);
+					tmp.btn = this;
 				})
 			});
 		} else {
