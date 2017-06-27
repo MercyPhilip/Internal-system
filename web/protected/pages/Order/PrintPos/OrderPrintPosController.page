@@ -5,22 +5,22 @@
                     <td colspan=2>
                         <div>
                             <span class="inlineblock logo">
-                                <img src="/themes/default/images/logo.png" style="padding: 0px; width:280px; margin: 0px;display: block;"/>
+                                <img src=<%= Config::get('PDFInvoice','LogoUrl') %> style="padding: 0px; width:280px; margin: 0px;display: block;"/>
                             </span>
                         </div>
                         <div align="center">
                         	<span class="inlineblock info">
-                        	<div class="cname"><%= Core::getUser()->getStore()->getId() == 1 ? 'Mount Waverley Store' : 'Heatherton Store'%></div>
+                        	<div class="cname"><%= Core::getUser()->getStore()->getName() . ' Store'%></div>
                         	</span>
 							</div>
 							<div align="center">
                         	<span class="inlineblock info">
-                        	<div class="abn"><%= Core::getUser()->getStore()->getId() == 1 ? 'ABN 29 133 654 761' : 'ABN 38 593 286 893'%></div>
+                        	<div class="abn"><%= 'ABN ' . Config::get('PDFInvoice','CompanyDetail')['ABN'] %></div>
                         	</span>
 							</div>
 							<div align="center">
                         	<span class="inlineblock info">
-                        	 <div class="tel">PH: (03) 9541 9000</div>
+                        	 <div class="tel"><%= 'PH: ' . Config::get('PDFInvoice','CompanyDetail')['Phone'] %></div>
                         	</span> 
                         </div>
 							<div align="center">
@@ -97,12 +97,12 @@
                             <span class="payment_details inlineblock">                                
                                 <div class="bank_details box">
                                 <p class="sep-line"></p>
-                                    <span class="bank_title"><%= Core::getUser()->getStore()->getId() == 1 ? 'Budget PC Bank Details:' : 'Gu Group Bank Details:' %> </span>
-                                    <span class="bank_details_name"><span class="details_title">Account Name: </span><%= Core::getUser()->getStore()->getId() == 1 ? 'Budget PC Pty Ltd' : 'Gu Group Pty Ltd'%></span>
+                                    <span class="bank_title"><%= Config::get('PDFInvoice','CompanyDetail')['Name'] . ' Bank Details' %> </span>
+                                    <span class="bank_details_name"><span class="details_title">Account Name: </span><%= Config::get('PDFInvoice','BankDetail')['AccName'] %></span>
                                 </div>
                                 <div class="bank_details box">
-                                    <span class="bank_details_acc_bsb"><span class="details_title">BSB:</span><%= Core::getUser()->getStore()->getId() == 1 ? '013366' : '013268'%></span>
-                                    <span class="bank_details_acc_no"><span class="details_title">ACC:</span><%= Core::getUser()->getStore()->getId() == 1 ? '479674364' : '461737021'%></span>
+                                    <span class="bank_details_acc_bsb"><span class="details_title">BSB:</span><%= Config::get('PDFInvoice','BankDetail')['Bsb'] %></span>
+                                    <span class="bank_details_acc_no"><span class="details_title">ACC:</span><%= Config::get('PDFInvoice','BankDetail')['AccNo'] %></span>
                                 </div>
                             </span>
                         </div>
@@ -112,7 +112,7 @@
                     <td colspan=2 align=center>
                         <div class="order_tc box">
                             <p class="sep-line"></p>
-                            <div class="tc_title">Terms: check http://budgetpc.com.au/terms for full details.</div>
+                            <div class="tc_title">Terms: check <%= Config::get('PDFInvoice','CompanyDetail')['Website'] . '/terms' %> for full details.</div>
                         </div>
                     </td>
                 </tr>
@@ -121,17 +121,10 @@
                         <div class="order_company_details">
                         <p class="sep-line"></p>
                             <div class="addr">
-                                <span class="addr"><span class="details_title"><%= Core::getUser()->getStore()->getId() == 1 ? "Mount Waverley" : "Heatherton" %></span><%= Core::getUser()->getStore()->getId() == 1 ? "Unit 111, 45 Gilby Rd, Mt Waverley" : "Unit 29, 1 Kingston Rd, Heatherton" %></span>
-                                <span class="phone"><span class="details_title">PH</span><%=Core::getUser()->getStore()->getId() == 1 ? "+61 3 9541 9000" : "+61 3 9551 8635"%> </span>
+                                <span class="addr"><span class="details_title">Address</span><%= Config::get('PDFInvoice','CompanyDetail')['Addr'] %></span>
+                                <span class="phone"><span class="details_title">PH</span><%= Config::get('PDFInvoice','CompanyDetail')['Phone'] %> </span>
                                 <span class="url details_title">
-                                    www.budgetpc.com.au
-                                </span>
-                            </div>
-                            <div class="addr">
-                                <span class="addr"><span class="details_title"><%= Core::getUser()->getStore()->getId() == 1 ? "Heatherton" : "Mount Waverley" %></span><%= Core::getUser()->getStore()->getId() == 1 ? "Unit 29, 1 Kingston Rd, Heatherton" : "Unit 111, 45 Gilby Rd, Mt Waverley" %></span>
-                                <span class="phone"><span class="details_title">PH</span><%=Core::getUser()->getStore()->getId() == 1 ? "+61 3 9551 8635" : "+61 3 9541 9000" %> </span>
-                                <span class="url details_title">
-                                    www.budgetpc.com.au
+                                    <%= Config::get('PDFInvoice','CompanyDetail')['Website'] %>
                                 </span>
                             </div>
                         </div>

@@ -6,7 +6,7 @@
         <span class="icon-bar"></span>
         <span class="icon-bar"></span>
       </button>
-      <a class="navbar-brand" href="/">HobbyMaster</a>
+      <a class="navbar-brand" href="/"><%= Config::get('PDFInvoice','CompanyDetail')['Name'] %></a>
     </div>
     <div class="collapse navbar-collapse mainMenu">
 	    <com:Application.layout.Menu.Menu ID="Menu"/>

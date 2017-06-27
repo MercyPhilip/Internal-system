@@ -3,7 +3,7 @@
     <div class="container">
         <div class="form-signin" role="form">
 	        <h3 class="form-group form-signin-heading text-center">
-	           <img src="/themes/default/images/logo.png" />
+	           <img src= <%= Config::get('PDFInvoice','LogoUrl') %> />
 	        </h3>
 	        <div class="form-group input-group input-group-lg" title="Username">
 	            <span class="input-group-addon"><span class="glyphicon glyphicon-user"></span></span>

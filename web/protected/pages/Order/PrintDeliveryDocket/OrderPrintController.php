@@ -137,5 +137,15 @@ class OrderPrintController extends BPCPageAbstract
 		$html .= '</div>';
 		return $html;
 	}
+	public function getTermsCondition()
+	{
+		$terms = Config::get('PDFInvoice','TermsCondition');
+		$html = '';
+		foreach ($terms as $term){
+			$html .= '<li>' . $term . '</li>';
+		}
+		
+		return $html;
+	}
 }
 ?>
