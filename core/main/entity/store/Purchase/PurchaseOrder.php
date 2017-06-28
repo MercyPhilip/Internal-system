@@ -8,7 +8,7 @@
 */
 class PurchaseOrder extends BaseEntityAbstract
 {
-	const PO_NO_PRE = Config::get('Prefix','PO');
+// 	const PO_NO_PRE = Config::get('Prefix','PO');
 	const STATUS_NEW = 'NEW';
 	const STATUS_ORDERED = 'ORDERED';
 	const STATUS_RECEIVING = 'RECEIVING';
@@ -483,7 +483,7 @@ class PurchaseOrder extends BaseEntityAbstract
 	public function postSave()
 	{
 		if(trim($this->getPurchaseOrderNo()) === '') {
-			$this->setPurchaseOrderNo(self::PO_NO_PRE . str_pad($this->getId(), 6, '0', STR_PAD_LEFT))
+			$this->setPurchaseOrderNo(Config::get('Prefix','PO') . str_pad($this->getId(), 6, '0', STR_PAD_LEFT))
 			->save();
 		}
 		//if the order status is ordered, then calculated the

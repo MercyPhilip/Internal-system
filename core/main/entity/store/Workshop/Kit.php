@@ -1,7 +1,7 @@
 <?php
 class Kit extends BaseEntityAbstract
 {
-	const BARCODE_PREFIX = Config::get('Prefix','Barcode');
+// 	const BARCODE_PREFIX = Config::get('Prefix','Barcode');
 	/**
 	 * Task of the kit
 	 *
@@ -362,7 +362,7 @@ class Kit extends BaseEntityAbstract
 	public function postSave()
 	{
 		if(trim($this->getBarcode()) === '') {
-			$this->setBarcode(self::BARCODE_PREFIX .str_pad($this->getId(), 8, '0', STR_PAD_LEFT))
+			$this->setBarcode(Config::get('Prefix','Barcode') .str_pad($this->getId(), 8, '0', STR_PAD_LEFT))
 				->save()
 				->addComment('A Kit [' . $this->getBarcode() . '] created.' . ($this->getTask() instanceof Task ? ' from Task(ID=' . $this->getTask()->getId() . ')' : ''));
 		}
