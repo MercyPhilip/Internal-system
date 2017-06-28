@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SERVER=nav-demo.budgetpc.com.au/
+SERVER=nav-demo.budgetpc.com.au
 SERVER_PATH=/var/www/html/var/import/
 FILE_DIR=/tmp/
 FILE_NAME=productUpdate.tar.gz
