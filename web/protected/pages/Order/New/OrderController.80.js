@@ -36,6 +36,11 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	 */
 	,setConfigGst: function(gstSetting) {
 		this._gstSetting = gstSetting;
+		if (this._gstSetting == 'INC'){
+			this._gstText = 'inc GST';
+		}else{
+			this._gstText = 'ex GST';
+		}
 		return this;
 	}
 	/**
@@ -1387,13 +1392,13 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		//header row
 		tmp.productListDiv = new Element('div', {'class': 'list-group order_item_list_table'})
 			.insert({'bottom': tmp.me._getProductRow({'product': {'sku': 'SKU', 'name': 'Description', 'shortDescription': 'Description'},
-				'unitPrice': 'Unit Price<div><small>(inc GST)</small><div>',
-				'tierPrice': 'Tier Price<div><small>(inc GST)</small><div>',
-				'retailPrice': 'Retail Price<div><small>(inc GST)</small><div>',
+				'unitPrice': 'Unit Price<div><small>(' + tmp.me._gstText + ')</small><div>',
+				'tierPrice': 'Tier Price<div><small>(' + tmp.me._gstText + ')</small><div>',
+				'retailPrice': 'Retail Price<div><small>(' + tmp.me._gstText + ')</small><div>',
 				'qtyOrdered': 'Qty',
 				'margin': 'Margin',
 				'discount': 'Disc. %',
-				'totalPrice': 'Total Price<div><small>(inc GST)</small><div>'
+				'totalPrice': 'Total Price<div><small>(' + tmp.me._gstText + ')</small><div>'
 				,'btns': new Element('div')
 					.insert({'bottom': new Element('label', {'for': 'hide-margin-checkbox'}).update('Show Margin ') })
 					.insert({'bottom': new Element('input', {'id': 'hide-margin-checkbox', 'type': 'checkbox', 'checked': false})

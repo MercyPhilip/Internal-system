@@ -68,6 +68,18 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		this._roleId = roleId;
 		return this;
 	}
+	/**
+	 * setting GST config 
+	 */
+	,setConfigGst: function(gstSetting) {
+		this._gstSetting = gstSetting;
+		if (this._gstSetting == 'INC'){
+			this._gstText = 'Inc';
+		}else{
+			this._gstText = 'Ex';
+		}
+		return this;
+	}
 
 	/* *** This function sets all the couriers to the class property *** */
 	,setCourier: function(couriers, _courier_LocalPickUpId) {
@@ -704,7 +716,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.me = this;
 		//header row
 		tmp.productListDiv = new Element('table', {'class': 'table table-hover table-condensed order_change_details_table'})
-			.insert({'bottom': tmp.me._getProductRow({'product': {'sku': 'SKU', 'name': 'Product Name'}, 'unitPrice': 'Unit Price Inc', 'margin': 'Margin', 'qtyOrdered': 'Qty', 'totalPrice': 'Total Price Inc'}, true)
+			.insert({'bottom': tmp.me._getProductRow({'product': {'sku': 'SKU', 'name': 'Product Name'}, 'unitPrice': 'Unit Price ' + tmp.me._gstText, 'margin': 'Margin', 'qtyOrdered': 'Qty', 'totalPrice': 'Total Price ' + tmp.me._gstText }, true)
 				.wrap( new Element('thead') )
 			});
 

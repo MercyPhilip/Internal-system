@@ -275,7 +275,7 @@ class OrderController extends BPCPageAbstract
 
 				if(intval($item->active) === 1)
 				{
-					$totalPaymentDue += $totalPrice;
+					$totalPaymentDue += $totalPrice * 1.1;
 					if($orderCloneFrom instanceof Order || !($orderItem = OrderItem::get($item->id)) instanceof OrderItem)
 					{
 						$orderItem = OrderItem::create($order, $product, $unitPrice, $qtyOrdered, $totalPrice, 0, null, $itemDescription);

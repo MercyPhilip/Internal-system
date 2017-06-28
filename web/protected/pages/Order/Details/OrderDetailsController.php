@@ -73,6 +73,7 @@ class OrderDetailsController extends BPCPageAbstract
 			$js .= '.setCommentType("'. Comments::TYPE_PURCHASING . '", "' . Comments::TYPE_WAREHOUSE . '")';
 			$js .= '.setOrderStatusIds(['. OrderStatus::ID_NEW . ', ' . OrderStatus::ID_INSUFFICIENT_STOCK . '], ['. OrderStatus::ID_ETA . ', ' . OrderStatus::ID_STOCK_CHECKED_BY_PURCHASING . ', ' . OrderStatus::ID_INSUFFICIENT_STOCK . '], ['. OrderStatus::ID_PICKED . '])';
 			$js .= '.setRoleId('. Core::getRole()->getId() .')';
+			$js .= ".setConfigGst(" . json_encode(Config::get('Accounting', 'GST')) . ")";
 			$js .= '.init("detailswrapper")';
 			$js .= '.load();';
 		return $js;
