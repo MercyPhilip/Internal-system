@@ -47,6 +47,13 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		return this;
 	}
 	/**
+	 * setting Act-on config 
+	 */
+	,setConfigActon: function(actonSetting) {
+		this._actonSetting = actonSetting;
+		return this;
+	}
+	/**
 	 * Binding the search key
 	 */
 	,_bindSearchKey: function() {
@@ -178,6 +185,20 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				);
 		return tmp.me;
 	}
+	,_bindAddCustomerBtn: function(btn) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.btn = (btn || $('newBtn'));
+		
+		tmp.me.observeClickNDbClick(
+				tmp.btn
+				,function(){
+					tmp.me._openEditPage();
+				}
+				,null
+		);
+		return tmp.me;
+	}
 	/**
 	 * get selected
 	 */
@@ -207,7 +228,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		tmp.tag = (isTitle === true ? 'th' : 'td');
 		tmp.isTitle = (isTitle || false);
 		tmp.row = new Element('tr', {'class': (tmp.isTitle === true ? 'item_top_row' : 'btn-hide-row item_row') + (row.active == 0 ? ' danger' : ''), 'item_id': (tmp.isTitle === true ? '' : row.id)}).store('data', row)
-			.insert({'bottom': new Element(tmp.tag, {'class': 'name col-xs-1'})
+			.insert({'bottom': new Element(tmp.tag, {'class': 'name' + tmp.me._actonSetting == 1 ? 'col-xs-1' : 'col-xs-2'})
 				.insert({'bottom': tmp.isTitle == true? '' : new Element('span').setStyle('margin: 0 5px 0 0')
 					.insert({'bottom': new Element('input', {'type': 'checkbox', 'class': 'customer-selected'})
 						.observe('click', function(e){
@@ -256,7 +277,6 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'description col-xs-1'}).update(row.description) });
 
 		if(row.hasOwnProperty('message')){	
-//			console.log(row.message);
 			for(var n = row.message.length; n--;) {
 				tmp.row = tmp.row.insert({'bottom': new Element(tmp.tag, {'class': 'message col-xs-1','style': 'width: 12%'})
 					.insert({'bottom': tmp.isTitle === true ? new Element('div',{'style': 'width: 100%'}).insert({'bottom': row.message[n].title })
@@ -292,18 +312,19 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 			.insert({'bottom': new Element(tmp.tag, {'class': 'mageId col-xs-1'}).update(row.mageId) })
 			.insert({'bottom': new Element(tmp.tag, {'class': 'cust_active col-xs-1'})
 				.insert({'bottom': (tmp.isTitle === true ? row.active : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.active}) ) })
-			})	
-			.insert({'bottom': new Element(tmp.tag, {'class': 'grouping col-xs-1'})
-				.insert({'bottom': (tmp.isTitle === true ? row.groupCom : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.groupCom}) ) })
-			})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'grouping col-xs-1'})
-				.insert({'bottom': (tmp.isTitle === true ? row.groupEdu : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.groupEdu}) ) })
-			})
-			.insert({'bottom': new Element(tmp.tag, {'class': 'grouping col-xs-1'})
-				.insert({'bottom': (tmp.isTitle === true ? row.groupGame : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.groupGame}) ) })
-			})			
-			
-			.insert({'bottom': new Element(tmp.tag, {'class': 'text-right col-xs-1'}).update(
+			});
+			if(tmp.me_actonSetting == 1){
+				tmp.row = tmp.row.insert({'bottom': new Element(tmp.tag, {'class': 'grouping col-xs-1'})
+					.insert({'bottom': (tmp.isTitle === true ? row.groupCom : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.groupCom}) ) })
+				})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'grouping col-xs-1'})
+					.insert({'bottom': (tmp.isTitle === true ? row.groupEdu : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.groupEdu}) ) })
+				})
+				.insert({'bottom': new Element(tmp.tag, {'class': 'grouping col-xs-1'})
+					.insert({'bottom': (tmp.isTitle === true ? row.groupGame : new Element('input', {'type': 'checkbox', 'disabled': true, 'checked': row.groupGame}) ) })
+				})			
+			}
+			tmp.row = tmp.row.insert({'bottom': new Element(tmp.tag, {'class': 'text-center col-xs-1'}).update(
 				tmp.isTitle === true ?  
 				(new Element('span', {'class': 'btn btn-primary btn-xs', 'title': 'New'})
 					.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-plus'}) })
@@ -313,7 +334,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					})
 				)
 				: (new Element('span', {'class': 'btn-group btn-group-xs'})
-					.insert({'bottom': new Element('span', {'class': 'btn btn-default', 'title': 'Edit'})
+					.insert({'bottom': new Element('span', {'class': 'btn btn-default', 'title': 'Edit', 'style' : (tmp.me._actonSetting == 0 ? 'width: 50px' : 'width: 24px')})
 						.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-pencil'}) })
 						.observe('click', function(){
 							$$('.popover-loaded').each(function(item){
@@ -322,7 +343,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 							tmp.me._openEditPage(row);
 						})
 					})
-					.insert({'bottom': new Element('span', {'class': 'btn btn-danger', 'title': 'Delete'})
+					.insert({'bottom': new Element('span', {'class': 'btn btn-danger', 'title': 'Delete', 'style' : (tmp.me._actonSetting == 0 ? 'width: 50px' : 'width: 24px')})
 						.insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-trash'}) })
 						.observe('click', function(){
 							if(!confirm('Are you sure you want to deactivate this item?'))
@@ -505,7 +526,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					return;
 
 				if(tmp.result.enable == 0){
-					jQuery('#integrateActonBtn','#respondingNum').hide();
+					jQuery('.grouping').hide();
 				}
 			}
 			,'onComplete': function(){}

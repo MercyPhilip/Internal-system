@@ -346,7 +346,7 @@ class Order extends InfoEntityAbstract
 	 */
 	public function getTotalDue()
 	{
-		return round($this->getTotalAmount() - $this->getTotalPaid(), 4);
+		return round($this->getTotalAmount() - $this->getTotalPaid() - $this->getTotalCreditNoteValue(), 4);
 	}
 	/**
 	 * Getter for shippingAddr
@@ -629,7 +629,7 @@ class Order extends InfoEntityAbstract
 	public function postSave()
 	{
 		if(trim($this->getOrderNo()) === '') {
-			$this->setOrderNo('HBMM' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT))
+			$this->setOrderNo(Config::get('Prefix','OrderManual') .str_pad($this->getId(), 8, '0', STR_PAD_LEFT))
 				->setMargin($this->getCalculatedTotalMargin())
 				->save();
 		}
@@ -684,11 +684,11 @@ class Order extends InfoEntityAbstract
 		$storeId = Core::getUser()->getStore()->getId();
 		if ($storeId == 1)
 		{
-			$invNo = 'HBMNV' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
+			$invNo = Config::get('Prefix','Invoice').str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
 		}
 		else
 		{
-			$invNo = '2HBMINV' .str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
+			$invNo = '2' . Config::get('Prefix','Invoice') .str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
 		}
 		return $this->setType(Order::TYPE_INVOICE)
 			->setMargin($totalMargin)

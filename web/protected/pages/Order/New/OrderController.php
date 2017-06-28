@@ -59,6 +59,7 @@ class OrderController extends BPCPageAbstract
 			$js .= ".setPaymentMethods(" . json_encode($paymentMethods) . ")";
 			$js .= ".setShippingMethods(" . json_encode($shippingMethods) . ")";
 			$js .= ".setOrderTypes(" . json_encode(Order::getAllTypes()) . ")";
+			$js .= ".setConfigGst(" . json_encode(Config::get('Accounting', 'GST')) . ")";
 		if($cloneOrder instanceof Order) {
 			$clonOrderArray = $cloneOrder->getJson();
 			//$clonOrderArray['items'] = array_map(create_function('$a', 'return $a->getJson();'), OrderItem::getAllByCriteria('orderId = ?', array($cloneOrder->getId())));

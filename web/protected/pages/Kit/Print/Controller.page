@@ -7,7 +7,7 @@
                     <tr class="title_row">
                         <td colspan=6>
                             <div class="col-xs-8">
-                                 <img src="/themes/default/images/logo.png" style="padding: 0px; margin: 0px;display: block;"/>
+                                 <img src=<%= Config::get('PDFInvoice','LogoUrl') %> style="padding: 0px; margin: 0px;display: block;"/>
                             </div>
                             <div class="col-xs-4">
                             	<div class="text-center"><strong>KIT: </strong></div>

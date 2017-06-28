@@ -8,7 +8,7 @@
 */
 class PurchaseOrder extends BaseEntityAbstract
 {
-	const PO_NO_PRE = 'BPO_';
+	const PO_NO_PRE = Config::get('Prefix','PO');
 	const STATUS_NEW = 'NEW';
 	const STATUS_ORDERED = 'ORDERED';
 	const STATUS_RECEIVING = 'RECEIVING';

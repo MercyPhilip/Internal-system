@@ -4,6 +4,7 @@
 <com:Application.controls.select2.select2 />
 <com:TCallback ID="deactivateItemBtn" OnCallback = 'Page.deactivateItems' />
 <com:TCallback ID="mergeBtn" OnCallback = 'Page.mergeCustomers' />
+<com:TCallback ID="newBtn" OnCallback = 'Page.addCustomer' />
 <com:TCallback ID="integrateActonBtn" OnCallback = 'Page.integrateActon' />
 <com:TCallback ID="updateActon" OnCallback = 'Page.updateActon' />
 <com:TCallback ID="checkActOnEnable" OnCallback = 'Page.checkActOnEnable' />
@@ -13,7 +14,8 @@
 				<label for="showSearch">Show Search Criteria?</label>
 				<input id="showSearch" type="checkbox" checked onclick="$(this).up('#searchPanel').down('.panel-body').toggle();">
 				<span class="pull-right btn-group">
-					<span id="integrateActonBtn"  class="btn btn-success btn-sm" data-loading-text="integrating ..."  onclick="pageJs.integrateActon(this);">Push list to Act-On</span>
+					<span id="newBtn" class="btn btn-warning btn-sm" data-loading-text="adding ..." >Add Customer</span>
+					<%= Config::get('Acton','Enable') == 1 ? '<span id="integrateActonBtn"  class="btn btn-success btn-sm" data-loading-text="integrating ..."  onclick="pageJs.integrateActon(this);">Push list to Act-On</span>' : '' %>
 					<span id="mergeBtn" class="btn btn-info btn-sm" data-loading-text="merging ..." >Merge Customers</span>
 					<span id="searchBtn" class="btn btn-primary btn-sm" data-loading-text="searching ..." >Search</span>
 				</span>
@@ -46,7 +48,8 @@
 					</div>
 				</div>
 		
-				<div class="row">
+				<%= Config::get('Acton','Enable') == 1 ?  
+				'<div class="row">
 					<div class="col-sm-2">
 						<div class="form-group form-group-sm input-group">
                            <label id="labelGen" class="input-group-addon">General Group:</label>
@@ -79,19 +82,18 @@
 	                            </div>
                        </div>
 					</div>
-                        <div id="respondingNum" class="col-sm-1">
-							<div class="form-group form-group-sm input-group">
-				                <label class="contorl-label input-group-addon" title="Opened And Clicked Number">Responding Num</label>
-				                <select search_field="cust.num" class="chosen form-control input-sm">
-				                	<option value="2">All</option>
-				                	<option value="0">=0</option>
-                               		<option value="1">>0</option>
-				                </select>
-	                        </div>
-                        </div>					
-					
-					
-				</div>				
+                    <div id="respondingNum" class="col-sm-1">
+						<div class="form-group form-group-sm input-group">
+			                <label class="contorl-label input-group-addon" title="Opened And Clicked Number">Responding Num</label>
+			                <select search_field="cust.num" class="chosen form-control input-sm">
+			                	<option value="2">All</option>
+			                	<option value="0">=0</option>
+                           		<option value="1">>0</option>
+			                </select>
+                        </div>
+                    </div>					
+				</div>' : '' %>
+						
 			</div>
 		</div>
 		<div class="panel panel-default list-panel">

@@ -8,7 +8,7 @@ return array(
 			'Password' => 'root'
 		),
 	'PriceMatch' => array(
-			'Enable' => 1
+			'Enable' => 0
 	),
 	'DebugMode' => array(
 			'Enable' => 1
@@ -40,6 +40,16 @@ return array(
 					,'Are you happy with our service? Please send us your feedback. <a href="mailto:sales@nav-demo.budgetpc.com.au">sales@nav-demo.budgetpc.com.au</a>'
 			)
 	),
+	'Accounting' => array(
+			'GST' => 'EX', // EX - exclude gst, INC - include gst
+	),
+	'Prefix'	 => array(
+			'OrderManual' => 'NTM',
+			'Invoice' 	  => 'NTINV',
+			'PO'	  	  => 'NTP',
+			'Barcode' 	  => 'NTB',
+			'CreditNote'  => 'NTC',
+	)	
 );
 
 ?>

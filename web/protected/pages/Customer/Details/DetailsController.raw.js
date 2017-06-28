@@ -20,6 +20,13 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		return this;
 	}
 	/**
+	 * setting Act-on config 
+	 */
+	,setConfigActon: function(actonSetting) {
+		this._actonSetting = actonSetting;
+		return this;
+	}
+	/**
 	 * This function should return you the edit div for this item
 	 */
 	,_getItemDiv: function() {
@@ -131,8 +138,9 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					$(this).up('.panel').down('.panel-body').toggle();
 				})
 			})
-			.insert({'bottom': new Element('div', {'class': 'panel-body'})
-				.insert({'bottom': new Element('div', {'class': 'row'})
+			.insert({'bottom': new Element('div', {'class': 'panel-body'}) });
+		
+				tmp.childDiv = new Element('div', {'class': 'row'})
 					.insert({'bottom': new Element('div', {'class': 'col-sm-3'}).update(tmp.me._getFormGroup('Company Name / Customer Name', new Element('input', {'required': true, 'save-item': 'name', 'type': 'text', 'value': tmp.item.name ? tmp.item.name : ''}) ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Email', new Element('input', {'save-item': 'email', 'type': 'email', 'value': tmp.item.email ? tmp.item.email : ''}) ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Contact No?', new Element('input', {'save-item': 'contactNo', 'type': 'value', 'value': tmp.item.contactNo ? tmp.item.contactNo : ''}) ) ) })
@@ -143,17 +151,19 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 						})
 					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Tier Level', tmp.me._getTierSelBox() ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('IsBlocked?', new Element('input', {'save-item': 'isBlocked', 'type': 'checkbox', 'checked': tmp.item.isBlocked ? tmp.item.isBlocked : false}) ) ) })
-					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Active?', new Element('input', {'save-item': 'active', 'type': 'checkbox', 'checked': tmp.item.active ? tmp.item.active : false}) ) ) })
-				})
+					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Active?', new Element('input', {'save-item': 'active', 'type': 'checkbox', 'checked': tmp.item.active ? tmp.item.active : false}) ) ) });
+				
 				// Add for grouping customers by philip
-				.insert({'bottom': new Element('div', {'class': 'row'})
-					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Commercial Group', new Element('input', {'save-item': 'groupCom', 'type': 'checkbox', 'checked': tmp.item.groupCom ? tmp.item.groupCom : false}) ) ) })
-					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Educational Group', new Element('input', {'save-item': 'groupEdu', 'type': 'checkbox', 'checked': tmp.item.groupEdu ? tmp.item.groupEdu : false}) ) ) })
-					.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Gaming Group', new Element('input', {'save-item': 'groupGame', 'type': 'checkbox', 'checked': tmp.item.groupGame ? tmp.item.groupGame : false}) ) ) })
-				})
+				if(tmp.me._actonSetting == 1){
+					tmp.childDiv = tmp.childDiv.insert({'bottom': new Element('div', {'class': 'row'})
+						.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Commercial Group', new Element('input', {'save-item': 'groupCom', 'type': 'checkbox', 'checked': tmp.item.groupCom ? tmp.item.groupCom : false}) ) ) })
+						.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Educational Group', new Element('input', {'save-item': 'groupEdu', 'type': 'checkbox', 'checked': tmp.item.groupEdu ? tmp.item.groupEdu : false}) ) ) })
+						.insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Gaming Group', new Element('input', {'save-item': 'groupGame', 'type': 'checkbox', 'checked': tmp.item.groupGame ? tmp.item.groupGame : false}) ) ) })
+					});
+				}
 				//end add
-			})
-		;
+				
+				tmp.newDiv = tmp.newDiv.insert({'bottom': tmp.childDiv});
 		return tmp.newDiv;
 	}
 	/**

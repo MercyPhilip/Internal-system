@@ -1,7 +1,7 @@
 <?php
 class Kit extends BaseEntityAbstract
 {
-	const BARCODE_PREFIX = 'BPCB';
+	const BARCODE_PREFIX = Config::get('Prefix','Barcode');
 	/**
 	 * Task of the kit
 	 *

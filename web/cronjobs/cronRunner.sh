@@ -6,7 +6,7 @@ echo -n "MessageSender is Already Running....... :: "
 date
 echo -n " "
 else
-/usr/bin/php /var/www/hobbymaster/web/cronjobs/MessageSender.php >> /tmp/message.log
+/usr/bin/php /var/www/backup/web/cronjobs/MessageSender.php >> /tmp/message.log
 fi
 
 
@@ -16,5 +16,5 @@ echo -n "importOrders is Already Running....... :: "
 date
 echo -n " "
 else
-/usr/bin/php /var/www/hobbymaster/web/cronjobs/importOrders.php >> /tmp/orderImport.log
+/usr/bin/php /var/www/backup/web/cronjobs/importOrders.php >> /tmp/orderImport.log
 fi

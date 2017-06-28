@@ -37,11 +37,13 @@ class ListController extends CRUDPageAbstract
 		$js .= '._loadTiers('.json_encode($tiers).')';
 		$js .= "._loadChosen()";
 		$js .= "._bindMergeCustomersBtn()";
+		$js .= "._bindAddCustomerBtn()";
 		$js .= ".setCallbackId('deactivateItems', '" . $this->deactivateItemBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('mergeCustomers', '" . $this->mergeBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('integrateActon', '" . $this->integrateActonBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('updateActon', '" . $this->updateActon->getUniqueID() . "')";
 		$js .= ".checkboxToggle()";
+		$js .= ".setConfigActon(" . json_encode(Config::get('Acton', 'Enable')) . ")";
 		$js .= ".setCallbackId('checkActOnEnable', '" . $this->checkActOnEnable->getUniqueID() . "')";
  		if(isset($_REQUEST['cust']) && trim($_REQUEST['cust']) !== '') {
 			$js .= ".getResults(true, " . $this->pageSize . ");";
