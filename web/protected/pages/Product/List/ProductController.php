@@ -78,7 +78,9 @@ class ProductController extends CRUDPageAbstract
 		$js .= ".setCallbackId('updateStockLevel', '" . $this->updateStockLevelBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('toggleIsKit', '" . $this->toggleIsKitBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('toggleManualFeed', '" . $this->toggleManualFeedBtn->getUniqueID() . "')";
-		$js .= ".setCallbackId('newRule', '" . $this->newRuleBtn->getUniqueID() . "');";
+		$js .= ".setCallbackId('newRule', '" . $this->newRuleBtn->getUniqueID() . "')";
+		$js .= ".setConfigPriceMatch(" . json_encode(Config::get('PriceMatch', 'Enable')) . ")";
+		$js .= ".setConfigGst(" . json_encode(Config::get('Accounting', 'GST')) . ");";
 		//$js .= ".getResults(true, " . $this->pageSize . ");";
 // 		if(!AccessControl::canEditPrice())
 // 			$js .= "pageJs.readOnlyMode();";

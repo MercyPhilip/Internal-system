@@ -144,6 +144,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			item.totalPrice = tmp.me.getValueFromCurrency(item.totalPrice);
 			item.unitPrice = tmp.me.getValueFromCurrency(item.unitPrice);
 		});
+		tmp.data.gstFree = jQuery('#gst-free')[0].checked;
 		tmp.newDiv = new Element('div')
 			.insert({'bottom': new Element('h4').update('Have all the GOODs deliver / given to the customer?') })
 			.insert({'bottom': new Element('ul')
@@ -1083,9 +1084,12 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.skuAutoComplete.down('.input-group').removeClassName('form-control');
 		return tmp.skuAutoComplete;
 	}
-	,_recalculateSummary: function() {
+	,_recalculateSummary: function(gstFree) {
 		var tmp = {};
 		tmp.me = this;
+		if(gstFree == null){
+			gstFree = tmp.me._order ? tmp.me._order.gstFree:false;
+		}
 		//getting all the item row's total
 		tmp.totalPriceIncGSTNoDicount = 0;
 		tmp.totalPriceIncGSTWithDiscount = 0;
@@ -1106,7 +1110,11 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			jQuery('[order-price-summary="totalPriceExcludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceExcGST)).html(tmp.me.getCurrency(tmp.totalPriceExcGST));
 	
 			//calculate total GST
-			tmp.totalGST = (tmp.totalPriceIncGSTWithDiscount * 1 - tmp.totalPriceExcGST * 1);
+			if(gstFree === false){
+				tmp.totalGST = (tmp.totalPriceIncGSTWithDiscount * 1 - tmp.totalPriceExcGST * 1);
+			} else {
+				tmp.totalGST = 0;
+			}
 			jQuery('[order-price-summary="totalPriceGST"]').val(tmp.me.getCurrency(tmp.totalGST)).html(tmp.me.getCurrency(tmp.totalGST));
 	
 			//calculate the discount
@@ -1114,6 +1122,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			jQuery('[order-price-summary="totalDiscount"]').val(tmp.me.getCurrency(tmp.totalDiscount)).html(tmp.me.getCurrency(tmp.totalDiscount));
 	
 			//calculate the sub total price with GST
+			if(gstFree === true){
+				tmp.totalPriceIncGSTWithDiscount = tmp.totalPriceExcGST;
+			}
 			jQuery('[order-price-summary="totalPriceIncludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount)).html(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount));
 	
 		} else {
@@ -1122,7 +1133,11 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			jQuery('[order-price-summary="totalPriceExcludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceExcGST)).html(tmp.me.getCurrency(tmp.totalPriceExcGST));
 
 			//calculate total GST
-			tmp.totalGST = tmp.totalPriceExcGST * 0.1;
+			if(gstFree === false){
+				tmp.totalGST = tmp.totalPriceExcGST * 0.1;
+			}else {
+				tmp.totalGST = 0;
+			}
 			jQuery('[order-price-summary="totalPriceGST"]').val(tmp.me.getCurrency(tmp.totalGST)).html(tmp.me.getCurrency(tmp.totalGST));
 
 			//calculate the discount
@@ -1463,7 +1478,13 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					})
 					.insert({'bottom': new Element('div', {'class': 'row'})
 						.insert({'bottom': new Element('div', {'class': 'col-xs-6 text-right'}).update( new Element('strong').update('Total GST: ') ) })
-						.insert({'bottom': new Element('div', {'order-price-summary': 'totalPriceGST', 'class': 'col-xs-6'}).update( tmp.me.getCurrency(0) ) })
+						.insert({'bottom': new Element('div', {'order-price-summary': 'totalPriceGST', 'class': 'col-xs-2'}).update( tmp.me.getCurrency(0) ) })
+						.insert({'bottom': new Element('input', {'id':'gst-free','type': 'checkbox', 'checked': tmp.me._order?tmp.me._order.gstFree : false, 'class': 'col-xs-1', 'style':'margin:0;'})
+							.observe('click', function(){
+								tmp.me._recalculateSummary(this.checked);
+							})
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-3', 'style' : 'margin-left:-25px;'}).update('GST Free ') })
 					})
 					.insert({'bottom': new Element('div', {'class': 'row', 'style': 'border-bottom: 1px solid brown'})
 						.insert({'bottom': new Element('div', {'class': 'col-xs-6 text-right'}).update( new Element('strong').update('Total Discount:') ) })

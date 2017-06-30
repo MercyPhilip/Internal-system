@@ -126,6 +126,12 @@ class Order extends InfoEntityAbstract
 	 */
 	private $margin = 0;
 	/**
+	 * Whether this order is GST free
+	 *
+	 * @var bool
+	 */
+	private $gstFree = false;
+	/**
 	 * Getter for orderNo
 	 *
 	 * @return string
@@ -571,6 +577,27 @@ class Order extends InfoEntityAbstract
 		return $this;
 	}
 	/**
+	 * Getter for gstFree
+	 *
+	 * @return bool
+	 */
+	public function getGstFree()
+	{
+		return (trim($this->gstFree) === '1');
+	}
+	/**
+	 * Setter for gstFree
+	 *
+	 * @param unkown $value The  gstFree
+	 *
+	 * @return Order
+	 */
+	public function setGstFree($value)
+	{
+		$this->gstFree= $value;
+		return $this;
+	}
+	/**
 	 * Getting the order's previous status
 	 *
 	 * @return Ambigous <Ambigous, BaseEntityAbstract, NULL, SimpleXMLElement>
@@ -777,7 +804,7 @@ class Order extends InfoEntityAbstract
 		DaoMap::setManyToOne('shippingAddr', 'Address', 'saddr', true);
 		DaoMap::setStringType('pONo', 'varchar', 50);
 		DaoMap::setIntType('margin', 'Double', '10,4');
-
+		DaoMap::setBoolType('gstFree');
 		DaoMap::setOneToMany('shippments', 'Shippment', 'o_ship');
 		DaoMap::setOneToMany('payments', 'Payment', 'py');
 		DaoMap::setOneToMany('orderItems', 'OrderItem', 'o_items');
@@ -795,6 +822,7 @@ class Order extends InfoEntityAbstract
 		DaoMap::createIndex('margin');
 		DaoMap::createIndex('totalAmount');
 		DaoMap::createIndex('totalPaid');
+		DaoMap::createIndex('gstFree');
 		DaoMap::commit();
 	}
 	/**

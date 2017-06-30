@@ -275,7 +275,11 @@ class OrderController extends BPCPageAbstract
 
 				if(intval($item->active) === 1)
 				{
-					$totalPaymentDue += $totalPrice * 1.1;
+					if ($param->CallbackParameter->gstFree == false){
+						$totalPaymentDue += $totalPrice * 1.1;
+					}else{
+						$totalPaymentDue += $totalPrice;
+					}
 					if($orderCloneFrom instanceof Order || !($orderItem = OrderItem::get($item->id)) instanceof OrderItem)
 					{
 						$orderItem = OrderItem::create($order, $product, $unitPrice, $qtyOrdered, $totalPrice, 0, null, $itemDescription);
@@ -346,7 +350,7 @@ class OrderController extends BPCPageAbstract
 			}
 			
 			$totalPaymentDue += $totalShippingCost;
-			$order->setTotalAmount($totalPaymentDue)->save();
+			$order->setTotalAmount($totalPaymentDue)->setGstFree($param->CallbackParameter->gstFree)->save();
 			if (trim($param->CallbackParameter->paymentMethodId))
 			{
 				$paymentMethod = PaymentMethod::get(trim($param->CallbackParameter->paymentMethodId));

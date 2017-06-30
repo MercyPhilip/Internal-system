@@ -135,7 +135,12 @@ class OrderPrintController extends BPCPageAbstract
 		$total = $this->order->getTotalAmount();
 		$shippingCostIncGST = StringUtilsAbstract::getValueFromCurrency(implode('', $this->order->getInfo(OrderInfoType::ID_MAGE_ORDER_SHIPPING_COST)));
 		$totalWithOutShipping = $total - $shippingCostIncGST;
-		$totalWithOutShippingNoGST = $totalWithOutShipping / 1.1;
+		$gstFree = $this->order->getGstFree();
+		if ($gstFree == 0){
+			$totalWithOutShippingNoGST = $totalWithOutShipping / 1.1;
+		}else{
+			$totalWithOutShippingNoGST = $totalWithOutShipping;
+		}
 		$gst = $totalWithOutShipping - $totalWithOutShippingNoGST;
 
 		$html = $this->_getPaymentSummaryRow('Total Excl. GST:', '$' . number_format($totalWithOutShippingNoGST, 2, '.', ','), 'grandTotalNoGST');

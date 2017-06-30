@@ -29,6 +29,28 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		return tmp.me;
 	}
 	/**
+	 * setting PriceMatch config 
+	 */
+	,setConfigPriceMatch: function(priceMatchSetting) {
+		this._priceMatchSetting = priceMatchSetting;
+		if(this._priceMatchSetting == 0){
+			jQuery('#newPriceMatchRuleBtn').hide();
+		}
+		return this;
+	}
+	/**
+	 * setting GST config 
+	 */
+	,setConfigGst: function(gstSetting) {
+		this._gstSetting = gstSetting;
+		if (this._gstSetting == 'INC'){
+			this._gstText = '(inc GST)';
+		}else{
+			this._gstText = '(ex GST)';
+		}
+		return this;
+	}
+	/**
 	 * Load the manufacturers
 	 */
 	,_loadManufactures: function(manufactures) {
@@ -1094,14 +1116,16 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				)
 			})
 			.insert({'bottom': new Element(tmp.tag, {'class': 'hidden-xs hide-when-info hidden-sm row'}).addClassName('col-xs-2').setStyle(tmp.me._showRightPanel ? 'display: none' : '')
-				.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.isTitle === true ? 'Price' : tmp.txtprice = new Element('input', {'class': "click-to-edit price-input", 'value': tmp.me.getCurrency(tmp.price), 'product-id': row.id}).setStyle('width: 80%') ) })
-				.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.isTitle === true ? 'Special Price' : tmp.txtsp = new Element('input', {'class': "click-to-edit price-input", 'value': tmp.me.getCurrency(tmp.specilaPrice), 'product-id': row.id, 'isSpecial' : '1'}).setStyle('width: 80%') ) })
-			})
-			.insert({'bottom': tmp.match = new Element(tmp.tag, {'class': 'match'+ row.id +' hide-when-info hidden-sm', 'style':'width:5%' }).addClassName('col-xs-1').update(
-					
-				)
-				.insert({'bottom': new Element('div', {'class': 'col-sm-12'}).update(tmp.isTitle === true ? 'Match' : new Element('span').update((row.priceMatchRule && row.priceMatchRule.priceMatchCompany) ? '<abbr title="Updated: '  + tmp.updatedDate + '">' + row.priceMatchRule.priceMatchCompany.companyName + '</abbr>' : '').setStyle('width: 100%') ) })
-			 })
+				.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.isTitle === true ? 'Price ' + tmp.me._gstText : tmp.txtprice = new Element('input', {'class': "click-to-edit price-input", 'value': tmp.me.getCurrency(tmp.price), 'product-id': row.id}).setStyle('width: 80%') ) })
+				.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.isTitle === true ? 'Special Price ' + tmp.me._gstText : tmp.txtsp = new Element('input', {'class': "click-to-edit price-input", 'value': tmp.me.getCurrency(tmp.specilaPrice), 'product-id': row.id, 'isSpecial' : '1'}).setStyle('width: 80%') ) })
+			});
+			if(tmp.me_priceMatchSetting == 1){
+				tmp.row = tmp.row.insert({'bottom': tmp.match = new Element(tmp.tag, {'class': 'match'+ row.id +' hide-when-info hidden-sm', 'style':'width:5%' }).addClassName('col-xs-1').update(
+						
+					)
+					.insert({'bottom': new Element('div', {'class': 'col-sm-12'}).update(tmp.isTitle === true ? 'Match' : new Element('span').update((row.priceMatchRule && row.priceMatchRule.priceMatchCompany) ? '<abbr title="Updated: '  + tmp.updatedDate + '">' + row.priceMatchRule.priceMatchCompany.companyName + '</abbr>' : '').setStyle('width: 100%') ) })
+				 });
+			}
 //			.insert({'bottom': new Element(tmp.tag, {'class': 'ManFeed hide-when-info hidden-sm', 'style':'width:5%'}).addClassName('col-xs-1')
 //				.insert({'bottom': new Element('div', {'class': 'col-xs-12'})
 //				.insert({'bottom': tmp.isTitle === true ? 'ManFeed?' : tmp.mancbx = new Element('input', {'type': 'checkbox', 'checked': row.manualDatafeed})
@@ -1116,7 +1140,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 //				})
 	
 //			 })
-			.insert({'bottom': new Element(tmp.tag, {'class': 'locations hide-when-info hidden-sm', 'style' : 'width:8%'}).addClassName('col-xs-1').update(
+			tmp.row = tmp.row.insert({'bottom': new Element(tmp.tag, {'class': 'locations hide-when-info hidden-sm', 'style' : 'width:8%'}).addClassName('col-xs-1').update(
 					row.locations ? tmp.me._getLocations(row.locations, isTitle) : ''
 			) })
 			.insert({'bottom': tmp.me._storeId != 1 ? '' : new Element(tmp.tag, {'class': 'sellonweb hide-when-info hidden-sm ', 'style' : 'width:1%'}).addClassName('col-xs-1')

@@ -52,6 +52,12 @@ PaymentListPanelJs.prototype = {
 		if(tmp.data === null)
 			return;
 		tmp.data.paymentId = payment.id;
+		
+		tmp.start = jQuery('script').last()[0].text.indexOf('delPayment');
+		tmp.start = parseInt(tmp.start) + parseInt(13);
+		PaymentListPanelJs.callbackIds = {};
+		PaymentListPanelJs.callbackIds.delPayment = jQuery('script').last()[0].text.substr(tmp.start, 35);
+		
 		tmp.me._pageJs.postAjax(PaymentListPanelJs.callbackIds.delPayment, tmp.data, {
 			'onLoading': function() {
 				tmp.me._signRandID(btn);
@@ -206,6 +212,11 @@ PaymentListPanelJs.prototype = {
 		else if (tmp.me._creditNote && tmp.me._creditNote.id)
 			tmp.againstEntity = {'entity' : 'CreditNote', 'entityId' : tmp.me._creditNote.id};
 
+		tmp.start = jQuery('script').last()[0].text.indexOf('addPayment');
+		tmp.start = parseInt(tmp.start) + parseInt(13);
+		PaymentListPanelJs.callbackIds = {};
+		PaymentListPanelJs.callbackIds.addPayment = jQuery('script').last()[0].text.substr(tmp.start, 35);
+		
 		if (tmp.againstEntity !== null) {
 			tmp.me._pageJs.postAjax(PaymentListPanelJs.callbackIds.addPayment, {'payment': tmp.data, 'againstEntity': tmp.againstEntity}, {
 				'onLoading': function (sender, param) {
