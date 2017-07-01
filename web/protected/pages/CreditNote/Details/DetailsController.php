@@ -72,6 +72,7 @@ class DetailsController extends BPCPageAbstract
 			$js .= ".setCallbackId('searchProduct', '" . $this->searchProductBtn->getUniqueID() . "')";
 			$js .= ".setCallbackId('saveOrder', '" . $this->saveOrderBtn->getUniqueID() . "')";
 			$js .= ".setPaymentMethods(" . json_encode($paymentMethods) . ")";
+			$js .= ".setConfigGst(" . json_encode(Config::get('Accounting', 'GST')) . ")";
 			$js .= ".init();";
 		return $js;
 	}
@@ -240,8 +241,11 @@ class DetailsController extends BPCPageAbstract
 				$totalPrice = StringUtilsAbstract::getValueFromCurrency(trim($item->totalPrice));
 				$itemDescription = trim($item->itemDescription);
 				$active = trim($item->valid);
-
-				$totalPaymentDue += $totalPrice;
+				if (Config::get('Accounting', 'GST') == 'INC'){
+					$totalPaymentDue += $totalPrice;
+				}else{
+					$totalPaymentDue += $totalPrice * 1.1;
+				}
 				if(is_numeric($item->creditNoteItemId) && !CreditNoteItem::get(trim($item->creditNoteItemId)) instanceof CreditNoteItem)
 					throw new Exception('Invalid Credit Note Item passed in');
 				$unitCost = $product->getUnitCost();

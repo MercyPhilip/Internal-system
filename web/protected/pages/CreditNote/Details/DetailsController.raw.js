@@ -9,6 +9,19 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	,_searchTxtBox: null
 	,_applyToOptions: null
 	/**
+	 * setting GST config 
+	 */
+	,setConfigGst: function(gstSetting) {
+		this._gstSetting = gstSetting;
+		if (this._gstSetting == 'INC'){
+			this._gstText = 'Inc';
+		}else{
+			this._gstText = 'Ex';
+		}
+		return this;
+	}
+
+	/**
 	 * submitting order to php
 	 */
 	,_submitOrder: function(btn, data) {
@@ -880,11 +893,11 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		//header row
 		tmp.productListDiv = new Element('div', {'class': 'list-group order_change_details_table'})
 			.insert({'bottom': tmp.me._getProductRow({'product': {'sku': 'SKU', 'name': 'Description'},
-				'unitPrice': 'Unit Price<div><small>(inc GST)</small><div>',
+				'unitPrice': 'Unit Price<div><small>(' + tmp.me._gstText + ')</small><div>',
 				'qtyOrdered': 'Qty',
 				'margin': 'Margin',
 				'discount': 'Disc. %',
-				'totalPrice': 'Total Price<div><small>(inc GST)</small><div>'
+				'totalPrice': 'Total Price<div><small>(' + tmp.me._gstText + ')</small><div>'
 				,'btns': new Element('div').setStyle('display:none;')
 					.insert({'bottom': new Element('label', {'for': 'hide-margin-checkbox'}).update('Show Margin ') })
 					.insert({'bottom': new Element('input', {'id': 'hide-margin-checkbox', 'type': 'checkbox', 'checked': true})
@@ -1365,22 +1378,39 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			if(tmp.rowData.margin)
 				tmp.totalMargin = tmp.totalMargin * 1 + tmp.me.getValueFromCurrency(tmp.rowData.margin) * 1;
 		});
-		//calculate total price without GST
-		tmp.totalPriceExcGST = ((tmp.totalPriceIncGSTWithDiscount * 1) / 1.1);
-		jQuery('[order-price-summary="totalPriceExcludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceExcGST)).html(tmp.me.getCurrency(tmp.totalPriceExcGST));
+		if(tmp.me._gstSetting == 'INC'){
+			//calculate total price without GST
+			tmp.totalPriceExcGST = ((tmp.totalPriceIncGSTWithDiscount * 1) / 1.1);
+			jQuery('[order-price-summary="totalPriceExcludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceExcGST)).html(tmp.me.getCurrency(tmp.totalPriceExcGST));
+	
+			//calculate total GST
+			tmp.totalGST = (tmp.totalPriceIncGSTWithDiscount * 1 - tmp.totalPriceExcGST * 1);
+			jQuery('[order-price-summary="totalPriceGST"]').val(tmp.me.getCurrency(tmp.totalGST)).html(tmp.me.getCurrency(tmp.totalGST));
+	
+			//calculate the total price with GST
+			tmp.totalDiscount = (tmp.totalPriceIncGSTNoDicount * 1 - tmp.totalPriceIncGSTWithDiscount * 1);
+			jQuery('[order-price-summary="totalDiscount"]').val(tmp.me.getCurrency(tmp.totalDiscount)).html(tmp.me.getCurrency(tmp.totalDiscount));
+	
+			//calculate the sub total price with GST
+			jQuery('[order-price-summary="totalPriceIncludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount)).html(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount));
+		}else{
+			//calculate total price without GST
+			tmp.totalPriceExcGST = tmp.totalPriceIncGSTWithDiscount;
+			jQuery('[order-price-summary="totalPriceExcludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceExcGST)).html(tmp.me.getCurrency(tmp.totalPriceExcGST));
 
-		//calculate total GST
-		tmp.totalGST = (tmp.totalPriceIncGSTWithDiscount * 1 - tmp.totalPriceExcGST * 1);
-		jQuery('[order-price-summary="totalPriceGST"]').val(tmp.me.getCurrency(tmp.totalGST)).html(tmp.me.getCurrency(tmp.totalGST));
+			//calculate total GST
+			tmp.totalGST = tmp.totalPriceExcGST * 0.1;
+			jQuery('[order-price-summary="totalPriceGST"]').val(tmp.me.getCurrency(tmp.totalGST)).html(tmp.me.getCurrency(tmp.totalGST));
 
+			//calculate the discount
+			tmp.totalDiscount = (tmp.totalPriceIncGSTNoDicount * 1 - tmp.totalPriceIncGSTWithDiscount * 1);
+			jQuery('[order-price-summary="totalDiscount"]').val(tmp.me.getCurrency(tmp.totalDiscount)).html(tmp.me.getCurrency(tmp.totalDiscount));
+
+			//calculate the sub total price with GST
+			tmp.totalPriceIncGSTWithDiscount = tmp.totalGST * 1 + tmp.totalPriceIncGSTWithDiscount * 1;
+			jQuery('[order-price-summary="totalPriceIncludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount)).html(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount));
+		}
 		//calculate the total price with GST
-		tmp.totalDiscount = (tmp.totalPriceIncGSTNoDicount * 1 - tmp.totalPriceIncGSTWithDiscount * 1);
-		jQuery('[order-price-summary="totalDiscount"]').val(tmp.me.getCurrency(tmp.totalDiscount)).html(tmp.me.getCurrency(tmp.totalDiscount));
-
-		//calculate the total price with GST
-		jQuery('[order-price-summary="totalPriceIncludeGST"]').val(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount)).html(tmp.me.getCurrency(tmp.totalPriceIncGSTWithDiscount));
-
-		//calculate the sub total
 		tmp.totalShipping = (jQuery('[order-price-summary="totalShippingCost"]').length > 0 ? tmp.me.getValueFromCurrency(jQuery('[order-price-summary="totalShippingCost"]').val()) : 0);
 		tmp.subTotal = (tmp.totalShipping * 1 + tmp.totalPriceIncGSTWithDiscount * 1);
 		jQuery('[order-price-summary="subTotal"]').val(tmp.me.getCurrency(tmp.subTotal)).html(tmp.me.getCurrency(tmp.subTotal));

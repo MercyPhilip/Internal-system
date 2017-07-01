@@ -302,11 +302,11 @@ class CreditNote extends BaseEntityAbstract
 	public function preSave()
 	{
 		if(trim($this->getId()) !== '') {
-			$items = CreditNoteItem::getAllByCriteria('creditNoteId = ?', array($this->getId()));
+/* 			$items = CreditNoteItem::getAllByCriteria('creditNoteId = ?', array($this->getId()));
 			$total = $this->getShippingValue();
 			foreach($items as $item)
 				$total = ($total * 1) + ($item->getTotalPrice() * 1);
-			$this->setTotalValue($total);
+			$this->setTotalValue($total); */
 			$payments = Payment::getAllByCriteria('creditNoteId = ?', array($this->getId()));
 			$totalPaid = 0;
 			foreach($payments as $payment)
