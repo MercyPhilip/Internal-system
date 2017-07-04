@@ -32,7 +32,7 @@ class Menu extends TTemplateControl
 			$array['Orders']['neworder'] = array('url' => '/order/new.html', 'name' => 'New Order', 'icon' => '<span class="glyphicon glyphicon-plus"></span>');
 		if(AccessControl::canAccessOrderItemsPage(Core::getRole()) )
 			$array['Orders']['orderitems'] = array('url' => '/orderitems.html', 'name' => 'OrderItems');
-		if(AccessControl::canAccessOrderItemsPage(Core::getRole()) && (Core::getUser()->getStore()->getId() == 1) ) 
+		if(AccessControl::canAccessOrderItemsPage(Core::getRole()) && (Core::getUser()->getStore()->getId() == 1) && (Config::get('PriceMatch', 'Enable') == 1)) 
 			$array['Orders']['priceMatch'] = array('url' => '/pricematch.html', 'name' => 'Price Match', 'icon' => '<span class="glyphicon glyphicon-usd"></span>');
 		if(AccessControl::canAccessProductsPage(Core::getRole()) ) {
 			$array['Products'] = array(
@@ -63,7 +63,7 @@ class Menu extends TTemplateControl
 				'Receiving' =>array('url' => '/receiving.html', 'name' => 'Receiving PO', 'icon' => '<span class="fa fa-home"></span>'),
 				'serialNumbers' => array('url' => '/serialnumbers.html', 'name' => 'Serial Numbers', 'icon' => '<span class="glyphicon glyphicon-search"></span>'),
 			);
-			if (Core::getUser()->getStore()->getId() == 1)
+			if (Core::getUser()->getStore()->getId() == 1 && (Config::get('PriceMatch', 'Enable') == 1))
 			{
 				$array['Purchase']['priceMatch'] = array('url' => '/pricematch.html', 'name' => 'Price Match', 'icon' => '<span class="glyphicon glyphicon-usd"></span>' );
 			}
