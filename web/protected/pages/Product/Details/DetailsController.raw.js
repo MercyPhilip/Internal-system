@@ -807,7 +807,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			})
 			.insert({'bottom': new Element('div', {'class': 'panel-body'})
 				.insert({'bottom': new Element('div', {'class': 'row'})
-					.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock On Hand: ' + tmp.me._getOtherStocks(product), new Element('input', {'save-item': 'stockOnHand', 'type': 'value', 'disabled': true, 'value': tmp.item.stockOnHand ? tmp.item.stockOnHand : ''}) ) ) })
+					.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock On Hand: ', new Element('input', {'save-item': 'stockOnHand', 'type': 'value', 'disabled': true, 'value': tmp.item.stockOnHand ? tmp.item.stockOnHand : ''}) ) ) })
 					.insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock On Hand Value', new Element('input', {'save-item': 'totalOnHandValue', 'type': 'value', 'disabled': true, 'value': tmp.item.totalOnHandValue ? tmp.me.getCurrency(tmp.item.totalOnHandValue) : ''}) ) ) })
 				})
 				.insert({'bottom': new Element('div', {'class': 'row'})
