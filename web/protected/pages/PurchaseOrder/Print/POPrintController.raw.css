@@ -30,7 +30,15 @@
      size: auto;   /* auto is the initial value */
      margin: 0mm;  /* this affects the margin in the printer settings */
  }
-
+    thead {
+        display: table-row-group
+    }
+    tr {
+        page-break-inside: avoid;
+    }
+    td {
+        page-break-inside: avoid;
+    }
 .box {
 	padding: 5px;
 	display: ininline-block;
@@ -82,7 +90,7 @@
 }
 
 .title_row .info {
-    color: #c15760;
+    color: #2977c3;
     font-weight: bold;
     text-align: right;
     width: 38%;
@@ -222,7 +230,7 @@ table.orderview .order_payments .payment_summary .print-row .details_content {
 }
 table.orderview .order_payments .payment_summary .print-row.overdue .details_content {
     font-weight: bold;
-    color: #C62A2B;
+    color: #2977c3;
     text-decoration: underline;
 }
 
@@ -315,7 +323,7 @@ table.orderview .order_company_details .addr,table.orderview .order_company_deta
 table.orderview .order_company_details .details_title {
     font-weight: bold;
     text-transform: uppercase;
-    color: #c62a2b;
+    color: #2977c3;
     margin: 0 4px 0 0;
 }
 

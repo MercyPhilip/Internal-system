@@ -182,7 +182,7 @@ class OrderPrintPosController extends BPCPageAbstract
 		$html .= $this->_getPaymentSummaryRow('<strong>Grand Total Incl. GST:</strong>', '<strong>$' . number_format((double)$total, 2, '.', ',') . '</strong>', 'grandTotal');
 		$html .= $this->_getPaymentSummaryRow('Paid to Date:', '$' . number_format($this->order->getTotalPaid(), 2, '.', ','), 'paidTotal');
 		$overDueClass = $this->order->getTotalDue() > 0 ? 'overdue' : '';
-		$html .= $this->_getPaymentSummaryRow('<strong class="text-danger">Balance Due:</strong>', '<strong class="text-danger">$' . number_format($this->order->getTotalDue(), 2, '.', ',') . '</strong>', 'dueTotal ' . $overDueClass);
+		$html .= $this->_getPaymentSummaryRow('<strong class="text-primary">Balance Due:</strong>', '<strong class="text-primary">$' . number_format($this->order->getTotalDue(), 2, '.', ',') . '</strong>', 'dueTotal ' . $overDueClass);
 		return $html;
 	}
 	/**

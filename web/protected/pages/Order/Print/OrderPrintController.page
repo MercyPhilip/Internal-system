@@ -83,8 +83,9 @@
                         </div>
                         <div class="order_company_details">
                             <div class="addr">
-                                <span class="addr"><span class="details_title">Address</span><%= Config::get('PDFInvoice','CompanyDetail')['Addr'] %></span>
-                                <span class="phone"><span class="details_title">PH</span><%= Config::get('PDFInvoice','CompanyDetail')['Phone'] %> </span>
+                                <span class="addr"><span class="details_title">Address: </span><%= Config::get('PDFInvoice','CompanyDetail')['Addr'] %></span>
+                                <span class="phone"><span class="details_title">PHONE: </span><%= Config::get('PDFInvoice','CompanyDetail')['Phone'] %> </span>
+                                </br>
                                 <span class="url details_title">
                                     <%= Config::get('PDFInvoice','CompanyDetail')['Website'] %>
                                 </span>

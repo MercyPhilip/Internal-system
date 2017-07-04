@@ -12,7 +12,7 @@
                                     <span class="inlineblock orderno">
                                          <%= $this->getType() === 'TAX INVOICE' ? 'JOB ' : $this->getType() %> No.: <%= $this->order->getOrderNo()%>
                                     </span>
-                                    <span class="inlineblock orderno" style="color: brown;">
+                                    <span class="inlineblock orderno" style="color: #2977c3;">
                                             - Delivery Docket
                                     </span>
                                 </span>
@@ -90,8 +90,9 @@
                             </div>
                             <div class="order_company_details">
 	                            <div class="addr">
-	                                <span class="addr"><span class="details_title">Address</span><%= Config::get('PDFInvoice','CompanyDetail')['Addr'] %></span>
-	                                <span class="phone"><span class="details_title">PH</span><%= Config::get('PDFInvoice','CompanyDetail')['Phone'] %> </span>
+	                                <span class="addr"><span class="details_title">Address: </span><%= Config::get('PDFInvoice','CompanyDetail')['Addr'] %></span>
+	                                <span class="phone"><span class="details_title">PHONE: </span><%= Config::get('PDFInvoice','CompanyDetail')['Phone'] %> </span>
+	                                </br>
 	                                <span class="url details_title">
 	                                    <%= Config::get('PDFInvoice','CompanyDetail')['Website'] %>
 	                                </span>

@@ -172,7 +172,7 @@ class CreditNotePrintController extends BPCPageAbstract
 		$html .= $this->_getPaymentSummaryRow('Refund:', '$' . number_format($this->getRefund(), 2, '.', ','), 'paidTotal');
 		$overDue = $total - $this->getRefund();
 		$overDueClass = $overDue > 0 ? 'overdue' : '';
-		$html .= $this->_getPaymentSummaryRow('<strong class="text-danger">Balance Due:</strong>', '<strong class="text-danger">$' . number_format($overDue, 2, '.', ',') . '</strong>', 'dueTotal ' . $overDueClass);
+		$html .= $this->_getPaymentSummaryRow('<strong class="text-primary">Balance Due:</strong>', '<strong class="text-primary">$' . number_format($overDue, 2, '.', ',') . '</strong>', 'dueTotal ' . $overDueClass);
 		return $html;
 	}
 	/**
