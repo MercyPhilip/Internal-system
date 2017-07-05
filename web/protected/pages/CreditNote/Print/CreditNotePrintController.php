@@ -118,7 +118,7 @@ class CreditNotePrintController extends BPCPageAbstract
 			$html .= $this->getRow('-' . $orderItem->getQty(), $orderItem->getProduct()->getSku(), $orderItem->getItemDescription() ?: $orderItem->getProduct()->getname(), $uPrice, ($discount === 0.00 ? '' : $discount . '%'), $tPrice, 'itemRow');
 				
 		}
-		for ( $i = 5; $i > $index; $i--)
+		for ( $i = 9; $i > $index; $i--)
 		{
 			$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '', 'itemRow');
 		}

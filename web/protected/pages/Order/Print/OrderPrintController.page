@@ -6,16 +6,14 @@
                 <tr class="title_row">
                     <td colspan=12>
                         <div>
-                            <span class="inlineblock logo">
+                            <span class="inlineblock logo" style="position:relative; top:-25px;">
                                 <img src=<%= Config::get('PDFInvoice','LogoUrl') %> style="padding: 0px; margin: 0px;display: block;"/>
-                                <span class="inlineblock orderno">
-                                    <%=  $this->getType() === 'TAX INVOICE' ? 'JOB ' : $this->getType() %> No.: <%= $this->order->getOrderNo()%>
-                                </span>
                             </span>
                             <span class="inlineblock info">
                                 <div class="cname"><%= Core::getUser()->getStore()->getName() . ' Store'%></div>
                                 <div class="abn"><%= 'ABN ' . Config::get('PDFInvoice','CompanyDetail')['ABN'] %></div>
                                 <span class="inlineblock dates">
+                                    <div class="dateRow"><span class="rowTitle inlineblock"><%=  $this->getType() === 'TAX INVOICE' ? 'JOB ' : $this->getType() %> No.: </span><span class="rowContent inlineblock"><%= $this->order->getOrderNo()%></span></div>
                                     <div class="dateRow"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock"><%= $this->getOrdDate() %></span></div>
                                     <div class="dateRow"><span class="rowTitle inlineblock">TAX INVOICE No.: </span><span class="rowContent inlineblock"><%= $this->order->getInvNo()%></span></div>
                                     <div class="dateRow"><span class="rowTitle inlineblock">Invoice Date.: </span><span class="rowContent inlineblock"><%= $this->getInvDate() %></span></div>

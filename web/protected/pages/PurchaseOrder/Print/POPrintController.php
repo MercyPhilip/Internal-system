@@ -72,7 +72,7 @@ class POPrintController extends BPCPageAbstract
 			$tPrice = '$' . number_format($orderItem->getTotalPrice(), 2, '.', ',');
 			$html .= $this->getRow($orderItem->getQty(), $orderItem->getProduct()->getSku(), $orderItem->getProduct()->getname(), $uPrice, $tPrice, 'itemRow');
 		}
-		for ( $i = 12; $i > $index; $i--)
+		for ( $i = 18; $i > $index; $i--)
 		{
 			$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', 'itemRow');
 		}

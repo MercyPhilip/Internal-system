@@ -43,17 +43,13 @@
 						<div align="right">
                         	<span class="inlineblock">
                         	     <span class="inlineblock dates">
+                                    <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock"><%=  $this->getType() === 'TAX INVOICE' ? 'JOB ' : $this->getType() %> No.: </span><span class="rowContent inlineblock"><%= $this->order->getOrderNo()%></span></div>
                                     <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock"><%= $this->getOrdDate() %></span></div>
                                     <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">Invoice No.: </span><span class="rowContent inlineblock"><%= $this->order->getInvNo()%></span></div>
                                     <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">Invoice Date.: </span><span class="rowContent inlineblock"><%= $this->getInvDate() %></span></div>
                                     <div class="dateRow" style="padding: 0 10px 0 0"><span class="rowTitle inlineblock">PO No.: </span><span class="rowContent inlineblock"><%= $this->order->getPONo() %></span></div>
                                 </span>
                         	</span> 
-                        </div>
-                        <div >
-                            <span class="inlineblock orderno">
-                              <%=  $this->getType() === 'TAX INVOICE' ? 'JOB ' : $this->getType() %> No.: <%= $this->order->getOrderNo()%>
-                            </span>
                         </div>
                         <div class="sep">
                         <p class="sep-line"></p>
