@@ -15,6 +15,7 @@ class SkuMatchController extends BPCPageAbstract
 	 */
 	public $menuItem = 'skuMatch';
 	const PRICE = 'price';
+	const WHOLESALE_PRICE = 'wholesale_price';
 	const SHORTDESCRIPTION = 'short_description';
 	const FEATURE = 'feature';
 	const LONGDESCRIPTION = 'description';
@@ -132,6 +133,7 @@ class SkuMatchController extends BPCPageAbstract
 		}
 		$name = isset($row[self::NAME]) ? trim($row[self::NAME]) : '';
 		$price = isset($row[self::PRICE]) ? trim($row[self::PRICE]) : '';
+		$wholesalePrice = isset($row[self::WHOLESALE_PRICE]) ? trim($row[self::WHOLESALE_PRICE]) : '';
 		$stockName = isset($row[self::STOCK]) ? trim($row[self::STOCK]) : '';
 		$description = isset($row[self::LONGDESCRIPTION]) ? trim($row[self::LONGDESCRIPTION]) : '';
 		$feature = isset($row[self::FEATURE]) ? trim($row[self::FEATURE]) : '';
@@ -287,8 +289,8 @@ class SkuMatchController extends BPCPageAbstract
 			}
 			if ($stock != null) $product->setStatus($stock);
 			if ($supplier != null) $product->addSupplier($supplier);
-			$this->_updateCategories($product, $categoryIds)
-				->_setPrices($product, $price);
+			$this->_updateCategories($product, $categoryIds)->_setPrices($product, $price);
+			$this->_setWholesalePrices($product, $wholesalePrice);
 			$this->_updateImages($product, $images);
 			if (!$isNewProduct instanceof NewProduct)
 			{
@@ -357,6 +359,7 @@ class SkuMatchController extends BPCPageAbstract
 			$product->save();
 			$this->_updateCategories($product, $categoryIds)
 				->_setPrices($product, $price);
+			$this->_setWholesalePrices($product, $wholesalePrice);
 			$this->_updateImages($product, $images);
 			
 			return $product;
@@ -411,6 +414,52 @@ class SkuMatchController extends BPCPageAbstract
 			->save()
 			->addComment($msg, Comments::TYPE_NORMAL)
 			->addLog($msg, Log::TYPE_SYSTEM);
+		$product->addComment($msg, Log::TYPE_SYSTEM)
+			->addLog($msg, Log::TYPE_SYSTEM);
+		return $this;
+	}
+	/**
+	 * update price
+	 * @param Product $product
+	 * @param unknown $param
+	 * @throws Exception
+	 * @return ListController
+	 */
+	private function _setWholesalePrices(Product &$product, $wholesalePrice)
+	{	
+		Config::dd($product);
+		$tierRules = TierRule::getAllByCriteria('productId = ?', array($product->getId()));
+		if (count($tierRules) > 0){
+			$msg = 'Update wholesale price for product(SKU=' . $product->getSku() . ') to '. StringUtilsAbstract::getCurrency($wholesalePrice);
+			$tierRule = $tierRules[0];
+			$tierPrice = TierPrice::getTierPrices($tierRule)[0];
+			$productTierPrice = ProductTierPrice::getProductTierPrice($product);
+		} else {
+			$tierRule = new TierRule();
+			$tierPrice = new TierPrice();
+			$productTierPrice = new ProductTierPrice();
+			
+			$msg = 'New Wholesale Price Created for product(SKU=' . $product->getSku() . '): '. StringUtilsAbstract::getCurrency($wholesalePrice);
+		}
+		
+		$tierRule->setProduct($product)->setPriorityId(TierRule::PRIORITY_ID_PID)->save();
+		
+		$tierPrice->setTierRule($tierRule)
+		->setTierLevel(TierLevel::get(5))
+		->setQuantity(1)
+		->setTierPriceType(TierPriceType::get(2))
+		->setValue($wholesalePrice)
+		->save();
+		
+		$productTierPrice->setProduct($product)
+		->setTierLevel(TierLevel::get(5))
+		->setQuantity(1)
+		->setTierPriceType(TierPriceType::get(2))
+		->setValue($wholesalePrice)
+		->setPriorityId(ProductTierPrice::PRIORITY_ID_PID)
+		->setTierRule($tierRule)
+		->save();
+	
 		$product->addComment($msg, Log::TYPE_SYSTEM)
 			->addLog($msg, Log::TYPE_SYSTEM);
 		return $this;
