@@ -47,8 +47,8 @@ class StaticsController extends StaticsPageAbstract
 			 	throw new Exception('Invalid product id=' . $param->CallbackParameter->productId . ' provided');
 			
 			$series = array();
-			$series[] = array('name' => 'Sales Unit Price (incl. GST)', 'data' => $this->_getSalesSeries($product->getId(), $dateFrom, $dateTo));
-			$series[] = array('name' => 'Purchase Unit Price (incl. GST)', 'data' => $this->_getPurchaseSeries($product->getId(), $dateFrom, $dateTo));
+			$series[] = array('name' => 'Sales Unit Price '. (Config::get('Accounting', 'GST') == 'EX'? '(ex. GST)':'(incl. GST)'), 'data' => $this->_getSalesSeries($product->getId(), $dateFrom, $dateTo));
+			$series[] = array('name' => 'Purchase Unit Price ' . (Config::get('Accounting', 'GST') == 'EX'? '(ex. GST)':'(incl. GST)'), 'data' => $this->_getPurchaseSeries($product->getId(), $dateFrom, $dateTo));
 			
 			$results = array(
 					'chart' => array(
