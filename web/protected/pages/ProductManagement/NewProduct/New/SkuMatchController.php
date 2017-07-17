@@ -56,7 +56,7 @@ class SkuMatchController extends BPCPageAbstract
 	 */
 	protected function _getEndJs()
 	{
-		$importDataTypes = array('new_product'=> 'NEW PRODUCT', 'update_product'=>'UPDATE PRODUCT', 'update_srp' => 'UPDATE SRP(PRICE)', 
+		$importDataTypes = array('update_product'=>'UPDATE PRODUCT', 'update_srp' => 'UPDATE SRP(PRICE)', 
 				'update_buyinprice' => 'UPDATE PRICE BOOK', 'update_supplier_sku' => 'UPDATE SUPLLIER SKU');
 
 		$js = parent::_getEndJs();
@@ -84,15 +84,25 @@ class SkuMatchController extends BPCPageAbstract
 				throw new Exception('Invalid upload type passed in!');
 			switch ($type)
 			{
-				case 'new_product':
+/* 				case 'new_product':
 					$item = $this->importNewProduct($data, false);
 					$result['path'] = $item instanceof NewProduct ? '/product/' . $item->getProduct()->getId() . '.html' : '';
 					$result['item'] = $item instanceof NewProduct ? $item->getJson() : array();
-					break;
+					break; */
 				case 'update_product':
 					$item = $this->importNewProduct($data, true);
-					$result['path'] = $item instanceof Product ? '/product/' . $item->getId() . '.html' : '';
-					$result['item'] = $item instanceof Product ? $item->getJson() : array();
+					if ($item instanceof Product){
+						$result['path'] = '/product/' . $item->getId() . '.html';
+						$result['item'] = $item->getJson();
+					}elseif ($item instanceof NewProduct) {
+						$result['path'] = '/product/' . $item->getProduct()->getId() . '.html';
+						$result['item'] = $item->getJson();
+					}else{
+						$result['path'] = '';
+						$result['item'] = array();
+					}
+				/* 	$result['path'] = $item instanceof Product ? '/product/' . $item->getId() . '.html' : '';
+					$result['item'] = $item instanceof Product ? $item->getJson() : array(); */
 					break;
 				case 'update_srp':
 					$item = $this->importSRP($data);
@@ -216,153 +226,151 @@ class SkuMatchController extends BPCPageAbstract
 		$search = array('$', ',');
 		$replace = array();
 		$price = doubleval(str_replace($search, $replace, $price));
+		$wholesalePrice = doubleval(str_replace($search, $replace, $wholesalePrice));
 		$product = Product::getBySku($sku);
-		if (!$isUpdate)
-		{
-			// new product import
-			$isNewProduct = $product instanceof Product ? NewProduct::getByProductId($product->getId()) : null;
-			if (($product instanceof Product) && (!$isNewProduct instanceof NewProduct))
-			{
-				throw new Exception("[sku:" . $sku . "] has already existed! (line:" . $index . ")");
-			}
-			if (($product instanceof Product) && ($isNewProduct instanceof NewProduct) && ($isNewProduct->getStatus()->getId() == NewProductStatus::ID_STATUS_DONE))
-			{
-				throw new Exception("[sku:" . $sku . "] staus is DONE! (line:" . $index . ")");
-			}
-			if (!$product instanceof Product)
-			{
-				if (count($categoryIds) == 0)
-				{
-					throw new Exception("[sku:" . $sku . "] Category cannot be empty! (line:" . $index . ")");
-				}
-				$product = new Product();
-			}
-			$product->setSku($sku)->setSellOnWeb(false)->setActive(true);
-			if (trim($weight) != '')  $product->setWeight(doubleval($weight));
-			$categoryAttribute = $this->getDefaultAttribute($categoryIds);
-			if ((trim($assaccNo) != '') && (trim($revaccNo) != '') 
-					&& (trim($costaccNo) != '') && (trim($attributeset) != ''))
-			{
-				$product->setAssetAccNo(trim($assaccNo));
-				$product->setRevenueAccNo(trim($revaccNo));
-				$product->setCostAccNo(trim($costaccNo));
-				$product->setAttributeSet(ProductAttributeSet::get(trim($attributeset)));
-			}
-			else if ($categoryAttribute instanceof CategoryAttribute)
-			{
-				$assetAccNo = $categoryAttribute->getAssetAccNo();
-				$revenueAccNo = $categoryAttribute->getRevenueAccNo();
-				$costAccNo = $categoryAttribute->getCostAccNo();
-				$attributesetId = $categoryAttribute->getAttributesetId();
-				if($assetAccNo !== null && is_string($assetAccNo))
-					$product->setAssetAccNo(trim($assetAccNo));
-				if($revenueAccNo !== null && is_string($revenueAccNo))
-					$product->setRevenueAccNo(trim($revenueAccNo));
-				if($costAccNo !== null && is_string($costAccNo))
-					$product->setCostAccNo(trim($costAccNo));
-				if($attributesetId !== null && is_string($attributesetId))
-					$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
-			}
-			if ($name != '') $product->setName($name);
-			if ($brand != null) $product->setManufacturer($brand);
-			if ($description != '')
-			{
-				if(($fullAsset = Asset::getAsset($product->getFullDescAssetId())) instanceof Asset)
-					Asset::removeAssets(array($fullAsset->getAssetId()));
-					$fullAsset = Asset::registerAsset('full_description_for_product.txt', $description, Asset::TYPE_PRODUCT_DEC);
-					$product->setFullDescAssetId($fullAsset->getAssetId());
-			}
-			if ($feature != '')
-			{
-				if(($fullAsset = Asset::getAsset($product->getCustomTabAssetId())) instanceof Asset)
-					Asset::removeAssets(array($fullAsset->getAssetId()));
-					$fullAsset = Asset::registerAsset('customtab_for_product.txt', $feature, Asset::TYPE_PRODUCT_DEC);
-					$product->setCustomTabAssetId($fullAsset->getAssetId());
-			}
-			if ($short_desc != '') $product->setShortDescription($short_desc);
-			$product->save();
-			if (!$product->getStock() instanceof ProductStockInfo )
-			{
-				$stores = Store::getAll();
-				foreach($stores as $store)
-					$status = ProductStockInfo::create($product, null, $store);
-			}
-			if ($stock != null) $product->setStatus($stock);
-			if ($supplier != null) $product->addSupplier($supplier);
-			$this->_updateCategories($product, $categoryIds)->_setPrices($product, $price);
-			$this->_setWholesalePrices($product, $wholesalePrice);
-			$this->_updateImages($product, $images);
-			if (!$isNewProduct instanceof NewProduct)
-			{
-				$isNewProduct = NewProduct::create($product);
-			}
-			else
-			{
-				$isNewProduct->setStatus(NewProductStatus::get(NewProductStatus::ID_STATUS_COMPLETED));
-				$isNewProduct->setProduct($product)->save();
-			}
-			return $isNewProduct;
-		}
-		else
+		if ($isUpdate)
 		{
 			// update products
 			if (!$product instanceof Product)
 			{
-				throw new Exception("[sku:" . $sku . "] does not exist! (line:" . $index . ")");
+				// new product import
+				$isNewProduct = $product instanceof Product ? NewProduct::getByProductId($product->getId()) : null;
+				if (($product instanceof Product) && (!$isNewProduct instanceof NewProduct))
+				{
+					throw new Exception("[sku:" . $sku . "] has already existed! (line:" . $index . ")");
+				}
+				if (($product instanceof Product) && ($isNewProduct instanceof NewProduct) && ($isNewProduct->getStatus()->getId() == NewProductStatus::ID_STATUS_DONE))
+				{
+					throw new Exception("[sku:" . $sku . "] staus is DONE! (line:" . $index . ")");
+				}
+				if (!$product instanceof Product)
+				{
+					if (count($categoryIds) == 0)
+					{
+						throw new Exception("[sku:" . $sku . "] Category cannot be empty! (line:" . $index . ")");
+					}
+					$product = new Product();
+				}
+				$product->setSku($sku)->setSellOnWeb(false)->setActive(true);
+				if (trim($weight) != '')  $product->setWeight(doubleval($weight));
+				$categoryAttribute = $this->getDefaultAttribute($categoryIds);
+				if ((trim($assaccNo) != '') && (trim($revaccNo) != '')
+						&& (trim($costaccNo) != '') && (trim($attributeset) != ''))
+				{
+					$product->setAssetAccNo(trim($assaccNo));
+					$product->setRevenueAccNo(trim($revaccNo));
+					$product->setCostAccNo(trim($costaccNo));
+					$product->setAttributeSet(ProductAttributeSet::get(trim($attributeset)));
+				}
+				else if ($categoryAttribute instanceof CategoryAttribute)
+				{
+					$assetAccNo = $categoryAttribute->getAssetAccNo();
+					$revenueAccNo = $categoryAttribute->getRevenueAccNo();
+					$costAccNo = $categoryAttribute->getCostAccNo();
+					$attributesetId = $categoryAttribute->getAttributesetId();
+					if($assetAccNo !== null && is_string($assetAccNo))
+						$product->setAssetAccNo(trim($assetAccNo));
+						if($revenueAccNo !== null && is_string($revenueAccNo))
+							$product->setRevenueAccNo(trim($revenueAccNo));
+							if($costAccNo !== null && is_string($costAccNo))
+								$product->setCostAccNo(trim($costAccNo));
+								if($attributesetId !== null && is_string($attributesetId))
+									$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
+				}
+				if ($name != '') $product->setName($name);
+				if ($brand != null) $product->setManufacturer($brand);
+				if ($description != '')
+				{
+					if(($fullAsset = Asset::getAsset($product->getFullDescAssetId())) instanceof Asset)
+						Asset::removeAssets(array($fullAsset->getAssetId()));
+						$fullAsset = Asset::registerAsset('full_description_for_product.txt', $description, Asset::TYPE_PRODUCT_DEC);
+						$product->setFullDescAssetId($fullAsset->getAssetId());
+				}
+				if ($feature != '')
+				{
+					if(($fullAsset = Asset::getAsset($product->getCustomTabAssetId())) instanceof Asset)
+						Asset::removeAssets(array($fullAsset->getAssetId()));
+						$fullAsset = Asset::registerAsset('customtab_for_product.txt', $feature, Asset::TYPE_PRODUCT_DEC);
+						$product->setCustomTabAssetId($fullAsset->getAssetId());
+				}
+				if ($short_desc != '') $product->setShortDescription($short_desc);
+				$product->save();
+				if (!$product->getStock() instanceof ProductStockInfo )
+				{
+					$stores = Store::getAll();
+					foreach($stores as $store)
+						$status = ProductStockInfo::create($product, null, $store);
+				}
+				if ($stock != null) $product->setStatus($stock);
+				if ($supplier != null) $product->addSupplier($supplier);
+				$this->_updateCategories($product, $categoryIds)->_setPrices($product, $price);
+				$this->_setWholesalePrices($product, $wholesalePrice);
+				$this->_updateImages($product, $images);
+				if (!$isNewProduct instanceof NewProduct)
+				{
+					$isNewProduct = NewProduct::create($product);
+				}
+				else
+				{
+					$isNewProduct->setStatus(NewProductStatus::get(NewProductStatus::ID_STATUS_COMPLETED));
+					$isNewProduct->setProduct($product)->save();
+				}
+				return $isNewProduct;
+			} else {
+				if ($name != '') $product->setName($name);
+				if ($stock != null) $product->setStatus($stock);
+				if (trim($weight) != '')  $product->setWeight(doubleval($weight));
+				if ($supplier != null) $product->addSupplier($supplier);
+				if ($brand != null) $product->setManufacturer($brand);
+				if ($description != '')
+				{
+					if(($fullAsset = Asset::getAsset($product->getFullDescAssetId())) instanceof Asset)
+						Asset::removeAssets(array($fullAsset->getAssetId()));
+						$fullAsset = Asset::registerAsset('full_description_for_product.txt', $description, Asset::TYPE_PRODUCT_DEC);
+						$product->setFullDescAssetId($fullAsset->getAssetId());
+				}
+				if ($feature != '')
+				{
+					if(($fullAsset = Asset::getAsset($product->getCustomTabAssetId())) instanceof Asset)
+						Asset::removeAssets(array($fullAsset->getAssetId()));
+						$fullAsset = Asset::registerAsset('customtab_for_product.txt', $feature, Asset::TYPE_PRODUCT_DEC);
+						$product->setCustomTabAssetId($fullAsset->getAssetId());
+				}
+				// check accountNo and attributeset 
+				// if null then upate
+				$categoryAttribute = $this->getDefaultAttribute($categoryIds);
+				if ((trim($product->getAssetAccNo()) == '') 
+						&& (trim($product->getRevenueAccNo()) == '')
+						&& (trim($product->getCostAccNo()) == '') 
+						&& ($categoryAttribute instanceof CategoryAttribute))
+				{
+					$assetAccNo = $categoryAttribute->getAssetAccNo();
+					$revenueAccNo = $categoryAttribute->getRevenueAccNo();
+					$costAccNo = $categoryAttribute->getCostAccNo();
+					$attributesetId = $categoryAttribute->getAttributesetId();
+					if($assetAccNo !== null && is_string($assetAccNo))
+						$product->setAssetAccNo(trim($assetAccNo));
+					if($revenueAccNo !== null && is_string($revenueAccNo))
+						$product->setRevenueAccNo(trim($revenueAccNo));
+					if($costAccNo !== null && is_string($costAccNo))
+						$product->setCostAccNo(trim($costAccNo));
+				}
+				if ((!$product->getAttributeSet() instanceof ProductAttributeSet)
+						&& ($categoryAttribute instanceof CategoryAttribute))
+				{
+					$attributesetId = $categoryAttribute->getAttributesetId();
+					if($attributesetId !== null && is_string($attributesetId))
+						$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
+				}
+				if ($short_desc != '') $product->setShortDescription($short_desc);
+				$product->save();
+				$this->_updateCategories($product, $categoryIds)
+					->_setPrices($product, $price);
+				$this->_setWholesalePrices($product, $wholesalePrice);
+				$this->_updateImages($product, $images);
+				
+				return $product;
 			}
-			if ($name != '') $product->setName($name);
-			if ($stock != null) $product->setStatus($stock);
-			if (trim($weight) != '')  $product->setWeight(doubleval($weight));
-			if ($supplier != null) $product->addSupplier($supplier);
-			if ($brand != null) $product->setManufacturer($brand);
-			if ($description != '')
-			{
-				if(($fullAsset = Asset::getAsset($product->getFullDescAssetId())) instanceof Asset)
-					Asset::removeAssets(array($fullAsset->getAssetId()));
-					$fullAsset = Asset::registerAsset('full_description_for_product.txt', $description, Asset::TYPE_PRODUCT_DEC);
-					$product->setFullDescAssetId($fullAsset->getAssetId());
-			}
-			if ($feature != '')
-			{
-				if(($fullAsset = Asset::getAsset($product->getCustomTabAssetId())) instanceof Asset)
-					Asset::removeAssets(array($fullAsset->getAssetId()));
-					$fullAsset = Asset::registerAsset('customtab_for_product.txt', $feature, Asset::TYPE_PRODUCT_DEC);
-					$product->setCustomTabAssetId($fullAsset->getAssetId());
-			}
-			// check accountNo and attributeset 
-			// if null then upate
-			$categoryAttribute = $this->getDefaultAttribute($categoryIds);
-			if ((trim($product->getAssetAccNo()) == '') 
-					&& (trim($product->getRevenueAccNo()) == '')
-					&& (trim($product->getCostAccNo()) == '') 
-					&& ($categoryAttribute instanceof CategoryAttribute))
-			{
-				$assetAccNo = $categoryAttribute->getAssetAccNo();
-				$revenueAccNo = $categoryAttribute->getRevenueAccNo();
-				$costAccNo = $categoryAttribute->getCostAccNo();
-				$attributesetId = $categoryAttribute->getAttributesetId();
-				if($assetAccNo !== null && is_string($assetAccNo))
-					$product->setAssetAccNo(trim($assetAccNo));
-				if($revenueAccNo !== null && is_string($revenueAccNo))
-					$product->setRevenueAccNo(trim($revenueAccNo));
-				if($costAccNo !== null && is_string($costAccNo))
-					$product->setCostAccNo(trim($costAccNo));
-			}
-			if ((!$product->getAttributeSet() instanceof ProductAttributeSet)
-					&& ($categoryAttribute instanceof CategoryAttribute))
-			{
-				$attributesetId = $categoryAttribute->getAttributesetId();
-				if($attributesetId !== null && is_string($attributesetId))
-					$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
-			}
-			if ($short_desc != '') $product->setShortDescription($short_desc);
-			$product->save();
-			$this->_updateCategories($product, $categoryIds)
-				->_setPrices($product, $price);
-			$this->_setWholesalePrices($product, $wholesalePrice);
-			$this->_updateImages($product, $images);
-			
-			return $product;
 		}
 	}
 	/**
@@ -427,7 +435,6 @@ class SkuMatchController extends BPCPageAbstract
 	 */
 	private function _setWholesalePrices(Product &$product, $wholesalePrice)
 	{	
-		Config::dd($product);
 		$tierRules = TierRule::getAllByCriteria('productId = ?', array($product->getId()));
 		if (count($tierRules) > 0){
 			$msg = 'Update wholesale price for product(SKU=' . $product->getSku() . ') to '. StringUtilsAbstract::getCurrency($wholesalePrice);
@@ -540,15 +547,18 @@ class SkuMatchController extends BPCPageAbstract
 		foreach ($categoryIds as $categoryId)
 		{
 			$categoryId = trim($categoryId);
-			if($categoryId !== '')
+			if($categoryId !== '' && $categoryId != 1)
 			{
 				$categoryAttribute = CategoryAttribute::getByCategoryId($categoryId);
-				if ($categoryAttribute instanceof CategoryAttribute)
+				if ($categoryAttribute instanceof CategoryAttribute && $categoryAttribute->getAttributesetId() !== null)
 				{
 					$result = $categoryAttribute;
 					break;
 				}
 			}
+		}
+		if ($result === null){
+			$result = CategoryAttribute::getByCategoryId(1);
 		}
 		return $result;
 	}

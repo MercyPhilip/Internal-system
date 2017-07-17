@@ -157,15 +157,18 @@ class DetailsController extends DetailsPageAbstract
 			foreach ($categoryIds as $categoryId)
 			{
 				$categoryId = trim($categoryId);
-				if($categoryId !== '')
+				if($categoryId !== '' && $categoryId != 1)
 				{
 					$categoryAttribute = CategoryAttribute::getByCategoryId($categoryId);
-					if ($categoryAttribute instanceof CategoryAttribute)
+					if ($categoryAttribute instanceof CategoryAttribute && $categoryAttribute->getAttributesetId() !== null)
 					{
 						$result = $categoryAttribute;
 						break;
 					}
 				}
+			}
+			if ($result === null){
+				$result = CategoryAttribute::getByCategoryId(1);
 			}
 			return $result;
 	}
