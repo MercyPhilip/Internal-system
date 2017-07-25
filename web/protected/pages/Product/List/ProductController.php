@@ -70,6 +70,7 @@ class ProductController extends CRUDPageAbstract
 		$js .= "._loadChosen()";
 		$js .= "._bindSearchKey()";
 		$js .= "._bindNewRuleBtn()";
+		$js .= "._bindExportBtn()";
 		$js .= ".setCallbackId('checkPriceMatchEnable', '" . $this->checkPriceMatchEnable->getUniqueID() . "')";
 		$js .= ".setCallbackId('priceMatching', '" . $this->priceMatchingBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('toggleActive', '" . $this->toggleActiveBtn->getUniqueID() . "')";
@@ -79,6 +80,7 @@ class ProductController extends CRUDPageAbstract
 		$js .= ".setCallbackId('toggleIsKit', '" . $this->toggleIsKitBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('toggleManualFeed', '" . $this->toggleManualFeedBtn->getUniqueID() . "')";
 		$js .= ".setCallbackId('newRule', '" . $this->newRuleBtn->getUniqueID() . "')";
+		$js .= ".setCallbackId('exportProducts', '" . $this->exportBtn->getUniqueID() . "')";
 		$js .= ".setConfigPriceMatch(" . json_encode(Config::get('PriceMatch', 'Enable')) . ")";
 		$js .= ".setConfigGst(" . json_encode(Config::get('Accounting', 'GST')) . ");";
 		//$js .= ".getResults(true, " . $this->pageSize . ");";
@@ -245,6 +247,204 @@ class ProductController extends CRUDPageAbstract
             $errors[] = $ex->getMessage() ;
         }
         $param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+    }
+    public function exportProducts($sender, $param)
+    {
+    	$results = $errors = $products = array();
+    	try
+    	{
+    		if(isset($param->CallbackParameter->ticked)){
+    			$ticked = $param->CallbackParameter->ticked;
+    		}
+    		if(isset($param->CallbackParameter->productIds) && count($productIds = $param->CallbackParameter->productIds) > 0){
+    			foreach ($productIds as $productId){
+    				$product = Product::get($productId);
+    				if (!$product instanceof Product){
+    					throw new Exception('System Error: Invalid product ID provided!');
+    				}
+    				$products[] = $product;
+    			}
+    		}else {
+	    		if(!isset($param->CallbackParameter->searchCriteria) || count($serachCriteria = json_decode(json_encode($param->CallbackParameter->searchCriteria), true)) === 0)
+	    		{	
+	    			throw new Exception('System Error: search criteria not provided!');
+    			}
+	    		$sumArray = $stats =array();
+    				
+    			$serachCriteria = $this->getSearchCriteria($serachCriteria);
+    			$products = Product::getProducts(
+    					$serachCriteria->sku
+    					,$serachCriteria->name
+    					,$serachCriteria->supplierIds
+    					,$serachCriteria->manufacturerIds
+    					,$serachCriteria->categoryIds
+    					,$serachCriteria->productStatusIds
+    					,$serachCriteria->active
+    					,null
+    					,null
+    					,array('pro.name' => 'asc')
+    					,$stats
+    					,$serachCriteria->stockLevel
+    					,$sumArray
+    					,$serachCriteria->sh_from
+    					,$serachCriteria->sh_to
+    					,$serachCriteria->sellOnWeb
+    					,$serachCriteria->barcode
+    					);
+    		}
+    		$asset = $this->_getExcel($products, $ticked);
+    		if($asset instanceof Asset){
+    			$results['item'] = $asset->getJson();
+    		}
+    	}
+    	catch(Exception $ex)
+    	{
+    		$errors[] = $ex->getMessage() ;
+    	}
+    	
+    	$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+    }
+    private function _getExcel(array $products, $ticked){
+    	$data = array();
+    	try{
+    		foreach ($products as $product){
+    			$feature = $fdes = $category = $price = $wprice = $supplier = $brand = $aset = $url = '';
+    			if ((array_search('feature', $ticked) !== false) || (array_search('all', $ticked) !== false)){
+    			 	$featureAsset = Asset::getAsset($product->getCustomTabAssetId());
+    				if ($featureAsset instanceof Asset){
+    					$feature = $featureAsset->read();
+    				}
+    			}
+    			if (array_search('fdes', $ticked) !== false || array_search('all', $ticked) !== false){
+    				$fdesAsset = Asset::getAsset($product->getFullDescAssetId());
+    				if ($fdesAsset instanceof Asset){
+    					$fdes = $fdesAsset->read();
+    				}
+    			}
+    			if ((array_search('all', $ticked) !== false) || (array_search('price', $ticked) !== false)){
+    				$prices = ProductPrice::getAllByCriteria('productId = ? and typeId = ?', array($product->getId(), ProductPriceType::ID_RRP));
+    				if (count($prices) > 0){
+    					$price = $prices[0]->getPrice();
+    				}
+    			}
+    			if (array_search('cat', $ticked) !== false || array_search('all', $ticked) !== false){
+    				$categories = $product->getCategories();
+    				foreach ($categories as $cat){
+    					if ($category == ''){
+    						$category = $cat->getCategory()->getName();
+    					}else{
+    						$category .= ';' . $cat->getCategory()->getName();
+    					}
+    				}
+    			}
+    			if (array_search('wprice', $ticked) !== false || array_search('all', $ticked) !== false){
+    				$tierRules = TierRule::getAllByCriteria('productId = ?', array($product->getId()));
+    				if (count($tierRules) > 0){
+    					$tierRule = $tierRules[0];
+    					$tierPrice = TierPrice::getTierPrices($tierRule)[0];
+    					$wprice = $tierPrice->getValue();
+    				}
+    			}
+    			if (array_search('brand', $ticked) !== false || array_search('all', $ticked) !== false){
+    				$manufacturer = $product->getManufacturer();
+    				if ($manufacturer instanceof Manufacturer){
+    					$brand = $manufacturer->getName();
+    				}
+    			}
+    			if (array_search('supplier', $ticked) !== false || array_search('all', $ticked) !== false){
+    				$supplierCodes = $product->getSupplierCodes();
+    				if (count($supplierCodes) > 0){
+    					$supplier = $supplierCodes[0]->getSupplier()->getName();
+    				}
+    			}
+    			if (array_search('aset', $ticked) !== false || array_search('all', $ticked) !== false){
+    				$attributeset = $product->getAttributeSet();
+    				if ($attributeset instanceof ProductAttributeSet){
+    					$aset = $attributeset->getName();
+    				}
+    			}
+    			if (array_search('image', $ticked) !== false || array_search('all', $ticked) !== false){
+    				$images = $product->getImages();
+    				if (count($images) > 0){
+    					foreach ($images as $image){
+    						$imageAsset = $image->getAsset();
+    						if ($url == ''){
+    							$url = $_SERVER['SERVER_NAME'] . $imageAsset->getUrl();
+    						}else{
+    							$url .= ';' . $_SERVER['SERVER_NAME'] . $imageAsset->getUrl();
+    						}
+    					}
+    					
+    				}
+    			}
+    			$row = array(
+    					'sku' 	=> $product->getSku()
+    					,'name' => ((array_search('name', $ticked) !== false) || (array_search('all', $ticked) !== false) )? $product->getName():'' 
+    					,'feature' => $feature
+    					,'description' => $fdes
+    					,'short_description' => array_search('sdes', $ticked) !== false || array_search('all', $ticked) !== false? $product->getShortDescription():''
+    					,'price' => $price
+    					,'category' => $category
+    					,'wholesale_price' => $wprice
+    					,'stock' => array_search('stock', $ticked) !== false || array_search('all', $ticked) !== false? $product->getStatus():''
+    					,'brand' => $brand
+    					,'supplier' => $supplier
+    					,'weight' => array_search('weight', $ticked) !== false || array_search('all', $ticked) !== false? $product->getWeight():''
+    					,'attributeset' => $aset
+    					,'image' => $url
+    			);
+    			$data[] = $row;
+    		}
+    		
+    		$objPHPExcel = new PHPExcel();
+    		$activeSheet = $objPHPExcel->setActiveSheetIndex(0);
+    		if(count($data) === 0)
+    		{
+    			$activeSheet->setCellValue('A1', 'Nothing to export!');
+    			return $phpexcel;
+    		}
+    		$letter = 'A';
+    		$number = 1; // excel start at 1 NOT 0
+    		// header row
+    		foreach($data as $row)
+    		{
+    			foreach($row as $key => $value)
+    			{
+    				$activeSheet->setCellValue($letter++ . $number, $key);
+    			}
+    			$number++;
+    			$letter = 'A';
+    			break; // only need the header
+    		}
+    		foreach($data as $row)
+    		{
+    			foreach($row as $col)
+    			{
+    				$activeSheet->setCellValue($letter++ . $number, $col);
+    			}
+    			$number++;
+    			$letter = 'A';
+    		}
+    		
+    		if(!$objPHPExcel instanceof PHPExcel)
+    			throw new Exception('System Error: can NOT generate CSV without PHPExcel object!');
+    		// Set document properties
+    		$filePath = '/tmp/export/' . md5(new UDate()) . '.csv';
+    		$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'CSV')->setDelimiter(',')
+    		->setEnclosure('"')
+    		->setLineEnding("\r\n")
+    		->setSheetIndex(0);
+    		ob_start();
+    		$objWriter->save('php://output');
+    		$excelOutput = ob_get_clean();
+    		$now = new UDate();
+    		$now->setTimeZone('Australia/Melbourne');
+    		$asset = Asset::registerAsset('Product list' . $now->format('Y_m_d_H_i_s') . '.csv', $excelOutput, Asset::TYPE_TMP);
+    		return $asset;
+    	} catch (Exception $ex) {
+    		echo $ex->getMessage();
+    		die('ERROR!');
+    	}
     }
     private function getSearchCriteria($serachCriteria)
     {

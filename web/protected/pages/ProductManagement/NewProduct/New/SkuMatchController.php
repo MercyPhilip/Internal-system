@@ -26,15 +26,16 @@ class SkuMatchController extends BPCPageAbstract
 	const BRAND = 'brand';
 	const SUPPLIER = 'supplier';
 	const WEIGHT = 'weight';
-	const ASSETACCNO = 'assaccno';
+/* 	const ASSETACCNO = 'assaccno';
 	const REVACCNO = 'revaccno';
-	const COSTACCNO = 'cstaccno';
+	const COSTACCNO = 'cstaccno'; */
 	const ATTRIBUTESET = 'attributeset';
-	const IMAGE1 = 'image1';
+/* 	const IMAGE1 = 'image1';
 	const IMAGE2 = 'image2';
 	const IMAGE3 = 'image3';
 	const IMAGE4 = 'image4';
-	const IMAGE5 = 'image5';
+	const IMAGE5 = 'image5'; */
+	const IMAGE = 'image'; 
 	const SRP = 'srp';
 	const BUYINPRICE = 'buyinprice';
 	/**
@@ -151,21 +152,26 @@ class SkuMatchController extends BPCPageAbstract
 		$brandName = isset($row[self::BRAND]) ? trim($row[self::BRAND]) : '';
 		$supplierName = isset($row[self::SUPPLIER]) ? trim($row[self::SUPPLIER]) : '';
 		$weight = isset($row[self::WEIGHT]) ? trim($row[self::WEIGHT]) : '';
-		$assaccNo = isset($row[self::ASSETACCNO]) ? trim($row[self::ASSETACCNO]) : '';
+/* 		$assaccNo = isset($row[self::ASSETACCNO]) ? trim($row[self::ASSETACCNO]) : '';
 		$revaccNo = isset($row[self::REVACCNO]) ? trim($row[self::REVACCNO]) : '';
-		$costaccNo = isset($row[self::COSTACCNO]) ? trim($row[self::COSTACCNO]) : '';
+		$costaccNo = isset($row[self::COSTACCNO]) ? trim($row[self::COSTACCNO]) : ''; */
 		$attributeset = isset($row[self::ATTRIBUTESET]) ? trim($row[self::ATTRIBUTESET]) : '';
-		$image1 = isset($row[self::IMAGE1]) ? trim($row[self::IMAGE1]) : '';
+/* 		$image1 = isset($row[self::IMAGE1]) ? trim($row[self::IMAGE1]) : '';
 		$image2 = isset($row[self::IMAGE2]) ? trim($row[self::IMAGE2]) : '';
 		$image3 = isset($row[self::IMAGE3]) ? trim($row[self::IMAGE3]) : '';
 		$image4 = isset($row[self::IMAGE4]) ? trim($row[self::IMAGE4]) : '';
 		$image5 = isset($row[self::IMAGE5]) ? trim($row[self::IMAGE5]) : '';
-		$images = array($image1, $image2, $image3, $image4, $image5);
+		$images = array($image1, $image2, $image3, $image4, $image5); */
 		$categories = isset($row[self::CATEGORY]) ? trim($row[self::CATEGORY]) : '';
 		if ($categories != '')
 			$categories = explode(';', $categories);
 		else
 			$categories = array();
+		$images = isset($row[self::IMAGE]) ? trim($row[self::IMAGE]) : '';
+		if ($images != '')
+			$images = explode(';', $images);
+		else
+			$images = array();
 		$status = array();
 		if ($stockName != '')
 		{
@@ -254,28 +260,35 @@ class SkuMatchController extends BPCPageAbstract
 				$product->setSku($sku)->setSellOnWeb(false)->setActive(true);
 				if (trim($weight) != '')  $product->setWeight(doubleval($weight));
 				$categoryAttribute = $this->getDefaultAttribute($categoryIds);
-				if ((trim($assaccNo) != '') && (trim($revaccNo) != '')
-						&& (trim($costaccNo) != '') && (trim($attributeset) != ''))
+			/* 	if ((trim($assaccNo) != '') && (trim($revaccNo) != '')
+						&& (trim($costaccNo) != '') && (trim($attributeset) != '')) */
+				if (trim($attributeset) != '')
 				{
-					$product->setAssetAccNo(trim($assaccNo));
+				/* 	$product->setAssetAccNo(trim($assaccNo));
 					$product->setRevenueAccNo(trim($revaccNo));
-					$product->setCostAccNo(trim($costaccNo));
-					$product->setAttributeSet(ProductAttributeSet::get(trim($attributeset)));
+					$product->setCostAccNo(trim($costaccNo)); */
+					$productAttributeSet = ProductAttributeSet::getAllByCriteria('name = ?', array(trim($attributeset)));
+					if (count($productAttributeSet) > 0){
+						$product->setAttributeSet($productAttributeSet[0]);
+					}else{
+						throw new Exception("[sku:" . $sku . "] Invalid attributeset provided! (line:" . $index . ")");
+					}
+					
 				}
 				else if ($categoryAttribute instanceof CategoryAttribute)
 				{
-					$assetAccNo = $categoryAttribute->getAssetAccNo();
+				/* 	$assetAccNo = $categoryAttribute->getAssetAccNo();
 					$revenueAccNo = $categoryAttribute->getRevenueAccNo();
-					$costAccNo = $categoryAttribute->getCostAccNo();
+					$costAccNo = $categoryAttribute->getCostAccNo(); */
 					$attributesetId = $categoryAttribute->getAttributesetId();
-					if($assetAccNo !== null && is_string($assetAccNo))
+				/* 	if($assetAccNo !== null && is_string($assetAccNo))
 						$product->setAssetAccNo(trim($assetAccNo));
 						if($revenueAccNo !== null && is_string($revenueAccNo))
 							$product->setRevenueAccNo(trim($revenueAccNo));
 							if($costAccNo !== null && is_string($costAccNo))
-								$product->setCostAccNo(trim($costAccNo));
-								if($attributesetId !== null && is_string($attributesetId))
-									$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
+								$product->setCostAccNo(trim($costAccNo)); */
+					if($attributesetId !== null && is_string($attributesetId))
+						$product->setAttributeSet(ProductAttributeSet::get($attributesetId));
 				}
 				if ($name != '') $product->setName($name);
 				if ($brand != null) $product->setManufacturer($brand);
@@ -304,7 +317,7 @@ class SkuMatchController extends BPCPageAbstract
 				if ($stock != null) $product->setStatus($stock);
 				if ($supplier != null) $product->addSupplier($supplier);
 				$this->_updateCategories($product, $categoryIds)->_setPrices($product, $price);
-				$this->_setWholesalePrices($product, $wholesalePrice);
+				if ($wholesalePrice != '') $this->_setWholesalePrices($product, $wholesalePrice);
 				$this->_updateImages($product, $images);
 				if (!$isNewProduct instanceof NewProduct)
 				{
@@ -339,21 +352,22 @@ class SkuMatchController extends BPCPageAbstract
 				// check accountNo and attributeset 
 				// if null then upate
 				$categoryAttribute = $this->getDefaultAttribute($categoryIds);
-				if ((trim($product->getAssetAccNo()) == '') 
+/* 				if ((trim($product->getAssetAccNo()) == '') 
 						&& (trim($product->getRevenueAccNo()) == '')
 						&& (trim($product->getCostAccNo()) == '') 
-						&& ($categoryAttribute instanceof CategoryAttribute))
+						&& ($categoryAttribute instanceof CategoryAttribute)) */
+				if ($categoryAttribute instanceof CategoryAttribute)
 				{
-					$assetAccNo = $categoryAttribute->getAssetAccNo();
+					/* $assetAccNo = $categoryAttribute->getAssetAccNo();
 					$revenueAccNo = $categoryAttribute->getRevenueAccNo();
-					$costAccNo = $categoryAttribute->getCostAccNo();
+					$costAccNo = $categoryAttribute->getCostAccNo(); */
 					$attributesetId = $categoryAttribute->getAttributesetId();
-					if($assetAccNo !== null && is_string($assetAccNo))
+				/* 	if($assetAccNo !== null && is_string($assetAccNo))
 						$product->setAssetAccNo(trim($assetAccNo));
 					if($revenueAccNo !== null && is_string($revenueAccNo))
 						$product->setRevenueAccNo(trim($revenueAccNo));
 					if($costAccNo !== null && is_string($costAccNo))
-						$product->setCostAccNo(trim($costAccNo));
+						$product->setCostAccNo(trim($costAccNo)); */
 				}
 				if ((!$product->getAttributeSet() instanceof ProductAttributeSet)
 						&& ($categoryAttribute instanceof CategoryAttribute))
@@ -366,7 +380,7 @@ class SkuMatchController extends BPCPageAbstract
 				$product->save();
 				$this->_updateCategories($product, $categoryIds)
 					->_setPrices($product, $price);
-				$this->_setWholesalePrices($product, $wholesalePrice);
+				if ($wholesalePrice != '') $this->_setWholesalePrices($product, $wholesalePrice);
 				$this->_updateImages($product, $images);
 				
 				return $product;

@@ -158,6 +158,126 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 		});
 		return this;
 	}
+	,_bindExportBtn: function(btn) {
+		var tmp = {};
+		tmp.me = this;
+//		tmp.products = (products || null);
+		tmp.btn = (btn || $('exportBtn'));
+		tmp.me.observeClickNDbClick(
+				tmp.btn
+				,function(){
+					tmp.ticked = [];
+					tmp.warningMsg = new Element('div')
+//					.insert({'bottom': new Element('h3', {'class': 'col-lg-12'}).update('only <b>' + tmp.selected.length + '</b> out of <b>' + tmp.totalQty + '</b> is selected, Contrinue?') })
+					.insert({'bottom': new Element('h3', {'class': 'col-lg-12'}).update('Please tick which columns you would like to export.') })
+					.insert({'bottom': new Element('div', {'id':'tick-row', 'class': 'row'})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('Name').setStyle('font-size:15px;') 
+							.insert({'bottom': new Element('input', {'tick_name':'name','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('Feature').setStyle('font-size:15px;') 
+							.insert({'bottom': new Element('input', {'tick_name':'feature','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('Price').setStyle('font-size:15px;') 
+							.insert({'bottom': new Element('input', {'tick_name':'price','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('Category').setStyle('font-size:15px;') 
+							.insert({'bottom': new Element('input', {'tick_name':'cat','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('Stock').setStyle('font-size:15px;') 
+							.insert({'bottom': new Element('input', {'tick_name':'stock','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('Brand').setStyle('font-size:15px;') 
+							.insert({'bottom': new Element('input', {'tick_name':'brand','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('Supplier').setStyle('font-size:15px;') 
+							.insert({'bottom': new Element('input', {'tick_name':'supplier','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('Weight').setStyle('font-size:15px;') 
+							.insert({'bottom': new Element('input', {'tick_name':'weight','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('Image').setStyle('font-size:15px;') 
+							.insert({'bottom': new Element('input', {'tick_name':'image','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-2'}).update('Wholesale Price').setStyle('font-size:15px;') 
+							.insert({'bottom': new Element('input', {'tick_name':'wprice','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-2'}).update('Full Description').setStyle('font-size:15px;') 
+							.insert({'bottom': new Element('input', {'tick_name':'fdes','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-2'}).update('Short Description').setStyle('font-size:15px;width:17.6%') 
+							.insert({'bottom': new Element('input', {'tick_name':'sdes','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('Attributeset').setStyle('font-size:15px;width:10.6%') 
+							.insert({'bottom': new Element('input', {'tick_name':'aset','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('All').setStyle('font-size:15px;width:5%') 
+							.insert({'bottom': new Element('input', {'tick_name':'all','type': 'checkbox'}).setStyle('margin:0;') })
+						})
+					})
+					.insert({'bottom': new Element('div', {'class': 'row'}).setStyle('padding-top:15px;')
+						.insert({'bottom': new Element('i', {'class': 'btn btn-danger btn-md'}).update('Cancel').setStyle('margin-left:15px;')
+							.observe('click', function(){tmp.me.hideModalBox();})
+						})
+						.insert({'bottom': new Element('i', {'class': 'btn btn-success btn-md pull-right'}).update('Submit').setStyle('margin-right:15px;')
+							.observe('click', function(){
+								tmp.tickList = $('tick-row');
+								tmp.tickList.getElementsBySelector('Label').each(function(row){
+									tmp.checked = row.down('input[type="checkbox"]').checked;
+									tmp.tickName = row.down('input[type="checkbox"]').readAttribute('tick_name');
+									if(tmp.checked === true)
+										tmp.ticked.push(tmp.tickName);
+								});
+								tmp.selected = tmp.me._getSelection();
+								
+								if(tmp.selected !== null && tmp.selected.length > 0) {
+									tmp.me.exportProducts(tmp.ticked, tmp.selected);
+								}else{
+									tmp.me.getSearchCriteria().exportProducts(tmp.ticked);
+								}
+								tmp.me.hideModalBox();
+							})
+						})
+					});
+					tmp.me.showModalBox('Warning', tmp.warningMsg, false, null, null, true);
+				}
+				,null
+		);
+		return tmp.me;
+	}
+	,exportProducts: function(ticked, products) {
+		var tmp = {};
+		tmp.productIds = [];
+		tmp.me = this;
+		
+		if(products){
+			products.each(function(product){
+				tmp.productIds.push(product.id); 
+			})
+		}
+		
+		tmp.me.postAjax(tmp.me.getCallbackId('exportProducts'), {'ticked':ticked, 'productIds': tmp.productIds, 'searchCriteria': tmp.me._searchCriteria}, {
+			'onLoading': function() {
+				tmp.me._signRandID(btn);
+				jQuery('#' + btn.id).button('loading');
+			}
+			,'onSuccess': function(sender, param) {
+				try {
+					tmp.result = tmp.me.getResp(param, false, true);
+					if(!tmp.result || !tmp.result.item || !tmp.result.item.id)
+						return;
+					window.open(tmp.result.item.url);
+					window.focus();
+					tmp.me.hideModalBox();
+				} catch (e) {
+					tmp.me.showModalBox('<strong class="text-danger">Error</strong>', '<h4>' + e + '</h4>');
+				}
+			}
+			,'onComplete': function(sender, param) {
+				jQuery('#' + btn.id).button('reset');
+			}
+		})
+		return tmp.me;
+	}
 	/**
 	 * Getting the supplier codes for display result list per row
 	 */

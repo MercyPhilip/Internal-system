@@ -904,26 +904,28 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				}
 			});
 		}
-		if ((!tiers) || !unitCost) return '&nbsp;';
+//		if ((!tiers) || !unitCost) return '&nbsp;';
 		tmp.tierStrings = [];
-		tiers.each(function(tier) {
-			warning = false;
-			if (tier.tierPriceType.id == 1)
-			{
-				tierPrice = Number((unitCost * (tier.value / 100) + unitCost) * 1.1).toFixed(2);
-			}
-			else
-			{
-				tierPrice = Number(tier.value).toFixed(2);
-			}
-			if (tmp.srp && tierPrice > tmp.srp)
-				warning = true;
-			if (tmp.specilaPrice && tierPrice > tmp.specilaPrice)
-				warning = true;
-			if (tmp.price && tierPrice > tmp.price)
-				warning = true;
-			tmp.tierStrings.push('<div ' + (warning? 'style="color : red;"' : '') + '><small><strong class="hidden-xs hide-when-info hidden-sm">' + tier.tierLevel.name + ': </strong>' + tmp.me.getCurrency(tierPrice) + ': <abbr title="Quantity" >' + (tier.quantity > 0 ? tier.quantity : '') + ' </abbr></small></div>');
-		})
+		if(tiers){
+			tiers.each(function(tier) {
+				warning = false;
+				if (tier.tierPriceType.id == 1)
+				{
+					tierPrice = Number((unitCost * (tier.value / 100) + unitCost) * 1.1).toFixed(2);
+				}
+				else
+				{
+					tierPrice = Number(tier.value).toFixed(2);
+				}
+				if (tmp.srp && tierPrice > tmp.srp)
+					warning = true;
+				if (tmp.specilaPrice && tierPrice > tmp.specilaPrice)
+					warning = true;
+				if (tmp.price && tierPrice > tmp.price)
+					warning = true;
+				tmp.tierStrings.push('<div ' + (warning? 'style="color : red;"' : '') + '><small><strong class="hidden-xs hide-when-info hidden-sm">' + tier.tierLevel.name + ': </strong>' + tmp.me.getCurrency(tierPrice) + ': <abbr title="Quantity" >' + (tier.quantity > 0 ? tier.quantity : '') + ' </abbr></small></div>');
+			})
+		}
 		tierResult = tmp.tierStrings.join('');
 		if (tierResult == '') tierResult = '&nbsp;';
 		return tierResult;
