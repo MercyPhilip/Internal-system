@@ -30,6 +30,15 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		return tmp.me;
 	}
 	/**
+	 * Load the tierLevels
+	 */
+	,_loadTierLevels: function(tierLevels) {
+		this.tierLevels = tierLevels;
+		var tmp = {};
+		tmp.me = this;
+		return this;
+	}
+	/**
 	 * create template csv file with header only
 	 */
 	,_genTemplate: function() {
@@ -132,7 +141,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		switch(tmp.me._importDataTypes) {
 			case 'new_product':
 			case 'update_product':
-				tmp.me.csvFileLineFormat = ['sku', 'name', 'feature','description', 'short_description', 'price', 'category', 'wholesale_price', 'stock', 'brand', 'supplier', 'weight', 'attributeset', 'image'];
+				tmp.me.csvFileLineFormat = ['sku', 'name', 'feature','description', 'short_description', 'price', 'category', tmp.me.tierLevels, 'stock', 'brand', 'supplier', 'weight', 'attributeset', 'image'];
 				break;
 			case 'update_srp':
 				tmp.me.csvFileLineFormat = ['sku', 'srp'];
@@ -180,6 +189,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		var tmp = {};
 		tmp.me = this;
 		tmp.me._uploadedData = {};
+		tmp.header = [];
 		tmp.fileLists = new Element('div', {'class': 'list-group'});
 		for(tmp.i = 0, tmp.file; tmp.file = files[tmp.i]; tmp.i++) {
 			tmp.fileRow = new Element('div', {'class': 'row'}).update( new Element('div', {'class': 'col-lg-6 col-md-6'}).update(tmp.file.name) );
@@ -200,6 +210,16 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							tmp.key = tmp.cols.join(',');
 							if((tmp.key.trim() != '') && (tmp.key !== tmp.me.csvFileLineFormat.join(','))) { //this is not the header line
 								tmp.colArray = {};
+								tmp.me.csvFileLineFormat.each(function(item){
+									if(item instanceof Array){
+										item.each(function(i){
+											tmp.header.push(i);
+										})
+									}else{
+										tmp.header.push(item);
+									}
+								})
+								tmp.me.csvFileLineFormat = tmp.header;
 								for(tmp.j = 0; tmp.j < tmp.me.csvFileLineFormat.size(); tmp.j++) {
 									tmp.colArray[tmp.me.csvFileLineFormat[tmp.j]] = tmp.cols[tmp.j];
 								}

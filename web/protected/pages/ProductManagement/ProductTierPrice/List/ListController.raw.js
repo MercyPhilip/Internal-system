@@ -382,7 +382,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 				}
 			});
 		}
-		if ((!tiers) || !unitCost) return '';
+		if ((!tiers) || (!unitCost && tiers.length > 0 && tiers[0].tierPriceType.id == 1 )) return '';
 		tmp.tierStrings = [];
 		tiers.each(function(tier) {
 			warning = false;
@@ -504,9 +504,9 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 					tmp.isTitle === true ?
 							new Element('div', {'class': 'row'})
 								.insert({'bottom': new Element('div', {'class': 'col-xs-2'}).update('SOH') })
-								.insert({'bottom': new Element('div', {'class': 'col-xs-3'}).update('RRP(Inc)') })
+								.insert({'bottom': new Element('div', {'class': 'col-xs-3'}).update('RRP(Ex)') })
 								.insert({'bottom': new Element('div', {'class': 'col-xs-3'}).update('Cost(Ex)') })
-								.insert({'bottom': new Element('div', {'class': 'col-xs-4'}).update('Tier Prices(Inc)') })
+								.insert({'bottom': new Element('div', {'class': 'col-xs-4'}).update('Tier Prices(Ex)') })
 							:
 							new Element('div', {'class': 'row'})
 								.insert({'bottom': new Element('div', {'class': 'col-xs-2'}).update(row.stockOnHand) })

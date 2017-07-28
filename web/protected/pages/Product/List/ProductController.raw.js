@@ -198,7 +198,7 @@ PageJs.prototype = Object.extend(new CRUDPageJs(), {
 						.insert({'bottom': new Element('label', {'class': 'col-xs-1'}).update('Image').setStyle('font-size:15px;') 
 							.insert({'bottom': new Element('input', {'tick_name':'image','type': 'checkbox'}).setStyle('margin:0;') })
 						})
-						.insert({'bottom': new Element('label', {'class': 'col-xs-2'}).update('Wholesale Price').setStyle('font-size:15px;') 
+						.insert({'bottom': new Element('label', {'class': 'col-xs-2'}).update('Tier Price').setStyle('font-size:15px;width: 12.6%;') 
 							.insert({'bottom': new Element('input', {'tick_name':'wprice','type': 'checkbox'}).setStyle('margin:0;') })
 						})
 						.insert({'bottom': new Element('label', {'class': 'col-xs-2'}).update('Full Description').setStyle('font-size:15px;') 

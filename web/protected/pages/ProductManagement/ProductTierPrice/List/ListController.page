@@ -93,8 +93,11 @@
 			<div class="panel panel-default">
 				<div class="panel-heading">
 					<div class="row">
-						<div class="col-xs-4">
+						<div class="col-xs-5">
 							Found <label id="total-found-count">0</label> Products.<label id="total-selected-count">0</label> Selected
+						</div>
+						<div class="col-xs-4">
+							Percentage Tier Price Only Display when Cost Is Not N/A
 						</div>
 					</div>
 				</div>

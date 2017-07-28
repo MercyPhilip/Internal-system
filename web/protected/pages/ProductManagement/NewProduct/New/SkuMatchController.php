@@ -15,7 +15,7 @@ class SkuMatchController extends BPCPageAbstract
 	 */
 	public $menuItem = 'skuMatch';
 	const PRICE = 'price';
-	const WHOLESALE_PRICE = 'wholesale_price';
+// 	const WHOLESALE_PRICE = 'wholesale_price';
 	const SHORTDESCRIPTION = 'short_description';
 	const FEATURE = 'feature';
 	const LONGDESCRIPTION = 'description';
@@ -59,12 +59,19 @@ class SkuMatchController extends BPCPageAbstract
 	{
 		$importDataTypes = array('update_product'=>'UPDATE PRODUCT', 'update_srp' => 'UPDATE SRP(PRICE)', 
 				'update_buyinprice' => 'UPDATE PRICE BOOK', 'update_supplier_sku' => 'UPDATE SUPLLIER SKU');
-
+		$tierLevelNames = array();
+		$tierLevels = TierLevel::getAllByCriteria('id <> 1', array());
+		if (count($tierLevels) > 0){
+			foreach ($tierLevels as $tierLevel){
+				$tierLevelNames[] = $tierLevel->getName();
+			}
+		}
 		$js = parent::_getEndJs();
 		$js .= 'pageJs';
 		$js .= ".setHTMLID('importerDiv', 'importer_div')";
 		$js .= ".setHTMLID('importDataTypesDropdownId', 'import_type_dropdown')";
 		$js .= '.setCallbackId("getAllCodeForProduct", "' . $this->getAllCodeForProductBtn->getUniqueID() . '")';
+		$js .= '._loadTierLevels('.json_encode($tierLevelNames).')';
 		$js .= '.load(' . json_encode($importDataTypes) . ');';
 		return $js;
 	}
@@ -91,7 +98,9 @@ class SkuMatchController extends BPCPageAbstract
 					$result['item'] = $item instanceof NewProduct ? $item->getJson() : array();
 					break; */
 				case 'update_product':
-					$item = $this->importNewProduct($data, true);
+					$tierLevels = TierLevel::getAllByCriteria('id <> 1', array());
+					
+					$item = $this->importNewProduct($data, $tierLevels, true);
 					if ($item instanceof Product){
 						$result['path'] = '/product/' . $item->getId() . '.html';
 						$result['item'] = $item->getJson();
@@ -133,7 +142,7 @@ class SkuMatchController extends BPCPageAbstract
 	 * @throws Exception
 	 * @return ListController
 	 */
-	private function importNewProduct($row, $isUpdate = false)
+	private function importNewProduct($row, $tierLevels, $isUpdate = false)
 	{
 		$row = new ArrayObject($row);
 		$index = $row['index'];
@@ -144,7 +153,7 @@ class SkuMatchController extends BPCPageAbstract
 		}
 		$name = isset($row[self::NAME]) ? trim($row[self::NAME]) : '';
 		$price = isset($row[self::PRICE]) ? trim($row[self::PRICE]) : '';
-		$wholesalePrice = isset($row[self::WHOLESALE_PRICE]) ? trim($row[self::WHOLESALE_PRICE]) : '';
+// 		$wholesalePrice = isset($row[self::WHOLESALE_PRICE]) ? trim($row[self::WHOLESALE_PRICE]) : '';
 		$stockName = isset($row[self::STOCK]) ? trim($row[self::STOCK]) : '';
 		$description = isset($row[self::LONGDESCRIPTION]) ? trim($row[self::LONGDESCRIPTION]) : '';
 		$feature = isset($row[self::FEATURE]) ? trim($row[self::FEATURE]) : '';
@@ -232,7 +241,16 @@ class SkuMatchController extends BPCPageAbstract
 		$search = array('$', ',');
 		$replace = array();
 		$price = doubleval(str_replace($search, $replace, $price));
-		$wholesalePrice = doubleval(str_replace($search, $replace, $wholesalePrice));
+		$tierPrices = array();
+		if (count($tierLevels) > 0){
+			foreach ($tierLevels as $tierLevel){
+				if ($row[$tierLevel->getName()] != ''){
+					$tierPrices[$tierLevel->getId()] = trim($row[$tierLevel->getName()]);
+					$tierPrices[$tierLevel->getId()] = doubleval(str_replace($search, $replace, $tierPrices[$tierLevel->getId()]));
+				}
+			}
+		}
+		
 		$product = Product::getBySku($sku);
 		if ($isUpdate)
 		{
@@ -317,7 +335,7 @@ class SkuMatchController extends BPCPageAbstract
 				if ($stock != null) $product->setStatus($stock);
 				if ($supplier != null) $product->addSupplier($supplier);
 				$this->_updateCategories($product, $categoryIds)->_setPrices($product, $price);
-				if ($wholesalePrice != '') $this->_setWholesalePrices($product, $wholesalePrice);
+				if (count($tierPrices) > 0) $this->_setTierPrices($product, $tierPrices);
 				$this->_updateImages($product, $images);
 				if (!$isNewProduct instanceof NewProduct)
 				{
@@ -380,7 +398,7 @@ class SkuMatchController extends BPCPageAbstract
 				$product->save();
 				$this->_updateCategories($product, $categoryIds)
 					->_setPrices($product, $price);
-				if ($wholesalePrice != '') $this->_setWholesalePrices($product, $wholesalePrice);
+				if (count($tierPrices) > 0) $this->_setTierPrices($product, $tierPrices);
 				$this->_updateImages($product, $images);
 				
 				return $product;
@@ -447,42 +465,81 @@ class SkuMatchController extends BPCPageAbstract
 	 * @throws Exception
 	 * @return ListController
 	 */
-	private function _setWholesalePrices(Product &$product, $wholesalePrice)
+	private function _setTierPrices(Product &$product, $prices)
 	{	
 		$tierRules = TierRule::getAllByCriteria('productId = ?', array($product->getId()));
 		if (count($tierRules) > 0){
-			$msg = 'Update wholesale price for product(SKU=' . $product->getSku() . ') to '. StringUtilsAbstract::getCurrency($wholesalePrice);
+			
 			$tierRule = $tierRules[0];
-			$tierPrice = TierPrice::getTierPrices($tierRule)[0];
-			$productTierPrice = ProductTierPrice::getProductTierPrice($product);
+			$tierPrices = TierPrice::getTierPrices($tierRule);
+			$productTierPrices = ProductTierPrice::getAllByCriteria('productId = ?', array($product->getId()));
+			foreach ($prices as $key => $price){
+				foreach ($tierPrices as $tierPrice){
+					if ($tierPrice->getTierLevel()->getId() == $key){
+						break;
+					}else{
+						$tierPrice = new TierPrice();
+					}
+				}
+				$tierPrice->setTierRule($tierRule)
+				->setTierLevel(TierLevel::get($key))
+				->setQuantity(1)
+				->setTierPriceType(TierPriceType::get(2))
+				->setValue($price)
+				->save();
+				
+				foreach ($productTierPrices as $productTierPrice){
+					if ($productTierPrice->getTierLevel()->getId() == $key){
+						break;
+					}else{
+						$productTierPrice = new ProductTierPrice();
+
+					}
+				}
+				
+				$productTierPrice->setProduct($product)
+				->setTierLevel(TierLevel::get($key))
+				->setQuantity(1)
+				->setTierPriceType(TierPriceType::get(2))
+				->setValue($price)
+				->setPriorityId(ProductTierPrice::PRIORITY_ID_PID)
+				->setTierRule($tierRule)
+				->save();
+				
+				$msg = 'Update ' . TierLevel::get($key)->getName() . ' price for product(SKU=' . $product->getSku() . ') to '. StringUtilsAbstract::getCurrency($price);
+				$product->addComment($msg, Log::TYPE_SYSTEM)
+				->addLog($msg, Log::TYPE_SYSTEM);
+			}
+			
 		} else {
 			$tierRule = new TierRule();
-			$tierPrice = new TierPrice();
-			$productTierPrice = new ProductTierPrice();
-			
-			$msg = 'New Wholesale Price Created for product(SKU=' . $product->getSku() . '): '. StringUtilsAbstract::getCurrency($wholesalePrice);
+			$tierRule->setProduct($product)->setPriorityId(TierRule::PRIORITY_ID_PID)->save();
+			foreach ($prices as $key => $price){
+				
+				$tierPrice = new TierPrice();
+				$productTierPrice = new ProductTierPrice();
+				
+				$tierPrice->setTierRule($tierRule)
+				->setTierLevel(TierLevel::get($key))
+				->setQuantity(1)
+				->setTierPriceType(TierPriceType::get(2))
+				->setValue($price)
+				->save();
+				
+				$productTierPrice->setProduct($product)
+				->setTierLevel(TierLevel::get($key))
+				->setQuantity(1)
+				->setTierPriceType(TierPriceType::get(2))
+				->setValue($price)
+				->setPriorityId(ProductTierPrice::PRIORITY_ID_PID)
+				->setTierRule($tierRule)
+				->save();
+				
+				$msg = 'New ' . TierLevel::get($key)->getName() . ' Price Created for product(SKU=' . $product->getSku() . '): '. StringUtilsAbstract::getCurrency($price);
+				$product->addComment($msg, Log::TYPE_SYSTEM)
+				->addLog($msg, Log::TYPE_SYSTEM);
+			}
 		}
-		
-		$tierRule->setProduct($product)->setPriorityId(TierRule::PRIORITY_ID_PID)->save();
-		
-		$tierPrice->setTierRule($tierRule)
-		->setTierLevel(TierLevel::get(5))
-		->setQuantity(1)
-		->setTierPriceType(TierPriceType::get(2))
-		->setValue($wholesalePrice)
-		->save();
-		
-		$productTierPrice->setProduct($product)
-		->setTierLevel(TierLevel::get(5))
-		->setQuantity(1)
-		->setTierPriceType(TierPriceType::get(2))
-		->setValue($wholesalePrice)
-		->setPriorityId(ProductTierPrice::PRIORITY_ID_PID)
-		->setTierRule($tierRule)
-		->save();
-	
-		$product->addComment($msg, Log::TYPE_SYSTEM)
-			->addLog($msg, Log::TYPE_SYSTEM);
 		return $this;
 	}
 	/**

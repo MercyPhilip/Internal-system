@@ -410,7 +410,13 @@ class ListController extends CRUDPageAbstract
     		{
     			ProductTierPrice::updateByCriteria('active = 0', 'id in (' . implode(',', $deleteIds) . ')');
     		}
-    
+    		
+    		$tierRules = TierRule::getAllByCriteria('productId = ?', array($product->getId()));
+    		if (count($tierRules) > 0){
+    			$tierRule = $tierRules[0];
+    		}else{
+    			throw new Exception("System Error: No tier rule for this product.");
+    		}
     		//update or create new
     		foreach($tierprices as $tierprice)
     		{
@@ -434,6 +440,7 @@ class ListController extends CRUDPageAbstract
     						->setTierPriceType($type)
     						->setValue($value)
     						->setPriorityId(ProductTierPrice::PRIORITY_ID_PID)
+    						->setTierRule($tierRule)
     						->save();
     				}
     			}
@@ -445,7 +452,7 @@ class ListController extends CRUDPageAbstract
     					->setTierPriceType($type)
     					->setValue($value)
     					->setPriorityId(ProductTierPrice::PRIORITY_ID_PID)
-    					->setTierRule(null)
+    					->setTierRule($tierRule)
     					->save();
     			}
     		}

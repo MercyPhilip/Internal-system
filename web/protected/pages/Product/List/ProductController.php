@@ -306,9 +306,14 @@ class ProductController extends CRUDPageAbstract
     }
     private function _getExcel(array $products, $ticked){
     	$data = array();
+    	$tierLevels = TierLevel::getAllByCriteria('id <> 1', array());
+    	foreach ($tierLevels as $tierLevel){
+    		$tierPrice[$tierLevel->getName()] = '';
+    	}
     	try{
     		foreach ($products as $product){
     			$feature = $fdes = $category = $price = $wprice = $supplier = $brand = $aset = $url = '';
+    			$tiers = $tierPrice;
     			if ((array_search('feature', $ticked) !== false) || (array_search('all', $ticked) !== false)){
     			 	$featureAsset = Asset::getAsset($product->getCustomTabAssetId());
     				if ($featureAsset instanceof Asset){
@@ -341,8 +346,11 @@ class ProductController extends CRUDPageAbstract
     				$tierRules = TierRule::getAllByCriteria('productId = ?', array($product->getId()));
     				if (count($tierRules) > 0){
     					$tierRule = $tierRules[0];
-    					$tierPrice = TierPrice::getTierPrices($tierRule)[0];
-    					$wprice = $tierPrice->getValue();
+    					$tierPrices = TierPrice::getTierPrices($tierRule);
+    					foreach ($tierPrices as $value){
+    						$tiers[$value->getTierLevel()->getName()] = $value->getValue();
+    					}
+//     					$wprice = $tierPrice->getValue();
     				}
     			}
     			if (array_search('brand', $ticked) !== false || array_search('all', $ticked) !== false){
@@ -385,7 +393,7 @@ class ProductController extends CRUDPageAbstract
     					,'short_description' => array_search('sdes', $ticked) !== false || array_search('all', $ticked) !== false? $product->getShortDescription():''
     					,'price' => $price
     					,'category' => $category
-    					,'wholesale_price' => $wprice
+    					,'tier_price' => $tiers
     					,'stock' => array_search('stock', $ticked) !== false || array_search('all', $ticked) !== false? $product->getStatus():''
     					,'brand' => $brand
     					,'supplier' => $supplier
@@ -410,7 +418,13 @@ class ProductController extends CRUDPageAbstract
     		{
     			foreach($row as $key => $value)
     			{
-    				$activeSheet->setCellValue($letter++ . $number, $key);
+    				if (is_array($value)){
+    					foreach ($value as $index => $result){
+    						$activeSheet->setCellValue($letter++ . $number, $index);
+    					}
+    				}else{
+    					$activeSheet->setCellValue($letter++ . $number, $key);
+    				}
     			}
     			$number++;
     			$letter = 'A';
@@ -420,7 +434,13 @@ class ProductController extends CRUDPageAbstract
     		{
     			foreach($row as $col)
     			{
-    				$activeSheet->setCellValue($letter++ . $number, $col);
+    				if (is_array($col)){
+    					foreach ($col as $result){
+    						$activeSheet->setCellValue($letter++ . $number, $result);
+    					}
+    				}else {
+    					$activeSheet->setCellValue($letter++ . $number, $col);
+    				}
     			}
     			$number++;
     			$letter = 'A';
