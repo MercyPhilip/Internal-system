@@ -346,8 +346,8 @@ class ProductController extends CRUDPageAbstract
     				$tierRules = TierRule::getAllByCriteria('productId = ?', array($product->getId()));
     				if (count($tierRules) > 0){
     					$tierRule = $tierRules[0];
-    					$tierPrices = TierPrice::getTierPrices($tierRule);
-    					foreach ($tierPrices as $value){
+    					$productTierPrices = ProductTierPrice::getAllByCriteria('productId = ?', array($product->getId()));
+    					foreach ($productTierPrices as $value){
     						$tiers[$value->getTierLevel()->getName()] = $value->getValue();
     					}
 //     					$wprice = $tierPrice->getValue();
