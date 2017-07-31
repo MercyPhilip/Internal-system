@@ -393,13 +393,13 @@ class ProductController extends CRUDPageAbstract
     					,'short_description' => array_search('sdes', $ticked) !== false || array_search('all', $ticked) !== false? $product->getShortDescription():''
     					,'price' => $price
     					,'category' => $category
-    					,'tier_price' => $tiers
     					,'stock' => array_search('stock', $ticked) !== false || array_search('all', $ticked) !== false? $product->getStatus():''
     					,'brand' => $brand
     					,'supplier' => $supplier
     					,'weight' => array_search('weight', $ticked) !== false || array_search('all', $ticked) !== false? $product->getWeight():''
     					,'attributeset' => $aset
     					,'image' => $url
+    					,'tier_price' => $tiers
     			);
     			$data[] = $row;
     		}

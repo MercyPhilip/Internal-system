@@ -141,7 +141,10 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		switch(tmp.me._importDataTypes) {
 			case 'new_product':
 			case 'update_product':
-				tmp.me.csvFileLineFormat = ['sku', 'name', 'feature','description', 'short_description', 'price', 'category', tmp.me.tierLevels, 'stock', 'brand', 'supplier', 'weight', 'attributeset', 'image'];
+				tmp.me.csvFileLineFormat = ['sku', 'name', 'feature','description', 'short_description', 'price', 'category','stock', 'brand', 'supplier', 'weight', 'attributeset', 'image'];
+				tmp.me.tierLevels.each(function(tierLevel){
+					tmp.me.csvFileLineFormat.push(tierLevel);
+				}) 
 				break;
 			case 'update_srp':
 				tmp.me.csvFileLineFormat = ['sku', 'srp'];
@@ -211,13 +214,13 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 							if((tmp.key.trim() != '') && (tmp.key !== tmp.me.csvFileLineFormat.join(','))) { //this is not the header line
 								tmp.colArray = {};
 								tmp.me.csvFileLineFormat.each(function(item){
-									if(item instanceof Array){
+								/*	if(item instanceof Array){
 										item.each(function(i){
 											tmp.header.push(i);
 										})
-									}else{
+									}else{*/
 										tmp.header.push(item);
-									}
+									//}
 								})
 								tmp.me.csvFileLineFormat = tmp.header;
 								for(tmp.j = 0; tmp.j < tmp.me.csvFileLineFormat.size(); tmp.j++) {
