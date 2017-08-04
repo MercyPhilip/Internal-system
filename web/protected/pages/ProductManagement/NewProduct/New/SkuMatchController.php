@@ -333,7 +333,7 @@ class SkuMatchController extends BPCPageAbstract
 						$status = ProductStockInfo::create($product, null, $store);
 				}
 				if ($stock != null) $product->setStatus($stock);
-				if ($supplier != null) $product->addSupplier($supplier);
+				if ($supplier != null) $product->addSupplier($supplier, $sku);
 				$this->_updateCategories($product, $categoryIds)->_setPrices($product, $price);
 				if (count($tierPrices) > 0) $this->_setTierPrices($product, $tierPrices);
 				$this->_updateImages($product, $images);
@@ -351,7 +351,11 @@ class SkuMatchController extends BPCPageAbstract
 				if ($name != '') $product->setName($name);
 				if ($stock != null) $product->setStatus($stock);
 				if (trim($weight) != '')  $product->setWeight(doubleval($weight));
-				if ($supplier != null) $product->addSupplier($supplier);
+				$supplierCodes = SupplierCode::getAllByCriteria('supplierId = ? and productId = ?',array($supplier->getId(), $product->getId()));
+				if (count($supplierCodes) > 0){
+					$supplier = null;
+				}
+				if ($supplier != null) $product->addSupplier($supplier, $sku);
 				if ($brand != null) $product->setManufacturer($brand);
 				if ($description != '')
 				{
