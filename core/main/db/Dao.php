@@ -267,6 +267,7 @@ abstract class Dao
         {
             $params['id'] = $id;
             $params['updated'] = new UDate();
+            $params['updatedBy'] = Core::getUser()->getId();
             self::_execSql($qry->generateForUpdate(), $params);
         }
         $entity->postSave();
