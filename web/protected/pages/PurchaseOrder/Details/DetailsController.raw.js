@@ -66,7 +66,6 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 			tmp.newWindow.document.title = tmp.me._purchaseorder.status + ' Order ' + tmp.me._purchaseorder.purchaseOrderNo;
 			tmp.newWindow.focus();
 			tmp.newWindow.print();
-			tmp.newWindow.close();
 		}
 		return tmp.me;
 	}
