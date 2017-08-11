@@ -10,7 +10,7 @@
                                 <img src=<%= Config::get('PDFInvoice','LogoUrl') %> style="padding: 0px; margin: 0px;display: block;"/>
                             </span>
                             <span class="inlineblock info">
-                                <div class="cname"><%= Core::getUser()->getStore()->getName() . ' Store'%></div>
+                                <div class="cname"><%= Config::get('PDFInvoice','CompanyDetail')['Name'] %></div>
                                 <div class="abn"><%= 'ABN ' . Config::get('PDFInvoice','CompanyDetail')['ABN'] %></div>
                                 <span class="inlineblock dates">
                                     <div class="dateRow"><span class="rowTitle inlineblock"><%=  $this->getType() === 'TAX INVOICE' ? 'JOB ' : $this->getType() %> No.: </span><span class="rowContent inlineblock"><%= $this->order->getOrderNo()%></span></div>
@@ -39,10 +39,10 @@
                         </div>
                     </td>
                 </tr>
-                <%= $this->getRow('QTY', 'SKU', 'NAME', 'Unit Price', 'Disc.', 'Total Price', 'header'); %>
+                <%= $this->getRow('QTY', 'SKU', 'NAME', 'DESCRIPTION', 'Unit Price', 'Disc.', 'Total Price', 'header'); %>
                 <%= $this->showProducts(); %>
                 <tr>
-                    <td colspan=6>
+                    <td colspan=12>
                         <div class="order_payments">
                             <span class="payment_details inlineblock">
                                 <div class="bank_details box">

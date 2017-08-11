@@ -959,7 +959,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 				}
 			});
 		}
-		if ((!tiers) || !unitCost) return 0;
+//		if ((!tiers) || !unitCost) return 0;
 		tierPriceSeleted = 0;
 		tiers.each(function(tier) {
 			if (tier.tierPriceType.id == 1)

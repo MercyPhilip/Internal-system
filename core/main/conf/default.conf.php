@@ -24,7 +24,7 @@ return array(
 					'AccNo'  => '132 858 127',
 			),
 			'CompanyDetail' => array(
-					'Name'    => 'Navtech',
+					'Name'    => 'Navtech Security Pty Ltd',
 					'Addr'    => '67/170 Forster Road, Mt Waverley VIC 3149',
 					'Phone'   => '+61 3 8510 7754',
 					'Website' => 'www.navtechsecurity.com.au',
