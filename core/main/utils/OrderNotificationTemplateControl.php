@@ -80,7 +80,7 @@ abstract class OrderNotificationTemplateControl
 		$msg = "<div>";
 			$msg .= "<div>Thank you for your support, we have received your following order, and it is currently in processing.</div>";
 			$msg .= "<div>Here are the item information/status on your order, our logistics will have them shipped out as soon as possible.</div>";
-			$msg .= "<div>If you have any item with long ETA waiting time and you want to ship part of your order first, please email <a href='mailto:sales@budgetpc.com.au'>sales@budgetpc.com.au</a> and quote your order number when you call.</div>";
+			$msg .= "<div>If you have any item with long ETA waiting time and you want to ship part of your order first, please email <a href='mailto:sales@navtechsecurity.com.au'>sales@navtechsecurity.com.au</a> and quote your order number when you call.</div>";
 			$msg .= "<div style='margin: 10px 0 10px 0'>";
 				$msg .= '<table cellspacing="0" cellpadding="0" border="0" height="100%" width="100%">';
 					$msg .= "<thead>";

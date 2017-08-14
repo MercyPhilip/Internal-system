@@ -334,7 +334,7 @@ class OrderDetailsController extends BPCPageAbstract
 					if(!$info instanceof OrderInfo)
 						continue;
 					$typeValue = $info->getValue();
-					if ($typeValue == 'BudgetPC Van Delievery' && $order->getType() == Order::TYPE_INVOICE){
+					if ($typeValue == 'Van Delievery' && $order->getType() == Order::TYPE_INVOICE){
 						$orderItems = OrderItem::getAllByCriteria('orderId = ? and storeId =?', array($order->getId(), Core::getUser()->getStore()->getId()));
 						foreach ($orderItems as $orderItem){
 							PickupDelivery::create($orderItem->getProduct(), $order, $orderItem, PickupDelivery::TYPE_DELIVERY);
@@ -642,7 +642,7 @@ class OrderDetailsController extends BPCPageAbstract
 				->addComment(($msg = 'Changed Shipping Method to "' . $shippingMethod . '"'), Comments::TYPE_NORMAL)
 				->addLog($msg, Log::TYPE_SYSTEM, '', __CLASS__ . '::' . __FUNCTION__);
 			
-			if ($shippingMethod== 'BudgetPC Van Delievery'){
+			if ($shippingMethod== 'Van Delievery'){
 				if($order->getStatus()->getId() == 7 && $order->getType() == Order::TYPE_INVOICE){
 					$orderItems = OrderItem::getAllByCriteria('orderId = ? and storeId =?', array($order->getId(), Core::getUser()->getStore()->getId()));
 					foreach ($orderItems as $orderItem){

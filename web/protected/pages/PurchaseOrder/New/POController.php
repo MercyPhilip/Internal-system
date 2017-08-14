@@ -229,22 +229,21 @@ class POController extends BPCPageAbstract
 									if(isset($param->CallbackParameter->confirmEmail) && (trim($confirmEmail = trim($param->CallbackParameter->confirmEmail)) !== '')) {
 										$pdfFile = EntityToPDF::getPDF($purchaseOrder);
 										$asset = Asset::registerAsset($purchaseOrder->getPurchaseOrderNo() . '.pdf', file_get_contents($pdfFile), Asset::TYPE_TMP);
-										//EmailSender::addEmail('purchasing@budgetpc.com.au', $confirmEmail, 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
 										$emailList = str_replace(',', ';', $confirmEmail);
 										$emailLists = explode(';', $emailList);
 
 										$storeId = Core::getUser()->getStore()->getId();
 										if ($storeId == 2)
 										{
-											$emailFrom = 'purchasing.heatherton@budgetpc.com.au';
-											$subject = 'BudgetPC(' . Core::getUser()->getStore()->getName() . ') Purchase Order:';
-											$fromStore = 'from BudgetPC(' . Core::getUser()->getStore()->getName() . ').';
+											$emailFrom = Config::get('Email','Purchasing');
+											$subject = Config::get('PDFInvoice','BankDetail')['AccName'] . '(' . Core::getUser()->getStore()->getName() . ') Purchase Order:';
+											$fromStore = 'from ' . Config::get('PDFInvoice','BankDetail')['AccName'] . '(' . Core::getUser()->getStore()->getName() . ').';
 										}
 										else
 										{
-											$emailFrom = 'purchasing@budgetpc.com.au';
-											$subject = 'BudgetPC Purchase Order:';
-											$fromStore = 'from BudgetPC.';
+											$emailFrom = Config::get('Email','Purchasing');
+											$subject = Config::get('PDFInvoice','BankDetail')['AccName'] . ' Purchase Order:';
+											$fromStore = 'from ' . Config::get('PDFInvoice','BankDetail')['AccName'] . '.';
 										}
 										foreach($emailLists as $emailAddress)
 										{

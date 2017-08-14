@@ -49,7 +49,10 @@ return array(
 			'PO'	  	  => 'NTP_',
 			'Barcode' 	  => 'NTB',
 			'CreditNote'  => 'NTC',
-	)	
+	),	
+	'Email' => array(
+			'Purchasing' => 'sales@navtechsecurity.com.au'
+	),
 );
 
 ?>

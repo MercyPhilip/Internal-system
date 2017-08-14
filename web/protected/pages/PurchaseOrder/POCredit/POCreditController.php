@@ -102,16 +102,15 @@ class POCreditController extends POController
 			if(isset($param->CallbackParameter->confirmEmail) && (trim($confirmEmail = trim($param->CallbackParameter->confirmEmail)) !== '')) {
 				$pdfFile = EntityToPDF::getPDF($purchaseOrder);
 				$asset = Asset::registerAsset($purchaseOrder->getPurchaseOrderNo() . '.pdf', file_get_contents($pdfFile), Asset::TYPE_TMP);
-				//EmailSender::addEmail('purchasing@budgetpc.com.au', $confirmEmail, 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
 				$emailList = str_replace(',', ';', $confirmEmail);
 				$emailLists = explode(';', $emailList);
 				foreach($emailLists as $emailAddress)
 				{
 					$emailAddress = trim($emailAddress);
 					if ($emailAddress == '') continue;
-					EmailSender::addEmail('purchasing@budgetpc.com.au', $emailAddress, 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
+					EmailSender::addEmail(Config::get('Email','Purchasing'), $emailAddress, Config::get('PDFInvoice','BankDetail')['AccName'] . ' Purchase Order:' . $purchaseOrder->getPurchaseOrderNo(), 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from ' . Config::get('PDFInvoice','BankDetail')['AccName'] . '.', array($asset));
 				}
-				EmailSender::addEmail('purchasing@budgetpc.com.au', 'purchasing@budgetpc.com.au', 'BudgetPC Purchase Order:' . $purchaseOrder->getPurchaseOrderNo() , 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from BudgetPC.', array($asset));
+				EmailSender::addEmail(Config::get('Email','Purchasing'), Config::get('Email','Purchasing'), Config::get('PDFInvoice','BankDetail')['AccName'] . ' Purchase Order:' . $purchaseOrder->getPurchaseOrderNo(), 'Please Find the attached PurchaseOrder(' . $purchaseOrder->getPurchaseOrderNo() . ') from ' . Config::get('PDFInvoice','BankDetail')['AccName'] . '.', array($asset));
 				$purchaseOrder->addComment('An email sent to "' . $confirmEmail . '" with the attachment: ' . $asset->getAssetId(), Comments::TYPE_SYSTEM);
 			}
 		}

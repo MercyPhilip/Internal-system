@@ -69,6 +69,12 @@ OrderBtnsJs.prototype = {
 		if(tmp.data === null)
 			return;
 		tmp.data.orderId = tmp.me._order.id;
+		
+		tmp.start = jQuery('script').last()[0].text.indexOf('OrderBtnsJs.SEND_EMAIL_CALLBACK_ID');
+		tmp.start = parseInt(tmp.start) + parseInt(38);
+		OrderBtnsJs.SEND_EMAIL_CALLBACK_ID = jQuery('script').last()[0].text.substr(tmp.start, 34);
+		console.log(OrderBtnsJs.SEND_EMAIL_CALLBACK_ID);
+		
 		tmp.me._pageJs.postAjax(OrderBtnsJs.SEND_EMAIL_CALLBACK_ID, tmp.data, {
 			'onLoading': function() {
 				tmp.me._signRandID(btn);
@@ -110,8 +116,8 @@ OrderBtnsJs.prototype = {
 				})
 			})
 			.insert({'bottom': new Element('div')
-				.insert({'bottom': tmp.me._getFormGroup(jQuery('#storeId').attr('value') == 1 ? 'Reply to address (default is sales@budgetpc.com.au):' : 'Reply to address (default is sales.heatherton@budgetpc.com.au):',
-						new Element('input', {'value': jQuery('#storeId').attr('value') == 1 ? 'sales@budgetpc.com.au' : 'sales.heatherton@budgetpc.com.au', 'confirm-email': 'replyEmailAddress', 'required': true, 'placeholder': 'The email address that you want the customer to reply to.'})
+				.insert({'bottom': tmp.me._getFormGroup(jQuery('#storeId').attr('value') == 1 ? 'Reply to address (default is sales@navtechsecurity.com.au):' : 'Reply to address (default is sales@navtechsecurity.com.au):',
+						new Element('input', {'value': jQuery('#storeId').attr('value') == 1 ? 'sales@navtechsecurity.com.au' : 'sales@navtechsecurity.com.au', 'confirm-email': 'replyEmailAddress', 'required': true, 'placeholder': 'The email address that you want the customer to reply to.'})
 					)
 				})
 			})
@@ -122,7 +128,7 @@ OrderBtnsJs.prototype = {
 			})
 			.insert({'bottom': new Element('div')
 				.insert({'bottom': tmp.me._getFormGroup('Something you want to say:',
-						new Element('textarea', {'confirm-email': 'emailBody'})
+						new Element('textarea', {'confirm-email': 'emailBody', 'style': 'height:300px;'})
 				) })
 			})
 			.insert({'bottom': new Element('div', {'class': 'text-right'})
