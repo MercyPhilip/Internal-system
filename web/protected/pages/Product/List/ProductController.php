@@ -365,6 +365,12 @@ class ProductController extends CRUDPageAbstract
     					$supplier = $supplierCodes[0]->getSupplier()->getName();
     				}
     			}
+    			if (array_search('supc', $ticked) !== false || array_search('all', $ticked) !== false){
+    				$supplierCodes = $product->getSupplierCodes();
+    				if (count($supplierCodes) > 0){
+    					$supplierCode = $supplierCodes[0]->getCode();
+    				}
+    			}
     			if (array_search('aset', $ticked) !== false || array_search('all', $ticked) !== false){
     				$attributeset = $product->getAttributeSet();
     				if ($attributeset instanceof ProductAttributeSet){
@@ -396,6 +402,7 @@ class ProductController extends CRUDPageAbstract
     					,'stock' => array_search('stock', $ticked) !== false || array_search('all', $ticked) !== false? $product->getStatus():''
     					,'brand' => $brand
     					,'supplier' => $supplier
+    					,'supplierCode' => $supplierCode
     					,'weight' => array_search('weight', $ticked) !== false || array_search('all', $ticked) !== false? $product->getWeight():''
     					,'attributeset' => $aset
     					,'image' => $url
