@@ -132,8 +132,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			.insert({'bottom': new Element('div', {'class': 'row'})
 				.insert({'bottom': new Element('div', {'class': 'col-xs-2 firstName'}).update(item.person.firstName) })
 				.insert({'bottom': new Element('div', {'class': 'col-xs-2 lastName'}).update(item.person.lastName) })
-				.insert({'bottom': new Element('div', {'class': 'col-xs-4 roles'}).update(tmp.roles) })
+				.insert({'bottom': new Element('div', {'class': 'col-xs-2 roles'}).update(tmp.roles) })
 				.insert({'bottom': new Element('div', {'class': 'col-xs-2 username'}).update(item.username) })
+				.insert({'bottom': new Element('div', {'class': 'col-xs-2 email'}).update(item.email) })
 				.insert({'bottom': new Element('div', {'class': 'col-xs-2 btns'}).update(tmp.btnDiv)})
 			});
 		return tmp.newDiv;
@@ -184,7 +185,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					//if the result div is set
 					if(tmp.resultDiv) {
 						if(tmp.reset === true) {
-							tmp.resultDiv.update( tmp.me._getItemRow({'person':{'firstName': 'First Name', 'lastName': 'Last Name'}, 'username': 'Username'}, true).addClassName('header') );
+							tmp.resultDiv.update( tmp.me._getItemRow({'person':{'firstName': 'First Name', 'lastName': 'Last Name'}, 'username': 'Username', 'email': 'Email'}, true).addClassName('header') );
 						}
 						//remove next page button
 						tmp.resultDiv.getElementsBySelector('.paginWrapper').each(function(item){

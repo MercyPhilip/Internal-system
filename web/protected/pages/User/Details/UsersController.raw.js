@@ -91,6 +91,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 	,_saveUser: function(btn) {
 		var tmp = {};
 		tmp.me = this;
+		
 		tmp.data = tmp.me._collectData(btn);
 		if(tmp.data === null)
 			return tmp.me;
@@ -122,6 +123,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		tmp.firstName = tmp.me._user ? tmp.me._user.person.firstName : '';
 		tmp.lastName = tmp.me._user ? tmp.me._user.person.lastName : '';
 		tmp.username = tmp.me._user ? tmp.me._user.username : '';
+		tmp.email = tmp.me._user ? tmp.me._user.email : '';
 		tmp.newPanel = new Element('div', {'class': 'form-horizontal change_form', 'role': 'form'})
 			.insert({'bottom': tmp.me._getFieldDiv('First Name:', new Element('input', {'type':'text', 'save_panel': 'firstName', 'value': tmp.firstName, 'mandatory': 1}) ) })
 			.insert({'bottom': tmp.me._getFieldDiv('Last Name:', new Element('input', {'type':'text', 'save_panel': 'lastName', 'value': tmp.lastName, 'mandatory': 1}) ) })
@@ -143,6 +145,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 					})
 				) 
 			})
+			.insert({'bottom': tmp.me._getFieldDiv('Email:', new Element('input', {'type':'text', 'save_panel': 'email', 'value': tmp.email, 'mandatory': 1})  ) })
 			.insert({'bottom': new Element('div', {'class': 'form-group'})
 				.insert({'bottom': new Element('div', {'class': 'col-sm-offset-2 col-sm-10'})
 					.insert({'bottom': new Element('span', {'id': 'saveBtn', 'class': 'btn btn-success', 'data-loading-text': 'Saving...'})

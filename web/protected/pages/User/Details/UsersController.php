@@ -52,6 +52,11 @@ class UsersController extends BPCPageAbstract
 				throw new Exception('System Error: lastName is mandatory!');
 			if(!isset($params->CallbackParameter->userName) || ($userName = trim($params->CallbackParameter->userName)) === '')
 				throw new Exception('System Error: userName is mandatory!');
+			if(!isset($params->CallbackParameter->email) || ($email = trim($params->CallbackParameter->email)) === '')
+				throw new Exception('System Error: email format is mandatory!');
+			if (!filter_var($email, FILTER_VALIDATE_EMAIL)){
+				throw new Exception('System Error: email is invalid!');
+			}
 			if(!isset($params->CallbackParameter->roleid) || !($role = Role::get($params->CallbackParameter->roleid)) instanceof Role)
 				throw new Exception('System Error: role is mandatory!');
 			
@@ -85,6 +90,7 @@ class UsersController extends BPCPageAbstract
 			
 			$userAccount->setUserName($userName)
 				->setPassword($newpassword)
+				->setEmail($email)
 				->setPerson($person)
 				->setStore(Core::getUser()->getStore())
 				->save();

@@ -37,6 +37,10 @@
 						<input id="lastName" type="text" placeholder="Last Name" change_pinfo="lastName" class="form-control" value="<%= Core::getUser()->getPerson()->getLastName() %>" required/>
 					</div>
 					<div class="form-group">
+						<label for="lastName">Email:</label>
+						<input id="email" type="text" placeholder="Email" change_pinfo="email" class="form-control" value="<%= UserAccount::get(Core::getUser()->getId())->getEmail() %>" required/>
+					</div>
+					<div class="form-group">
 						<input id="savePInfoBtn" type="button" value="Save" class="btn btn-success" data-loading-text="Saving..." onclick="pageJs.changePInfo(this); return false;"/>
 					</div>
 				</div>

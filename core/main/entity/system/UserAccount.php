@@ -29,6 +29,12 @@ class UserAccount extends BaseEntityAbstract
      */
     private $password;
     /**
+     * The email
+     *
+     * @var string
+     */
+    private $email;
+    /**
      * The person
      *
      * @var Person
@@ -80,6 +86,27 @@ class UserAccount extends BaseEntityAbstract
     public function setPassword($Password)
     {
         $this->password = $Password;
+        return $this;
+    }
+    /**
+     * getter email
+     *
+     * @return String
+     */
+    public function getEmail()
+    {
+    	return $this->email;
+    }
+    /**
+     * Setter email
+     *
+     * @param string $email The email
+     *
+     * @return UserAccount
+     */
+    public function setEmail($email)
+    {
+    	$this->email = $email;
         return $this;
     }
     /**
@@ -203,6 +230,7 @@ class UserAccount extends BaseEntityAbstract
         DaoMap::begin($this, 'ua');
         DaoMap::setStringType('username', 'varchar', 100);
         DaoMap::setStringType('password', 'varchar', 40);
+        DaoMap::setStringType('email', 'varchar', 100);
         DaoMap::setManyToOne("person", "Person", "p");
         DaoMap::setManyToMany("roles", "Role", DaoMap::LEFT_SIDE, "r", false);
         DaoMap::setManyToOne('store', 'Store', 'si');
@@ -210,6 +238,7 @@ class UserAccount extends BaseEntityAbstract
 
         DaoMap::createUniqueIndex('username');
         DaoMap::createIndex('password');
+        DaoMap::createIndex('email');
         DaoMap::commit();
     }
     /**

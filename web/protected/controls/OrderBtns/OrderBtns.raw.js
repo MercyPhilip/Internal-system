@@ -115,8 +115,8 @@ OrderBtnsJs.prototype = {
 				})
 			})
 			.insert({'bottom': new Element('div')
-				.insert({'bottom': tmp.me._getFormGroup(jQuery('#storeId').attr('value') == 1 ? 'Reply to address (default is sales@navtechsecurity.com.au):' : 'Reply to address (default is sales@navtechsecurity.com.au):',
-						new Element('input', {'value': jQuery('#storeId').attr('value') == 1 ? 'sales@navtechsecurity.com.au' : 'sales@navtechsecurity.com.au', 'confirm-email': 'replyEmailAddress', 'required': true, 'placeholder': 'The email address that you want the customer to reply to.'})
+				.insert({'bottom': tmp.me._getFormGroup(jQuery('#storeId').attr('value') == 1 ? 'Reply to address (default is email of current user):' : 'Reply to address (default is email of current user):',
+						new Element('input', {'value': jQuery('#storeId').attr('value') == 1 ? jQuery('#userEmail').attr('value') : jQuery('#userEmail').attr('value'), 'confirm-email': 'replyEmailAddress', 'required': true, 'placeholder': 'The email address that you want the customer to reply to.'})
 					)
 				})
 			})

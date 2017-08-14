@@ -53,11 +53,14 @@ class MeController extends BPCPageAbstract
 				throw new Exception("Invalid firstName!");
 			if(!isset($param->CallbackParameter->lastName) || (($lastName= trim($param->CallbackParameter->lastName)) === '') )
 				throw new Exception("Invalid lastName!");
+			if(!isset($param->CallbackParameter->email) || (($email = trim($param->CallbackParameter->email)) === '') || !filter_var($email, FILTER_VALIDATE_EMAIL))
+				throw new Exception("Invalid email!");
 			Core::getUser()->getPerson()
 				->setFirstName($firstName)
 				->setLastName($lastName)
 				->save();
 			Core::setUser(UserAccount::get(Core::getUser()->getId()), Core::getRole());
+			UserAccount::get(Core::getUser()->getId())->setEmail($email)->save();
 			$results['succ'] = true;
 		}
 		catch(Exception $ex)

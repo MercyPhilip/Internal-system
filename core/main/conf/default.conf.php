@@ -51,7 +51,7 @@ return array(
 			'CreditNote'  => 'NTC',
 	),	
 	'Email' => array(
-			'Purchasing' => 'sales@navtechsecurity.com.au'
+			'Purchasing' => 'purchasing@navtechsecurity.com.au'
 	),
 );
 
