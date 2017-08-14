@@ -73,7 +73,6 @@ OrderBtnsJs.prototype = {
 		tmp.start = jQuery('script').last()[0].text.indexOf('OrderBtnsJs.SEND_EMAIL_CALLBACK_ID');
 		tmp.start = parseInt(tmp.start) + parseInt(38);
 		OrderBtnsJs.SEND_EMAIL_CALLBACK_ID = jQuery('script').last()[0].text.substr(tmp.start, 34);
-		console.log(OrderBtnsJs.SEND_EMAIL_CALLBACK_ID);
 		
 		tmp.me._pageJs.postAjax(OrderBtnsJs.SEND_EMAIL_CALLBACK_ID, tmp.data, {
 			'onLoading': function() {
@@ -86,7 +85,7 @@ OrderBtnsJs.prototype = {
 					if(!tmp.result || !tmp.result.item)
 						return;
 					tmp.confirmDiv.update('<h4 class="text-success">Email Successfully added into the Message Queue. Will be sent within a minute</h4>');
-					setTimeout(function() {tmp.me._pageJs.hideModalBox();}, 2000);
+					setTimeout(function() {tmp.me._pageJs.hideModalBox();}, 1500);
 				} catch (e) {
 					tmp.confirmDiv.insert({'top': new Element('h4', {'class': 'msg'}).update(new Element('span', {'class': 'label label-danger'}).update(e) ) });
 				}
