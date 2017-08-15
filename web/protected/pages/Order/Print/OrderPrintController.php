@@ -74,9 +74,9 @@ class OrderPrintController extends BPCPageAbstract
 	 * @param unknown $tprice
 	 * @return string
 	 */
-	public function getRow($qty, $sku, $name, $desc, $uprice, $discount, $tprice, $rowClass="")
+	public function getRow($qty, $name, $desc, $uprice, $discount, $tprice, $rowClass="")
 	{
-		return "<tr class='$rowClass'><td class='qty'>$qty</td><td class='sku'>$sku</td><td class='name'>$name</td><td class='desc'>$desc</td><td class='uprice'>$uprice</td><td class='discount' width='8%'>$discount</td><td class='tprice'>$tprice</td></tr>";
+		return "<tr class='$rowClass'><td class='qty'>$qty</td><td class='name'>$name</td><td class='desc'>$desc</td><td class='uprice'>$uprice</td><td class='discount' width='8%'>$discount</td><td class='tprice'>$tprice</td></tr>";
 	}
 	/**
 	 *
@@ -92,7 +92,7 @@ class OrderPrintController extends BPCPageAbstract
 			$tPrice = '$' . number_format($orderItem->getTotalPrice(), 2, '.', ',');
 			$shouldTotal = $orderItem->getUnitPrice() * $orderItem->getQtyOrdered();
 			$discount = (floatval($shouldTotal) === 0.0000 ? 0.00 : round(((($shouldTotal - $orderItem->getTotalPrice()) * 100) / $shouldTotal), 2));
-			$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getSku(), $orderItem->getProduct()->getname(), $orderItem->getProduct()->getShortDescription(),$uPrice, ($discount === 0.00 ? '' : $discount . '%'), $tPrice, 'itemRow');
+			$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getname(), $orderItem->getProduct()->getShortDescription(),$uPrice, ($discount === 0.00 ? '' : $discount . '%'), $tPrice, 'itemRow');
 			if(($sellingItems = $orderItem->getSellingItems()) && count($sellingItems) > 0)
 			{
 				$html .= $this->getRow('&nbsp;', '&nbsp;', 'Serial Numbers:', '&nbsp;', '&nbsp;', '', 'itemRow');
@@ -103,7 +103,7 @@ class OrderPrintController extends BPCPageAbstract
 		}
 		for ( $i = 9; $i > $index; $i--)
 		{
-			$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '', 'itemRow');
+			$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '', 'itemRow');
 		}
 		return $html;
 	}
