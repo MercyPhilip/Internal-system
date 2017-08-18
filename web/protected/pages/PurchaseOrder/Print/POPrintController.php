@@ -54,9 +54,9 @@ class POPrintController extends BPCPageAbstract
 	 * @param unknown $tprice
 	 * @return string
 	 */
-	public function getRow($qty, $sku, $name, $uprice, $tprice, $rowClass="")
+	public function getRow($qty, $sku, $suplierCode, $name, $uprice, $tprice, $rowClass="")
 	{
-		return "<tr class='$rowClass'><td class='qty'>$qty</td><td class='sku'>$sku</td><td class='name'>$name</td><td class='uprice'>$uprice</td><td class='tprice'>$tprice</td></tr>";
+		return "<tr class='$rowClass'><td class='qty' style='text-align:center'>$qty</td><td class='sku'>$sku</td><td class='supplier' style='width:17.6%'>$suplierCode</td><td class='name'>$name</td><td class='uprice'>$uprice</td><td class='tprice' style='width:11.6%'>$tprice</td></tr>";
 	}
 	/**
 	 *
@@ -68,13 +68,14 @@ class POPrintController extends BPCPageAbstract
 		$purchaseOrderItems = PurchaseOrderItem::getAllByCriteria('purchaseOrderId = ?', array($this->order->getId() ) );
 		foreach($purchaseOrderItems as  $index => $orderItem)
 		{
+			$supplierCode = count($supplierCodes = $orderItem->getProduct()->getSupplierCodes()) > 0 ? $supplierCodes[0]->getCode() : '';
 			$uPrice = '$' . number_format($orderItem->getUnitPrice(), 2, '.', ',');
 			$tPrice = '$' . number_format($orderItem->getTotalPrice(), 2, '.', ',');
-			$html .= $this->getRow($orderItem->getQty(), $orderItem->getProduct()->getSku(), $orderItem->getProduct()->getname(), $uPrice, $tPrice, 'itemRow');
+			$html .= $this->getRow($orderItem->getQty(), $orderItem->getProduct()->getSku(), $supplierCode, $orderItem->getProduct()->getname(), $uPrice, $tPrice, 'itemRow');
 		}
 		for ( $i = 18; $i > $index; $i--)
 		{
-			$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', 'itemRow');
+			$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', 'itemRow');
 		}
 		return $html;
 	}

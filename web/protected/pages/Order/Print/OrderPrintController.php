@@ -74,9 +74,9 @@ class OrderPrintController extends BPCPageAbstract
 	 * @param unknown $tprice
 	 * @return string
 	 */
-	public function getRow($qty, $name, $desc, $uprice, $discount, $tprice, $rowClass="")
+	public function getRow($qty, $name, $desc, $uprice, $tprice, $rowClass="")
 	{
-		return "<tr class='$rowClass'><td class='qty'>$qty</td><td class='name'>$name</td><td class='desc'>$desc</td><td class='uprice'>$uprice</td><td class='discount' width='8%'>$discount</td><td class='tprice'>$tprice</td></tr>";
+		return "<tr class='$rowClass'><td class='qty' style='text-align:center'>$qty</td><td class='name'>$name</td><td class='desc'>$desc</td><td class='uprice'>$uprice</td><td class='tprice' style='width:11.6%'>$tprice</td></tr>";
 	}
 	/**
 	 *
@@ -91,19 +91,18 @@ class OrderPrintController extends BPCPageAbstract
 			$uPrice = '$' . number_format($orderItem->getUnitPrice(), 2, '.', ',');
 			$tPrice = '$' . number_format($orderItem->getTotalPrice(), 2, '.', ',');
 			$shouldTotal = $orderItem->getUnitPrice() * $orderItem->getQtyOrdered();
-			$discount = (floatval($shouldTotal) === 0.0000 ? 0.00 : round(((($shouldTotal - $orderItem->getTotalPrice()) * 100) / $shouldTotal), 2));
-			$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getname(), $orderItem->getProduct()->getShortDescription(),$uPrice, ($discount === 0.00 ? '' : $discount . '%'), $tPrice, 'itemRow');
+			$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getname(), $orderItem->getProduct()->getShortDescription(),$uPrice, $tPrice, 'itemRow');
 			if(($sellingItems = $orderItem->getSellingItems()) && count($sellingItems) > 0)
 			{
-				$html .= $this->getRow('&nbsp;', '&nbsp;', 'Serial Numbers:', '&nbsp;', '&nbsp;', '', 'itemRow');
+				$html .= $this->getRow('&nbsp;', '&nbsp;', 'Serial Numbers:', '&nbsp;', '', 'itemRow');
 				foreach ($sellingItems as $sellingItem)
-					$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;&nbsp;&nbsp;&nbsp;' . $sellingItem->getSerialNo(), '&nbsp;', '&nbsp;', '', 'itemRow');
+					$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;&nbsp;&nbsp;&nbsp;' . $sellingItem->getSerialNo(), '&nbsp;', '', 'itemRow');
 			}
 // 			$html .= $this->getRow('', '<span class="pull-right">Serial No: </span>', '<div style="max-width: 367px; word-wrap: break-word;">' . implode(', ', $sellingItems) . '</div>', '', '', '', 'itemRow itemRow-serials');
 		}
 		for ( $i = 9; $i > $index; $i--)
 		{
-			$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '', 'itemRow');
+			$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '', 'itemRow');
 		}
 		return $html;
 	}

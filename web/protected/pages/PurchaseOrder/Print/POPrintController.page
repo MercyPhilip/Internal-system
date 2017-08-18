@@ -41,7 +41,7 @@
                     <tr class="">
                         <td colspan=12>&nbsp;</td>
                     </tr>
-                    <%= $this->getRow('QTY', 'SKU', 'NAME', 'Unit Price', 'Total Price', 'header'); %>
+                    <%= $this->getRow('QTY', 'SKU', 'SUPPLIER CODE', 'NAME', 'Unit Price', 'Total Price', 'header'); %>
                 </thead>
                 <tbody>
                     <%= $this->showProducts(); %>
