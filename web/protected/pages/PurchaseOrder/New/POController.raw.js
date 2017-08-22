@@ -586,6 +586,18 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 		});
 		jQuery('[save-order-summary="totalExGST"]').val(tmp.me.getCurrency(tmp.totalExGSTPrice)).html(tmp.me.getCurrency(tmp.totalExGSTPrice));
 
+		//Discount
+		tmp.discount = 0;
+		if(jQuery('[save-order-summary="discount"]').length > 0){
+			if((tmp.num = jQuery('[save-order-summary="discount"]').val().indexOf('%')) >= 0){
+				tmp.discount = jQuery('[save-order-summary="discount"]').val().slice(0,tmp.num);
+				tmp.totalExGSTPrice = tmp.totalExGSTPrice * (1 - tmp.discount / 100);
+			}
+		}
+
+		//getting subtotal exclude GST
+		jQuery('[save-order-summary="subtotalExGST"]').val(tmp.me.getCurrency(tmp.totalExGSTPrice)).html(tmp.me.getCurrency(tmp.totalExGSTPrice));
+		
 		//getting total GST
 		tmp.totalGST = tmp.totalExGSTPrice * 0.1;
 		jQuery('[save-order-summary="totalGST"]').val(tmp.me.getCurrency(tmp.totalGST)).html(tmp.me.getCurrency(tmp.totalGST));
@@ -667,8 +679,8 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 					if(!confirm('You remove this entry.\n\nContinue?'))
 						return;
 					tmp.row = $(this).up('.item_row');
-					tmp.me._recalculateSummary();
 					tmp.row.remove();
+					tmp.me._recalculateSummary();
 				})
 			})
 		};
@@ -790,15 +802,28 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 		// tfooter
 		tmp.productListDiv.insert({'bottom': tmp.tbody = new Element('tfoot')
 			.insert({'bottom': new Element('tr')
-				.insert({'bottom': new Element('td', {'colspan': 2, 'rowspan': 6})
+				.insert({'bottom': new Element('td', {'colspan': 2, 'rowspan': 8})
 					.insert({'bottom': tmp.me._getFormGroup( 'Comments:', new Element('textarea', {'save-order': 'comments', 'rows': 8}) ) })
 				})
 				.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active'}).update( new Element('span').update('Total Excl. GST: ') ) })
 				.insert({'bottom': new Element('td', {'save-order-summary': 'totalExGST', 'class': 'active'}).update( tmp.me.getCurrency(0) ) })
 			})
 			.insert({'bottom': new Element('tr')
-				.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active', 'style': 'border-bottom: 1px solid brown'}).update( new Element('span').update('Total GST: ') ) })
-				.insert({'bottom': new Element('td', {'save-order-summary': 'totalGST', 'class': 'active', 'style': 'border-bottom: 1px solid brown'}).update( tmp.me.getCurrency(0) ) })
+				.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active'}).update( new Element('span').update('Discount: ') ) })
+				.insert({'bottom': new Element('td', {'class': 'active'}).update(
+						new Element('input', {'save-order': 'discount', 'save-order-summary': 'discount', 'placeholder':  ' 0%'})
+						.observe('change', function(){
+							tmp.me._recalculateSummary();
+						})
+				) })
+			})
+			.insert({'bottom': new Element('tr')
+				.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active', 'style': 'border-top: 1px solid brown'}).update( new Element('span').update('SubTotal Excel. GST: ') ) })
+				.insert({'bottom': new Element('td', {'save-order-summary': 'subtotalExGST', 'class': 'active', 'style': 'border-top: 1px solid brown'}).update( tmp.me.getCurrency(0) ) })
+			})
+			.insert({'bottom': new Element('tr')
+			.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active', 'style': 'border-bottom: 1px solid brown'}).update( new Element('span').update('Total GST: ') ) })
+			.insert({'bottom': new Element('td', {'save-order-summary': 'totalGST', 'class': 'active', 'style': 'border-bottom: 1px solid brown'}).update( tmp.me.getCurrency(0) ) })
 			})
 			.insert({'bottom': new Element('tr')
 				.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active'}).update( new Element('strong').update('SubTotal Incl. GST: ') ) })
@@ -807,11 +832,11 @@ POCreateJs.prototype = Object.extend(new BPCPageJs(), {
 			.insert({'bottom': new Element('tr')
 				.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active'}).update( new Element('span').update('Shipping Cost Incl. GST: ') ) })
 				.insert({'bottom': new Element('td', {'class': 'active'}).update(
-						new Element('input', {'save-order': 'shippingCost', 'save-order-summary': 'shippingCost', 'placeholder':  tmp.me.getCurrency(0)})
-						.observe('change', function(){
-							tmp.me._recalculateSummary();
-						})
-				) })
+					new Element('input', {'save-order': 'shippingCost', 'save-order-summary': 'shippingCost', 'placeholder':  tmp.me.getCurrency(0)})
+					.observe('change', function(){
+						tmp.me._recalculateSummary();
+					})
+			) })
 			})
 			.insert({'bottom': new Element('tr')
 				.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active', 'style': 'border-bottom: 1px solid brown'}).update( new Element('span').update('Handling Cost  Incl. GST: ') ) })

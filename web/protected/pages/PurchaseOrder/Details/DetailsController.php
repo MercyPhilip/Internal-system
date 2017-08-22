@@ -71,6 +71,8 @@ class DetailsController extends DetailsPageAbstract
 					$js .= ".setHTMLID('totalPriceIncludeGST', 'total_price_include_gst')";
 					$js .= ".setHTMLID('totalPaidAmount', 'total-paid-amount')";
 					$js .= ".setHTMLID('totalShippingCost', 'total-shipping-cost')";
+					$js .= ".setHTMLID('discount', 'discount')";
+					$js .= ".setHTMLID('subtotalExGST', 'subtotal_ex_gst')";
 					$js .= ".setComment(" . json_encode($comments) . ")";
 					$js .= ".setStatusOptions(" . json_encode($statusOptions) . ")";
 					$js .= ".setCallbackId('searchProduct', '" . $this->searchProductBtn->getUniqueID() . "')";

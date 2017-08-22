@@ -195,7 +195,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		tmp.totalHandlingCost = tmp.me._purchaseorder.handlingCost ? tmp.me._purchaseorder.handlingCost : 0;
 		tmp.totalExcGST = tmp.me._purchaseorder.totalAmount ? tmp.me._purchaseorder.totalAmount : 0;
 		tmp.totalPaidAmount = tmp.me._purchaseorder.totalPaid ? tmp.me._purchaseorder.totalPaid : 0;
-		tmp.totalPaymentDue = tmp.totalExcGST * 1 + tmp.totalShippingCost * 1 + tmp.totalHandlingCost * 1 - tmp.totalPaidAmount * 1;
+		tmp.totalPaymentDue = tmp.totalExcGST * 1.1 + tmp.totalShippingCost * 1 + tmp.totalHandlingCost * 1 - tmp.totalPaidAmount * 1;
 
 		tmp.shippingCostEl = new Element('input', {'class': 'text-right', 'id': 'shipping_cost', 'save-order': 'shippingCost' , 'value': tmp.me._purchaseorder.shippingCost ? tmp.me.getCurrency(tmp.me._purchaseorder.shippingCost) : tmp.me.getCurrency(0)})
 			.observe('keyup',function(){
@@ -347,16 +347,29 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		tmp.productListDiv.insert({'bottom': tmp.tbody = new Element('tbody', {'style': 'border: 3px #ccc solid;'})
 			.insert({'bottom': tmp.me._getNewProductRow() })
 		});
+		
 		// tfooter
 		tmp.productListDiv.insert({'bottom': tmp.tbody = new Element('tfoot')
 			.insert({'bottom': new Element('tr')
-				.insert({'bottom': new Element('td', {'colspan': 2, 'rowspan': 4})
+				.insert({'bottom': new Element('td', {'colspan': 2, 'rowspan': 6})
 					.insert({'bottom': tmp.me._getFormGroup( 'Comments:', new Element('textarea', {'save-order': 'comments', 'style': 'height:33px'}).update(tmp.me._comment ? tmp.me._comment : '') ) })
 					.insert({'bottom': new Element('div', {'colspan': 2, 'class': 'active'}).update(tmp.me._saveBtns()) })
 				})
 				.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active'}).update( new Element('strong').update('Total Excl. GST: ') ) })
 				.insert({'bottom': new Element('td', {'id': tmp.me.getHTMLID('totalPriceExcludeGST'), 'class': 'active'}).update( tmp.me.getCurrency(0) ) })
 				.insert({'bottom': new Element('td', {'rowspan': 4}).update('&nbsp;') })
+			})
+			.insert({'bottom': new Element('tr')
+				.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active'}).update( new Element('strong').update('Discount: ') ) })
+				.insert({'bottom': new Element('input', {'id': tmp.me.getHTMLID('discount'), 'class': 'active', 'disabled': tmp.me._purchaseorder.status == 'NEW'? false: true, 'placeholder':  ' 0%'})
+						.observe('change', function(){
+							tmp.me._recalculateSummary(0);
+						})
+				 })
+			})
+			.insert({'bottom': new Element('tr')
+				.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active','style': 'border-top: 1px solid brown'}).update( new Element('strong').update('Subtotal Excl. GST: ') ) })
+				.insert({'bottom': new Element('td', {'id': tmp.me.getHTMLID('subtotalExGST'), 'class': 'active', 'style': 'border-top: 1px solid brown'}).update( tmp.me.getCurrency(0) ) })
 			})
 			.insert({'bottom': new Element('tr')
 				.insert({'bottom': new Element('td', {'colspan': 2, 'class': 'text-right active'}).update( new Element('strong').update('Total GST: ') ) })
@@ -550,32 +563,47 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		tmp.skuAutoComplete.down('.input-group').removeClassName('form-control');
 		return tmp.skuAutoComplete;
 	}
-	,_recalculateSummary: function(amount) {
+	,_recalculateSummary: function(amount, poItem) {
 		var tmp = {};
 		tmp.me = this;
 		tmp.totalIncGSTBox = $(tmp.me.getHTMLID('totalPriceIncludeGST')) ? $(tmp.me.getHTMLID('totalPriceIncludeGST')) : tmp.me._newDiv.down('#'+tmp.me.getHTMLID('totalPriceIncludeGST'));
 		tmp.totalGSTBox = $(tmp.me.getHTMLID('totalPriceGST')) ? $(tmp.me.getHTMLID('totalPriceGST')) : tmp.me._newDiv.down('#'+tmp.me.getHTMLID('totalPriceGST'));
 		tmp.totalExcGSTBox = $(tmp.me.getHTMLID('totalPriceExcludeGST')) ? $(tmp.me.getHTMLID('totalPriceExcludeGST')) : tmp.me._newDiv.down('#'+tmp.me.getHTMLID('totalPriceExcludeGST'));
+		tmp.subtotalExGSTBox = $(tmp.me.getHTMLID('subtotalExGST')) ? $(tmp.me.getHTMLID('subtotalExGST')) : tmp.me._newDiv.down('#'+tmp.me.getHTMLID('subtotalExGST'));
+		tmp.discountBox = $(tmp.me.getHTMLID('discount')) ? $(tmp.me.getHTMLID('discount')) : tmp.me._newDiv.down('#'+tmp.me.getHTMLID('discount'));
 		tmp.totalShippingCostBox = $('shipping_cost');
 		tmp.totalHandlingCostBox = $('handling_cost');
-
+		
 		tmp.totalExcGST = tmp.me.getValueFromCurrency(tmp.totalExcGSTBox.innerHTML) * 1  + amount * 1;
-		tmp.totalIncGST = tmp.totalExcGST ? (tmp.totalExcGST * 1 * 1.1) : 0;
+		tmp.amount = Number((tmp.me._purchaseorder.totalAmount / 1.1).toFixed(2));
+		
+		if(amount == 0 || !poItem){
+			if((tmp.num = tmp.discountBox.value.indexOf('%')) >= 0){
+				tmp.discount = tmp.discountBox.value.slice(0,tmp.num);
+			}
+		} else {
+			tmp.discount = (Number((1 - tmp.amount / tmp.totalExcGST).toFixed(2)) * 100);
+			tmp.discountBox.value = tmp.discount + '%';
+		}
+		
 		tmp.totalShippingCost = tmp.totalShippingCostBox ? tmp.me.getValueFromCurrency($F(tmp.totalShippingCostBox)) : tmp.me._purchaseorder.shippingCost;
 		tmp.totalHandlingCost = tmp.totalHandlingCostBox ? tmp.me.getValueFromCurrency($F(tmp.totalHandlingCostBox)) : tmp.me._purchaseorder.handlingCost;
-
-		tmp.totalGST = tmp.totalExcGST ? (tmp.totalIncGST * 1 - tmp.totalExcGST * 1) : 0;
+		tmp.subtotalExGST = tmp.totalExcGST * (1 - tmp.discount / 100);
+		tmp.totalGST = tmp.subtotalExGST ? Number((tmp.subtotalExGST * 0.1).toFixed(2)) : 0;
+		tmp.totalIncGST = tmp.subtotalExGST * 1 + tmp.totalGST * 1;
 
 		tmp.totalIncGSTBox.update(tmp.me.getCurrency(tmp.totalIncGST));
 		tmp.totalGSTBox.update(tmp.me.getCurrency(tmp.totalGST));
 		tmp.totalExcGSTBox.update(tmp.me.getCurrency(tmp.totalExcGST));
+		tmp.subtotalExGSTBox.update(tmp.me.getCurrency(tmp.subtotalExGST));
+		
 
 
 		tmp.totalPaidAmount = $$('.pull-right.total-payment-due').first() ?
 				($(tmp.me.getHTMLID('totalPaidAmount')) ? tmp.me.getValueFromCurrency($F(tmp.me.getHTMLID('totalPaidAmount'))) : 0)
 				: tmp.me._purchaseorder.totalPaid;
 //		tmp.totalPaymentDue = tmp.totalExcGST * 1 - tmp.totalPaidAmount * 1;
-		tmp.totalPaymentDue = tmp.totalExcGST * 1 + tmp.totalShippingCost * 1 + tmp.totalHandlingCost * 1 - tmp.totalPaidAmount * 1;
+		tmp.totalPaymentDue = tmp.totalIncGST + tmp.totalShippingCost * 1 + tmp.totalHandlingCost * 1 - tmp.totalPaidAmount * 1;
 		$$('.total-payment-due').each(function(item) {
 			tmp.newEl = new Element('strong', {'class': 'label'}).update(tmp.me.getCurrency(tmp.totalPaymentDue) + ' ');
 			if(tmp.totalPaymentDue * 1 > 0) {
@@ -676,7 +704,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					if(!confirm('You remove this entry.\n\nContinue?'))
 						return;
 					tmp.row = $(this).up('.item_row');
-					tmp.me._recalculateSummary( 0 - tmp.me.getValueFromCurrency(tmp.row.retrieve('data').totalPrice) * 1 );
+					tmp.me._recalculateSummary( 0 - tmp.me.getValueFromCurrency(tmp.row.retrieve('data').totalPrice) * 1 , poItem);
 					if (tmp.row.hasClassName('order-item-row-old')) {
 						tmp.row.addClassName('order-item-row-old-removed');
 						tmp.row.hide();
@@ -692,7 +720,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		tmp.currentRow.replace(tmp.newRow);
 		tmp.newRow.down('[new-order-item=product]').focus();
 
-		tmp.me._recalculateSummary( tmp.totalPrice );
+		tmp.me._recalculateSummary( tmp.totalPrice, poItem );
 		return tmp.me;
 	}
 	,setProductLink: function(dom, id) {
