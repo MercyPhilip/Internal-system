@@ -577,6 +577,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 		tmp.totalExcGST = tmp.me.getValueFromCurrency(tmp.totalExcGSTBox.innerHTML) * 1  + amount * 1;
 		tmp.amount = Number((tmp.me._purchaseorder.totalAmount / 1.1).toFixed(2));
 		
+		tmp.discount = 0;
 		if(amount == 0 || !poItem){
 			if((tmp.num = tmp.discountBox.value.indexOf('%')) >= 0){
 				tmp.discount = tmp.discountBox.value.slice(0,tmp.num);
@@ -704,7 +705,7 @@ PageJs.prototype = Object.extend(new DetailsPageJs(), {
 					if(!confirm('You remove this entry.\n\nContinue?'))
 						return;
 					tmp.row = $(this).up('.item_row');
-					tmp.me._recalculateSummary( 0 - tmp.me.getValueFromCurrency(tmp.row.retrieve('data').totalPrice) * 1 , poItem);
+					tmp.me._recalculateSummary( 0 - tmp.me.getValueFromCurrency(tmp.row.retrieve('data').totalPrice) * 1);
 					if (tmp.row.hasClassName('order-item-row-old')) {
 						tmp.row.addClassName('order-item-row-old-removed');
 						tmp.row.hide();

@@ -101,11 +101,11 @@ class POPrintController extends BPCPageAbstract
 		}
 		$total = $this->order->getTotalAmount();
 		$totalNoGST = $total / 1.1;
-		$discount = ((1 - $totalNoGST/ $totalAmount) * 100) . '%';
+		$discount = ((1 - round(($totalNoGST / $totalAmount),2)) * 100);
 		$gst = $total - $totalNoGST;
 		$totalDue = $total + $this->order->getShippingCost() + $this->order->getHandlingCost() - $this->order->getTotalPaid();
 		$html = $this->_getPaymentSummaryRow('Total Excl. GST:', '$' . number_format($totalAmount, 2, '.', ','), 'grandTotalNoGST');
-		$html .= $this->_getPaymentSummaryRow('Discount:', $discount, 'discount');
+		$html .= $this->_getPaymentSummaryRow('Discount:', $discount.'%', 'discount');
 		$html .= $this->_getPaymentSummaryRow('Subtotal Excl. GST:', '$' . number_format($totalNoGST, 2, '.', ','), 'subtotalNoGST');
 		$html .= $this->_getPaymentSummaryRow('GST:', '$' . number_format($gst, 2, '.', ','), 'gst');
 		$html .= $this->_getPaymentSummaryRow('SubTotal Incl. GST:', '$' . number_format($total, 2, '.', ','), 'grandTotal');
