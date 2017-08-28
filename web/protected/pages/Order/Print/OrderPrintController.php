@@ -100,7 +100,7 @@ class OrderPrintController extends BPCPageAbstract
 			}
 // 			$html .= $this->getRow('', '<span class="pull-right">Serial No: </span>', '<div style="max-width: 367px; word-wrap: break-word;">' . implode(', ', $sellingItems) . '</div>', '', '', '', 'itemRow itemRow-serials');
 		}
-		for ( $i = 9; $i > $index; $i--)
+		for ( $i = 10; $i > $index; $i--)
 		{
 			$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '', 'itemRow');
 		}
@@ -125,7 +125,7 @@ class OrderPrintController extends BPCPageAbstract
 		$html .= $address->getContactName() . '<br />';
 		$html .= $address->getStreet() . '<br />';
 		$html .= $address->getCity() . ' ' . $address->getRegion() . ' ' . $address->getPostCode() . '<br />';
-		$html .= locale_get_display_region('-'.$address->getCountry(), 'en'). '<br />';
+// 		$html .= locale_get_display_region('-'.$address->getCountry(), 'en'). '<br />';
 		$html .= 'Tel: ' . ($this->getContact() === '' ? trim($address->getContactNo()) : $this->getContact());
 		return $html;
 	}
