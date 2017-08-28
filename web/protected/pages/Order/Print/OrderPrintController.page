@@ -6,18 +6,19 @@
                 <tr class="title_row">
                     <td colspan=12>
                         <div>
-                            <span class="inlineblock logo" style="position:relative; top:-25px;">
+                            <span class="inlineblock logo" style="position:relative; top:-10px;">
                                 <img src=<%= Config::get('PDFInvoice','LogoUrl') %> style="padding: 0px; margin: 0px;display: block;"/>
+                                <div class="abn info"><%= 'ABN: ' . Config::get('PDFInvoice','CompanyDetail')['ABN'] %></div>
                             </span>
                             <span class="inlineblock info">
-                                <div class="cname"><%= Config::get('PDFInvoice','CompanyDetail')['Name'] %></div>
-                                <div class="abn"><%= 'ABN ' . Config::get('PDFInvoice','CompanyDetail')['ABN'] %></div>
+                                <div class="cname"><%= $this->getType() === 'TAX INVOICE' ? 'TAX INVOICE' : 'Quote' %></div>
                                 <span class="inlineblock dates">
-                                    <div class="dateRow"><span class="rowTitle inlineblock"><%=  $this->getType() === 'TAX INVOICE' ? 'JOB ' : $this->getType() %> No.: </span><span class="rowContent inlineblock"><%= $this->order->getOrderNo()%></span></div>
+                                	<%= $this->getDates() %>
+                                   <!-- <div class="dateRow"><span class="rowTitle inlineblock"><%=  $this->getType() === 'TAX INVOICE' ? 'TAX INVOICE ' : $this->getType() %> No.: </span><span class="rowContent inlineblock"><%= $this->order->getInvNo()%></span></div>
                                     <div class="dateRow"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock"><%= $this->getOrdDate() %></span></div>
                                     <div class="dateRow"><span class="rowTitle inlineblock">TAX INVOICE No.: </span><span class="rowContent inlineblock"><%= $this->order->getInvNo()%></span></div>
                                     <div class="dateRow"><span class="rowTitle inlineblock">Invoice Date.: </span><span class="rowContent inlineblock"><%= $this->getInvDate() %></span></div>
-                                    <div class="dateRow"><span class="rowTitle inlineblock">PO No.: </span><span class="rowContent inlineblock"><%= $this->order->getPONo() %></span></div>
+                                    <div class="dateRow"><span class="rowTitle inlineblock">PO No.: </span><span class="rowContent inlineblock"><%= $this->order->getPONo() %></span></div> -->
                                 </span>
                             </span>
                         </div>
@@ -69,7 +70,7 @@
                         <div class="order_tc box">
                             <div class="tc_title">Terms and conditions of sale</div>
                             <div class="tc_details">
-                                <ol>
+                                <ol style="margin-left: -15px;">
 									<%= $this->getTermsCondition() %>
                                 </ol>
                             </div>

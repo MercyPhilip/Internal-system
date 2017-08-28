@@ -7,16 +7,13 @@
                     <tr class="title_row">
                         <td colspan=6>
                             <div>
-                                <span class="inlineblock logo" style="position:relative; top:-25px;">
+                                <span class="inlineblock logo" style="position:relative; top:-10px;">
                                     <img src=<%= Config::get('PDFInvoice','LogoUrl') %> style="padding: 0px; margin: 0px;display: block;"/>
-                                    <span class="inlineblock orderno" style="color: #2977c3;position:relative; top:10px; left:265px;">
-                                            Delivery Docket
-                                    </span>
+									<div class="abn info"><%= 'ABN: ' . Config::get('PDFInvoice','CompanyDetail')['ABN'] %></div>
                                 </span>
                                 
                                 <span class="inlineblock info">
-                                    <div class="cname"><%= Core::getUser()->getStore()->getName() . ' Store'%></div>
-                                    <div class="abn"><%= 'ABN ' . Config::get('PDFInvoice','CompanyDetail')['ABN'] %></div>
+                                    <div class="cname">Delivery Docket</div>
                                     <span class="inlineblock dates">
                                         <div class="dateRow"><span class="rowTitle inlineblock"> <%= $this->getType() === 'TAX INVOICE' ? 'JOB ' : $this->getType() %> No.: </span><span class="rowContent inlineblock"><%= $this->order->getOrderNo()%></span></div>
                                         <div class="dateRow"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock"><%= $this->getOrdDate() %></span></div>
@@ -65,7 +62,7 @@
                                             </span>
                                         </strong></div>
                                         <div class="print-row">
-                                            <span class="inlineblock"><span class="inlineblock title">comments:</span><span class="inlineblock details"></span></span>
+                                            <span class="inlineblock"><span class="inlineblock title">Delivery Instruction:</span><span class="inlineblock details"><%= count($shippments = $this->order->getShippments()) > 0 ? $shippments[0]->getDeliveryInstructions(): '' %></span></span>
                                         </div>
                                     </div>
                                 </span>
@@ -73,14 +70,14 @@
                                     <%= $this->getPaymentSummary() %>
                                 </span>
                             </div>
-                            <div class="order_tc box">
+                           <!-- <div class="order_tc box">
                                 <div class="tc_title">Terms and conditions of sale</div>
                                 <div class="tc_details">
                                     <ol>
 	                                    <%= $this->getTermsCondition() %>
                                 	</ol>
                                 </div>
-                            </div>
+                            </div> -->
                             <div class="order_receiver_signature hidden">
                                 <span class="printName inlineblock third"><span class="details_title">Print Name: </span></span>
                                 <span class="signature inlineblock third"><span class="details_title">Signature: </span></span>

@@ -81,7 +81,7 @@
 }
 
 .title_row .logo {
-    width: 70%;
+    width: 65%;
 }
 
 .title_row .logo .orderno {
@@ -93,17 +93,18 @@
     color: #2977c3;
     font-weight: bold;
     text-align: right;
-    width: 28%;
+    width: 33%;
 }
 
-.title_row .info .abn {
-    font-size: 11px;
+.abn {
+    font-size: 15px;
+    margin: 20px 0 0 35px;
 }
 
 .title_row .info .dates {
     color: black;
     font-size: 11px;
-    padding: 20px 0 0 0;
+    padding: 5px 0 0 0;
 }
 
 .title_row .info .dates .dateRow {
@@ -127,6 +128,7 @@
 }
 
 .addr_info .half {
+	float:left;
     width: 49%;
     /**height: 100px;**/
 }
@@ -289,7 +291,7 @@ table.orderview .order_tc .tc_title {
 }
 
 table.orderview .order_tc .tc_details {
-    padding: 0 0 5px 30px;
+    padding: 0 0 5px 0px;
 }
 
 table.orderview .order_tc .tc_details ol {
@@ -389,3 +391,4 @@ table.orderview .order_company_details .details_title {
     color: #BBBBBB;
     padding: 10px 10px 5px;
 }
+.cname{font-size: 22px; margin-left: -25px;}

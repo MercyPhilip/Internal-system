@@ -76,7 +76,7 @@ class OrderPrintController extends BPCPageAbstract
 	 */
 	public function getRow($qty, $name, $desc, $uprice, $tprice, $rowClass="")
 	{
-		return "<tr class='$rowClass'><td class='qty' style='text-align:center'>$qty</td><td class='name'>$name</td><td class='desc'>$desc</td><td class='uprice'>$uprice</td><td class='tprice' style='width:11.6%'>$tprice</td></tr>";
+		return "<tr class='$rowClass'><td class='qty' style='text-align:center'>$qty</td><td class='name'>$name</td><td class='desc'>$desc</td><td class='uprice' style='width:10.3%'>$uprice</td><td class='tprice' style='width:11.6%'>$tprice</td></tr>";
 	}
 	/**
 	 *
@@ -133,6 +133,8 @@ class OrderPrintController extends BPCPageAbstract
 	{
 		$total = $this->order->getTotalAmount();
 		$shippingCostIncGST = StringUtilsAbstract::getValueFromCurrency(implode('', $this->order->getInfo(OrderInfoType::ID_MAGE_ORDER_SHIPPING_COST)));
+		$shippingCostExGST = $shippingCostIncGST / 1.1;
+
 		$totalWithOutShipping = $total - $shippingCostIncGST;
 		$gstFree = $this->order->getGstFree();
 		if ($gstFree == 0){
@@ -140,12 +142,14 @@ class OrderPrintController extends BPCPageAbstract
 		}else{
 			$totalWithOutShippingNoGST = $totalWithOutShipping;
 		}
-		$gst = $totalWithOutShipping - $totalWithOutShippingNoGST;
+		
+		$subtotalExGST = $totalWithOutShippingNoGST + $shippingCostExGST;
+		$gst = $totalWithOutShipping - $totalWithOutShippingNoGST + $shippingCostIncGST - $shippingCostExGST;
 
 		$html = $this->_getPaymentSummaryRow('Total Excl. GST:', '$' . number_format($totalWithOutShippingNoGST, 2, '.', ','), 'grandTotalNoGST');
+		$html .= $this->_getPaymentSummaryRow('Shipping Excl. GST:', '$' . number_format((double)$shippingCostExGST, 2, '.', ','), 'grandTotal');
+		$html .= $this->_getPaymentSummaryRow('Sub Total Excl. GST:', '$' . number_format($subtotalExGST, 2, '.', ','), 'grandTotal');
 		$html .= $this->_getPaymentSummaryRow('Total GST:', '$' . number_format($gst, 2, '.', ','), 'gst');
-		$html .= $this->_getPaymentSummaryRow('Sub Total Incl. GST:', '$' . number_format($totalWithOutShipping, 2, '.', ','), 'grandTotal');
-		$html .= $this->_getPaymentSummaryRow('Shipping Incl. GST:', '$' . number_format((double)$shippingCostIncGST, 2, '.', ','), 'grandTotal');
 		$html .= $this->_getPaymentSummaryRow('<strong>Grand Total Incl. GST:</strong>', '<strong>$' . number_format((double)$total, 2, '.', ',') . '</strong>', 'grandTotal');
 		$html .= $this->_getPaymentSummaryRow('Paid to Date:', '$' . number_format($this->order->getTotalPaid(), 2, '.', ','), 'paidTotal');
 		$overDueClass = $this->order->getTotalDue() > 0 ? 'overdue' : '';
@@ -176,6 +180,25 @@ class OrderPrintController extends BPCPageAbstract
 		foreach ($terms as $term){
 			$html .= '<li>' . $term . '</li>';
 		}
+
+		return $html;
+	}
+	public function getDates()
+	{
+		$html = '';
+		if ($this->getType() === 'TAX INVOICE'){
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Tax Invoice No.: </span><span class="rowContent inlineblock">' . $this->order->getInvNo() . '</span></div>';
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Invoice Date: </span><span class="rowContent inlineblock">' . $this->getInvDate(). '</span></div>';
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Order No.: </span><span class="rowContent inlineblock">' . $this->order->getOrderNo() . '</span></div>';
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock">' . $this->getOrdDate(). '</span></div>';
+		}else{
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Quote No.: </span><span class="rowContent inlineblock">' . $this->order->getOrderNo() . '</span></div>';
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Quote Date: </span><span class="rowContent inlineblock">' . $this->getOrdDate(). '</span></div>';
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Tax Invoice No.: </span><span class="rowContent inlineblock">' . $this->order->getInvNo() . '</span></div>';
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Invoice Date: </span><span class="rowContent inlineblock">' . $this->getInvDate(). '</span></div>';
+		}
+		$html .= '<div class="dateRow"><span class="rowTitle inlineblock">PO No.: </span><span class="rowContent inlineblock">' . $this->order->getPONo() . '</span></div>';
+		
 
 		return $html;
 	}

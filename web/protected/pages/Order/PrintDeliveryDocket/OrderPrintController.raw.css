@@ -73,7 +73,7 @@
 }
 
 .title_row .logo {
-    width: 75%;
+    width: 65%;
 }
 
 .title_row .logo .orderno {
@@ -85,17 +85,18 @@
     color: #2977c3;
     font-weight: bold;
     text-align: right;
-    width: 23%;
+    width: 33%;
 }
 
-.title_row .info .abn {
-    font-size: 11px;
+.abn {
+    font-size: 15px;
+    margin: 20px 0 0 35px;
 }
 
 .title_row .info .dates {
     color: black;
     font-size: 11px;
-    padding: 20px 0 0 0;
+    padding: 5px 0 0 0;
 }
 
 .title_row .info .dates .dateRow {
@@ -119,8 +120,8 @@
 }
 
 .addr_info .half {
+	float:left;
     width: 49%;
-    /**height: 100px;**/
 }
 
 .addr_info .half .addr {
@@ -251,7 +252,7 @@ table.orderview .order_payments .payment_details .shipping_details .print-row .h
 
 table.orderview .order_payments .payment_details .shipping_details .print-row .title
     {
-    width: 90px;
+    width: 110px;
 }
 
 table.orderview .order_payments .payment_details .bank_details {
@@ -285,7 +286,7 @@ table.orderview .order_tc .tc_details {
 }
 
 table.orderview .order_tc .tc_details ol {
-    width: 99%;
+    width: 100%;
     -moz-column-count: 2;
     -moz-column-gap: 30px;
     -webkit-column-count: 2;
@@ -380,3 +381,4 @@ table.orderview .order_company_details .details_title {
     color: #BBBBBB;
     padding: 10px 10px 5px;
 }
+.cname{font-size: 22px; margin-left: -25px;}

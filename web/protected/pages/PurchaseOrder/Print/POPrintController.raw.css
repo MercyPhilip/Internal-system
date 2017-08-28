@@ -96,14 +96,15 @@
     width: 38%;
 }
 
-.title_row .info .abn {
-    font-size: 11px;
+.abn {
+    font-size: 15px;
+    margin: 20px 0 0 35px;
 }
 
 .title_row .info .dates {
     color: black;
     font-size: 11px;
-    padding: 20px 0 0 0;
+    padding: 5px 0 0 0;
 }
 
 .title_row .info .dates .dateRow {
@@ -145,6 +146,7 @@ table.orderview {
 table.orderview tr.header {
     font-weight: bold;
     border: 2px black solid;
+    text-align:center;
 }
 
 table.orderview tr.header td {
@@ -190,7 +192,7 @@ table.orderview .qty {
 }
 
 table.orderview .sku {
-    width: 100px;
+    width: 90px;
 }
 
 table.orderview .uprice,table.orderview .tprice {
@@ -293,7 +295,7 @@ table.orderview .order_tc .tc_details {
 }
 
 table.orderview .order_tc .tc_details ol {
-    width: 99%;
+    width: 100%;
     -moz-column-count: 2;
     -moz-column-gap: 30px;
     -webkit-column-count: 2;
@@ -399,3 +401,4 @@ table.orderview .order_payments .comments_details {
     width: 65%;
     color: red;
 }
+.cname{font-size: 22px;}

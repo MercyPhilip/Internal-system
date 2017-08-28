@@ -7,15 +7,17 @@
                     <tr class="title_row">
                         <td colspan=6>
                             <div>
-                                <span class="inlineblock logo" style="position:relative; top:-25px;">
+                                <span class="inlineblock logo" style="position:relative; top:-10px;">
                                     <img src=<%= Config::get('PDFInvoice','LogoUrl') %> style="padding: 0px; margin: 0px;display: block;"/>
+                                    <div class="abn info"><%= 'ABN: ' . Config::get('PDFInvoice','CompanyDetail')['ABN'] %></div>
                                 </span>
+                                
                                 <span class="inlineblock info">
-                                    <div class="cname"><%= Config::get('PDFInvoice','CompanyDetail')['Name'] %></div>
-                                    <div class="abn"><%= 'ABN ' . Config::get('PDFInvoice','CompanyDetail')['ABN'] %></div>
+                                    <div class="cname">Purchase Order</div>
+                                    
                                     <span class="inlineblock dates">
                                         <div class="dateRow"><span class="rowTitle inlineblock">Purchase Order No.: </span><span class="rowContent inlineblock"><%= $this->order->getPurchaseOrderNo()%></span></div>
-                                        <div class="dateRow"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock"><%= $this->order->getOrderDate()->setTimeZone(UDate::TIME_ZONE_MELB)->format('d/M/Y') %></span></div>
+                                        <div class="dateRow"><span class="rowTitle inlineblock">Purchase Order Date: </span><span class="rowContent inlineblock"><%= $this->order->getOrderDate()->setTimeZone(UDate::TIME_ZONE_MELB)->format('d/M/Y') %></span></div>
                                         <div class="dateRow"><span class="rowTitle inlineblock">Supplier: </span><span class="rowContent inlineblock"><%= $this->order->getSupplier()->getName() %></span></div>
                                         <div class="dateRow"><span class="rowTitle inlineblock">PO Ref.: </span><span class="rowContent inlineblock"><%= $this->order->getSupplierRefNo() %></span></div>
                                         <div class="dateRow"><span class="rowTitle inlineblock">Total Prodcuts: </span><span class="rowContent inlineblock"><%= $this->order->getTotalProductCount() %></span></div>
@@ -41,7 +43,7 @@
                     <tr class="">
                         <td colspan=12>&nbsp;</td>
                     </tr>
-                    <%= $this->getRow('QTY', 'SKU', 'SUPPLIER CODE', 'NAME', 'Unit Price', 'Total Price', 'header'); %>
+                    <%= $this->getRow('QTY', 'SKU', 'Supplier Code', 'Name', 'Unit Price', 'Total Price', 'header'); %>
                 </thead>
                 <tbody>
                     <%= $this->showProducts(); %>
@@ -58,11 +60,11 @@
                     </tr>
                     <tr>
                         <td colspan=12>
-                            <div class="order_receiver_signature">
+                       <!--     <div class="order_receiver_signature">
                                 <span class="printName inlineblock third"><span class="details_title">Print Name: </span></span>
                                 <span class="signature inlineblock third"><span class="details_title">Signature: </span></span>
                                 <span class="received_date inlineblock third"><span class="details_title">Received on: </span>___ / ____ / _____</span>
-                            </div>
+                            </div> -->
                             <div class="order_company_details">
                                 <div class="addr">
                                     <span class="addr"><span class="details_title">Address: </span><%= Config::get('PDFInvoice','CompanyDetail')['Addr'] %></span>
