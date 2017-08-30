@@ -656,7 +656,7 @@ class Order extends InfoEntityAbstract
 	public function postSave()
 	{
 		if(trim($this->getOrderNo()) === '') {
-			$this->setOrderNo(Config::get('Prefix','OrderManual') .str_pad($this->getId(), 8, '0', STR_PAD_LEFT))
+			$this->setOrderNo(Config::get('Prefix','OrderManual') . $this->getId())
 				->setMargin($this->getCalculatedTotalMargin())
 				->save();
 		}
@@ -711,11 +711,11 @@ class Order extends InfoEntityAbstract
 		$storeId = Core::getUser()->getStore()->getId();
 		if ($storeId == 1)
 		{
-			$invNo = Config::get('Prefix','Invoice').str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
+			$invNo = Config::get('Prefix','Invoice') . $this->getId();
 		}
 		else
 		{
-			$invNo = '2' . Config::get('Prefix','Invoice') .str_pad($this->getId(), 8, '0', STR_PAD_LEFT);
+			$invNo = '2' . Config::get('Prefix','Invoice') . $this->getId();
 		}
 		return $this->setType(Order::TYPE_INVOICE)
 			->setMargin($totalMargin)
