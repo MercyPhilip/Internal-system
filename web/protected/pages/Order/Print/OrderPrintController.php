@@ -27,7 +27,7 @@ class OrderPrintController extends BPCPageAbstract
 	protected function _getEndJs()
 	{
 		$js = parent::_getEndJs();
-		if(isset($_REQUEST['jsmultipages']) && intval($_REQUEST['jsmultipages']) === 1)
+// 		if(isset($_REQUEST['jsmultipages']) && intval($_REQUEST['jsmultipages']) === 1)
 			$js .= "pageJs.formatForPDF();";
 		return $js;
 	}
@@ -85,12 +85,29 @@ class OrderPrintController extends BPCPageAbstract
 	public function showProducts()
 	{
 		$html = '';
-		$index = 0;
+		$index = $pixels = 0;
 		foreach($this->order->getOrderItems() as  $index => $orderItem)
 		{
 			$uPrice = '$' . number_format($orderItem->getUnitPrice(), 2, '.', ',');
 			$tPrice = '$' . number_format($orderItem->getTotalPrice(), 2, '.', ',');
 			$shouldTotal = $orderItem->getUnitPrice() * $orderItem->getQtyOrdered();
+/* 			$name = $orderItem->getProduct()->getname();
+			$desc = $orderItem->getProduct()->getShortDescription();
+			$lenName = strlen($name);
+			$lenDesc = strlen($desc);
+			$numName = ceil($lenName / 30);
+			$numDesc = ceil($lenDesc / 40);
+			if ($numDesc >= $numName){
+				$pixels += 17 * $numDesc + 10;
+			}else{
+				$pixels += 17 * $numName + 10;
+			}
+			if ($pixels > 590){
+				$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getname(), $orderItem->getProduct()->getShortDescription(),$uPrice, $tPrice, 'itemRow page-break');
+				$pixels = 0;
+			}else{
+				$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getname(), $orderItem->getProduct()->getShortDescription(),$uPrice, $tPrice, 'itemRow');
+			} */
 			$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getname(), $orderItem->getProduct()->getShortDescription(),$uPrice, $tPrice, 'itemRow');
 			if(($sellingItems = $orderItem->getSellingItems()) && count($sellingItems) > 0)
 			{
@@ -100,10 +117,10 @@ class OrderPrintController extends BPCPageAbstract
 			}
 // 			$html .= $this->getRow('', '<span class="pull-right">Serial No: </span>', '<div style="max-width: 367px; word-wrap: break-word;">' . implode(', ', $sellingItems) . '</div>', '', '', '', 'itemRow itemRow-serials');
 		}
-		for ( $i = 10; $i > $index; $i--)
+/* 		for ( $i = 10; $i > $index; $i--)
 		{
 			$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '', 'itemRow');
-		}
+		} */
 		return $html;
 	}
 	public function getContact()

@@ -1,4 +1,96 @@
-var PageJs=new Class.create;
-PageJs.prototype=Object.extend(new BPCPageJs,{_maxRowsPerPage:8,genPage:function(d,b,a,c){var e,g,f;b=d.clone(!0);a=b.down("thead").clone(!0);b.down("thead").remove();d=b.down("tfoot").clone(!0);b.down("tfoot").remove();d=(new Element("div",{"class":"print-page-wrap",style:"margin: 20px 0;"})).update(b).insert({bottom:(new Element("div",{"class":"print-page-footer"})).update(d.down("tr").wrap(new Element("table",{"class":"orderview"})))});e=b.down("tbody").update(a.down("tr.header").clone(!0));a.down("tr.header").remove();
-d.insert({top:(new Element("div",{"class":"print-page-header"})).update((new Element("table",{"class":"orderview"})).update(a.innerHTML))});c.each(function(a){e.insert({bottom:a})});b=c[0].getElementsBySelector("td").size();if(c.size()<this._maxRowsPerPage)for(a=0;a<1*this._maxRowsPerPage-c.size();a=1*a+1){g=c[0].clone(!0).update("");for(f=0;f<b;f=1*f+1)g.insert({bottom:(new Element("td")).update("&nbsp;")});e.insert({bottom:g})}return d},formatForPDF:function(){var d,b,a,c,e,g,f,h;d=this;b=$("main-table").clone(!0);
-a=[];c=[];e=0;b.down("#tbody").getElementsBySelector("tr").each(function(b){e>=d._maxRowsPerPage&&(a.push(c.clone(!0)),c=[],e=0);b.down(".sku").innerHTML.blank()||(c.push(b),e=1*e+1)});0<c.size()&&a.push(c);g=$("main-table").up().update("");f=1;h=a.size();a.each(function(a){g.insert({bottom:d.genPage(b,f++,h,a)})});return d}});
+/**
+ * The page Js file
+ */
+var PageJs = new Class.create();
+PageJs.prototype = Object.extend(new BPCPageJs(), {
+	_maxRowsPerPage: 9
+	,genPage: function(table, pageNo, totalPages, rows, header) {
+		var tmp = {};
+		tmp.me = this;
+		tmp.table = table.clone(true);
+		tmp.thead = tmp.table.down('thead').clone(true);
+		tmp.table.down('thead').remove();
+		tmp.tfoot = tmp.table.down('tfoot').clone(true);
+		tmp.table.down('tfoot').remove();
+		tmp.newPageDiv = new Element('div', {'class': 'print-page-wrap', 'style': 'margin: 20px 0;'})
+//			.update(tmp.table)
+			.insert({'bottom': tmp.tbody = new Element('table', {'id' : 'main-table', 'class' : 'orderview'}) })
+			.insert({'bottom': new Element('div', {'class': 'print-page-footer'}).update(tmp.tfoot.down('tr').wrap( new Element('table', {'class': 'orderview'}) ) ) 
+				.insert({'bottom': new Element('div', {'class': 'page-no'}).update(pageNo + '/' + totalPages) }) });
+//		tmp.tbody = tmp.table.down('tbody').clone(true);
+//		tmp.thead.down('tr.header').remove();
+		tmp.newPageDiv.insert({'top': new Element('div', {'class': 'print-page-header'}).update(
+				new Element('table', {'class': 'orderview'}).update(tmp.thead.innerHTML)
+		) });
+//		tmp.tbody.insert({'bottom': tmp.tbody.down('tr.header')});
+/*		if(rows[0].className.indexOf('addr_info') < 0){
+			console.log(header.removeClassName());
+//			header.addClass("header1");
+			rows.unshift(header);
+		}*/
+		console.log(rows);
+		rows.each(function(tr) {
+			if(tr.className.indexOf('summary') < 0){
+				tmp.tbody.insert({'bottom': tr});
+			}
+		});
+		tmp.noColumns = rows[1].getElementsBySelector('td').size();
+		if(rows.size() < tmp.me._maxRowsPerPage) {
+			for(tmp.j = tmp.me._maxRowsPerPage * 1 - rows.size(); tmp.j--;) {
+				
+//				tmp.emptyTr = rows[2].clone(true).update('');
+				tmp.emptyTr = new Element('tr', {'class' : 'itemRow'});
+				for(tmp.i = tmp.noColumns; tmp.i--;) {
+					tmp.emptyTr.insert({'bottom': new Element('td').update('&nbsp;')});
+//					console.log(tmp.emptyTr);
+				}
+				tmp.tbody.insert({'bottom': tmp.emptyTr});
+			}
+		}
+		if(rows[rows.length - 1].className.indexOf('summary') > -1){
+			tmp.tbody.insert({'bottom': rows[rows.length - 1]});
+		}
+		console.log(tmp.newPageDiv);
+//		tmp.table.down('#tfoot').insert({'bottom': new Element('td', {'colspan': tmp.noColumns})
+//			.setStyle('text-align: right')
+//			.update('Page: ' + pageNo + ' / ' + totalPages)
+//			.wrap(new Element('tr'))
+//		});
+		return tmp.newPageDiv;
+	}
+	,formatForPDF: function() {
+		var tmp = {};
+		tmp.me = this;
+		tmp.mainTable = $('main-table').clone(true);
+		tmp.pageTrs = [];
+		tmp.pageRows = [];
+		tmp.index = 0;
+		tmp.mainTable.down('tbody').getElementsBySelector('tr').each(function(row) {
+			if(tmp.index >= tmp.me._maxRowsPerPage) {
+				tmp.pageTrs.push(tmp.pageRows.clone(true));
+				tmp.pageRows = [];
+				tmp.index = 0;
+			}
+//			if(!row.down('.name').innerHTML.blank()) {
+				tmp.pageRows.push(row);
+				tmp.index = tmp.index * 1 + 1;
+//			}
+/*			if(row.className.indexOf('header') > -1){
+				tmp.header = row;
+			}*/
+		});
+		if(tmp.pageRows.size() > 0) {
+			tmp.pageTrs.push(tmp.pageRows);
+		}
+
+		tmp.wrapper = $('main-table').up().update('');
+		tmp.pageNo = 1;
+		tmp.totalPages = tmp.pageTrs.size();
+		tmp.pageTrs.each(function(pageRows) {
+			tmp.wrapper.insert({'bottom': tmp.me.genPage(tmp.mainTable, tmp.pageNo++, tmp.totalPages, pageRows)});
+		});
+
+
+		return tmp.me;
+	}
+});

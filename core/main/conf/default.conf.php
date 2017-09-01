@@ -46,7 +46,7 @@ return array(
 	'Prefix'	 => array(
 			'OrderManual' => 'NTM',
 			'Invoice' 	  => 'NTINV',
-			'PO'	  	  => 'NTP_',
+			'PO'	  	  => 'NTP',
 			'Barcode' 	  => 'NTB',
 			'CreditNote'  => 'NTC',
 	),	
