@@ -30,17 +30,8 @@
      size: auto;   /* auto is the initial value */
      margin: 0mm;  /* this affects the margin in the printer settings */
  }
- * {
- overflow: visible !important;
- }
     thead {
         display: table-header-group
-    }
-    tr {
-        page-break-inside: avoid;
-    }
-    td {
-        page-break-inside: avoid;
     }
 .box {
 	padding: 5px;
@@ -396,11 +387,9 @@ table.orderview .order_company_details .details_title {
     padding: 10px 10px 5px;
 }
 .cname{font-size: 22px; margin-left: -25px;}
-.page-break{ 
-	clear: both;
-    border :1px solid red;
-    page-break-after: always;
-}
 .page-no{
 	text-align: center;
+}
+.print-page-wrap{
+	page-break-before: always;
 }

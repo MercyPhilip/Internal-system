@@ -76,7 +76,7 @@ class OrderPrintController extends BPCPageAbstract
 	 */
 	public function getRow($qty, $name, $desc, $uprice, $tprice, $rowClass="")
 	{
-		return "<tr class='$rowClass'><td class='qty' style='text-align:center'>$qty</td><td class='name'>$name</td><td class='desc'>$desc</td><td class='uprice' style='width:10.3%'>$uprice</td><td class='tprice' style='width:11.6%'>$tprice</td></tr>";
+		return "<tr class='$rowClass'><td class='qty' style='text-align:center'>$qty</td><td class='name' style='width:22.3%'>$name</td><td class='desc'>$desc</td><td class='uprice' style='width:10.3%'>$uprice</td><td class='tprice' style='width:11.6%'>$tprice</td></tr>";
 	}
 	/**
 	 *
@@ -91,23 +91,6 @@ class OrderPrintController extends BPCPageAbstract
 			$uPrice = '$' . number_format($orderItem->getUnitPrice(), 2, '.', ',');
 			$tPrice = '$' . number_format($orderItem->getTotalPrice(), 2, '.', ',');
 			$shouldTotal = $orderItem->getUnitPrice() * $orderItem->getQtyOrdered();
-/* 			$name = $orderItem->getProduct()->getname();
-			$desc = $orderItem->getProduct()->getShortDescription();
-			$lenName = strlen($name);
-			$lenDesc = strlen($desc);
-			$numName = ceil($lenName / 30);
-			$numDesc = ceil($lenDesc / 40);
-			if ($numDesc >= $numName){
-				$pixels += 17 * $numDesc + 10;
-			}else{
-				$pixels += 17 * $numName + 10;
-			}
-			if ($pixels > 590){
-				$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getname(), $orderItem->getProduct()->getShortDescription(),$uPrice, $tPrice, 'itemRow page-break');
-				$pixels = 0;
-			}else{
-				$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getname(), $orderItem->getProduct()->getShortDescription(),$uPrice, $tPrice, 'itemRow');
-			} */
 			$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getname(), $orderItem->getProduct()->getShortDescription(),$uPrice, $tPrice, 'itemRow');
 			if(($sellingItems = $orderItem->getSellingItems()) && count($sellingItems) > 0)
 			{
