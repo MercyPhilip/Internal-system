@@ -78,9 +78,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			tmp.numName = Math.ceil(tmp.lenName / 22);
 			tmp.numDesc = Math.ceil(tmp.lenDesc / 48);
 			if (tmp.numDesc >= tmp.numName){
-				tmp.linepixels = 21 * tmp.numDesc + 5 * 1;
+				tmp.linepixels = 17 * tmp.numDesc + 5 * 1;
 			}else{
-				tmp.linepixels = 21 * tmp.numName + 5 * 1;
+				tmp.linepixels = 17 * tmp.numName + 5 * 1;
 			}
 			if(row.className.indexOf('summary') >= 0){
 				tmp.linepixels = 170;
