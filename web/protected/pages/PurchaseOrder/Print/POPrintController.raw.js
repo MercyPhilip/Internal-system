@@ -82,11 +82,11 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			tmp.numSupplier = Math.ceil(tmp.lenSupplier / 15);
 			tmp.numSku = Math.ceil(tmp.lenSku / 11);
 			if (tmp.numSku >= tmp.numName && tmp.numSku >= tmp.numSupplier){
-				tmp.linepixels = 21 * tmp.numSku + 5 * 1;
+				tmp.linepixels = 18.5 * tmp.numSku + 5 * 1;
 			}else if(tmp.numSupplier >= tmp.numSku && tmp.numSupplier >= tmp.numName){
-				tmp.linepixels = 21 * tmp.numSupplier + 5 * 1;
+				tmp.linepixels = 18.5 * tmp.numSupplier + 5 * 1;
 			}else{
-				tmp.linepixels = 21 * tmp.numName + 5 * 1;
+				tmp.linepixels = 18.5 * tmp.numName + 5 * 1;
 			}
 			if(row.className.indexOf('comment') >= 0){
 				tmp.linepixels = 40;
