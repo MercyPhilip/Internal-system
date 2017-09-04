@@ -20,6 +20,18 @@ class POPrintController extends BPCPageAbstract
 	 */
 	public $order = null;
 	/**
+	 * Getting The end javascript
+	 *
+	 * @return string
+	 */
+	protected function _getEndJs()
+	{
+		$js = parent::_getEndJs();
+		// 		if(isset($_REQUEST['jsmultipages']) && intval($_REQUEST['jsmultipages']) === 1)
+		$js .= "pageJs.formatForPDF();";
+		return $js;
+	}
+	/**
 	 * (non-PHPdoc)
 	 * @see BPCPageAbstract::onLoad()
 	 */
@@ -56,7 +68,7 @@ class POPrintController extends BPCPageAbstract
 	 */
 	public function getRow($qty, $sku, $suplierCode, $name, $uprice, $tprice, $rowClass="")
 	{
-		return "<tr class='$rowClass'><td class='qty' style='text-align:center'>$qty</td><td class='sku'>$sku</td><td class='supplier' style='width:14.6%'>$suplierCode</td><td class='name'>$name</td><td class='uprice' style='width:10.5%'>$uprice</td><td class='tprice' style='width:11.6%'>$tprice</td></tr>";
+		return "<tr class='$rowClass'><td class='qty' style='text-align:center'>$qty</td><td class='sku' style='width:12.6%'>$sku</td><td class='supplier' style='width:14.6%'>$suplierCode</td><td class='name'>$name</td><td class='uprice' style='width:10.5%'>$uprice</td><td class='tprice' style='width:11.6%'>$tprice</td></tr>";
 	}
 	/**
 	 *
@@ -74,10 +86,10 @@ class POPrintController extends BPCPageAbstract
 			$tPrice = '$' . number_format($orderItem->getTotalPrice(), 2, '.', ',');
 			$html .= $this->getRow($orderItem->getQty(), $orderItem->getProduct()->getSku(), $supplierCode, $orderItem->getProduct()->getname(), $uPrice, $tPrice, 'itemRow');
 		}
-		for ( $i = 17; $i > $index; $i--)
+/* 		for ( $i = 17; $i > $index; $i--)
 		{
 			$html .= $this->getRow('&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', '&nbsp;', 'itemRow');
-		}
+		} */
 		return $html;
 	}
 	public function getComments()

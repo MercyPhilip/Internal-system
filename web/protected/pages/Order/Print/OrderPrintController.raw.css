@@ -31,13 +31,7 @@
      margin: 0mm;  /* this affects the margin in the printer settings */
  }
     thead {
-        display: table-row-group
-    }
-    tr {
-        page-break-inside: avoid;
-    }
-    td {
-        page-break-inside: avoid;
+        display: table-header-group
     }
 .box {
 	padding: 5px;
@@ -125,6 +119,8 @@
 /************ address info row ****************/
 .addr_info {
     width: 100%;
+    height:120px;
+    vertical-align: top;
 }
 
 .addr_info .half {
@@ -392,3 +388,9 @@ table.orderview .order_company_details .details_title {
     padding: 10px 10px 5px;
 }
 .cname{font-size: 22px; margin-left: -25px;}
+.page-no{
+	text-align: center;
+}
+.print-page-wrap{
+	page-break-before: always;
+}

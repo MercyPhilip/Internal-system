@@ -2,7 +2,7 @@
 <com:TContent ID="MainContent">
 	<div class="pagewrapper orderprint container">
 		<div class="orderViewWrapper inlineblock">
-            <table class='orderview' cellspacing="0" cellpadding="0">
+            <table class='orderview' cellspacing="0" cellpadding="0" id="main-table">
                 <thead>
                     <tr class="title_row">
                         <td colspan=6>
@@ -28,11 +28,13 @@
                             </div>
                         </td>
                     </tr>
-                    <tr class="addr_info">
+                   <!-- <tr class="addr_info">
                         <td colspan=12>
                         </td>
-                    </tr>
-                    <tr class="">
+                    </tr> -->
+                </thead>
+                <tbody>
+                    <tr class="comment">
                         <td colspan=12>
                         	<div class="comments_details inlineblock box" style="width:100%">
                                 <b class="print-row" style="color:black !important;">Comments: </b>
@@ -40,16 +42,11 @@
                             </div>
                         </td>
                     </tr>
-                    <tr class="">
-                        <td colspan=12>&nbsp;</td>
-                    </tr>
                     <%= $this->getRow('QTY', 'SKU', 'Supplier Code', 'Name', 'Unit Price', 'Total Price', 'header'); %>
-                </thead>
-                <tbody>
+
                     <%= $this->showProducts(); %>
-                </tbody>
-                <tfoot>
-                    <tr>
+
+                    <tr class="summary">
                         <td colspan=6 align="right">
                             <div class="order_payments">
                                 <span class="payment_summary inlineblock box">
@@ -58,6 +55,8 @@
                             </div>
                         </td>
                     </tr>
+                </tbody>
+                <tfoot>
                     <tr>
                         <td colspan=12>
                        <!--     <div class="order_receiver_signature">
