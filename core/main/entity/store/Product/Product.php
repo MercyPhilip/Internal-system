@@ -1069,7 +1069,7 @@ class Product extends InfoEntityAbstract
 	 */
 	public function removeSupplier(Supplier $supplier, $supplierCode = '')
 	{
-		$where = 'productId = ? and suplierId = ?';
+		$where = 'productId = ? and supplierId = ?';
 		$params = array($this->getId(), $supplier->getId());
 		if(trim($supplierCode) !== '')
 		{

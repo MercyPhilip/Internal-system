@@ -73,6 +73,9 @@
 }
 
 /************ address info row ****************/
+.title_row {
+	height:158px;
+}
 .title_row .sep {
     background: transparent url('/themes/default/images/inv_sep.png')
         repeat-y 0 0;
@@ -147,6 +150,7 @@ table.orderview tr.header {
     font-weight: bold;
     border: 2px black solid;
     text-align:center;
+    height: 25px;
 }
 
 table.orderview tr.header td {
@@ -320,6 +324,7 @@ table.orderview .order_company_details .addr,table.orderview .order_company_deta
     text-align: center;
     font-size: 11px;
     width: 100%;
+    height: 16px;
 }
 
 table.orderview .order_company_details .details_title {
@@ -402,3 +407,16 @@ table.orderview .order_payments .comments_details {
     color: red;
 }
 .cname{font-size: 22px;}
+.page-no{
+	text-align: center;
+	height: 18px;
+}
+.print-page-wrap{
+	page-break-before: always;
+}
+.comment{
+	height: 40px;
+}
+.summary{
+	height: 188px;
+}

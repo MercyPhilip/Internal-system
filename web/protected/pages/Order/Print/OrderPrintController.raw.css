@@ -73,7 +73,9 @@
     height: 7px;
     margin: 5px 0;
 }
-
+.title_row{
+	height: 145px;
+}
 .title_row .logo {
     width: 65%;
 }

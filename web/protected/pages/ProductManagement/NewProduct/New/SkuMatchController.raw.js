@@ -141,7 +141,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		switch(tmp.me._importDataTypes) {
 			case 'new_product':
 			case 'update_product':
-				tmp.me.csvFileLineFormat = ['sku', 'name', 'feature','description', 'short_description', 'price', 'category','stock', 'brand', 'supplier', 'weight', 'attributeset', 'image'];
+				tmp.me.csvFileLineFormat = ['sku', 'name', 'feature','description', 'short_description', 'price', 'category','stock', 'brand', 'supplier', 'supplierCode', 'weight', 'attributeset', 'image'];
 				tmp.me.tierLevels.each(function(tierLevel){
 					tmp.me.csvFileLineFormat.push(tierLevel);
 				}) 

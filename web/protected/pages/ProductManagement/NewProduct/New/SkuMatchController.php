@@ -25,6 +25,7 @@ class SkuMatchController extends BPCPageAbstract
 	const STOCK = 'stock';
 	const BRAND = 'brand';
 	const SUPPLIER = 'supplier';
+	const SUPPLIERCODE = 'supplierCode';
 	const WEIGHT = 'weight';
 /* 	const ASSETACCNO = 'assaccno';
 	const REVACCNO = 'revaccno';
@@ -160,6 +161,7 @@ class SkuMatchController extends BPCPageAbstract
 		$short_desc = isset($row[self::SHORTDESCRIPTION]) ? trim($row[self::SHORTDESCRIPTION]) : '';
 		$brandName = isset($row[self::BRAND]) ? trim($row[self::BRAND]) : '';
 		$supplierName = isset($row[self::SUPPLIER]) ? trim($row[self::SUPPLIER]) : '';
+		$supplierCode = isset($row[self::SUPPLIERCODE]) ? trim($row[self::SUPPLIERCODE]) : '';
 		$weight = isset($row[self::WEIGHT]) ? trim($row[self::WEIGHT]) : '';
 /* 		$assaccNo = isset($row[self::ASSETACCNO]) ? trim($row[self::ASSETACCNO]) : '';
 		$revaccNo = isset($row[self::REVACCNO]) ? trim($row[self::REVACCNO]) : '';
@@ -333,7 +335,17 @@ class SkuMatchController extends BPCPageAbstract
 						$status = ProductStockInfo::create($product, null, $store);
 				}
 				if ($stock != null) $product->setStatus($stock);
-				if ($supplier != null) $product->addSupplier($supplier, $sku);
+				if ($supplier != null){
+					if ($supplierCodes == ''){
+						$supplierCodes = $sku;
+					}
+					$product->addSupplier($supplier, $supplierCodes);
+				}else{
+					if ($supplierCodes != ''){
+						throw new Exception("[sku:" . $sku . "] Supplier code without supplier provided! (line:" . $index . ")");
+					}
+				}
+
 				$this->_updateCategories($product, $categoryIds)->_setPrices($product, $price);
 				if (count($tierPrices) > 0) $this->_setTierPrices($product, $tierPrices);
 				$this->_updateImages($product, $images);
@@ -353,9 +365,13 @@ class SkuMatchController extends BPCPageAbstract
 				if (trim($weight) != '')  $product->setWeight(doubleval($weight));
 				$supplierCodes = SupplierCode::getAllByCriteria('supplierId = ? and productId = ?',array($supplier->getId(), $product->getId()));
 				if (count($supplierCodes) > 0){
-					$supplier = null;
+					$product->removeSupplier($supplier);
+// 					$supplier = null;
 				}
-				if ($supplier != null) $product->addSupplier($supplier, $sku);
+				if ($supplierCode == ''){
+					$supplierCode = $sku;
+				}
+				if ($supplier != null) $product->addSupplier($supplier, $supplierCode);
 				if ($brand != null) $product->setManufacturer($brand);
 				if ($description != '')
 				{
