@@ -43,6 +43,14 @@
                         </div>
                     </td>
                 </tr>
+                <tr class="memo">
+                    <td colspan=12>
+                    	<div class="comments_details inlineblock box" style="width:100%">
+                            <b class="print-row" style="color:black !important;">Memo: </b>
+                            <%= $this->getMemos() %>
+                        </div>
+                    </td>
+                </tr>
 
                 <%= $this->getRow('QTY', 'Item', 'Description', 'Unit Price', 'Total Price', 'header'); %>
                 <%= $this->showProducts(); %>

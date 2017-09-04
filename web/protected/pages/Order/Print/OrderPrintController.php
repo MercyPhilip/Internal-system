@@ -173,6 +173,11 @@ class OrderPrintController extends BPCPageAbstract
 		$comments = Comments::getAllByCriteria('entityId = ? and entityName = ? and type = ?', array($this->order->getId(), get_class($this->order), Comments::TYPE_SALES), true, 1, 1, array('id' => 'desc'));
 		return count($comments) === 0 ? '' : $comments[0]->getComments();
 	}
+	public function getMemos()
+	{
+		$memos = Comments::getAllByCriteria('entityId = ? and entityName = ? and type = ?', array($this->order->getId(), get_class($this->order), Comments::TYPE_MEMO), true, 1, 1, array('id' => 'desc'));
+		return count($memos) === 0 ? '' : $memos[0]->getComments();
+	}
 	public function getTermsCondition()
 	{
 		$terms = Config::get('PDFInvoice','TermsCondition');
