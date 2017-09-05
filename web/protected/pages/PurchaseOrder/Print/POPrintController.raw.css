@@ -118,6 +118,7 @@
     font-weight: normal;
     text-align: right;
     padding: 0 3px 0 0;
+    vertical-align: top;
 }
 
 .title_row .info .dates .rowContent {

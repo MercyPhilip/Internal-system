@@ -55,7 +55,15 @@ class OrderPrintController extends BPCPageAbstract
 	}
 	public function getType()
 	{
-		return $this->order->getType() === Order::TYPE_INVOICE ? 'TAX ' . Order::TYPE_INVOICE : $this->order->getType();
+		$type = $this->order->getType();
+		if ($type === Order::TYPE_INVOICE){
+			$text = 'TAX INVOICE';
+		}elseif ($type === Order::TYPE_ORDER){
+			$text = 'ORDER';
+		}else {
+			$text = 'QUOTE';
+		}
+		return $text;
 	}
 	public function getOrdDate()
 	{
@@ -74,9 +82,9 @@ class OrderPrintController extends BPCPageAbstract
 	 * @param unknown $tprice
 	 * @return string
 	 */
-	public function getRow($qty, $name, $desc, $uprice, $tprice, $rowClass="")
+	public function getRow($qty, $sku, $name, $uprice, $tprice, $rowClass="")
 	{
-		return "<tr class='$rowClass'><td class='qty' style='text-align:center'>$qty</td><td class='name' style='width:22.3%'>$name</td><td class='desc'>$desc</td><td class='uprice' style='width:10.3%'>$uprice</td><td class='tprice' style='width:11.6%'>$tprice</td></tr>";
+		return "<tr class='$rowClass'><td class='qty' style='text-align:center'>$qty</td><td class='name' style='width:22.3%;'>$sku</td><td class='desc'>$name</td><td class='uprice' style='width:10.3%'>$uprice</td><td class='tprice' style='width:11.6%'>$tprice</td></tr>";
 	}
 	/**
 	 *
@@ -91,7 +99,7 @@ class OrderPrintController extends BPCPageAbstract
 			$uPrice = '$' . number_format($orderItem->getUnitPrice(), 2, '.', ',');
 			$tPrice = '$' . number_format($orderItem->getTotalPrice(), 2, '.', ',');
 			$shouldTotal = $orderItem->getUnitPrice() * $orderItem->getQtyOrdered();
-			$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getname(), $orderItem->getProduct()->getShortDescription(),$uPrice, $tPrice, 'itemRow');
+			$html .= $this->getRow($orderItem->getQtyOrdered(), $orderItem->getProduct()->getSku(), $orderItem->getProduct()->getName(),$uPrice, $tPrice, 'itemRow');
 			if(($sellingItems = $orderItem->getSellingItems()) && count($sellingItems) > 0)
 			{
 				$html .= $this->getRow('&nbsp;', '&nbsp;', 'Serial Numbers:', '&nbsp;', '', 'itemRow');

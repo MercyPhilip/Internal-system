@@ -13,7 +13,7 @@
                                 </span>
                                 
                                 <span class="inlineblock info">
-                                    <div class="cname">Purchase Order</div>
+                                    <div class="cname">PURCHASE ORDER</div>
                                     
                                     <span class="inlineblock dates">
                                         <div class="dateRow"><span class="rowTitle inlineblock">Purchase Order No.: </span><span class="rowContent inlineblock"><%= $this->order->getPurchaseOrderNo()%></span></div>
@@ -42,7 +42,7 @@
                             </div>
                         </td>
                     </tr>
-                    <%= $this->getRow('QTY', 'SKU', 'Supplier Code', 'Name', 'Unit Price', 'Total Price', 'header'); %>
+                    <%= $this->getRow('QTY', 'SKU', 'Supplier Code', 'NAME', 'Unit Price', 'Total Price', 'header'); %>
 
                     <%= $this->showProducts(); %>
 

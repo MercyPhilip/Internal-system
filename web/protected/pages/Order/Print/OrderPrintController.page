@@ -12,7 +12,7 @@
                                 <div class="abn info"><%= 'ABN: ' . Config::get('PDFInvoice','CompanyDetail')['ABN'] %></div>
                             </span>
                             <span class="inlineblock info">
-                                <div class="cname"><%= $this->getType() === 'TAX INVOICE' ? 'TAX INVOICE' : 'Quote' %></div>
+                                <div class="cname"><%= $this->getType() %></div>
                                 <span class="inlineblock dates">
                                 	<%= $this->getDates() %>
                                    <!-- <div class="dateRow"><span class="rowTitle inlineblock"><%=  $this->getType() === 'TAX INVOICE' ? 'TAX INVOICE ' : $this->getType() %> No.: </span><span class="rowContent inlineblock"><%= $this->order->getInvNo()%></span></div>
@@ -52,7 +52,7 @@
                     </td>
                 </tr>
 
-                <%= $this->getRow('QTY', 'Item', 'Description', 'Unit Price', 'Total Price', 'header'); %>
+                <%= $this->getRow('QTY', 'SKU', 'DESCRIPTION', 'Unit Price', 'Total Price', 'header'); %>
                 <%= $this->showProducts(); %>
 
                 <tr class="summary">

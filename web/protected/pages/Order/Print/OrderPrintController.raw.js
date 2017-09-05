@@ -4,7 +4,7 @@
 var PageJs = new Class.create();
 PageJs.prototype = Object.extend(new BPCPageJs(), {
 	_maxRowsPerPage: 9
-	,_pixels: 700
+	,_pixels: 750
 	,_noColumns: 5
 	,genPage: function(table, pageNo, totalPages, rows) {
 		var tmp = {};
@@ -43,6 +43,7 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		});
 //		tmp.noColumns = rows[1].getElementsBySelector('td').size();
 //		if(rows.size() < tmp.me._maxRowsPerPage) {
+		console.log(rows[rows.size() - 1]);
 		if(rows[rows.size() - 1] < tmp.me._pixels){
 //			for(tmp.j = tmp.me._maxRowsPerPage * 1 - rows.size(); tmp.j--;) {
 			for(tmp.j = Math.floor((tmp.me._pixels - rows[rows.size() - 1]) / 34); tmp.j--;){
@@ -87,6 +88,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 			}
 			if(row.className.indexOf('addr_info') >= 0){
 				tmp.linepixels = 120;
+			}
+			if(row.className.indexOf('memo') >= 0){
+				tmp.linepixels = 40;
 			}
 			tmp.pixels = tmp.pixels * 1 + tmp.linepixels * 1;
 //			if(tmp.index >= tmp.me._maxRowsPerPage) {

@@ -111,6 +111,7 @@
     font-weight: normal;
     text-align: right;
     padding: 0 3px 0 0;
+    vertical-align: top;
 }
 
 .title_row .info .dates .rowContent {
@@ -145,6 +146,7 @@ table.orderview {
 table.orderview tr.header {
     font-weight: bold;
     border: 2px black solid;
+    text-align: center;
 }
 
 table.orderview tr.header td {
@@ -395,4 +397,7 @@ table.orderview .order_company_details .details_title {
 }
 .print-page-wrap{
 	page-break-before: always;
+}
+.memo{
+	height:40px;
 }
