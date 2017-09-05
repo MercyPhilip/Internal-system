@@ -4,7 +4,7 @@
 var PageJs = new Class.create();
 PageJs.prototype = Object.extend(new BPCPageJs(), {
 	_maxRowsPerPage: 9
-	,_pixels: 750
+	,_pixels: 715
 	,_noColumns: 5
 	,genPage: function(table, pageNo, totalPages, rows) {
 		var tmp = {};
@@ -43,10 +43,9 @@ PageJs.prototype = Object.extend(new BPCPageJs(), {
 		});
 //		tmp.noColumns = rows[1].getElementsBySelector('td').size();
 //		if(rows.size() < tmp.me._maxRowsPerPage) {
-		console.log(rows[rows.size() - 1]);
 		if(rows[rows.size() - 1] < tmp.me._pixels){
 //			for(tmp.j = tmp.me._maxRowsPerPage * 1 - rows.size(); tmp.j--;) {
-			for(tmp.j = Math.floor((tmp.me._pixels - rows[rows.size() - 1]) / 34); tmp.j--;){
+			for(tmp.j = Math.floor((tmp.me._pixels - rows[rows.size() - 1]) / 35); tmp.j--;){
 				
 //				tmp.emptyTr = rows[2].clone(true).update('');
 				tmp.emptyTr = new Element('tr', {'class' : 'itemRow'});
