@@ -202,15 +202,16 @@ class OrderPrintController extends BPCPageAbstract
 		if ($this->getType() === 'TAX INVOICE'){
 			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Tax Invoice No.: </span><span class="rowContent inlineblock">' . $this->order->getInvNo() . '</span></div>';
 			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Invoice Date: </span><span class="rowContent inlineblock">' . $this->getInvDate(). '</span></div>';
-			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Order No.: </span><span class="rowContent inlineblock">' . $this->order->getOrderNo() . '</span></div>';
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Job No.: </span><span class="rowContent inlineblock">' . $this->order->getOrderNo() . '</span></div>';
 			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Order Date: </span><span class="rowContent inlineblock">' . $this->getOrdDate(). '</span></div>';
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">PO No.: </span><span class="rowContent inlineblock">' . $this->order->getPONo() . '</span></div>';
 		}else{
-			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Quote No.: </span><span class="rowContent inlineblock">' . $this->order->getOrderNo() . '</span></div>';
+			$html .= '<div class="dateRow" style="padding-top: 17px;"><span class="rowTitle inlineblock">Quote No.: </span><span class="rowContent inlineblock">' . $this->order->getOrderNo() . '</span></div>';
 			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Quote Date: </span><span class="rowContent inlineblock">' . $this->getOrdDate(). '</span></div>';
-			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Tax Invoice No.: </span><span class="rowContent inlineblock">' . $this->order->getInvNo() . '</span></div>';
-			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">Invoice Date: </span><span class="rowContent inlineblock">' . $this->getInvDate(). '</span></div>';
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">PO No.: </span><span class="rowContent inlineblock">' . $this->order->getPONo() . '</span></div>';
+			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">&nbsp;</span></div>';
+// 			$html .= '<div class="dateRow"><span class="rowTitle inlineblock">&nbsp;</span></div>';
 		}
-		$html .= '<div class="dateRow"><span class="rowTitle inlineblock">PO No.: </span><span class="rowContent inlineblock">' . $this->order->getPONo() . '</span></div>';
 		
 
 		return $html;
