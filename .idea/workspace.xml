@@ -1,0 +1,807 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="ChangeListManager">
+    <list default="true" id="9501a399-aedd-487a-b2fb-19762e61a22f" name="Default" comment="">
+      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/core/main/entity/store/Product/MovieInfo.php" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/core/main/entity/store/Product/ProductEta.php" afterPath="$PROJECT_DIR$/core/main/entity/store/Product/ProductEta.php" />
+    </list>
+    <ignored path="Internal-system.iws" />
+    <ignored path=".idea/workspace.xml" />
+    <ignored path=".idea/dataSources.local.xml" />
+    <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
+    <option name="TRACKING_ENABLED" value="true" />
+    <option name="SHOW_DIALOG" value="false" />
+    <option name="HIGHLIGHT_CONFLICTS" value="true" />
+    <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
+    <option name="LAST_RESOLUTION" value="IGNORE" />
+  </component>
+  <component name="ChangesViewManager" flattened_view="true" show_ignored="false" />
+  <component name="CreatePatchCommitExecutor">
+    <option name="PATCH_PATH" value="" />
+  </component>
+  <component name="ExecutionTargetManager" SELECTED_TARGET="default_target" />
+  <component name="FavoritesManager">
+    <favorites_list name="Internal-system" />
+  </component>
+  <component name="FileEditorManager">
+    <leaf>
+      <file leaf-file-name="MovieInfo.php" pinned="false" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/core/main/entity/store/Product/MovieInfo.php">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.86143345">
+              <caret line="173" column="31" selection-start-line="173" selection-start-column="31" selection-end-line="173" selection-end-column="31" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+    </leaf>
+  </component>
+  <component name="Git.Settings">
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+  </component>
+  <component name="IdeDocumentHistory">
+    <option name="CHANGED_PATHS">
+      <list>
+        <option value="$PROJECT_DIR$/core/main/entity/store/Product/ProductEta.php" />
+        <option value="$PROJECT_DIR$/core/main/entity/store/Product/MovieInfo.php" />
+      </list>
+    </option>
+  </component>
+  <component name="JsBuildToolGruntFileManager" detection-done="true" />
+  <component name="JsBuildToolPackageJson" detection-done="true" />
+  <component name="JsGulpfileManager">
+    <detection-done>true</detection-done>
+  </component>
+  <component name="PhpServers">
+    <servers />
+  </component>
+  <component name="PhpWorkspaceProjectConfiguration" backward_compatibility_performed="true" />
+  <component name="ProjectFrameBounds">
+    <option name="x" value="-8" />
+    <option name="y" value="-8" />
+    <option name="width" value="2576" />
+    <option name="height" value="1576" />
+  </component>
+  <component name="ProjectLevelVcsManager" settingsEditedManually="false">
+    <OptionsSetting value="true" id="Add" />
+    <OptionsSetting value="true" id="Remove" />
+    <OptionsSetting value="true" id="Checkout" />
+    <OptionsSetting value="true" id="Update" />
+    <OptionsSetting value="true" id="Status" />
+    <OptionsSetting value="true" id="Edit" />
+    <ConfirmationsSetting value="0" id="Add" />
+    <ConfirmationsSetting value="0" id="Remove" />
+  </component>
+  <component name="ProjectView">
+    <navigator currentView="ProjectPane" proportions="" version="1">
+      <flattenPackages />
+      <showMembers />
+      <showModules />
+      <showLibraryContents />
+      <hideEmptyPackages />
+      <abbreviatePackageNames />
+      <autoscrollToSource />
+      <autoscrollFromSource />
+      <sortByType />
+      <manualOrder />
+      <foldersAlwaysOnTop value="true" />
+    </navigator>
+    <panes>
+      <pane id="Scratches" />
+      <pane id="ProjectPane">
+        <subPane>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="web" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="entity" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="entity" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="store" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="entity" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="store" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Product" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+          <PATH>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.ProjectViewProjectNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="Internal-system" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="core" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="main" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+            <PATH_ELEMENT>
+              <option name="myItemId" value="conf" />
+              <option name="myItemType" value="com.intellij.ide.projectView.impl.nodes.PsiDirectoryNode" />
+            </PATH_ELEMENT>
+          </PATH>
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+    </panes>
+  </component>
+  <component name="PropertiesComponent">
+    <property name="WebServerToolWindowFactoryState" value="false" />
+    <property name="settings.editor.selected.configurable" value="reference.settingsdialog.IDE.editor.colors.Font" />
+    <property name="settings.editor.splitter.proportion" value="0.2" />
+  </component>
+  <component name="RunManager">
+    <configuration default="true" type="JavascriptDebugType" factoryName="JavaScript Debug">
+      <method />
+    </configuration>
+    <configuration default="true" type="PHPUnitRunConfigurationType" factoryName="PHPUnit">
+      <TestRunner />
+      <method />
+    </configuration>
+    <configuration default="true" type="PhpBehatConfigurationType" factoryName="Behat">
+      <BehatRunner />
+      <method />
+    </configuration>
+    <configuration default="true" type="PhpLocalRunConfigurationType" factoryName="PHP Console">
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.gulp" factoryName="Gulp.js">
+      <method />
+    </configuration>
+    <configuration default="true" type="js.build_tools.npm" factoryName="npm">
+      <command value="run-script" />
+      <scripts />
+      <envs />
+      <method />
+    </configuration>
+  </component>
+  <component name="ShelveChangesManager" show_recycled="false" />
+  <component name="SvnConfiguration">
+    <configuration />
+  </component>
+  <component name="TaskManager">
+    <task active="true" id="Default" summary="Default task">
+      <changelist id="9501a399-aedd-487a-b2fb-19762e61a22f" name="Default" comment="" />
+      <created>1505984517771</created>
+      <option name="number" value="Default" />
+      <updated>1505984517771</updated>
+    </task>
+    <servers />
+  </component>
+  <component name="ToolWindowManager">
+    <frame x="-8" y="-8" width="2576" height="1576" extended-state="6" />
+    <editor active="true" />
+    <layout>
+      <window_info id="Project" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="0" side_tool="false" content_ui="combo" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Database" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Run" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
+      <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="false" content_ui="tabs" />
+      <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="-1" side_tool="true" content_ui="tabs" />
+      <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
+      <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
+      <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="combo" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.33" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
+      <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" show_stripe_button="true" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+    </layout>
+  </component>
+  <component name="Vcs.Log.UiProperties">
+    <option name="RECENTLY_FILTERED_USER_GROUPS">
+      <collection />
+    </option>
+    <option name="RECENTLY_FILTERED_BRANCH_GROUPS">
+      <collection />
+    </option>
+  </component>
+  <component name="VcsContentAnnotationSettings">
+    <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="XDebuggerManager">
+    <breakpoint-manager />
+    <watches-manager />
+  </component>
+  <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/core/main/conf/default.conf.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.70989764">
+          <caret line="40" column="13" selection-start-line="40" selection-start-column="13" selection-end-line="40" selection-end-column="13" />
+          <folding>
+            <marker date="1505984265577" expanded="true" signature="19:2720" placeholder="..." />
+            <marker date="1505984265577" expanded="true" signature="41:182" placeholder="..." />
+            <marker date="1505984265577" expanded="true" signature="208:227" placeholder="..." />
+            <marker date="1505984265577" expanded="true" signature="252:271" placeholder="..." />
+            <marker date="1505984265577" expanded="true" signature="292:311" placeholder="..." />
+            <marker date="1505984265577" expanded="true" signature="337:2397" placeholder="..." />
+            <marker date="1505984265577" expanded="true" signature="417:518" placeholder="..." />
+            <marker date="1505984265577" expanded="true" signature="549:780" placeholder="..." />
+            <marker date="1505984265577" expanded="true" signature="812:2394" placeholder="..." />
+            <marker date="1505984265577" expanded="true" signature="2423:2482" placeholder="..." />
+            <marker date="1505984265577" expanded="true" signature="2505:2638" placeholder="..." />
+            <marker date="1505984265577" expanded="true" signature="2660:2717" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/main/entity/store/Product/ProductEta.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.35494882">
+          <caret line="20" column="7" selection-start-line="0" selection-start-column="0" selection-end-line="235" selection-end-column="0" />
+          <folding>
+            <marker date="1505984774070" expanded="true" signature="9:114" placeholder=" Entity for ProductEta ..." />
+            <marker date="1505984774070" expanded="true" signature="160:4652" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="167:207" placeholder=" The product ..." />
+            <marker date="1505984774070" expanded="true" signature="235:287" placeholder=" The purchaseorder ..." />
+            <marker date="1505984774070" expanded="true" signature="321:381" placeholder=" The purchaseorderitem ..." />
+            <marker date="1505984774070" expanded="true" signature="419:473" placeholder=" The purchaseorder item id ..." />
+            <marker date="1505984774070" expanded="true" signature="501:545" placeholder=" The eta of the po ..." />
+            <marker date="1505984774070" expanded="true" signature="572:625" placeholder=" Whether this PO is received ..." />
+            <marker date="1505984774070" expanded="true" signature="660:710" placeholder=" Getter for product ..." />
+            <marker date="1505984774070" expanded="true" signature="742:808" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="813:908" placeholder=" Setter for product ..." />
+            <marker date="1505984774070" expanded="true" signature="954:1003" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="1008:1070" placeholder=" Getter for purchaseOrder ..." />
+            <marker date="1505984774070" expanded="true" signature="1108:1186" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="1191:1304" placeholder=" Setter for purchaseOrder ..." />
+            <marker date="1505984774070" expanded="true" signature="1362:1417" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="1422:1492" placeholder=" Getter for purchaseOrderItem ..." />
+            <marker date="1505984774070" expanded="true" signature="1534:1620" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="1625:1750" placeholder=" Setter for purchaseOrderItem ..." />
+            <marker date="1505984774070" expanded="true" signature="1816:1875" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="1878:1961" placeholder="..." />
+            <marker date="1505984774070" expanded="true" signature="1966:2026" placeholder="..." />
+            <marker date="1505984774070" expanded="true" signature="2033:2156" placeholder=" Setter for purchaseOrder item id ..." />
+            <marker date="1505984774070" expanded="true" signature="2161:2246" placeholder="..." />
+            <marker date="1505984774070" expanded="true" signature="2253:2297" placeholder=" Getter for ETA ..." />
+            <marker date="1505984774070" expanded="true" signature="2325:2352" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="2357:2456" placeholder=" Setter for ETA ..." />
+            <marker date="1505984774070" expanded="true" signature="2490:2535" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="2540:2588" placeholder=" Getter for received ..." />
+            <marker date="1505984774070" expanded="true" signature="2621:2669" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="2674:2770" placeholder=" Setter for received ..." />
+            <marker date="1505984774070" expanded="true" signature="2809:2859" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="2864:2923" placeholder=" (non-PHPdoc) ..." />
+            <marker date="1505984774070" expanded="true" signature="3003:3471" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="3060:3426" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="3476:3533" placeholder=" (non-PHPdoc) ..." />
+            <marker date="1505984774070" expanded="true" signature="3567:4119" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="4124:4307" placeholder=" creating a Product ETA ..." />
+            <marker date="1505984774070" expanded="true" signature="4408:4650" placeholder="{...}" />
+            <marker date="1505984774070" expanded="true" signature="4500:4505" placeholder="..." />
+            <marker date="1505984774070" expanded="true" signature="4522:4530" placeholder="..." />
+            <marker date="1505984774070" expanded="true" signature="4569:4573" placeholder="..." />
+            <marker date="1505984774070" expanded="true" signature="4588:4615" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/main/entity/store/Product/Product.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.23011364">
+          <caret line="385" column="0" selection-start-line="385" selection-start-column="0" selection-end-line="405" selection-end-column="5" />
+          <folding>
+            <marker date="1505984265585" expanded="true" signature="9:116" placeholder=" Entity for Product ..." />
+            <marker date="1505984265585" expanded="true" signature="159:60184" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="166:216" placeholder=" The sku of the product ..." />
+            <marker date="1505984265585" expanded="true" signature="238:289" placeholder=" The name of the product ..." />
+            <marker date="1505984265585" expanded="true" signature="312:374" placeholder=" The id of magento for this product ..." />
+            <marker date="1505984265585" expanded="true" signature="404:476" placeholder=" The quantity that we are ordering from supplier ..." />
+            <marker date="1505984265585" expanded="true" signature="511:556" placeholder=" The quantity we have ..." />
+            <marker date="1505984265585" expanded="true" signature="590:635" placeholder=" The quantity we have ..." />
+            <marker date="1505984265585" expanded="true" signature="667:723" placeholder=" The quantity in parts for build ..." />
+            <marker date="1505984265585" expanded="true" signature="758:812" placeholder=" The quantity in RMA for build ..." />
+            <marker date="1505984265585" expanded="true" signature="845:893" placeholder=" The minimum stock level ..." />
+            <marker date="1505984265585" expanded="true" signature="932:981" placeholder=" The reorder stock lelvel ..." />
+            <marker date="1505984265585" expanded="true" signature="1024:1081" placeholder=" The total value for RMA stock ..." />
+            <marker date="1505984265585" expanded="true" signature="1117:1188" placeholder=" The total value for all stock on hand units ..." />
+            <marker date="1505984265585" expanded="true" signature="1227:1303" placeholder=" The total value for all stock on parts for build ..." />
+            <marker date="1505984265585" expanded="true" signature="1343:1408" placeholder=" Whether this order is imported from B2B ..." />
+            <marker date="1505984265585" expanded="true" signature="1444:1493" placeholder=" The short description ..." />
+            <marker date="1505984265585" expanded="true" signature="1533:1597" placeholder=" The asset id of the full description ..." />
+            <marker date="1505984265585" expanded="true" signature="1636:1691" placeholder=" The asset id of the feature ..." />
+            <marker date="1505984265585" expanded="true" signature="1731:1805" placeholder=" Marking the product as new from which date ..." />
+            <marker date="1505984265585" expanded="true" signature="1844:1916" placeholder=" Marking the product as new to which date ..." />
+            <marker date="1505984265585" expanded="true" signature="1953:2019" placeholder=" Whether we will sell this product on Web ..." />
+            <marker date="1505984265585" expanded="true" signature="2055:2104" placeholder=" Product status ..." />
+            <marker date="1505984265585" expanded="true" signature="2138:2210" placeholder=" The manufacture /brand of this product ..." />
+            <marker date="1505984265585" expanded="true" signature="2250:2295" placeholder=" the supplier codes ..." />
+            <marker date="1505984265585" expanded="true" signature="2339:2388" placeholder=" The product_categories ..." />
+            <marker date="1505984265585" expanded="true" signature="2429:2477" placeholder="/** ..." />
+            <marker date="1505984265585" expanded="true" signature="2513:2587" placeholder=" The stock info of the product ..." />
+            <marker date="1505984265585" expanded="true" signature="2650:2713" placeholder=" the asset number for accounting purpose ..." />
+            <marker date="1505984265585" expanded="true" signature="2747:2812" placeholder=" the revenue number for accounting purpose ..." />
+            <marker date="1505984265585" expanded="true" signature="2848:2910" placeholder=" the cost number for accounting purpose ..." />
+            <marker date="1505984265585" expanded="true" signature="2943:2998" placeholder=" whether this product is a kit ..." />
+            <marker date="1505984265585" expanded="true" signature="3030:3096" placeholder=" the product attribute set ..." />
+            <marker date="1505984265585" expanded="true" signature="3136:3211" placeholder=" if the datafeed for this product is done manually ..." />
+            <marker date="1505984265585" expanded="true" signature="3252:3305" placeholder=" The weight of the product ..." />
+            <marker date="1505984265585" expanded="true" signature="3334:3394" placeholder=" The ETA of the product ..." />
+            <marker date="1505984265585" expanded="true" signature="3425:3478" placeholder=" Getter for categories ..." />
+            <marker date="1505984265585" expanded="true" signature="3513:3588" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="3593:3690" placeholder=" Setter for categories ..." />
+            <marker date="1505984265585" expanded="true" signature="3731:3789" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="3794:3842" placeholder=" Getter for codes ..." />
+            <marker date="1505984265585" expanded="true" signature="3872:3937" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="3942:4028" placeholder=" Setter for codes ..." />
+            <marker date="1505984265585" expanded="true" signature="4064:4117" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="4122:4170" placeholder=" Getter for codes ..." />
+            <marker date="1505984265585" expanded="true" signature="4201:4300" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="4328:4796" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="4381:4770" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="4824:4871" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="4876:4971" placeholder=" Setter for codes ..." />
+            <marker date="1505984265585" expanded="true" signature="5008:5056" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="5063:5117" placeholder=" Getter for supplierCodes ..." />
+            <marker date="1505984265585" expanded="true" signature="5155:5236" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="5241:5344" placeholder=" Setter for supplierCodes ..." />
+            <marker date="1505984265585" expanded="true" signature="5388:5449" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="5454:5525" placeholder=" Getter for asNewFromDate ..." />
+            <marker date="1505984265585" expanded="true" signature="5563:5694" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="5699:5784" placeholder=" Setter for asNewFromDate ..." />
+            <marker date="1505984265585" expanded="true" signature="5828:5883" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="5888:5957" placeholder=" Getter for asNewToDate ..." />
+            <marker date="1505984265585" expanded="true" signature="5993:6118" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="6123:6206" placeholder=" Setter for asNewToDate ..." />
+            <marker date="1505984265585" expanded="true" signature="6248:6301" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="6306:6358" placeholder=" Getter for sellOnWeb ..." />
+            <marker date="1505984265585" expanded="true" signature="6392:6425" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="6430:6509" placeholder=" Setter for sellOnWeb ..." />
+            <marker date="1505984265585" expanded="true" signature="6549:6600" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="6605:6650" placeholder=" Getter for sku ..." />
+            <marker date="1505984265585" expanded="true" signature="6678:6708" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="6713:6796" placeholder=" Setter for sku ..." />
+            <marker date="1505984265585" expanded="true" signature="6830:6881" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="6886:6932" placeholder=" Getter for name ..." />
+            <marker date="1505984265585" expanded="true" signature="6961:6992" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="6997:7082" placeholder=" Setter for name ..." />
+            <marker date="1505984265585" expanded="true" signature="7117:7169" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="7174:7215" placeholder=" Getter for mageId ..." />
+            <marker date="1505984265585" expanded="true" signature="7246:7279" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="7284:7373" placeholder=" Setter for mageId ..." />
+            <marker date="1505984265585" expanded="true" signature="7410:7464" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="7469:7516" placeholder=" Getter for stockOnOrder ..." />
+            <marker date="1505984265585" expanded="true" signature="7553:7609" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="7614:7715" placeholder=" Setter for stockOnOrder ..." />
+            <marker date="1505984265585" expanded="true" signature="7758:7839" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="7844:7894" placeholder=" Getter for stockOnHand ..." />
+            <marker date="1505984265585" expanded="true" signature="7930:7985" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="7990:8086" placeholder=" Setter for stockOnHand ..." />
+            <marker date="1505984265585" expanded="true" signature="8128:8324" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="8231:8302" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="8329:8377" placeholder=" Getter for stockOnPO ..." />
+            <marker date="1505984265585" expanded="true" signature="8411:8465" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="8470:8564" placeholder=" Setter for stockOnPO ..." />
+            <marker date="1505984265585" expanded="true" signature="8604:8684" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="8689:8740" placeholder=" Getter for stockInParts ..." />
+            <marker date="1505984265585" expanded="true" signature="8777:8833" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="8838:8936" placeholder=" Setter for stockInParts ..." />
+            <marker date="1505984265585" expanded="true" signature="8979:9061" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="9066:9115" placeholder=" Getter for stockInRMA ..." />
+            <marker date="1505984265585" expanded="true" signature="9150:9204" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="9209:9303" placeholder=" Setter for stockInRMA ..." />
+            <marker date="1505984265585" expanded="true" signature="9344:9424" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="9429:9486" placeholder=" getter for stockMinLevel ..." />
+            <marker date="1505984265585" expanded="true" signature="9524:9578" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="9583:9639" placeholder=" Setter for stockMinLevel ..." />
+            <marker date="1505984265585" expanded="true" signature="9691:9776" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="9781:9842" placeholder=" getter for stockReorderLevel ..." />
+            <marker date="1505984265585" expanded="true" signature="9884:9942" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="9947:10007" placeholder=" Setter for stockReorderLevel ..." />
+            <marker date="1505984265585" expanded="true" signature="10067:10160" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="10165:10214" placeholder=" Getter for isFromB2B ..." />
+            <marker date="1505984265585" expanded="true" signature="10248:10297" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="10302:10395" placeholder=" Setter for isFromB2B ..." />
+            <marker date="1505984265585" expanded="true" signature="10435:10486" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="10491:10542" placeholder=" Getter for shortDescription ..." />
+            <marker date="1505984265585" expanded="true" signature="10583:10626" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="10631:10740" placeholder=" Setter for shortDescription ..." />
+            <marker date="1505984265585" expanded="true" signature="10787:10851" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="10856:10906" placeholder=" Getter for fullDescAssetId ..." />
+            <marker date="1505984265585" expanded="true" signature="10946:10988" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="10993:11100" placeholder=" Setter for fullDescAssetId ..." />
+            <marker date="1505984265585" expanded="true" signature="11146:11209" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="11214:11265" placeholder=" Getter for customTabAssetId ..." />
+            <marker date="1505984265585" expanded="true" signature="11306:11346" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="11351:11460" placeholder=" Setter for customTabAssetId ..." />
+            <marker date="1505984265585" expanded="true" signature="11507:11565" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="11570:11625" placeholder=" Getter for status ..." />
+            <marker date="1505984265585" expanded="true" signature="11656:11739" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="11744:11829" placeholder=" Setter for status ..." />
+            <marker date="1505984265585" expanded="true" signature="11866:11936" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="11941:12001" placeholder=" Getter for manufacturer ..." />
+            <marker date="1505984265585" expanded="true" signature="12038:12114" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="12119:12209" placeholder=" Setter for manufacturer ..." />
+            <marker date="1505984265585" expanded="true" signature="12272:12326" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="12331:12389" placeholder=" Getter for totalOnHandValue ..." />
+            <marker date="1505984265585" expanded="true" signature="12430:12487" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="12492:12580" placeholder=" Setter for totalOnHandValue ..." />
+            <marker date="1505984265585" expanded="true" signature="12628:12803" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="12808:12867" placeholder=" Getter for totalInPartsValue ..." />
+            <marker date="1505984265585" expanded="true" signature="12909:12967" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="12972:13061" placeholder=" Setter for totalInPartsValue ..." />
+            <marker date="1505984265585" expanded="true" signature="13110:13191" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="13196:13248" placeholder=" Getter for assetAccNo ..." />
+            <marker date="1505984265585" expanded="true" signature="13283:13318" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="13323:13405" placeholder=" Setter for assetAccNo ..." />
+            <marker date="1505984265585" expanded="true" signature="13447:13499" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="13504:13558" placeholder=" Getter for revenueAccNo ..." />
+            <marker date="1505984265585" expanded="true" signature="13595:13632" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="13637:13721" placeholder=" Setter for revenueAccNo ..." />
+            <marker date="1505984265585" expanded="true" signature="13765:13819" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="13824:13875" placeholder=" Getter for costAccNo ..." />
+            <marker date="1505984265585" expanded="true" signature="13909:13943" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="13948:14029" placeholder=" Setter for costAccNo ..." />
+            <marker date="1505984265585" expanded="true" signature="14070:14121" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="14126:14181" placeholder=" Getter for totalRMAValue ..." />
+            <marker date="1505984265585" expanded="true" signature="14219:14276" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="14281:14384" placeholder=" Setter for totalRMAValue ..." />
+            <marker date="1505984265585" expanded="true" signature="14428:14511" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="14516:14583" placeholder=" Getter for attributeSet ..." />
+            <marker date="1505984265585" expanded="true" signature="14620:14696" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="14701:14749" placeholder=" Getter for weight ..." />
+            <marker date="1505984265585" expanded="true" signature="14780:14813" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="14818:14907" placeholder=" Setter for weight ..." />
+            <marker date="1505984265585" expanded="true" signature="14944:14998" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="15003:15049" placeholder=" Getter for ETA ..." />
+            <marker date="1505984265585" expanded="true" signature="15084:15590" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="15128:15566" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="15318:15561" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="15358:15425" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="15595:15709" placeholder=" Setter for attributeSet ..." />
+            <marker date="1505984265585" expanded="true" signature="15779:15833" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="15838:15892" placeholder=" getter for manualDatafeed ..." />
+            <marker date="1505984265585" expanded="true" signature="15931:15969" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="15974:16031" placeholder=" Setter for manualDatafeed ..." />
+            <marker date="1505984265585" expanded="true" signature="16085:16150" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="16157:16295" placeholder=" Adding a product image to the product ..." />
+            <marker date="1505984265585" expanded="true" signature="16337:16490" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="16428:16470" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="16495:16600" placeholder=" Getting the prices ..." />
+            <marker date="1505984265585" expanded="true" signature="16631:16777" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="16675:16739" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="16782:16839" placeholder=" Getting all the images ..." />
+            <marker date="1505984265585" expanded="true" signature="16870:17057" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="16914:17019" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="17062:17170" placeholder=" adding the category to this product ..." />
+            <marker date="1505984265585" expanded="true" signature="17228:17296" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="17301:17411" placeholder=" removing the category to this product ..." />
+            <marker date="1505984265585" expanded="true" signature="17472:17540" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="17545:17661" placeholder=" clearing all the categories to this product ..." />
+            <marker date="1505984265585" expanded="true" signature="17699:17799" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="17804:18010" placeholder=" Adding a price to a product ..." />
+            <marker date="1505984265585" expanded="true" signature="18104:18192" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="18197:18285" placeholder=" removing the price ..." />
+            <marker date="1505984265585" expanded="true" signature="18340:18481" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="18486:18575" placeholder=" removing the prices ..." />
+            <marker date="1505984265585" expanded="true" signature="18610:18720" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="18725:18842" placeholder=" Adding a supplier ..." />
+            <marker date="1505984265585" expanded="true" signature="18934:19028" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="19033:19123" placeholder=" removing the suppler ..." />
+            <marker date="1505984265585" expanded="true" signature="19197:19498" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="19335:19414" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="19503:19561" placeholder=" removing all the suppliers ..." />
+            <marker date="1505984265585" expanded="true" signature="19597:19707" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="19712:20002" placeholder=" Getting the locations ..." />
+            <marker date="1505984265585" expanded="true" signature="20186:20308" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="20313:20433" placeholder=" adding the location ..." />
+            <marker date="1505984265585" expanded="true" signature="20513:20589" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="20594:20771" placeholder=" snapshot of the product qty ..." />
+            <marker date="1505984265585" expanded="true" signature="20865:20952" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="20957:21002" placeholder=" Getter for isKit ..." />
+            <marker date="1505984265585" expanded="true" signature="21032:21075" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="21080:21165" placeholder=" Setter for isKit ..." />
+            <marker date="1505984265585" expanded="true" signature="21201:21248" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="21253:21342" placeholder=" recalculating the stockOnHand and stockOnHandValue of this product, if it's a kit ..." />
+            <marker date="1505984265585" expanded="true" signature="21378:22776" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="21473:21620" placeholder="select sum(k..kit..." />
+            <marker date="1505984265585" expanded="true" signature="21738:22772" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="22102:22768" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="22217:22228" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="22248:22411" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="22439:22585" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="22600:22762" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="22781:22840" placeholder=" (non-PHPdoc) ..." />
+            <marker date="1505984265585" expanded="true" signature="22901:26167" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="22912:26008" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="22968:26005" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="23982:24079" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="25934:25994" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="26033:26122" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="26172:26231" placeholder=" (non-PHPdoc) ..." />
+            <marker date="1505984265585" expanded="true" signature="26260:27372" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="26304:26923" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="26436:26493" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="26968:27368" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="27073:27364" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="27377:27442" placeholder=" ..." />
+            <marker date="1505984265585" expanded="true" signature="27472:29923" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="27694:27942" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="28110:28161" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="28168:29920" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="28763:28994" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="29002:29916" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="29162:29398" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="29407:29911" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="29664:29905" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="29930:30025" placeholder=" Getting the unit cost based on the total value and stock on Hand ..." />
+            <marker date="1505984265585" expanded="true" signature="30058:30201" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="30206:30268" placeholder=" (non-PHPdoc) ..." />
+            <marker date="1505984265585" expanded="true" signature="30300:30339" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="30344:30512" placeholder=" A product is picked ..." />
+            <marker date="1505984265585" expanded="true" signature="30595:33003" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="31238:31769" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="31462:31765" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="31536:31615" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="32202:32269" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="32290:32297" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="32315:32499" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="32523:32667" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="32680:32827" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="32840:32998" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="33008:33246" placeholder=" A product is received ..." />
+            <marker date="1505984265585" expanded="true" signature="33342:34582" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="33663:33721" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="33729:33802" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="33908:33928" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="33949:33964" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="33982:34093" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="34117:34252" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="34265:34406" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="34419:34577" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="34587:34798" placeholder=" A product is ordered from supplier ..." />
+            <marker date="1505984265585" expanded="true" signature="34882:35285" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="34980:35121" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="35145:35280" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="35290:35459" placeholder=" A product is shipped ..." />
+            <marker date="1505984265585" expanded="true" signature="35543:36382" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="36023:36206" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="36230:36377" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="36387:36581" placeholder=" a product is returned for RMA ..." />
+            <marker date="1505984265585" expanded="true" signature="36679:37667" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="36952:37025" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="37043:37347" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="37371:37662" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="37672:37791" placeholder=" a product is created as a kit ..." />
+            <marker date="1505984265585" expanded="true" signature="37847:38811" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="38051:38103" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="38121:38469" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="38497:38806" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="38816:39014" placeholder=" a product is installed into a kit ..." />
+            <marker date="1505984265585" expanded="true" signature="39113:40637" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="39500:39557" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="39584:39664" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="39685:39740" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="39758:40119" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="40147:40632" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="40642:40851" placeholder=" a product is returned for into stock on hand ..." />
+            <marker date="1505984265585" expanded="true" signature="40949:42051" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="41301:41356" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="41374:41722" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="41746:42046" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="42056:42208" placeholder=" a product is fixed from RMA ..." />
+            <marker date="1505984265585" expanded="true" signature="42292:43778" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="42684:42764" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="42790:42876" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="42897:42950" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="42968:43286" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="43310:43773" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="43783:43930" placeholder=" A product is stocktake ..." />
+            <marker date="1505984265585" expanded="true" signature="44066:46046" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="44528:44573" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="44712:44810" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="44792:44805" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="44939:44980" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="45104:45143" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="45277:45371" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="45354:45366" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="45929:45956" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="45969:46041" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="46051:46121" placeholder=" Getting the RRP for this product ..." />
+            <marker date="1505984265585" expanded="true" signature="46149:46321" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="46326:46396" placeholder=" Getting the SRP for this product ..." />
+            <marker date="1505984265585" expanded="true" signature="46424:46596" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="46601:46671" placeholder=" Getting the RRP for this product ..." />
+            <marker date="1505984265585" expanded="true" signature="46715:46964" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="46969:47055" placeholder=" Getting the Daily special price for this product ..." />
+            <marker date="1505984265585" expanded="true" signature="47097:47279" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="47284:47372" placeholder=" Getting the weekend special price for this product ..." />
+            <marker date="1505984265585" expanded="true" signature="47416:47600" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="47605:47661" placeholder=" (non-PHPdoc) ..." />
+            <marker date="1505984265585" expanded="true" signature="47695:50561" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="47876:48506" placeholder="//..." />
+            <marker date="1505984265585" expanded="true" signature="49800:50003" placeholder="//..." />
+            <marker date="1505984265585" expanded="true" signature="50566:50680" placeholder=" Getting the product via sku ..." />
+            <marker date="1505984265585" expanded="true" signature="50721:50866" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="50871:51727" placeholder=" Creating the product based on sku ..." />
+            <marker date="1505984265585" expanded="true" signature="52118:54205" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="52254:52259" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="52283:52312" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="52449:54174" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="52513:52524" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="53501:53660" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="53710:53870" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="53919:53969" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="53996:54034" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="54210:54649" placeholder=" Finding the products with different params ..." />
+            <marker date="1505984265585" expanded="true" signature="55042:60182" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="55119:55148" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="55173:55447" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="55253:55343" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="55487:55563" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="55602:55688" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="55731:55812" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="55861:55954" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="56144:56289" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="56398:56723" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="56564:56685" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="56761:57053" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="56851:56940" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="57085:57378" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="57169:57258" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="57412:58062" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="57498:57587" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="57620:57796" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="57829:58018" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="58096:59015" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="58182:58617" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="58260:58613" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="58467:58607" placeholder="{...}" />
+            <marker date="1505984265585" expanded="true" signature="58817:58971" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="59072:59207" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="59255:59374" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="59415:59528" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="59680:60158" placeholder="..." />
+            <marker date="1505984265585" expanded="true" signature="59692:59917" placeholder="select sum(p..product..." />
+            <marker date="1505984265585" expanded="true" signature="60006:60154" placeholder="..." />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/core/main/entity/store/Product/MovieInfo.php">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.86143345">
+          <caret line="173" column="31" selection-start-line="173" selection-start-column="31" selection-end-line="173" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+  </component>
+</project>
