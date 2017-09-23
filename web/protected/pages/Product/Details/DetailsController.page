@@ -7,6 +7,8 @@
 	<com:Application.controls.fancybox.FancyBox />
 	<com:TCallback ID="getCategoriesBtn" OnCallback="getCategories" />
 	<com:TCallback ID="validateSKUBtn" OnCallback="validateSKU" />
+	<com:Application.controls.bootstrapDateTimePicker.bootstrapDateTimePicker />
+	<com:TDatePicker Style="display:none;"/>
 	<div class="pagewrapper productdetailswraper" id='item-div'>
 	</div>
 </com:TContent>

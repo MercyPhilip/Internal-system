@@ -456,7 +456,8 @@ class DetailsController extends DetailsPageAbstract
 					->_setBarcodes($product, $param)
 					->_setPrices($product, $param)
 					->_setLocation($product, $param)
-					->_setStock($product, $param);
+					->_setStock($product, $param)
+					->_setMovieInfo($product, $param);
 				$categoryIds = isset($param->CallbackParameter->categoryIds) ? $param->CallbackParameter->categoryIds : array();
 				$categoryAttribute = $this->getDefaultAttribute($categoryIds);
 				if ($categoryAttribute instanceof CategoryAttribute)
@@ -477,6 +478,51 @@ class DetailsController extends DetailsPageAbstract
 			$errors[] = $ex->getMessage();
 		}
 		$param->ResponseData = StringUtilsAbstract::getJson($results, $errors);
+	}
+	private function _setMovieInfo(Product &$product, $param)
+	{
+		$alias = trim($param->CallbackParameter->alias);
+		$yearOfProduction = trim($param->CallbackParameter->yearOfProduction);
+		$director = trim($param->CallbackParameter->director);
+		$language = trim($param->CallbackParameter->language);
+		$subtitle = trim($param->CallbackParameter->subtitle);
+		$trailer = trim($param->CallbackParameter->trailer);
+		$productType = trim($param->CallbackParameter->productType);
+		$actorName = trim($param->CallbackParameter->actorName);
+		$audioFormat = trim($param->CallbackParameter->audioFormat);
+		$aspectRatio = trim($param->CallbackParameter->aspectRatio);
+		$formatName = trim($param->CallbackParameter->formatName);
+		$colorFormat = trim($param->CallbackParameter->colorFormat);
+		$rating = trim($param->CallbackParameter->rating);
+		$contractRegion = trim($param->CallbackParameter->contractRegion);
+		$runningTime = intval(trim($param->CallbackParameter->runningTime));
+		$numberOfDisc = intval(trim($param->CallbackParameter->numberOfDisc));
+		$releaseDate = DateTime::createFromFormat('d/m/Y', $param->CallbackParameter->releaseDate)->format('Y-m-d');
+
+		$movieInfos = MovieInfo::getAllByCriteria('productId = ?', array($product->getId()));
+		if(count($movieInfos) > 0){
+			$movieInfos[0]->setAlias($alias)
+						->setYearOfProduction($yearOfProduction)
+						->setDirector($director)
+						->setLanguage($language)
+						->setSubtitle($subtitle)
+						->setTrailer($trailer)
+						->setProductType($productType)
+						->setActorName($actorName)
+						->setAudioFrmat($audioFormat)
+						->setAspectRatio($aspectRatio)
+						->setFormatName($formatName)
+						->setColorFormat($colorFormat)
+						->setRating($rating)
+						->setContractRegion($contractRegion)
+						->setRunningTime($runningTime)
+						->setNumberOfDisc($numberOfDisc)
+						->setReleaseDate($releaseDate)
+						->save();
+		}else{
+			MovieInfo::create($product, $alias, $yearOfProduction, $releaseDate, $director, $language, $subtitle, $trailer, $productType, $actorName, $audioFormat, $runningTime, $aspectRatio, $formatName, $colorFormat, $numberOfDisc, $rating, $contractRegion);
+		}
+		return $this;
 	}
 }
 ?>

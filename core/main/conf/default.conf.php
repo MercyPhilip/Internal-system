@@ -3,9 +3,9 @@ return array(
 	'Database' => array(
 			'Driver' => 'mysql',
 			'DBHost' => 'localhost',
-			'DB' => 'bpcinternal_multistore',
+			'DB' => 'umb_backend',
 			'Username' => 'root',
-			'Password' => 'root'
+			'Password' => ''
 		),
 	'PriceMatch' => array(
 			'Enable' => 0

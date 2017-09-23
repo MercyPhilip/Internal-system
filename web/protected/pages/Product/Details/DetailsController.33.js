@@ -1,1 +1,1036 @@
-var PageJs=new Class.create;PageJs.prototype=Object.extend(new DetailsPageJs,{_manufacturers:[],_suppliers:[],_statuses:[],_btnIdNewPO:null,_priceTypes:[],_codeTypes:[],_locationTypes:[],_productTreeId:"product_category_tree",_imgPanelId:"images_panel",_readOnlyMode:!1,_storeId:1,_roleId:0,_accountingCodes:[],_selectTypeTxt:"Select One...",_getFormGroup:function(e,t){return new Element("div",{class:"form-group form-group-sm form-group-sm-label"}).insert({bottom:new Element("label").update(e)}).insert({bottom:t.addClassName("form-control")})},setPreData:function(e,t,n,i,s,o,a,l){return this._manufacturers=e,this._suppliers=t,this._statuses=n,this._priceTypes=i,this._codeTypes=s,this._locationTypes=o,this._btnIdNewPO=a||!1,this._btnIdNewPO&&(this._btnIdNewPO=a.replace(/["']/g,"")||!1),this._accountingCodes=l,this},_getSelBox:function(e,t){var n={};return n.me=this,n.selBox=new Element("select"),e.each(function(e){n.selBox.insert({bottom:new Element("option",{value:e.id,selected:!(!t||e.id!==t)}).update(e.name)})}),n.selBox},_getListPanelRow:function(e,t,n,i,s,o){var a={};return a.me=this,a.isTitle=s||!1,a.tag=!0===a.isTitle?"th":"td",a.typeString=i.type.toLowerCase(),a.valueString=i.value.toLowerCase(),a.randId="NEW_"+String.fromCharCode(65+Math.floor(26*Math.random()))+Date.now(),a.newRow=new Element("tr").insert({bottom:new Element(a.tag).update(!0===a.isTitle?i.type:a.me._getSelBox(n,t[a.typeString]&&t[a.typeString].id?t[a.typeString].id:"").addClassName("form-control input-sm "+e).writeAttribute("list-panel-row","typeId").writeAttribute("required",!0).writeAttribute("list-item",t.id?t.id:a.randId).observe("change",function(e){"function"==typeof o&&o(e)}).wrap(new Element("div",{class:"form-group"})))}),t.id&&a.newRow.insert({bottom:new Element("input",{type:"hidden",class:"form-control","list-panel-row":"id",value:t.id}).writeAttribute("list-item",t.id?t.id:a.randId)}),i.start&&a.newRow.insert({bottom:new Element(a.tag).update(!0===a.isTitle?i.start:new Element("input",{class:"form-control input-sm datepicker","list-panel-row":"start",value:t.start?t.start:"",required:!0,disabled:t.type&&!t.type.needTime}).writeAttribute("list-item",t.id?t.id:a.randId).wrap(new Element("div",{class:"form-group"})))}),i.end&&a.newRow.insert({bottom:new Element(a.tag).update(!0===a.isTitle?i.end:new Element("input",{class:"form-control input-sm datepicker","list-panel-row":"end",value:t.end?t.end:"",required:!0,disabled:t.type&&!t.type.needTime}).writeAttribute("list-item",t.id?t.id:a.randId).wrap(new Element("div",{class:"form-group"})))}),a.inputBoxDiv=new Element("div",{class:"input-group input-group-sm"}).insert({bottom:new Element("input",{type:"text",class:"form-control "+e,"list-panel-row":"value",required:!0,value:t[a.valueString]?t[a.valueString]:""}).writeAttribute("list-item",t.id?t.id:a.randId)}).insert({bottom:new Element("input",{type:"hidden",class:"form-control","list-panel-row":"active",value:"1"}).writeAttribute("list-item",t.id?t.id:a.randId)}).insert({bottom:new Element("span",{class:"btn btn-del btn-danger input-group-addon "+e}).insert({bottom:new Element("span",{class:"glyphicon glyphicon-trash"})}).observe("click",function(){t.id?($(this).up(".input-group").down("[list-panel-row=active]").value="0",$(this).up(".input-group").down("[list-panel-row=value]").writeAttribute("required",!1),$(this).up(".list-panel-row").hide()):$(this).up(".list-panel-row").remove()})}),a.newRow.insert({bottom:new Element(a.tag).update(!0===a.isTitle?i.value:a.inputBoxDiv.wrap(new Element("div",{class:"form-group"})))}),a.newRow},_getListPanel:function(e,t,n,i,s){var o={};return o.me=this,e=e.replace(/:/g,""),o.newDiv=new Element("div",{class:"panel panel-default"}).insert({bottom:new Element("div",{class:"panel-heading"}).insert({bottom:new Element("a",{class:"toggle-btn",href:"javascript: void(0);",title:"click show/hide content below"}).insert({bottom:new Element("strong").update(e)}).observe("click",function(){$(this).up(".panel").down(".list-div").toggle()})}).insert({bottom:new Element("span",{class:"btn btn-del btn-primary btn-xs pull-right "+e,title:"New"}).insert({bottom:new Element("span",{class:"glyphicon glyphicon-plus"})}).insert({bottom:" NEW"}).observe("click",function(){o.parentPanel=$(this).up(".panel"),o.newData={},n.start&&(o.newData.start="0001-01-01 00:00:00"),n.end&&(o.newData.end="9999-12-31 23:59:59"),o.parentPanel.down(".table tbody").insert({bottom:o.me._getListPanelRow(e,o.newData,i,n,!1,s).addClassName("list-panel-row").writeAttribute("item_id","")}),o.parentPanel.down(".list-div").show(),o.me._bindDatePicker()})})}).insert({bottom:new Element("div",{class:"list-div table-responsive"}).insert({bottom:new Element("table",{class:"table table-condensed",style:"width : auto"}).insert({bottom:new Element("thead").update(o.me._getListPanelRow(e,n,i,n,!0,s))}).insert({bottom:o.listDiv=new Element("tbody")})})}),t&&t.each(function(t){o.listDiv.insert({bottom:o.me._getListPanelRow(e,t,i,n,!1,s).addClassName("list-panel-row").writeAttribute("item_id",t.id)})}),o.newDiv},_loadRichTextEditor:function(e){var t={};return t.me=this,t.me._signRandID(e),jQuery("#"+e.id).summernote({height:90,airMode:!1}),t.me},_getRichTextEditor:function(e,t){var n={};return n.me=this,n.newDiv=new Element("div",{class:"summernote",save:e}).update(t||""),n.newDiv},_getFullDescriptionPanel:function(e){var t={};return t.me=this,t.fullDescriptioAssetId=e.fullDescAssetId?e.fullDescAssetId:"",t.loadFullBtn=e.id?new Element("span",{class:"btn btn-default btn-loadFullDesc"}).update("click to show the full description editor").observe("click",function(){t.btn=$(this),e.fullDescriptionAsset||t.me._readOnlyMode?!e.fullDescriptionAsset&&t.me._readOnlyMode?(t.newTextarea=t.me._getRichTextEditor("fullDescription",""),$$(".fullDescriptionEl").first().replace(new Element("div",{class:"col-sm-12"}).update(t.me._getFormGroup("Full Description:",new Element("input",{type:"text",disabled:!0,value:""}))))):jQuery.ajax({type:"GET",url:e.fullDescriptionAsset.url,success:function(e){t.newTextarea=t.me._getRichTextEditor("fullDescription",e),t.me._readOnlyMode?$$(".fullDescriptionEl").first().replace(new Element("div",{class:"col-sm-12"}).update(t.me._getFormGroup("Full Description:",new Element("input",{type:"text",disabled:!0,value:e||""})))):($(t.btn).replace(t.newTextarea),t.me._loadRichTextEditor(t.newTextarea),1!=t.me._storeId&&jQuery('.summernote[save="fullDescription"]').summernote("disable"))}}):(t.newTextarea=t.me._getRichTextEditor("fullDescription",""),$(t.btn).replace(t.newTextarea),t.me._loadRichTextEditor(t.newTextarea))}):t.me._getRichTextEditor("fullDescription",""),t.newDiv=t.me._getFormGroup("Full Description:",t.loadFullBtn),t.newDiv},_getcustomTabPanel:function(e){var t={};return t.me=this,t.customTabAssetId=e.customTabAssetId?e.customTabAssetId:"",t.loadFullBtn=e.id?new Element("span",{class:"btn btn-default btn-loadCustomTab"}).update("click to show the feature editor").observe("click",function(){t.btn=$(this),e.customTabAsset||t.me._readOnlyMode?!e.customTabAsset&&t.me._readOnlyMode?(t.newTextarea=t.me._getRichTextEditor("customTab",""),$$(".customTabEl").first().replace(new Element("div",{class:"col-sm-12"}).update(t.me._getFormGroup("Feature:",new Element("input",{type:"text",disabled:!0,value:""}))))):jQuery.ajax({type:"GET",url:e.customTabAsset.url,success:function(e){t.newTextarea=t.me._getRichTextEditor("customTab",e),t.me._readOnlyMode?$$(".customTabEl").first().replace(new Element("div",{class:"col-sm-12"}).update(t.me._getFormGroup("Feature:",new Element("input",{type:"text",disabled:!0,value:e||""})))):($(t.btn).replace(t.newTextarea),t.me._loadRichTextEditor(t.newTextarea),1!=t.me._storeId&&jQuery('.summernote[save="customTab"]').summernote("disable"))}}):(t.newTextarea=t.me._getRichTextEditor("customTab",""),$(t.btn).replace(t.newTextarea),t.me._loadRichTextEditor(t.newTextarea))}):t.me._getRichTextEditor("customTab",""),t.newDiv=t.me._getFormGroup("Feature:",t.loadFullBtn),t.newDiv},_getChildCategoryJson:function(e,t){var n={};return n.me=this,n.cate={text:e.name,id:e.id},t.indexOf(e.id)>=0&&(n.cate.checked=!0),e.children&&e.children.size()>0&&(n.cate.children=[],e.children.each(function(e){n.cate.children.push(n.me._getChildCategoryJson(e,t))})),n.cate},_initTree:function(e,t){var n={};return n.me=this,n.categoies=[],n.selectedCateIds=[],n.me._item&&n.me._item.categories&&n.me._item.categories.length>0&&n.me._item.categories.each(function(e){n.selectedCateIds.push(e.id)}),e.each(function(e){n.categoies.push(n.me._getChildCategoryJson(e,n.selectedCateIds))}),jQuery(t).tree({data:n.categoies}),n.me},_getCategories:function(e){var t={};return t.me=this,t.me.postAjax(t.me.getCallbackId("getCategories"),{},{onLoading:function(n,i){$(e).update(t.me.getLoadingImg())},onSuccess:function(n,i){try{if(t.result=t.me.getResp(i,!1,!0),!t.result||!t.result.items)return;t.treeDiv=new Element("ul",{id:t.me._productTreeId,"data-options":"animate:true, checkbox:true, cascadeCheck:false"}),$(e).update(new Element("div",{class:"easyui-panel"}).update(t.treeDiv)),t.me._signRandID(t.treeDiv),t.me._initTree(t.result.items,"#"+t.treeDiv.id),$(e).addClassName("loaded")}catch(n){$(e).update(t.me.getAlertBox("Error:",n).addClassName("alert-danger"))}}}),t.me},_getCategoryPanel:function(e){var t={};return t.me=this,t.newDiv=new Element("div",{class:"panel panel-default"}).insert({bottom:new Element("div",{class:"panel-heading"}).insert({bottom:new Element("a",{href:"javascript: void(0);"}).insert({bottom:new Element("strong").update("Categories: "+(t.me._item.categories?t.me._item.categories.size()+" Selected":""))})}).observe("click",function(){t.btn=this,t.panelBody=$(t.btn).up(".panel").down(".panel-body"),t.panelBody.hasClassName("loaded")||t.me._getCategories(t.panelBody),t.panelBody.toggle()})}).insert({bottom:new Element("div",{class:"panel-body",style:"display: none"})}),t.newDiv},_getSummaryDiv:function(e){var t={};return t.me=this,t.item=e,t.newDiv=new Element("div",{class:"panel panel-default"}).insert({bottom:new Element("div",{class:"panel-heading"}).insert({bottom:new Element("a",{href:"javascript: void(0);",title:"click to show/hide below"}).insert({bottom:new Element("strong").update(t.item.name?"Editing: "+t.item.name:"Creating: ")}).observe("click",function(){$(this).up(".panel").down(".panel-body").toggle()})}).insert({bottom:new Element("small",{class:"pull-right"}).insert({bottom:new Element("label",{for:"showOnWeb_"+t.item.id}).update("Show on Web?")}).insert({bottom:new Element("input",{id:"showOnWeb_"+t.item.id,"save-item":"sellOnWeb",type:"checkbox",checked:t.item.sellOnWeb})})})}).insert({bottom:new Element("div",{class:"panel-body"}).insert({bottom:new Element("div",{class:""}).insert({bottom:new Element("div",{class:"col-sm-4"}).update(t.me._getFormGroup("Name",new Element("input",{"save-item":"name",type:"text",required:!0,value:t.item.name?t.item.name:""})))}).insert({bottom:new Element("div",{class:"col-sm-4"}).update(t.me._getFormGroup("sku",t.skuInputEl=new Element("input",{"save-item":"sku",type:"text",required:!0,value:t.item.sku?t.item.sku:""})))}).insert({bottom:new Element("div",{class:"col-sm-4"}).update(t.me._getFormGroup("Status",t.me._getSelBox(t.me._statuses,t.item.status?t.item.status.id:null).writeAttribute("save-item","statusId").addClassName("chosen")))})}).insert({bottom:new Element("div",{class:""}).insert({bottom:new Element("div",{class:"col-sm-4"}).update(t.me._getFormGroup("Brand/Manf.",t.me._getSelBox(t.me._manufacturers,t.item.manufacturer?t.item.manufacturer.id:null).writeAttribute("save-item","manufacturerId").addClassName("chosen")))}).insert({bottom:new Element("div",{class:"col-sm-4"}).update(t.me._getFormGroup("Web As New Start:",new Element("input",{class:"datepicker","save-item":"asNewFromDate",value:t.item.asNewFromDate?t.item.asNewFromDate:""})))}).insert({bottom:new Element("div",{class:"col-sm-4"}).update(t.me._getFormGroup("Web As New End:",new Element("input",{class:"datepicker","save-item":"asNewToDate",value:t.item.asNewToDate?t.item.asNewToDate:""})))})}).insert({bottom:new Element("div",{class:""}).insert({bottom:new Element("div",{class:"col-sm-2"}).update(t.me._getFormGroup("Attribute Set Name:",new Element("input",{disabled:!0,type:"text",value:t.item.attributeSet?t.item.attributeSet.name:""})))}).insert({bottom:new Element("div",{class:"col-sm-3"}).update(t.me._getFormGroup("Attribute Set Description:",new Element("input",{disabled:!0,type:"text",value:t.item.attributeSet?t.item.attributeSet.description:""})))}).insert({bottom:new Element("div",{class:"col-sm-2"}).update(t.me._getFormGroup("Attribute Set ID:",new Element("input",{disabled:!0,type:"text",value:t.item.attributeSet?t.item.attributeSet.id:""})))}).insert({bottom:new Element("div",{class:"col-sm-2"}).update(t.me._getFormGroup("Attribute Set Mage ID:",new Element("input",{disabled:!0,type:"text",value:t.item.attributeSet?t.item.attributeSet.mageId:""})))}).insert({bottom:new Element("div",{class:"col-sm-3"}).update(t.me._getFormGroup("ETA:",new Element("input",{type:"date",value:t.item.eta?t.item.eta:""})))})}).insert({bottom:new Element("div",{class:""}).insert({bottom:new Element("div",{class:"col-sm-10"}).update(t.me._getFormGroup("Short Description:",new Element("input",{"save-item":"shortDescription",type:"text",value:t.item.shortDescription?t.item.shortDescription:""})))}).insert({bottom:new Element("div",{class:"col-sm-2"}).update(t.me._getFormGroup("Weight:",new Element("input",{"save-item":"weight",required:!0,type:"text",value:parseFloat(t.item.weight)>0?t.item.weight:""})))})}).insert({bottom:new Element("div",{class:""}).insert({bottom:new Element("div",{class:"col-sm-12 fullDescriptionEl"}).update(t.me._getFullDescriptionPanel(t.item))})}).insert({bottom:new Element("div",{class:""}).insert({bottom:new Element("div",{class:"col-sm-12 customTabEl"}).update(t.me._getcustomTabPanel(t.item))})})}),t.me._item.id&&!1!==jQuery.isNumeric(t.me._item.id)||t.skuInputEl.observe("change",function(e){t.me._validateSKU($F(t.skuInputEl),t.skuInputEl)}),t.newDiv},_validateSKU:function(e,t){var n={};return n.me=this,n.inputEl=n.inputEl||!1,n.sku=e,n.me.postAjax(n.me.getCallbackId("validateSKU"),{sku:e},{onLoading:function(e,t){!1!==n.inputEl&&n.inputEl.writeAttribute("disabled",!0)},onSuccess:function(t,i){try{if(n.result=n.me.getResp(i,!1,!0),!n.result||!n.result.item)return;n.result.item.id&&!0===jQuery.isNumeric(n.result.item.id)&&(n.product=n.result.item,n.message=new Element("div",{class:""}).insert({bottom:new Element("div",{class:"row"}).insert({bottom:new Element("div",{class:"col-md-3"}).update("SKU")}).insert({bottom:new Element("div",{class:"col-md-9"}).insert({bottom:new Element("a",{href:"/product/"+n.product.id+".html",target:"_BLANK"}).update(n.product.sku)})})}).insert({bottom:new Element("div",{class:"row"}).insert({bottom:new Element("div",{class:"col-md-3"}).update("Name")}).insert({bottom:new Element("div",{class:"col-md-9"}).update(n.product.name)})}),n.me.showModalBox('<span class="text-warinig"><b>The SKU '+e+" already exist</b></span>",n.message))}catch(e){n.me.showModalBox("Error","<pre>"+e+"</pre>")}},onComplete:function(){!1!==n.inputEl&&n.inputEl.removeAttribute("disabled")}}),n.me},_loadFancyBox:function(e){var t={};return t.me=this,e.each(function(n){n.observe("click",function(){t.imgs=[],e.each(function(e){t.imgs.push({href:e.down("img").readAttribute("src")})}),jQuery.fancybox(t.imgs,{prevEffect:"none",nextEffect:"none",helpers:{title:{type:"outside"},thumbs:{height:50}}})})}),this},_getImageThumb:function(e){var t={};return t.me=this,t.src=e.data?e.data:e.path,t.newDiv=new Element("div",{class:"col-xs-12 col-sm-6 col-md-4 thumbnail-holder btn-hide-row product-image",active:"1"}).store("data",e).insert({bottom:new Element("a",{href:"javascript: void(0)",class:"thumbnail fancybox-thumb",ref:"product_thumbs"}).insert({bottom:new Element("img",{"data-src":"holder.js/100%x180",src:t.src})})}).insert({bottom:new Element("span",{class:"btns"}).insert({bottom:new Element("small",{class:"btn btn-del btn-danger btn-xs"}).insert({bottom:new Element("span",{class:"glyphicon glyphicon-trash"})})}).observe("click",function(){if(!confirm("Delete this image?"))return!1;t.imgDiv=$(this).up(".product-image"),t.imgDiv.hasAttribute("asset-id")?t.imgDiv.remove():t.imgDiv.writeAttribute("active","0").hide()})}),e.imageAssetId||t.newDiv.writeAttribute("file-name",e.filename).writeAttribute("asset-id",e.imageAssetId),t.newDiv},_readImages:function(e,t){var n={};for(n.me=this,n.files=e.target.files,n.i=0;n.file=n.files[n.i];n.i++)n.file.type.match("image.*")&&(n.reader=new FileReader,n.reader.onload=function(i){return function(s){n.thumb=n.me._getImageThumb({data:s.target.result,filename:i.name}),$(t).insert({bottom:n.thumb}),e.target.value="",n.me._loadFancyBox($(n.me._imgPanelId).getElementsBySelector(".fancybox-thumb"))}}(n.file),n.reader.readAsDataURL(n.file));return n.me},_getImagesPanel:function(e){var t={};return t.me=this,t.noLocalReader=!(window.File&&window.FileReader&&window.FileList&&window.Blob),t.newDiv=new Element("div",{class:"panel panel-default"}).insert({bottom:new Element("div",{class:"panel-heading"}).insert({bottom:new Element("a",{href:"javascript: void(0);",title:"click to show/hide content below"}).insert({bottom:new Element("strong").update("Images: ")}).observe("click",function(){$(this).up(".panel").down(".panel-body").toggle()})}).insert({bottom:t.uploadDiv=new Element("span",{class:"pull-right new-btn-panel"})})}).insert({bottom:t.body=new Element("div",{id:t.me._imgPanelId,class:"panel-body"})}),e.images&&e.images.each(function(e){e.asset&&t.body.insert({bottom:t.me._getImageThumb({path:e.asset.url,filename:e.asset.filename,imageAssetId:e.asset.assetId})})}),t.noLocalReader?t.uploadDiv.update(new Element("span",{class:"btn btn-del btn-danger btn-xs pull-right",title:"Your browser does NOT support this feature. Pls change browser and try again"}).insert({bottom:new Element("span",{class:" glyphicon glyphicon-exclamation-sign"})}).insert({bottom:" Not Supported"})):t.uploadDiv.insert({bottom:new Element("span",{class:"btn btn-del btn-primary btn-xs pull-right",title:"New"}).insert({bottom:new Element("span",{class:"glyphicon glyphicon-plus"})}).insert({bottom:" NEW"}).observe("click",function(){$(this).up(".new-btn-panel").down(".new-images-file").click()})}).insert({bottom:new Element("input",{class:"new-images-file",type:"file",multiple:!0,style:"display: none"}).observe("change",function(e){t.panelBody=$(this).up(".panel").down(".panel-body"),t.me._readImages(e,t.panelBody),t.panelBody.show()})}),t.newDiv},_submitSave:function(e){var t={};if(t.me=this,t.data=t.me._collectFormData($(t.me.getHTMLID("itemDiv")),"save-item"),null===t.data)return t.me;if(t.data.prices=t.me._collectFormData($(t.me.getHTMLID("itemDiv")).down(".prices-panel"),"list-panel-row","list-item"),!jQuery.isEmptyObject(t.data.prices)){if(t.data.supplierCodes=t.me._collectFormData($(t.me.getHTMLID("itemDiv")).down(".suppliers-panel"),"list-panel-row","list-item"),null===t.data.supplierCodes)return t.me;if(t.data.productCodes=t.me._collectFormData($(t.me.getHTMLID("itemDiv")).down(".codes-panel"),"list-panel-row","list-item"),null===t.data.productCodes)return t.me;if(t.data.locations=t.me._collectFormData($(t.me.getHTMLID("itemDiv")).down(".locations-panel"),"list-panel-row","list-item"),null===t.data.locations)return t.me;if(t.data.id=t.me._item.id,$$("[save=fullDescription]").size()>0&&(t.fullDescriptionBox=$$("[save=fullDescription]").first())&&(t.data.fullDescription=jQuery("#"+t.fullDescriptionBox.id).summernote("code")),$$("[save=customTab]").size()>0&&(t.customTabBox=$$("[save=customTab]").first())&&(t.data.customTab=jQuery("#"+t.customTabBox.id).summernote("code")),jQuery("#"+t.me._productTreeId).length>0)for(t.data.categoryIds=[],t.checkedNodes=jQuery("#"+t.me._productTreeId).tree("getChecked"),t.i=0;t.i<t.checkedNodes.length;t.i++)t.data.categoryIds.push(t.checkedNodes[t.i].id);return t.data.images=[],t.imgPanel=$(t.me._imgPanelId),t.imgPanel.getElementsBySelector(".product-image").each(function(e){t.img=e.retrieve("data"),t.img.imageAssetId=t.img.imageAssetId?t.img.imageAssetId:"",t.img.active="1"===e.readAttribute("active"),t.data.images.push(t.img)}),t.me.saveItem(e,t.data,function(e){if(!e.url)throw"System Error: no return product url";t.me._item=e.item,t.me.refreshParentWindow(),t.me.showModalBox('<strong class="text-success">Saved Successfully!</strong>',"Saved Successfully!",!0),window.location=e.url}),t.me}t.me.showModalBox("Notice",'<span class="text-warning">You <b>MUST</b> enter a valid <b>price</b>')},_validateAccountingCode:function(e){var t={};return t.me=this,t.code=e||!1,t.result=!1,t.me._accountingCodes.each(function(e){!1===t.result&&t.code===e.code&&(t.result=!0)}),t.result},_loadChosen:function(){return{}.me=this,jQuery(".chosen").chosen({search_contains:!0,inherit_select_classes:!0,no_results_text:"No code type found!",width:"100%"}),this},_getAccCodeSelectEl:function(e){var t={};switch(t.me=this,e){case"assetAccNo":t.type=1;break;case"revenueAccNo":t.type=4;break;case"costAccNo":t.type=5;break;default:t.showModelBox("Error","Invalid Account Code Type")}return t.selectEl=new Element("select",{class:"chosen","save-item":"type","data-placeholder":"Type"}).setStyle("z-index: 9999;").insert({bottom:new Element("option",{value:t.me._selectTypeTxt}).update(t.me._selectTypeTxt)}),t.me._signRandID(t.selectEl),t.me._accountingCodes.each(function(e){e.type==t.type&&(t.selectEl.insert({bottom:t.option=new Element("option",{value:e.code,description:e.description}).store("data",e).update(e.description)}),e.code!==t.me._item.assetAccNo&&e.code!==t.me._item.revenueAccNo&&e.code!==t.me._item.costAccNo||t.option.writeAttribute("selected",!0))}),t.selectEl},_getOtherStocks:function(e){return ret="",e&&e.stock&&e.stock.storeId?(currentStoreId=e.stock.storeId.id,e.stocks.each(function(e){e.storeId.id!=currentStoreId&&(""==ret?ret=ret+"["+e.storeId.name+":"+e.stockOnHand+"]":ret=ret+", ["+e.storeId.name+":"+e.stockOnHand+"]")}),ret):ret},_getStockDev:function(e){var t={};return t.me=this,t.item=e,t.newDiv=new Element("div",{class:"panel panel-default"}).insert({bottom:new Element("div",{class:"panel-heading"}).insert({bottom:new Element("a",{href:"javascript: void(0);",title:"click to show/hide content below"}).insert({bottom:new Element("strong").update("Stock Info").insert({bottom:new Element("span",{class:"pull-right"}).update("Average Cost Ex GST: "+(0!=t.item.totalOnHandValue&&0!=t.item.stockOnHand?t.me.getCurrency(t.item.totalOnHandValue/t.item.stockOnHand):"N/A"))})}).observe("click",function(){t.me.openInNewTab("/productqtylog.html?productid="+e.id)})}).insert({bottom:t.uploadDiv=new Element("span",{class:"pull-right new-btn-panel"})})}).insert({bottom:new Element("div",{class:"panel-body"}).insert({bottom:new Element("div",{class:"row"}).insert({bottom:new Element("div",{class:"col-sm-6"}).update(t.me._getFormGroup("Stock On Hand: ",new Element("input",{"save-item":"stockOnHand",type:"value",disabled:!0,value:t.item.stockOnHand?t.item.stockOnHand:""})))}).insert({bottom:new Element("div",{class:"col-sm-6"}).update(t.me._getFormGroup("Stock On Hand Value",new Element("input",{"save-item":"totalOnHandValue",type:"value",disabled:!0,value:t.item.totalOnHandValue?t.me.getCurrency(t.item.totalOnHandValue):""})))})}).insert({bottom:new Element("div",{class:"row"}).insert({bottom:new Element("div",{class:"col-sm-6"}).update(t.me._getFormGroup("Stock In Parts",new Element("input",{"save-item":"stockInParts",type:"value",disabled:!0,value:t.item.stockInParts?t.item.stockInParts:""})))}).insert({bottom:new Element("div",{class:"col-sm-6"}).update(t.me._getFormGroup("Stock In Parts Value",new Element("input",{"save-item":"totalOnHandValue",type:"value",disabled:!0,value:t.item.totalOnHandValue?t.me.getCurrency(t.item.totalOnHandValue):""})))})}).insert({bottom:new Element("div",{class:"row"}).insert({bottom:new Element("div",{class:"col-sm-6"}).update(t.me._getFormGroup("Stock On Order",new Element("input",{"save-item":"stockOnOrder",type:"value",disabled:!0,value:t.item.stockOnOrder?t.item.stockOnOrder:""})))}).insert({bottom:new Element("div",{class:"col-sm-6"}).update(t.me._getFormGroup("Stock On PO",new Element("input",{"save-item":"stockOnPO",type:"value",disabled:!0,value:t.item.stockOnPO?t.item.stockOnPO:""})))})}).insert({bottom:new Element("div",{class:"row"}).insert({bottom:new Element("div",{class:"col-sm-6"}).update(t.me._getFormGroup("Stock In RMA",new Element("input",{"save-item":"stockInRMA",type:"value",disabled:!0,value:t.item.stockInRMA?t.item.stockInRMA:""})))}).insert({bottom:new Element("div",{class:"col-sm-6"}).update(t.me._getFormGroup("Average Cost",new Element("input",{"save-item":"stockInRMA",type:"value",disabled:!0,value:0!=t.item.totalOnHandValue&&0!=t.item.stockOnHand?t.me.getCurrency(t.item.totalOnHandValue/t.item.stockOnHand):"N/A"})))})})}),t.newDiv},_getAccInfoDiv:function(e){var t={};return t.me=this,t.item=e,t.newDiv=new Element("div",{class:"panel panel-default"}).setStyle("overflow: unset !important;").insert({bottom:new Element("div",{class:"panel-heading"}).insert({bottom:new Element("a",{href:"javascript: void(0);",title:"click to show/hide content below"}).insert({bottom:new Element("strong").update("Accounting Info")}).observe("click",function(){$(this).up(".panel").down(".panel-body").toggle()})}).insert({bottom:t.uploadDiv=new Element("span",{class:"pull-right new-btn-panel"})})}).insert({bottom:new Element("div",{class:"panel-body"}).setStyle("overflow: unset !important;").insert({bottom:new Element("div",{class:"col-sm-4"}).insert({bottom:new Element("div",{class:"form-group form-group-sm"}).insert({bottom:new Element("label").update("Asset Account No.")}).insert({bottom:new Element("div",{class:"form-control chosen-container"}).setStyle("padding: 0px; height: 100%;").insert({bottom:t.me._getAccCodeSelectEl("assetAccNo").writeAttribute("save-item","assetAccNo")})})})}).insert({bottom:new Element("div",{class:"col-sm-4"}).insert({bottom:new Element("div",{class:"form-group form-group-sm"}).insert({bottom:new Element("label").update("Revenue Account No.")}).insert({bottom:new Element("div",{class:"form-control chosen-container"}).setStyle("padding: 0px; height: 100%;").insert({bottom:t.me._getAccCodeSelectEl("revenueAccNo").writeAttribute("save-item","revenueAccNo")})})})}).insert({bottom:new Element("div",{class:"col-sm-4"}).insert({bottom:new Element("div",{class:"form-group form-group-sm"}).insert({bottom:new Element("label").update("Cost Account No.")}).insert({bottom:new Element("div",{class:"form-control chosen-container"}).setStyle("padding: 0px; height: 100%;").insert({bottom:t.me._getAccCodeSelectEl("costAccNo").writeAttribute("save-item","costAccNo")})})})})}),t.newDiv},_getItemDiv:function(){var e={};return e.me=this,e.newDiv=new Element("div").insert({bottom:new Element("div",{class:"row"}).insert({bottom:new Element("div",{class:"col-sm-4"}).insert({bottom:e.me._getStockDev(e.me._item).wrap(new Element("div",{class:"col-sm-12"}))}).insert({bottom:e.me._getImagesPanel(e.me._item)}).insert({bottom:e.me._getCategoryPanel(e.me._item)})}).insert({bottom:new Element("div",{class:"col-sm-8"}).insert({bottom:new Element("div",{class:"row"}).insert({bottom:e.me._getSummaryDiv(e.me._item).wrap(new Element("div",{class:"col-sm-12"}))}).insert({bottom:e.me._getListPanel("Prices:",e.me._item.prices,{type:"Type",value:"Price",start:"From",end:"To"},e.me._priceTypes,function(t){e.selectedPriceType=null,e.selBox=t.target,e.me._priceTypes.each(function(t){t.id===$F(e.selBox)&&(e.selectedPriceType=t)}),e.selRow=$(e.selBox).up(".list-panel-row"),e.startBox=e.selRow.down('[list-panel-row="start"]'),e.endBox=e.selRow.down('[list-panel-row="end"]'),null!==e.selectedPriceType&&!1===e.selectedPriceType.needTime?(e.startBox.writeAttribute("disabled",!0).writeAttribute("value","0001-01-01 00:00:00"),e.endBox.writeAttribute("disabled",!0).writeAttribute("value","9999-12-31 23:59:59"),e.selRow.down('[list-panel-row="value"]').select()):(e.endBox.writeAttribute("disabled",!1).writeAttribute("value",""),e.startBox.writeAttribute("disabled",!1).writeAttribute("value","").select())}).wrap(new Element("div",{class:"col-sm-12 prices-panel"}))}).insert({bottom:e.me._getListPanel("Suppliers:",e.me._item.supplierCodes,{type:"Supplier",value:"Code"},e.me._suppliers).wrap(new Element("div",{class:"col-sm-4 suppliers-panel"}))}).insert({bottom:e.me._getListPanel("Codes:",e.me._item.productCodes,{type:"Type",value:"Code"},e.me._codeTypes).wrap(new Element("div",{class:"col-sm-4 codes-panel"}))}).insert({bottom:e.me._getListPanel("Locations:",e.me._item.locations,{type:"Type",value:"value"},e.me._locationTypes).wrap(new Element("div",{class:"col-sm-4 locations-panel"}))})}).insert({bottom:new Element("div",{class:"row"}).insert({bottom:new Element("span",{class:"btn btn-del Locations btn-primary pull-right col-sm-4","data-loading-text":"saving ..."}).update("Save").observe("click",function(){e.me._submitSave(this)})})})})}),e.newDiv},_bindDatePicker:function(){var e={};return e.me=this,$$(".datepicker").each(function(t){t.hasClassName("datepicked")||(e.me._signRandID(t),e.picker=new Prado.WebUI.TDatePicker({ID:t.id,InputMode:"TextBox",Format:"yyyy-MM-dd 00:00:00",FirstDayOfWeek:1,CalendarStyle:"default",FromYear:2009,UpToYear:2024,PositionMode:"Bottom",ClassName:"datepicker-layer-fixer"}),t.store("picker",e.picker))}),e.me},bindAllEventNObjects:function(){var e={};return e.me=this,e.me._bindDatePicker(),$$(".summernote").each(function(t){e.me._loadRichTextEditor(t)}),e.me},refreshParentWindow:function(){var e={};e.me=this,window.opener&&(e.parentWindow=window.opener,e.row=$(e.parentWindow.document.body).down("#"+e.parentWindow.pageJs.resultDivId+" .product_item[product_id="+e.me._item.id+"]"),e.row&&(e.row.replace(e.parentWindow.pageJs._getResultRow(e.me._item)),e.row.hasClassName("success")&&e.row.addClassName("success")),e.newPObtn=$(e.parentWindow.document.body).down("#"+e.me._btnIdNewPO),e.newPObtn&&e.parentWindow.pageJs&&e.parentWindow.pageJs.selectProduct&&e.parentWindow.pageJs.selectProduct(e.me._item,e.newPObtn))},readOnlyMode:function(e,t,n){var i={};i.me=this,i.me._readOnlyMode=!e,i.me._storeId=t,i.me._roleId=n,e?1!=t&&($$(".btn.btn-loadFullDesc").first().click(),$$(".btn.btn-loadCustomTab").first().click(),jQuery("input:not(.Locations)").prop("disabled",!0),jQuery("select:not(.Locations)").prop("disabled",!0),jQuery(".chosen").prop("disabled",!0).trigger("chosen:updated"),jQuery('.chosen[save-item="statusId"]').prop("disabled",!1).trigger("chosen:updated"),jQuery(".btn-del:not(.Locations)").remove(),jQuery(".summernote").summernote("disable")):($$(".btn.btn-loadFullDesc").first().click(),$$(".btn.btn-loadCustomTab").first().click(),jQuery(".summernote").summernote("disable"),jQuery(".chosen").prop("disabled",!0).trigger("chosen:updated"),1!=n?(jQuery("select").prop("disabled",!0),jQuery("input").prop("disabled",!0),jQuery(".btn-del").remove()):(jQuery("select:not(.Locations)").prop("disabled",!0),jQuery("input:not(.Locations)").prop("disabled",!0),jQuery(".btn-del:not(.Locations)").remove()))}});
+/**
+ * The page Js file
+ */
+var PageJs = new Class.create();
+PageJs.prototype = Object.extend(new DetailsPageJs(), {
+    _manufacturers: []
+    ,_suppliers: []
+    ,_statuses: []
+    ,_btnIdNewPO: null						 //pre defined data: btn id from new PO page
+    ,_priceTypes: []                         //pre defined data: productCodeType
+    ,_codeTypes: []                          //pre defined data: productCodeType
+    ,_locationTypes: []                          //pre defined data: locationTypes
+    ,_productTreeId: 'product_category_tree' //the html id of the tree
+    ,_imgPanelId: 'images_panel'             //the html id of the iamges panel
+    ,_readOnlyMode: false
+    ,_storeId: 1
+    ,_roleId: 0
+    ,_accountingCodes: []
+    ,_selectTypeTxt: 'Select One...'
+    /**
+     * Getting a form group for forms
+     */
+    ,_getFormGroup: function (label, input) {
+        return new Element('div', {'class': 'form-group form-group-sm form-group-sm-label'})
+            .insert({'bottom': new Element('label').update(label) })
+            .insert({'bottom': input.addClassName('form-control') });
+    }
+    /**
+     * Set some pre defined data before javascript start
+     */
+    ,setPreData: function(manufacturers, suppliers, statuses, priceTypes, codeTypes, locationTypes, btnIdNewPO, accountingCodes) {
+        this._manufacturers = manufacturers;
+        this._suppliers = suppliers;
+        this._statuses = statuses;
+        this._priceTypes = priceTypes;
+        this._codeTypes = codeTypes;
+        this._locationTypes = locationTypes;
+        this._btnIdNewPO = (btnIdNewPO || false);
+        if(this._btnIdNewPO)
+            this._btnIdNewPO = (btnIdNewPO.replace(/["']/g, "") || false);
+        this._accountingCodes = accountingCodes;
+        return this;
+    }
+    /**
+     * General getting a selection box
+     */
+    ,_getSelBox: function(options, selectedValue) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.selBox = new Element('select');
+        options.each(function(opt){
+            tmp.selBox.insert({'bottom': new Element('option', {'value': opt.id, 'selected' : (selectedValue && opt.id === selectedValue ? true : false)}).update(opt.name) })
+        });
+        return tmp.selBox;
+    }
+    /**
+     * Getting the row for function: _getListPanel()
+     */
+    ,_getListPanelRow: function(title, data, selBoxData, titleData, isTitle, selBoxChangeFunc) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.isTitle = (isTitle || false);
+        tmp.tag = (tmp.isTitle === true ? 'th' : 'td');
+        tmp.typeString = titleData.type.toLowerCase();
+        tmp.valueString = titleData.value.toLowerCase();
+        tmp.randId = 'NEW_' + String.fromCharCode(65 + Math.floor(Math.random() * 26)) + Date.now();
+
+        tmp.newRow = new Element('tr')
+            .insert({'bottom': new Element(tmp.tag).update(
+                tmp.isTitle === true ? titleData.type :
+                    tmp.me._getSelBox(selBoxData, (data[tmp.typeString] && data[tmp.typeString].id ? data[tmp.typeString].id : ''))
+                        .addClassName('form-control input-sm ' + title)
+                        .writeAttribute('list-panel-row', 'typeId')
+                        .writeAttribute('required', true)
+                        .writeAttribute('list-item', (data.id ? data.id : tmp.randId))
+                        .observe('change', function(event) {
+                            if(typeof(selBoxChangeFunc) === 'function')
+                                selBoxChangeFunc(event);
+                        })
+                        .wrap(new Element('div', {'class': 'form-group'}))
+            )
+            });
+        if(data.id) {
+            tmp.newRow.insert({'bottom': new Element('input', {'type': 'hidden', 'class': 'form-control', 'list-panel-row': 'id', 'value': (data.id) })
+                .writeAttribute('list-item', (data.id ? data.id : tmp.randId))
+            });
+        }
+        if(titleData.start) {
+            tmp.newRow.insert({'bottom': new Element(tmp.tag).update(
+                tmp.isTitle === true ? titleData.start :
+                    new Element('input', {'class': 'form-control input-sm datepicker', 'list-panel-row': 'start', 'value': (data.start ? data.start : ''), 'required': true, 'disabled': data.type && !data.type.needTime})
+                        .writeAttribute('list-item', (data.id ? data.id : tmp.randId))
+                        .wrap(new Element('div', {'class': 'form-group'}))
+            )
+            });
+        }
+        if(titleData.end){
+            tmp.newRow.insert({'bottom': new Element(tmp.tag).update( tmp.isTitle === true ? titleData.end :
+                new Element('input', {'class': 'form-control input-sm datepicker', 'list-panel-row': 'end', 'value': (data.end ? data.end : ''), 'required': true, 'disabled': data.type && !data.type.needTime})
+                    .writeAttribute('list-item', (data.id ? data.id : tmp.randId))
+                    .wrap(new Element('div', {'class': 'form-group'}))
+            )
+            });
+        }
+        tmp.inputBoxDiv = new Element('div', {'class': 'input-group input-group-sm'})
+            .insert({'bottom': new Element('input', {'type': 'text', 'class': 'form-control '  + title, 'list-panel-row': 'value', 'required': true, 'value': (data[tmp.valueString] ? data[tmp.valueString]: '') })
+                .writeAttribute('list-item', (data.id ? data.id : tmp.randId))
+            })
+            .insert({'bottom': new Element('input', {'type': 'hidden', 'class': 'form-control', 'list-panel-row': 'active', 'value': '1' })
+                .writeAttribute('list-item', (data.id ? data.id : tmp.randId))
+            })
+            .insert({'bottom': new Element('span', {'class': 'btn btn-del btn-danger input-group-addon ' + title})
+                .insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-trash'}) })
+                .observe('click', function() {
+                    if(data.id) {
+                        $(this).up('.input-group').down('[list-panel-row=active]').value = '0';
+                        $(this).up('.input-group').down('[list-panel-row=value]').writeAttribute('required', false);
+                        $(this).up('.list-panel-row').hide();
+                    } else {
+                        $(this).up('.list-panel-row').remove();
+                    }
+                })
+            });
+        tmp.newRow.insert({'bottom': new Element(tmp.tag).update( tmp.isTitle === true ? titleData.value : tmp.inputBoxDiv.wrap(new Element('div', {'class': 'form-group'})) ) });
+        return tmp.newRow;
+    }
+    /**
+     * General listing panel
+     */
+    ,_getListPanel: function(title, listData, titleData, selBoxData, selBoxChangeFunc) {
+        var tmp = {};
+        tmp.me = this;
+        title = title.replace(/:/g, '');
+        tmp.newDiv = new Element('div', {'class': 'panel panel-default'})
+            .insert({'bottom': new Element('div', {'class': 'panel-heading'})
+                .insert({'bottom': new Element('a', {'class': 'toggle-btn', 'href': 'javascript: void(0);', 'title': 'click show/hide content below'})
+                    .insert({'bottom': new Element('strong').update(title)})
+                    .observe('click', function() {
+                        $(this).up('.panel').down('.list-div').toggle();
+                    })
+                })
+                .insert({'bottom': new Element('span', {'class': 'btn btn-del btn-primary btn-xs pull-right ' + title, 'title': 'New'})
+                    .insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-plus'}) })
+                    .insert({'bottom': ' NEW' })
+                    .observe('click', function(){
+                        tmp.parentPanel = $(this).up('.panel');
+                        tmp.newData = {};
+                        if(titleData.start)
+                            tmp.newData.start = '0001-01-01 00:00:00';
+                        if(titleData.end)
+                            tmp.newData.end = '9999-12-31 23:59:59';
+                        tmp.parentPanel.down('.table tbody').insert({'bottom': tmp.me._getListPanelRow(title, tmp.newData, selBoxData, titleData, false, selBoxChangeFunc).addClassName('list-panel-row').writeAttribute('item_id', '') });
+                        tmp.parentPanel.down('.list-div').show();
+                        tmp.me._bindDatePicker();
+                    })
+                })
+            })
+            .insert({'bottom': new Element('div', {'class': 'list-div table-responsive'})
+                .insert({'bottom': new Element('table', {'class': 'table table-condensed', 'style' : 'width : auto'})
+                    .insert({'bottom': new Element('thead').update( tmp.me._getListPanelRow(title, titleData, selBoxData, titleData, true, selBoxChangeFunc) ) })
+                    .insert({'bottom': tmp.listDiv = new Element('tbody') })
+                })
+            });
+
+        if(listData) {
+            listData.each(function(data){
+                tmp.listDiv.insert({'bottom': tmp.me._getListPanelRow(title, data, selBoxData, titleData, false, selBoxChangeFunc).addClassName('list-panel-row').writeAttribute('item_id', data.id) });
+            });
+        }
+
+
+        return tmp.newDiv;
+    }
+    /**
+     * Loading/Bind js to a textare to load rich Text editor
+     */
+    ,_loadRichTextEditor: function(input) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.me._signRandID(input);
+        jQuery('#' + input.id).summernote({
+            height: 90,
+            airMode: false
+        });
+        return tmp.me;
+    }
+    /**
+     * Ajax: getting the full description from asset
+     *
+     * @TODO!!!!
+     */
+    ,_getRichTextEditor: function(type, text) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.newDiv = new Element('div', {'class': 'summernote', 'save': type }).update(text ? text : '');
+        return tmp.newDiv;
+    }
+    /**
+     * Getting the full description panel
+     */
+    ,_getFullDescriptionPanel: function(item) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.fullDescriptioAssetId = item.fullDescAssetId ? item.fullDescAssetId : '';
+        tmp.loadFullBtn = !item.id ? tmp.me._getRichTextEditor('fullDescription','') : new Element('span', {'class': 'btn btn-default btn-loadFullDesc'}).update('click to show the full description editor')
+            .observe('click', function(){
+                tmp.btn = $(this);
+                if(!item.fullDescriptionAsset && !tmp.me._readOnlyMode) {
+                    tmp.newTextarea = tmp.me._getRichTextEditor('fullDescription','');
+                    $(tmp.btn).replace(tmp.newTextarea);
+                    tmp.me._loadRichTextEditor(tmp.newTextarea);
+                }
+                else if(!item.fullDescriptionAsset && tmp.me._readOnlyMode) {
+                    tmp.newTextarea = tmp.me._getRichTextEditor('fullDescription','');
+                    $$('.fullDescriptionEl').first().replace(
+                        new Element('div', {'class': 'col-sm-12'}).update(tmp.me._getFormGroup('Synopsis:', new Element('input', {'type': 'text', 'disabled': true, 'value': ''}) ) )
+                    );
+                }
+                else {
+                    jQuery.ajax({
+                        type: 'GET',
+                        url: item.fullDescriptionAsset.url,
+                        success: function(result) {
+                            tmp.newTextarea = tmp.me._getRichTextEditor('fullDescription',result);
+                            if(!tmp.me._readOnlyMode) {
+                                $(tmp.btn).replace(tmp.newTextarea);
+                                tmp.me._loadRichTextEditor(tmp.newTextarea);
+                                if (tmp.me._storeId != 1)
+                                    jQuery('.summernote[save="fullDescription"]').summernote('disable');
+                            } else {
+                                $$('.fullDescriptionEl').first().replace(
+                                    new Element('div', {'class': 'col-sm-12'}).update(tmp.me._getFormGroup('Synopsis:', new Element('input', {'type': 'text', 'disabled': true, 'value': result ? result : ''}) ) )
+                                )
+                            }
+                        }
+                    })
+                }
+            });
+        tmp.newDiv = tmp.me._getFormGroup('Synopsis:', tmp.loadFullBtn);
+        return tmp.newDiv;
+    }
+    /**
+     * Getting the customtab panel
+     */
+    ,_getcustomTabPanel: function(item) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.customTabAssetId = item.customTabAssetId ? item.customTabAssetId : '';
+        tmp.loadFullBtn = !item.id ? tmp.me._getRichTextEditor('customTab', '') : new Element('span', {'class': 'btn btn-default btn-loadCustomTab'}).update('click to show the feature editor')
+            .observe('click', function(){
+                tmp.btn = $(this);
+                if(!item.customTabAsset && !tmp.me._readOnlyMode) {
+                    tmp.newTextarea = tmp.me._getRichTextEditor('customTab','');
+                    $(tmp.btn).replace(tmp.newTextarea);
+                    tmp.me._loadRichTextEditor(tmp.newTextarea);
+                }
+                else if(!item.customTabAsset && tmp.me._readOnlyMode) {
+                    tmp.newTextarea = tmp.me._getRichTextEditor('customTab','');
+                    $$('.customTabEl').first().replace(
+                        new Element('div', {'class': 'col-sm-12'}).update(tmp.me._getFormGroup('Extra Features:', new Element('input', {'type': 'text', 'disabled': true, 'value': ''}) ) )
+                    );
+                }
+                else {
+                    jQuery.ajax({
+                        type: 'GET',
+                        url: item.customTabAsset.url,
+                        success: function(result) {
+                            tmp.newTextarea = tmp.me._getRichTextEditor('customTab',result);
+                            if(!tmp.me._readOnlyMode) {
+                                $(tmp.btn).replace(tmp.newTextarea);
+                                tmp.me._loadRichTextEditor(tmp.newTextarea);
+                                if (tmp.me._storeId != 1)
+                                    jQuery('.summernote[save="customTab"]').summernote('disable');
+                            } else {
+                                $$('.customTabEl').first().replace(
+                                    new Element('div', {'class': 'col-sm-12'}).update(tmp.me._getFormGroup('Extra Features:', new Element('input', {'type': 'text', 'disabled': true, 'value': result ? result : ''}) ) )
+                                )
+                            }
+                        }
+                    })
+                }
+            });
+        tmp.newDiv = tmp.me._getFormGroup('Extra Features:', tmp.loadFullBtn);
+        return tmp.newDiv;
+    }
+    /**
+     * Getting each row of the category tree panel
+     */
+    ,_getChildCategoryJson: function(category, selectedCateIds) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.cate = {'text': category.name, 'id': category.id};
+        if(selectedCateIds.indexOf(category.id) >= 0){
+            tmp.cate.checked = true;
+        }
+        if(category.children && category.children.size() > 0) {
+            tmp.cate.children = [];
+            category.children.each(function(child){
+                tmp.cate.children.push( tmp.me._getChildCategoryJson(child, selectedCateIds) );
+            });
+        }
+        return tmp.cate;
+    }
+    /**
+     * initialising the tree
+     */
+    ,_initTree: function(categories, selector) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.categoies = [];
+        tmp.selectedCateIds = [];
+        if ((tmp.me._item) && (tmp.me._item.categories) && (tmp.me._item.categories.length > 0))
+        {
+            tmp.me._item.categories.each(function(cate) {
+                tmp.selectedCateIds.push(cate.id);
+            })
+        }
+        categories.each(function(category) {
+            tmp.categoies.push(tmp.me._getChildCategoryJson(category, tmp.selectedCateIds));
+        });
+        jQuery(selector).tree({
+            data: tmp.categoies
+        });
+        return tmp.me;
+    }
+    /**
+     * Ajax: getting all categories from server
+     */
+    ,_getCategories: function(resultDiv) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.me.postAjax(tmp.me.getCallbackId('getCategories'), {}, {
+            'onLoading': function (sender, param) {
+                $(resultDiv).update(tmp.me.getLoadingImg());
+            }
+            , 'onSuccess': function (sender, param) {
+                try {
+                    tmp.result = tmp.me.getResp(param, false, true);
+                    if(!tmp.result || !tmp.result.items)
+                        return;
+                    tmp.treeDiv = new Element('ul', {'id': tmp.me._productTreeId, 'data-options': 'animate:true, checkbox:true, cascadeCheck:false'}) ;
+                    $(resultDiv).update(new Element('div', {'class': 'easyui-panel'}).update(tmp.treeDiv) );
+                    tmp.me._signRandID(tmp.treeDiv);
+                    tmp.me._initTree(tmp.result.items, '#' + tmp.treeDiv.id);
+                    $(resultDiv).addClassName('loaded');
+                } catch (e) {
+                    $(resultDiv).update(tmp.me.getAlertBox('Error:', e).addClassName('alert-danger'));
+                }
+            }
+        });
+        return tmp.me;
+    }
+    /**
+     * Getting the product category panel
+     */
+    ,_getCategoryPanel: function(item) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.newDiv = new Element('div', {'class': 'panel panel-default'})
+            .insert({'bottom': new Element('div', {'class': 'panel-heading'})
+                .insert({'bottom': new Element('a', {'href': 'javascript: void(0);'})
+                    .insert({'bottom': new Element('strong').update( 'Categories: ' + (tmp.me._item.categories ? tmp.me._item.categories.size() + ' Selected' : ''))	})
+                })
+                .observe('click', function() {
+                    tmp.btn = this;
+                    tmp.panelBody = $(tmp.btn).up('.panel').down('.panel-body');
+                    if(!tmp.panelBody.hasClassName('loaded')) {
+                        tmp.me._getCategories(tmp.panelBody);
+                    }
+                    tmp.panelBody.toggle();
+                })
+            })
+            .insert({'bottom': new Element('div', {'class': 'panel-body', 'style': 'display: none'}) })
+        return tmp.newDiv;
+    }
+    /**
+     * Getting the summary div
+     */
+    ,_getSummaryDiv: function (item) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.item = item;
+        tmp.newDiv = new Element('div', {'class': 'panel panel-default'})
+            .insert({'bottom': new Element('div', {'class': 'panel-heading'})
+                .insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'title': 'click to show/hide below'})
+                    .insert({'bottom': new Element('strong').update(tmp.item.name ? 'Editing: ' + tmp.item.name : 'Creating: ') })
+                    .observe('click', function() {
+                        $(this).up('.panel').down('.panel-body').toggle();
+                    })
+                })
+                .insert({'bottom': new Element('small', {'class': 'pull-right'})
+                    .insert({'bottom': new Element('label', {'for': 'showOnWeb_' + tmp.item.id}).update('Show on Web?') })
+                    .insert({'bottom': new Element('input', {'id': 'showOnWeb_' + tmp.item.id, 'save-item': 'sellOnWeb', 'type': 'checkbox', 'checked': tmp.item.sellOnWeb}) })
+                })
+
+            })
+            .insert({'bottom': new Element('div', {'class': 'panel-body'})
+                .insert({'bottom': new Element('div', {'class': ''})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update(tmp.me._getFormGroup('Name', new Element('input', {'save-item': 'name', 'type': 'text', 'required': true, 'value': tmp.item.name ? tmp.item.name : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update(tmp.me._getFormGroup('sku', tmp.skuInputEl = new Element('input', {'save-item': 'sku', 'type': 'text', 'required': true, 'value': tmp.item.sku ? tmp.item.sku : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update(tmp.me._getFormGroup('Status',
+                        tmp.me._getSelBox(tmp.me._statuses, tmp.item.status ? tmp.item.status.id : null).writeAttribute('save-item', 'statusId').addClassName('chosen')
+                    ) ) })
+                })
+                .insert({'bottom': new Element('div', {'class': ''})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update(tmp.me._getFormGroup('Brand/Manf.',
+                        tmp.me._getSelBox(tmp.me._manufacturers, tmp.item.manufacturer ? tmp.item.manufacturer.id : null).writeAttribute('save-item', 'manufacturerId').addClassName('chosen')
+                    ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update(tmp.me._getFormGroup('Web As New Start:',
+                        new Element('input', {'class': 'datepicker', 'save-item': 'asNewFromDate', 'value': (tmp.item.asNewFromDate ? tmp.item.asNewFromDate : '') })
+                    ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-4'}).update(tmp.me._getFormGroup('Web As New End:',
+                        new Element('input', {'class': 'datepicker', 'save-item': 'asNewToDate', 'value': (tmp.item.asNewToDate ? tmp.item.asNewToDate : '') })
+                    ) ) })
+                })
+                .insert({'bottom': new Element('div', {'class': ''})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Attribute Set Name:', new Element('input', {'disabled': true, 'type': 'text', 'value': tmp.item.attributeSet ? tmp.item.attributeSet.name : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-3'}).update(tmp.me._getFormGroup('Attribute Set Description:', new Element('input', {'disabled': true, 'type': 'text', 'value': tmp.item.attributeSet ? tmp.item.attributeSet.description : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Attribute Set ID:', new Element('input', {'disabled': true, 'type': 'text', 'value': tmp.item.attributeSet ? tmp.item.attributeSet.id : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Attribute Set Mage ID:', new Element('input', {'disabled': true, 'type': 'text', 'value': tmp.item.attributeSet ? tmp.item.attributeSet.mageId : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-3'}).update(tmp.me._getFormGroup('Release Date:', new Element('input', {'class': 'datepicker', 'type': 'date', 'save-item': 'releaseDate', 'value': tmp.item.releaseDate ? moment(tmp.item.releaseDate).format('DD/MM/YYYY') : ''}) ) ) })
+                })
+                .insert({'bottom': new Element('div', {'class': ''})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Alias:', new Element('input', {'save-item': 'alias', 'type': 'text', 'value': tmp.item.alias ? tmp.item.alias : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Director:', new Element('input', {'save-item': 'director', 'required': true,'type': 'text', 'value': tmp.item.director ? tmp.item.director : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Actor Names:', new Element('input', {'save-item': 'actorName', 'required': true,'type': 'text', 'value': tmp.item.actorName ? tmp.item.actorName : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Language:', new Element('input', {'save-item': 'language', 'required': true,'type': 'text', 'value': tmp.item.language ? tmp.item.language : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Subtitle:', new Element('input', {'save-item': 'subtitle', 'required': true,'type': 'text', 'value': tmp.item.subtitle ? tmp.item.subtitle : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Year Of Production:', new Element('input', {'save-item': 'yearOfProduction', 'type': 'text', 'value': tmp.item.yearOfProduction ? tmp.item.yearOfProduction : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Product Type:', new Element('input', {'save-item': 'productType', 'required': true,'type': 'text', 'value': tmp.item.productType ? tmp.item.productType : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Rating:', new Element('input', {'save-item': 'rating', 'required': true,'type': 'text', 'value': tmp.item.colorFormat ? tmp.item.colorFormat : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Audio Format:', new Element('input', {'save-item': 'audioFormat', 'required': true,'type': 'text', 'value': tmp.item.audioFormat ? tmp.item.audioFormat : ''}) ) ) })
+                })
+                .insert({'bottom': new Element('div', {'class': ''})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Format Name:', new Element('input', {'save-item': 'formatName', 'required': true,'type': 'text', 'value': tmp.item.formatName ? tmp.item.formatName : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Color Format:', new Element('input', {'save-item': 'colorFormat', 'required': true,'type': 'text', 'value': tmp.item.colorFormat ? tmp.item.colorFormat : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Contract Region:', new Element('input', {'save-item': 'contractRegion', 'required': true,'type': 'text', 'value': tmp.item.contractRegion ? tmp.item.contractRegion : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-2'}).update(tmp.me._getFormGroup('Trailer:', new Element('input', {'save-item': 'trailer', 'required': true,'type': 'text', 'value': tmp.item.trailer ? tmp.item.trailer : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Running Time:', new Element('input', {'save-item': 'runningTime', 'required': true,'type': 'text', 'value': parseFloat(tmp.item.runningTime)>0 ? tmp.item.runningTime : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Aspect Ratio:', new Element('input', {'save-item': 'aspectRatio', 'required': true,'type': 'text', 'value': tmp.item.aspectRatio ? tmp.item.aspectRatio : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Number Of Disc:', new Element('input', {'save-item': 'numberOfDisc', 'required': true,'type': 'text', 'value': parseFloat(tmp.item.numberOfDisc)>0 ? tmp.item.numberOfDisc : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-1'}).update(tmp.me._getFormGroup('Weight:', new Element('input', {'save-item': 'weight', 'required': true,'type': 'text', 'value': parseFloat(tmp.item.weight)>0 ? tmp.item.weight : ''}) ) ) })
+                })
+                .insert({'bottom': new Element('div', {'class': ''})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-12'}).update(tmp.me._getFormGroup('Short Description:', new Element('input', {'save-item': 'shortDescription', 'required': true,'type': 'text', 'value': tmp.item.shortDescription ? tmp.item.shortDescription : ''}) ) ) })
+                })
+                .insert({'bottom': new Element('div', {'class': ''})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-12 fullDescriptionEl'}).update(tmp.me._getFullDescriptionPanel(tmp.item) ) })
+                })
+                .insert({'bottom': new Element('div', {'class': ''})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-12 customTabEl'}).update(tmp.me._getcustomTabPanel(tmp.item) ) })
+                })
+            });
+        // check if sku exist when creating new product
+        if(!tmp.me._item.id || jQuery.isNumeric(tmp.me._item.id) === false) {
+            tmp.skuInputEl.observe('change', function(e){
+                tmp.me._validateSKU($F(tmp.skuInputEl), tmp.skuInputEl);
+            });
+        }
+        return tmp.newDiv;
+    }
+    ,_validateSKU: function(sku, inputEl) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.inputEl = (tmp.inputEl || false);
+        tmp.sku = sku;
+
+        tmp.me.postAjax(tmp.me.getCallbackId('validateSKU'), {'sku': sku}, {
+            'onLoading': function (sender, param) {
+                if(tmp.inputEl !== false)
+                    tmp.inputEl.writeAttribute('disabled', true);
+            }
+            , 'onSuccess': function (sender, param) {
+                try {
+                    tmp.result = tmp.me.getResp(param, false, true);
+                    if(!tmp.result || !tmp.result.item)
+                        return;
+                    if(tmp.result.item.id && jQuery.isNumeric(tmp.result.item.id) === true) {
+                        tmp.product = tmp.result.item;
+                        tmp.message = new Element('div', {'class': ''})
+                            .insert({'bottom': new Element('div', {'class': 'row'})
+                                .insert({'bottom': new Element('div', {'class': 'col-md-3'}).update('SKU') })
+                                .insert({'bottom': new Element('div', {'class': 'col-md-9'})
+                                    .insert({'bottom': new Element('a', {'href': '/product/' + tmp.product.id + '.html', 'target': '_BLANK'}).update(tmp.product.sku) })
+                                })
+                            })
+                            .insert({'bottom': new Element('div', {'class': 'row'})
+                                .insert({'bottom': new Element('div', {'class': 'col-md-3'}).update('Name') })
+                                .insert({'bottom': new Element('div', {'class': 'col-md-9'}).update(tmp.product.name) })
+                            });
+                        tmp.me.showModalBox('<span class="text-warinig"><b>The SKU ' + sku + ' already exist</b></span>', tmp.message);
+                    }
+                } catch (e) {
+                    tmp.me.showModalBox('Error', '<pre>' + e + '</pre>');
+                }
+            }
+            ,'onComplete': function() {
+                if(tmp.inputEl !== false)
+                    tmp.inputEl.removeAttribute('disabled');
+            }
+        });
+        return tmp.me;
+    }
+    /**
+     * Bind the fancy box
+     */
+    ,_loadFancyBox: function(elements) {
+        var tmp = {};
+        tmp.me = this;
+        elements.each(function(item){
+            item.observe('click', function(){
+                tmp.imgs = [];
+                elements.each(function(el){
+                    tmp.imgs.push({'href': el.down('img').readAttribute('src')});
+                });
+                jQuery.fancybox(tmp.imgs, {
+                    prevEffect	: 'none',
+                    nextEffect	: 'none',
+                    helpers	: {
+                        title	: {
+                            type: 'outside'
+                        },
+                        thumbs	: {
+                            height	: 50
+                        }
+                    }
+                })
+            });
+        });
+        return this;
+    }
+    /**
+     * Getting the image thumb
+     */
+    ,_getImageThumb: function(img) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.src = img.data ? img.data : img.path;
+        tmp.newDiv = new Element('div', {'class': 'col-xs-12 col-sm-6 col-md-4 thumbnail-holder btn-hide-row product-image', 'active': '1'})
+            .store('data', img)
+            .insert({'bottom': new Element('a', {'href': 'javascript: void(0)', 'class': 'thumbnail fancybox-thumb', 'ref': 'product_thumbs'})
+                .insert({'bottom': new Element('img', {'data-src': 'holder.js/100%x180', 'src': tmp.src}) })
+            })
+            .insert({'bottom': new Element('span', {'class': 'btns'})
+                .insert({'bottom': new Element('small', {'class': 'btn btn-del btn-danger btn-xs'})
+                    .insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-trash'}) })
+                })
+                .observe('click', function(){
+                    if(!confirm('Delete this image?'))
+                        return false;
+                    tmp.imgDiv = $(this).up('.product-image');
+                    if(tmp.imgDiv.hasAttribute('asset-id')) {
+                        tmp.imgDiv.remove();
+                    } else {
+                        tmp.imgDiv.writeAttribute('active', '0').hide();
+                    }
+                })
+            });
+        if(!img.imageAssetId) {
+            tmp.newDiv.writeAttribute('file-name', img.filename)
+                .writeAttribute('asset-id', img.imageAssetId);
+        }
+        return tmp.newDiv;
+    }
+    /**
+     * Reading image from local
+     */
+    ,_readImages: function(evt, targetDiv) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.files = evt.target.files; // FileList object
+        // Loop through the FileList and render image files as thumbnails.
+        for (tmp.i = 0; tmp.file = tmp.files[tmp.i]; tmp.i++) {
+            // Only process image files.
+            if (tmp.file.type.match('image.*')) {
+                tmp.reader = new FileReader();
+                // Closure to capture the file information.
+                tmp.reader.onload = (function(theFile){
+                    return function(e) {
+                        // Render thumbnail.
+                        tmp.thumb = tmp.me._getImageThumb({'data': e.target.result, 'filename': theFile.name});
+                        $(targetDiv).insert({'bottom': tmp.thumb });
+                        evt.target.value = '';
+                        tmp.me._loadFancyBox($(tmp.me._imgPanelId).getElementsBySelector('.fancybox-thumb'));
+                    };
+                })(tmp.file);
+                // Read in the image file as a data URL.
+                tmp.reader.readAsDataURL(tmp.file);
+            }
+        }
+        return tmp.me;
+    }
+    /**
+     * Getting Image Panels for a product
+     */
+    ,_getImagesPanel: function(item) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.noLocalReader = !(window.File && window.FileReader && window.FileList && window.Blob);
+        tmp.newDiv = new Element('div', {'class': 'panel panel-default'})
+            .insert({'bottom': new Element('div', {'class': 'panel-heading'})
+                .insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'title': 'click to show/hide content below'})
+                    .insert({'bottom': new Element('strong').update('Images: ') })
+                    .observe('click', function() {
+                        $(this).up('.panel').down('.panel-body').toggle();
+                    })
+                })
+                .insert({'bottom': tmp.uploadDiv = new Element('span', {'class': 'pull-right new-btn-panel'}) })
+            })
+            .insert({'bottom': tmp.body = new Element('div', {'id': tmp.me._imgPanelId, 'class': 'panel-body'}) });
+        if(item.images) {
+            item.images.each(function(img) {
+                if(img.asset)
+                    tmp.body.insert({'bottom': tmp.me._getImageThumb({'path': img.asset.url, 'filename': img.asset.filename, 'imageAssetId': img.asset.assetId}) });
+            });
+        }
+
+        if(tmp.noLocalReader) {
+            tmp.uploadDiv.update(new Element('span', {'class': 'btn btn-del btn-danger btn-xs pull-right', 'title': 'Your browser does NOT support this feature. Pls change browser and try again'})
+                .insert({'bottom': new Element('span', {'class': ' glyphicon glyphicon-exclamation-sign'}) })
+                .insert({'bottom': ' Not Supported'})
+            );
+        } else {
+            tmp.uploadDiv.insert({'bottom': new Element('span', {'class': 'btn btn-del btn-primary btn-xs pull-right', 'title': 'New'})
+                .insert({'bottom': new Element('span', {'class': 'glyphicon glyphicon-plus'}) })
+                .insert({'bottom': ' NEW' })
+                .observe('click', function(){
+                    $(this).up('.new-btn-panel').down('.new-images-file').click();
+                })
+                })
+                .insert({'bottom': new Element('input', {'class': 'new-images-file', 'type': 'file', 'multiple': true, 'style': 'display: none'})
+                    .observe('change', function(evt) {
+                        tmp.panelBody = $(this).up('.panel').down('.panel-body');
+                        tmp.me._readImages(evt, tmp.panelBody);
+                        tmp.panelBody.show();
+                    })
+                })
+        }
+        return tmp.newDiv;
+    }
+    /**
+     * Ajax: saving the item
+     */
+    ,_submitSave: function(btn) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.data = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')), 'save-item');
+        if(tmp.data === null)
+            return tmp.me;
+        //get all prices
+        tmp.data.prices = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')).down('.prices-panel'), 'list-panel-row', 'list-item');
+//		if(tmp.data.prices === null)
+//			return tmp.me;
+        if (jQuery.isEmptyObject(tmp.data.prices))
+        {
+            tmp.me.showModalBox('Notice', '<span class="text-warning">You <b>MUST</b> enter a valid <b>price</b>');
+            return;
+        }
+        //get all suppliercode
+        tmp.data.supplierCodes = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')).down('.suppliers-panel'), 'list-panel-row', 'list-item');
+        if(tmp.data.supplierCodes === null)
+            return tmp.me;
+        //get all suppliercode
+        tmp.data.productCodes = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')).down('.codes-panel'), 'list-panel-row', 'list-item');
+        if(tmp.data.productCodes === null)
+            return tmp.me;
+        //get all locations
+        tmp.data.locations = tmp.me._collectFormData($(tmp.me.getHTMLID('itemDiv')).down('.locations-panel'), 'list-panel-row', 'list-item');
+        if(tmp.data.locations === null)
+            return tmp.me;
+
+        tmp.data.id = tmp.me._item.id;
+        //tricks for fullDescription's editor
+        if ($$('[save=fullDescription]').size() > 0 && (tmp.fullDescriptionBox = $$('[save=fullDescription]').first()))
+        {
+            //sign the value to the textarea
+            tmp.data['fullDescription'] = jQuery('#' + tmp.fullDescriptionBox.id).summernote('code');
+        }
+        //tricks for feature editor
+        if ($$('[save=customTab]').size() > 0 && (tmp.customTabBox = $$('[save=customTab]').first()))
+        {
+            //sign the value to the textarea
+            tmp.data['customTab'] = jQuery('#' + tmp.customTabBox.id).summernote('code');
+        }
+        //get all categories
+        if(jQuery('#' + tmp.me._productTreeId).length >0) {
+            tmp.data.categoryIds = [];
+            tmp.checkedNodes = jQuery('#' + tmp.me._productTreeId).tree('getChecked');
+            for(tmp.i = 0; tmp.i < tmp.checkedNodes.length; tmp.i++)
+                tmp.data.categoryIds.push(tmp.checkedNodes[tmp.i].id);
+        }
+        //get all images
+        tmp.data.images = [];
+        tmp.imgPanel = $(tmp.me._imgPanelId);
+        tmp.imgPanel.getElementsBySelector('.product-image').each(function(element) {
+            tmp.img = element.retrieve('data');
+            tmp.img.imageAssetId = (tmp.img.imageAssetId ? tmp.img.imageAssetId : '');
+            tmp.img.active= (element.readAttribute('active') === '1');
+            tmp.data.images.push(tmp.img);
+        });
+        // validate accounting codes
+        /*		if(tmp.me._validateAccountingCode(tmp.data.assetAccNo) !== true) {
+         tmp.me.showModalBox('Notice', '<span class="text-warning">You <b>MUST</b> enter a valid <b>Asset Account Number</b>');
+         return;
+         }
+         if(tmp.me._validateAccountingCode(tmp.data.revenueAccNo) !== true) {
+         tmp.me.showModalBox('Notice', '<span class="text-warning">You <b>MUST</b> enter a valid <b>Revenue Account Number</b>');
+         return;
+         }
+         if(tmp.me._validateAccountingCode(tmp.data.costAccNo) !== true) {
+         tmp.me.showModalBox('Notice', '<span class="text-warning">You <b>MUST</b> enter a valid <b>Cost Account Number</b>');
+         return;
+         }*/
+        //submit all data
+        tmp.me.saveItem(btn, tmp.data, function(data){
+            if(!data.url)
+                throw 'System Error: no return product url';
+            tmp.me._item = data.item;
+            tmp.me.refreshParentWindow();
+            tmp.me.showModalBox('<strong class="text-success">Saved Successfully!</strong>', 'Saved Successfully!', true);
+            window.location = data.url;
+        });
+        return tmp.me;
+    }
+    ,_validateAccountingCode: function(code) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.code = (code || false);
+        tmp.result = false;
+
+        tmp.me._accountingCodes.each(function(item){
+            if(tmp.result === false && tmp.code === item.code)
+                tmp.result = true;
+        });
+
+        return tmp.result;
+    }
+    /**
+     * initiating the chosen input
+     */
+    ,_loadChosen: function () {
+        var tmp = {};
+        tmp.me = this;
+        jQuery(".chosen").chosen({
+            search_contains: true,
+            inherit_select_classes: true,
+            no_results_text: "No code type found!",
+            width: "100%"
+        });
+        /*		jQuery('.chosen[save-item="assetAccNo"]')
+         .change(function(data){
+         tmp.data = $(this).down('[value="' + $F($(this)) + '"]').retrieve('data')
+         tmp.revenueEl = $$('.chosen[save-item="revenueAccNo"]').first();
+         tmp.costEl = $$('.chosen[save-item="costAccNo"]').first();
+         if($F(tmp.revenueEl) === tmp.me._selectTypeTxt && $F($(this)) !== tmp.me._selectTypeTxt) {
+         tmp.revenueEl.getElementsBySelector('option[selected="selected"]').each(function(item){item.removeAttribute('selected')});
+         tmp.revenueEl.down('option[description="' + tmp.data.description + '"]').writeAttribute('selected', true);
+         jQuery('.chosen[save-item="revenueAccNo"]').trigger("chosen:updated");
+         tmp.costEl.getElementsBySelector('option[selected="selected"]').each(function(item){item.removeAttribute('selected')});
+         tmp.costEl.down('option[description="' + tmp.data.description + '"]').writeAttribute('selected', true);
+         jQuery('.chosen[save-item="costAccNo"]').trigger("chosen:updated");
+         }
+         });*/
+        return this;
+    }
+    ,_getAccCodeSelectEl: function(type) {
+        var tmp = {};
+        tmp.me = this;
+        switch(type) {
+            case('assetAccNo'):
+                tmp.type = 1;
+                break
+            case('revenueAccNo'):
+                tmp.type = 4;
+                break;
+            case('costAccNo'):
+                tmp.type = 5;
+                break;
+            default:
+                tmp.showModelBox('Error', 'Invalid Account Code Type');
+        }
+        tmp.selectEl = new Element('select', {'class': 'chosen', 'save-item': 'type', 'data-placeholder': 'Type'}).setStyle('z-index: 9999;')
+            .insert({'bottom': new Element('option', {'value': tmp.me._selectTypeTxt}).update(tmp.me._selectTypeTxt) });
+        tmp.me._signRandID(tmp.selectEl);
+
+        tmp.me._accountingCodes.each(function(item){
+            if(item.type == tmp.type) {
+                tmp.selectEl.insert({'bottom': tmp.option = new Element('option', {'value': item.code, 'description': item.description}).store('data',item).update(item.description) });
+                if(item.code === tmp.me._item.assetAccNo || item.code === tmp.me._item.revenueAccNo || item.code === tmp.me._item.costAccNo)
+                    tmp.option.writeAttribute('selected', true);
+            }
+        });
+        return tmp.selectEl;
+    }
+    ,_getOtherStocks: function(product) {
+        var stocks = {};
+        ret = '';
+        if (!product || !product.stock || !product.stock.storeId) return ret;
+        currentStoreId = product.stock.storeId.id;
+        stocks = product.stocks;
+        stocks.each(function(stock) {
+            if (stock.storeId.id != currentStoreId)
+            {
+                if (ret == '')
+                    ret = ret + '[' + stock.storeId.name + ':' + stock.stockOnHand + ']';
+                else
+                    ret = ret + ', [' + stock.storeId.name + ':' + stock.stockOnHand + ']';
+            }
+        });
+        return ret;
+    }
+    ,_getStockDev: function(product) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.item = product;
+        tmp.newDiv = new Element('div', {'class': 'panel panel-default'})
+            .insert({'bottom': new Element('div', {'class': 'panel-heading'})
+                .insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'title': 'click to show/hide content below'})
+                    .insert({'bottom': new Element('strong').update('Stock Info')
+                        .insert({'bottom': new Element('span', {'class': 'pull-right'}).update('Average Cost Ex GST: ' + ((tmp.item.totalOnHandValue != 0 && tmp.item.stockOnHand != 0) ? tmp.me.getCurrency(tmp.item.totalOnHandValue / tmp.item.stockOnHand) : 'N/A'))})
+                    })
+                    .observe('click', function() {
+                        tmp.me.openInNewTab('/productqtylog.html?productid=' + product.id);
+                    })
+                })
+                .insert({'bottom': tmp.uploadDiv = new Element('span', {'class': 'pull-right new-btn-panel'}) })
+            })
+            .insert({'bottom': new Element('div', {'class': 'panel-body'})
+                .insert({'bottom': new Element('div', {'class': 'row'})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock On Hand: ', new Element('input', {'save-item': 'stockOnHand', 'type': 'value', 'disabled': true, 'value': tmp.item.stockOnHand ? tmp.item.stockOnHand : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock On Hand Value', new Element('input', {'save-item': 'totalOnHandValue', 'type': 'value', 'disabled': true, 'value': tmp.item.totalOnHandValue ? tmp.me.getCurrency(tmp.item.totalOnHandValue) : ''}) ) ) })
+                })
+                .insert({'bottom': new Element('div', {'class': 'row'})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock In Parts', new Element('input', {'save-item': 'stockInParts', 'type': 'value', 'disabled': true, 'value': tmp.item.stockInParts ? tmp.item.stockInParts : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock In Parts Value', new Element('input', {'save-item': 'totalOnHandValue', 'type': 'value', 'disabled': true, 'value': tmp.item.totalOnHandValue ? tmp.me.getCurrency(tmp.item.totalOnHandValue) : ''}) ) ) })
+                })
+                .insert({'bottom': new Element('div', {'class': 'row'})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock On Order', new Element('input', {'save-item': 'stockOnOrder', 'type': 'value', 'disabled': true, 'value': tmp.item.stockOnOrder ? tmp.item.stockOnOrder : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock On PO', new Element('input', {'save-item': 'stockOnPO', 'type': 'value', 'disabled': true, 'value': tmp.item.stockOnPO ? tmp.item.stockOnPO : ''}) ) ) })
+                })
+                .insert({'bottom': new Element('div', {'class': 'row'})
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Stock In RMA', new Element('input', {'save-item': 'stockInRMA', 'type': 'value', 'disabled': true, 'value': tmp.item.stockInRMA ? tmp.item.stockInRMA : ''}) ) ) })
+                    .insert({'bottom': new Element('div', {'class': 'col-sm-6'}).update(tmp.me._getFormGroup('Average Cost', new Element('input', {'save-item': 'stockInRMA', 'type': 'value', 'disabled': true, 'value': (tmp.item.totalOnHandValue != 0 && tmp.item.stockOnHand != 0) ? tmp.me.getCurrency(tmp.item.totalOnHandValue / tmp.item.stockOnHand) : 'N/A'}) ) ) })
+                })
+            });
+        return tmp.newDiv;
+    }
+    /**
+     * account info penl
+     */
+    ,_getAccInfoDiv: function(product) {
+        var tmp = {};
+        tmp.me = this;
+        tmp.item = product;
+        tmp.newDiv = new Element('div', {'class': 'panel panel-default'}).setStyle('overflow: unset !important;')
+            .insert({'bottom': new Element('div', {'class': 'panel-heading'})
+                .insert({'bottom': new Element('a', {'href': 'javascript: void(0);', 'title': 'click to show/hide content below'})
+                    .insert({'bottom': new Element('strong').update('Accounting Info') })
+                    .observe('click', function() {
+                        $(this).up('.panel').down('.panel-body').toggle();
+                    })
+                })
+                .insert({'bottom': tmp.uploadDiv = new Element('span', {'class': 'pull-right new-btn-panel'}) })
+            })
+            .insert({'bottom': new Element('div', {'class': 'panel-body'}).setStyle('overflow: unset !important;')
+                .insert({'bottom': new Element('div', {'class': 'col-sm-4'})
+                    .insert({'bottom': new Element('div', {'class': 'form-group form-group-sm'})
+                        .insert({'bottom': new Element('label').update('Asset Account No.') })
+                        .insert({'bottom': new Element('div', {'class': 'form-control chosen-container'}).setStyle("padding: 0px; height: 100%;")
+                            .insert({'bottom': tmp.me._getAccCodeSelectEl('assetAccNo').writeAttribute('save-item', 'assetAccNo')})
+                        })
+                    })
+                })
+                .insert({'bottom': new Element('div', {'class': 'col-sm-4'})
+                    .insert({'bottom': new Element('div', {'class': 'form-group form-group-sm'})
+                        .insert({'bottom': new Element('label').update('Revenue Account No.') })
+                        .insert({'bottom': new Element('div', {'class': 'form-control chosen-container'}).setStyle("padding: 0px; height: 100%;")
+                            .insert({'bottom': tmp.me._getAccCodeSelectEl('revenueAccNo').writeAttribute('save-item', 'revenueAccNo')})
+                        })
+                    })
+                })
+                .insert({'bottom': new Element('div', {'class': 'col-sm-4'})
+                    .insert({'bottom': new Element('div', {'class': 'form-group form-group-sm'})
+                        .insert({'bottom': new Element('label').update('Cost Account No.') })
+                        .insert({'bottom': new Element('div', {'class': 'form-control chosen-container'}).setStyle("padding: 0px; height: 100%;")
+                            .insert({'bottom': tmp.me._getAccCodeSelectEl('costAccNo').writeAttribute('save-item', 'costAccNo')})
+                        })
+                    })
+                })
+            });
+        return tmp.newDiv;
+    }
+    /**
+     * displaying the item
+     */
+    ,_getItemDiv: function() {
+        var tmp = {};
+        tmp.me = this;
+        tmp.newDiv = new Element('div')
+            .insert({'bottom': new Element('div', {'class': 'row'})
+                .insert({'bottom': new Element('div', {'class': 'col-sm-4'})
+                    .insert({'bottom': tmp.me._getStockDev(tmp.me._item).wrap(new Element('div', {'class': 'col-sm-12'})) })
+                    .insert({'bottom': tmp.me._getImagesPanel(tmp.me._item) })
+                    .insert({'bottom': tmp.me._getCategoryPanel(tmp.me._item) })
+                })
+                .insert({'bottom': new Element('div', {'class': 'col-sm-8'})
+                    .insert({'bottom': new Element('div', {'class': 'row'})
+                        .insert({'bottom': tmp.me._getSummaryDiv(tmp.me._item).wrap(new Element('div', {'class': 'col-sm-12'})) })
+                        .insert({'bottom': tmp.me._getListPanel('Prices:', tmp.me._item.prices, {'type': 'Type', 'value': 'Price', 'start': 'From', 'end': 'To'}, tmp.me._priceTypes, function(e){
+                            tmp.selectedPriceType = null;
+                            tmp.selBox = e.target;
+                            tmp.me._priceTypes.each(function(priceObj) {
+                                if(priceObj.id === $F(tmp.selBox))
+                                    tmp.selectedPriceType = priceObj;
+                            });
+                            tmp.selRow = $(tmp.selBox).up('.list-panel-row');
+                            tmp.startBox = tmp.selRow.down('[list-panel-row="start"]');
+                            tmp.endBox = tmp.selRow.down('[list-panel-row="end"]');
+                            if(tmp.selectedPriceType !== null && tmp.selectedPriceType.needTime === false) {
+                                tmp.startBox.writeAttribute('disabled', true).writeAttribute('value', '0001-01-01 00:00:00');
+                                tmp.endBox.writeAttribute('disabled', true).writeAttribute('value', '9999-12-31 23:59:59');
+                                tmp.selRow.down('[list-panel-row="value"]').select();
+                            } else {
+                                tmp.endBox.writeAttribute('disabled', false).writeAttribute('value', '');
+                                tmp.startBox.writeAttribute('disabled', false).writeAttribute('value', '').select();
+                            }
+                        }).wrap(new Element('div', {'class': 'col-sm-12 prices-panel'})) })
+                        /*.insert({'bottom': tmp.me._getAccInfoDiv(tmp.me._item).wrap(new Element('div', {'class': 'col-sm-12'})) })*/
+                        .insert({'bottom': tmp.me._getListPanel('Suppliers:', tmp.me._item.supplierCodes, {'type': 'Supplier', 'value': 'Code'}, tmp.me._suppliers).wrap(new Element('div', {'class': 'col-sm-4 suppliers-panel'})) })
+                        .insert({'bottom': tmp.me._getListPanel('Codes:', tmp.me._item.productCodes, {'type': 'Type', 'value': 'Code'}, tmp.me._codeTypes).wrap(new Element('div', {'class': 'col-sm-4 codes-panel'})) })
+                        .insert({'bottom': tmp.me._getListPanel('Locations:', tmp.me._item.locations, {'type': 'Type', 'value': 'value'}, tmp.me._locationTypes).wrap(new Element('div', {'class': 'col-sm-4 locations-panel'})) })
+                    })
+                    .insert({'bottom': new Element('div', {'class': 'row'})
+                        .insert({'bottom': new Element('span', {'class': 'btn btn-del Locations btn-primary pull-right col-sm-4', 'data-loading-text': 'saving ...'}).update('Save')
+                            .observe('click', function() {
+                                tmp.me._submitSave(this);
+                            })
+                        })
+                    })
+                })
+            });
+        return tmp.newDiv;
+    }
+    /**
+     * initialing the js for date picker
+     */
+    ,_bindDatePicker: function() {
+        var tmp = {};
+        tmp.me = this;
+        $$('.datepicker').each(function(item){
+            if(!item.hasClassName('datepicked')) {
+                tmp.me._signRandID(item);
+                tmp.picker = new Prado.WebUI.TDatePicker({'ID': item.id, 'InputMode':"TextBox",'Format':"yyyy-MM-dd 00:00:00",'FirstDayOfWeek':1,'CalendarStyle':"default",'FromYear':2009,'UpToYear':2024,'PositionMode':"Bottom", "ClassName": 'datepicker-layer-fixer'});
+                item.store('picker', tmp.picker);
+            }
+        });
+        return tmp.me;
+    }
+    /**
+     * Public: binding all the js events
+     */
+    ,bindAllEventNObjects: function() {
+        var tmp = {};
+        tmp.me = this;
+        tmp.me._bindDatePicker();
+        $$('.summernote').each(function(item){
+            tmp.me._loadRichTextEditor(item);
+        });
+        return tmp.me;
+    }
+    ,refreshParentWindow: function() {
+        var tmp = {};
+        tmp.me = this;
+        if(!window.opener)
+            return;
+        tmp.parentWindow = window.opener;
+        tmp.row = $(tmp.parentWindow.document.body).down('#' + tmp.parentWindow.pageJs.resultDivId + ' .product_item[product_id=' + tmp.me._item.id + ']');
+        if(tmp.row) {
+            tmp.row.replace(tmp.parentWindow.pageJs._getResultRow(tmp.me._item));
+            if(tmp.row.hasClassName('success'))
+                tmp.row.addClassName('success');
+        }
+        tmp.newPObtn = $(tmp.parentWindow.document.body).down('#' + tmp.me._btnIdNewPO);
+
+        if(tmp.newPObtn && tmp.parentWindow.pageJs && tmp.parentWindow.pageJs.selectProduct) {
+            tmp.parentWindow.pageJs.selectProduct(tmp.me._item, tmp.newPObtn);
+        }
+    }
+    ,readOnlyMode: function(mode, storeId, roleId){
+        var tmp = {};
+        tmp.me = this;
+        tmp.me._readOnlyMode = !mode;
+        tmp.me._storeId = storeId;
+        tmp.me._roleId = roleId;
+        if (!mode)
+        {
+            $$('.btn.btn-loadFullDesc').first().click();
+            $$('.btn.btn-loadCustomTab').first().click();
+            jQuery(".summernote").summernote('disable');
+            jQuery(".chosen").prop("disabled", true).trigger("chosen:updated");
+            if (roleId != 1)
+            {
+                // not warehouse
+                jQuery("select").prop("disabled", true);
+                jQuery("input").prop("disabled", true);
+                jQuery(".btn-del").remove();
+            }
+            else
+            {
+                jQuery("select:not(.Locations)").prop("disabled", true);
+                jQuery("input:not(.Locations)").prop("disabled", true);
+                jQuery('.btn-del:not(.Locations)').remove();
+            }
+        }
+        else
+        {
+            if (storeId != 1)
+            {
+                $$('.btn.btn-loadFullDesc').first().click();
+                $$('.btn.btn-loadCustomTab').first().click();
+                jQuery("input:not(.Locations)").prop("disabled", true);
+                jQuery("select:not(.Locations)").prop("disabled", true);
+                jQuery(".chosen").prop("disabled", true).trigger("chosen:updated");
+                jQuery('.chosen[save-item="statusId"]').prop("disabled", false).trigger("chosen:updated");
+                jQuery('.btn-del:not(.Locations)').remove();
+                jQuery(".summernote").summernote('disable');
+            }
+        }
+    }
+    ,_loadDatePicker: function () {
+        $$('.datepicker').each(function(item){
+            new Prado.WebUI.TDatePicker({'ID': item, 'InputMode':"TextBox",'Format':"dd/MM/yyyy",'FirstDayOfWeek':1,'CalendarStyle':"default",'FromYear':2009,'UpToYear':2024,'PositionMode':"Bottom", "ClassName": 'datepicker-layer-fixer'});
+        });
+        return this;
+    }
+});
