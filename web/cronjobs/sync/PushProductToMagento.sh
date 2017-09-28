@@ -1,13 +1,13 @@
 #!/bin/bash
 
-SERVER=nav-demo.budgetpc.com.au
+SERVER=54.252.246.99
 SERVER_PATH=/var/www/html/var/import/
 FILE_DIR=/tmp/
 FILE_NAME=productUpdate.tar.gz
 DESTINATION=/var/pushdata/archive/
-RECIPIENTS="philip.x@budgetpc.com.au"
+RECIPIENTS="philip.f.xiao@gmail.com"
 SYNCFILE_DIR=/var/www/backup/web/cronjobs/sync/
-PEMFILE_PATH=/home/ubuntu/.ssh/BPC_EC2_keyPair01.pem
+PEMFILE_PATH=/home/ubuntu/.ssh/5backup.pem
 
 ## generate a MAGENTO product file ########################################
 if ps ax | grep -v grep | grep "ProductToMagento.php" > /dev/null; then
