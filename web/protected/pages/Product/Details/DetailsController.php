@@ -509,7 +509,7 @@ class DetailsController extends DetailsPageAbstract
 						->setTrailer($trailer)
 						->setProductType($productType)
 						->setActorName($actorName)
-						->setAudioFrmat($audioFormat)
+						->setAudioFormat($audioFormat)
 						->setAspectRatio($aspectRatio)
 						->setFormatName($formatName)
 						->setColorFormat($colorFormat)
