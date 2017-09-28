@@ -393,12 +393,13 @@ abstract class ProductToMagento
    	    $enabled = true;
    	    $totalStockOnHand = 0;
    	    $sku = $statusId = $productName = $rrpPrice = $weight = $shortDescription = $fullDecription = $feature = $supplierName = $supplierCode = $manufacturerName = $asNewFrom = $asNewTo = $specialPrice = $specialPriceFromDate = $specialPriceToDate = '';
-   	    $categoryIds = array(2); //default category
+   	    $alias = $yearOfProduction = $releaseDate = $director = $language = $subtitle = $trailer = $productType = $actorName = $audioFormat = $aspectRatio = $formatName = $colorFormat = $rating = $contractRegion = '';
+		$categoryIds = array(2); //default category
    	    $groupPrices =  array();
    	    $tierPrices = array();
    	    $tierLevels = TierLevel::getAllByCriteria('id > 1');
    	    $eta = '';
-   	    $qtyOnline = 0;
+   	    $qtyOnline = $numberOfDisc = $runningTime = 0;
    	    foreach ($tierLevels as $tierLevel)
    	    {
    	    	$keyGroup = 'group_price:' . $tierLevel->getName();
@@ -522,7 +523,27 @@ abstract class ProductToMagento
    	        //ProductTierPrices
    	        $productTierPrices = ProductTierPrice::getAllByCriteria('productId = ? and tierLevelId > 1', array($product->getId()));
    	        $unitCost = $product->getUnitCost();
-   	        // if there is no unit cost 
+			//MovieInfo
+			if(($movieInfo = $product->getMovieInfo()) instanceof MovieInfo){
+				$alias = $movieInfo->getAlias();
+				$yearOfProduction = $movieInfo->getYearOfProduction();
+				$releaseDate = $movieInfo->getReleaseDate();
+				$director = $movieInfo->getDirector();
+				$language = $movieInfo->getLanguage();
+				$subtitle = $movieInfo->getSubtitle();
+				$trailer = $movieInfo->getTrailer();
+				$productType = $movieInfo->getProductType();
+				$actorName = $movieInfo->getActorName();
+				$audioFormat = $movieInfo->getAudioFormat();
+				$runningTime = $movieInfo->getRunningTime();
+				$aspectRatio = $movieInfo->getAspectRatio();
+				$formatName = $movieInfo->getFormatName();
+				$colorFormat = $movieInfo->getColorFormat();
+				$numberOfDisc = $movieInfo->getNumberOfDisc();
+				$rating = $movieInfo->getRating();
+				$contractRegion = $movieInfo->getContractRegion();
+			}
+   	        // if there is no unit cost
    	        // then skip this product
    	        if ($unitCost > 0)
    	        {
@@ -655,7 +676,24 @@ abstract class ProductToMagento
    				"customtab" => $feature,
    				"customtabtitle" => $feature != '' ? 'Feature' : '',
    				"media_gallery_reset" => 0,
-   				"eta" => $eta
+   				"eta" => $eta,
+				"alias" => $alias,
+				"year_of_production " => $yearOfProduction,
+				"release_date" => $releaseDate,
+				"director" => $director,
+				"language" => $language,
+				"subtitle" => $subtitle,
+				"trailer" => $trailer,
+				"product_type" => $productType,
+				"actors_name" => $actorName,
+				"audio_format" => $audioFormat,
+				"running_time" => $runningTime,
+				"aspect_ratio" => $aspectRatio,
+				"format_name" => $formatName,
+				"color_format" => $colorFormat,
+				"number_of_discs" => $numberOfDisc,
+				"rating" => $rating,
+				"contract_region" => $contractRegion
    		);
    		if (count($groupPrices) > 0)
    		{

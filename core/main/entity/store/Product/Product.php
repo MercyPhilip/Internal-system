@@ -166,6 +166,7 @@ class Product extends InfoEntityAbstract
 	 */
 	protected $stocks = array();
 	protected $stock = null;
+	protected $movieInfo = null;
 	/**
 	 * the asset number for accounting purpose
 	 * @var string
@@ -901,6 +902,20 @@ class Product extends InfoEntityAbstract
 		}
 		return $this->eta;
 	}
+	public function getMovieInfo()
+	{
+		if (!$this->movieInfo instanceof MovieInfo)
+		{
+			$movieInfos = MovieInfo::getAllByCriteria('productId = ?', array($this->getId()));
+			$this->movieInfo = count($movieInfos) > 0 ? $movieInfos[0] : null;
+		}
+		return $this->movieInfo;
+	}
+	public function setMovieInfo(MovieInfo $value = null)
+	{
+		$this->movieInfo = $value;
+		return $this;
+	}
 	/**
 	 * Setter for attributeSet
 	 *
@@ -1236,7 +1251,8 @@ class Product extends InfoEntityAbstract
 				if($this->getProductEta() instanceof ProductEta){
 					$array['eta'] = $this->getProductEta()->getEta();
 				}
-				
+				$array['movieInfo'] = $this->getMovieInfo() instanceof MovieInfo ? $this->getMovieInfo()->getJson() : null;;
+
 			}
 		}
 		catch (Exception $ex)
@@ -1963,5 +1979,4 @@ class Product extends InfoEntityAbstract
 		return $products;
 	}
 }
-	
 	

@@ -437,7 +437,7 @@ class MovieInfo extends BaseEntityAbstract
      *
      * @return int
      */
-    public function getNumberOdDisc()
+    public function getNumberOfDisc()
     {
         return $this->numberOfDisc;
     }
@@ -448,7 +448,7 @@ class MovieInfo extends BaseEntityAbstract
      *
      * @return MovieInfo
      */
-    public function setNumberOdDisc($value)
+    public function setNumberOfDisc($value)
     {
         $this->numberOfDisc = $value;
         return $this;
@@ -494,19 +494,6 @@ class MovieInfo extends BaseEntityAbstract
     {
         $this->contractRegion = $value;
         return $this;
-    }
-    /**
-     * (non-PHPdoc)
-     * @see BaseEntityAbstract::getJson()
-     */
-    public function getJson($extra = array(), $reset = false, $getItems = false)
-    {
-        $array = $extra;
-        if(!$this->isJsonLoaded($reset))
-        {
-            $array['product'] = $this->getProduct() instanceof Product ? $this->getProduct()->getJson() : array();
-        }
-        return parent::getJson($array, $reset);
     }
     /**
      * (non-PHPdoc)
@@ -586,7 +573,7 @@ class MovieInfo extends BaseEntityAbstract
             ->setAlias($alias)
             ->setYearOfProduction($yearOfProduction)
             ->setReleaseDate($releaseDate)
-            ->setDirectore($director)
+            ->setDirector($director)
             ->setLanguage($language)
             ->setSubtitle($subtitle)
             ->setTrailer($trailer)
